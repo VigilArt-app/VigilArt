@@ -1,2 +1,2 @@
-# Vigilart
+# VigilArt
 Helping artists track their work with insightful reports! ✨
