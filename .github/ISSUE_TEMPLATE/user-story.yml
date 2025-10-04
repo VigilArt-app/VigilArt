@@ -1,0 +1,54 @@
+name: "User Story"
+description: "Template for writing user stories"
+title: "Story: "
+labels: ["type:story"]
+body:
+  - type: textarea
+    id: user-story
+    attributes:
+      label: "🎯 User Story"
+      description: "Write in the format: As a [role], I want [goal] so that [value]."
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: "✅ Acceptance Criteria"
+      description: "List testable outcomes that QA can check."
+      value: "- [ ] ..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: definition-of-done
+    attributes:
+      label: "📌 Definition of Done"
+      description: "Checklist of what must be true for this story to be complete (e.g., code merged, QA tested, docs updated)."
+      value: "- [ ] Code merged\n- [ ] QA tested\n- [ ] Documentation updated"
+
+  - type: checkboxes
+    id: non-functional
+    attributes:
+      label: "⚙️ Non-Functional Requirements"
+      description: "Specify performance, security, etc."
+      options:
+        - label: "Performance"
+        - label: "Security"
+        - label: "Reliability"
+        - label: "Scalability"
+        - label: "Privacy"
+        - label: "Compliance"
+
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: "🔗 Dependencies"
+      description: "List blocking features or other user stories this depends on."
+      placeholder: "e.g., Needs user authentication"
+
+  - type: textarea
+    id: mockups
+    attributes:
+      label: "🎨 Mockups / UX Reference"
+      description: "Link to Figma, screenshots, or other UX references."
