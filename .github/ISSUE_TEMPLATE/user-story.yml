@@ -27,25 +27,19 @@ body:
       description: "Checklist of what must be true for this story to be complete (e.g., code merged, QA tested, docs updated)."
       value: "- [ ] Code merged\n- [ ] QA tested\n- [ ] Documentation updated"
 
-  - type: checkboxes
+  - type: textarea
     id: non-functional
     attributes:
       label: "⚙️ Non-Functional Requirements"
-      description: "Specify performance, security, etc."
-      options:
-        - label: "Performance"
-        - label: "Security"
-        - label: "Reliability"
-        - label: "Scalability"
-        - label: "Privacy"
-        - label: "Compliance"
+      description: "Includes performance, security, etc."
+      value: "- [ ] Performance: \n- [ ] Security: \n- [ ] Reliability: \n- [ ] Scalability: \n- [ ] Privacy: \n- [ ] Compliance: \n"
 
   - type: textarea
     id: dependencies
     attributes:
       label: "🔗 Dependencies"
       description: "List blocking features or other user stories this depends on."
-      placeholder: "e.g., Needs user authentication"
+      placeholder: "e.g. Needs user authentication"
 
   - type: textarea
     id: mockups
