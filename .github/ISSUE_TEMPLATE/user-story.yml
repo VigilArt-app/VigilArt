@@ -25,7 +25,7 @@ body:
     attributes:
       label: "📌 Definition of Done"
       description: "Checklist of what must be true for this story to be complete (e.g., code merged, QA tested, docs updated)."
-      value: "- [ ] Code pushed, reviewed and merged\n- [ ] QA tested on dev branch\n- [ ] At least 1 happy-path test (the feature works in the normal case).\n- [ ] At least 1 error-handling test passes.\n- [ ] Documentation updated\n- [ ] Story reviewed and accepted by the team/PM\n- [ ] Must meets AC and NFR\n- [ ] Must comply with the accessibility and security requirements\n"
+      value: "- [ ] Code pushed, reviewed and merged\n- [ ] QA tested on dev branch\n- [ ] At least 1 happy-path test (the feature works in the normal case).\n- [ ] At least 1 error-handling test passes.\n- [ ] Documentation updated\n- [ ] Story reviewed and accepted by the team/PM\n- [ ] Must meets AC and NFR\n- [ ] Must comply with the accessibility and security requirements"
 
   - type: textarea
     id: non-functional
