@@ -1,0 +1,33 @@
+name: Task
+description: A technical or internal task that does not require a user story format.
+title: "Task: "
+labels: ["task"]
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: Briefly describe what this task is and why it’s needed.
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: Provide any relevant background, links, or related issues.
+      placeholder: "Related to #45"
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: steps
+    attributes:
+      label: Steps / Subtasks
+      description: Break down the work into smaller, actionable steps.
+      options:
+        - label: "Analyze the problem"
+        - label: "Implement the solution"
+        - label: "Add or update documentation"
+        - label: "Write or update tests"
+        - label: "Open a PR and request review"
