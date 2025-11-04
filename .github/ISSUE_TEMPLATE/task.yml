@@ -16,18 +16,6 @@ body:
     attributes:
       label: Context
       description: Provide any relevant background, links, or related issues.
-      placeholder: "Related to #45"
+      placeholder: "E.g. related to #45"
     validations:
       required: false
-
-  - type: checkboxes
-    id: steps
-    attributes:
-      label: Steps / Subtasks
-      description: Break down the work into smaller, actionable steps.
-      options:
-        - label: "Analyze the problem"
-        - label: "Implement the solution"
-        - label: "Add or update documentation"
-        - label: "Write or update tests"
-        - label: "Open a PR and request review"
