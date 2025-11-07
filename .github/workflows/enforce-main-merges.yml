@@ -1,0 +1,14 @@
+name: Enforce main branch protection by allowing only "dev" to "main" merges
+on:
+  pull_request:
+    branches:
+      - main
+jobs:
+  check-branch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ensure PR source is 'dev'
+        if: github.head_ref != 'dev'
+        run: |
+          echo "❌ Only PRs from 'dev' branch can be merged into 'main'."
+          exit 1
