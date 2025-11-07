@@ -1,0 +1,13 @@
+{
+  "name": "@vigilart/backend",
+  "version": "0.0.1",
+  "dependencies": {
+    "@nestjs/core": "^11.1.8",
+    "@nestjs/common": "^11.1.8",
+    "@vigilart/shared": "workspace:*"
+  },
+  "scripts": {
+    "dev": "nest start --watch",
+    "build": "tsc -p tsconfig.json"
+  }
+}
