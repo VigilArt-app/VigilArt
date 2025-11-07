@@ -7,9 +7,9 @@
     "react": "^19.2.0"
   },
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start"
+    "dev": "doppler run -- next dev",
+    "build": "doppler run --config prod -- next build",
+    "start": "doppler run --config prod -- next start"
   },
   "devDependencies": {
     "@types/node": "24.10.0",
