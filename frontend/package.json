@@ -7,7 +7,7 @@
     "react": "^19.2.0"
   },
   "scripts": {
-    "dev": "doppler run -- next dev",
+    "dev": "doppler run --config dev -- next dev",
     "build": "doppler run --config prod -- next build",
     "start": "doppler run --config prod -- next start"
   },
