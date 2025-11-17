@@ -1,0 +1,154 @@
+# Flutter Generated Build & Cache
+.dart_tool/
+build/
+coverage/
+.packages
+.flutter-plugins
+.flutter-plugins-dependencies
+*.iml
+
+# Dart/Flutter Cache & Pub
+.pub-cache/
+.pub/
+pubspec.lock
+
+# iOS Build Artifacts (NOT source files)
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+ios/Flutter/flutter_export_environment.sh
+ios/Flutter/Flutter.xcframework
+ios/Podfile.lock
+ios/.symlinks/
+ios/.generated/
+ios/Flutter/ephemeral/
+ios/Flutter/ephemeral/.gitignore
+ios/.dart_tool/
+
+# Android Build Artifacts (NOT source files)
+android/app/debug/
+android/app/profile/
+android/app/release/
+android/build/
+android/.gradle/
+android/.dart_tool/
+android/local.properties
+android/gradlew
+android/gradlew.bat
+android/gradle/wrapper/gradle-wrapper.jar
+
+# Web Build Artifacts
+web/
+
+# Generated files by build_runner
+lib/generated_plugin_registrant.dart
+
+# Environment Variables & Secrets (CRITICAL: Never commit)
+.env
+.env.local
+.env.*.local
+.env.prod
+.env.dev
+.env.staging
+secrets/
+*.pem
+*.key
+
+# IDE & Editor Files
+.vscode/
+.idea/
+*.swp
+*.swo
+*.swn
+*.sublime-workspace
+*.sublime-project
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.ipr
+*.iws
+
+# OS Generated Files
+.DS_Store
+Thumbs.db
+.directory
+*.log
+
+# IDEs
+.vscode/
+.idea/
+
+# Development Tools
+.fvm/
+fvm/
+fvm/fvm_config.json
+
+# Version Control
+.git/
+.gitattributes
+
+# CI/CD Config (optional - include if you want them in repo, remove otherwise)
+# .github/
+# .circleci/
+# .gitlab-ci.yml
+
+# Build Outputs (APK, AAB, IPA, etc.)
+*.apk
+*.aab
+*.ipa
+*.app
+*.zip
+dist/
+release/
+
+# Analysis & Testing
+.analysis_cache/
+analysis_options.yaml.bak
+.dart_tool/coverage/
+test_driver/
+*.lcov
+
+# Temporary Files
+*.tmp
+*.temp
+*.bak
+*.orig
+*.rej
+
+# Node/NPM (if used for web or tooling)
+node_modules/
+npm-debug.log
+npm-error.log
+yarn-error.log
+package-lock.json
+yarn.lock
+
+# Python (if using any Python scripts)
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+
+# Firebase/Google Services
+google-services.json
+GoogleService-Info.plist
+
+# Generated code
+*.g.dart
+*.config.dart
+
+# Mac OS
+.AppleDouble
+.AppleDBFiles
+
+# Windows
+.vs/
+.vscode/
+
+# Linux
+.vscode/

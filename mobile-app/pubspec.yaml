@@ -1,0 +1,42 @@
+name: VigilArt
+description: "VigilArt mobile app"
+publish_to: 'none'
+version: 0.1.0
+
+environment:
+  sdk: ^3.6.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  font_awesome_flutter: ^10.7.0
+  shared_preferences: ^2.2.0
+  file_picker: ^6.1.1
+  image_picker: ^1.0.4
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+  flutter_launcher_icons: ^0.13.1
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/icons/vigilart_app_icon.png"
+  remove_alpha_ios: true 
+  min_sdk_android: 21 
+
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/
+    - assets/icons/
+    - assets/fonts/
+
+  fonts:
+    - family: Giaza
+      fonts:
+      - asset: assets/fonts/Giaza.otf
+        weight: 700
