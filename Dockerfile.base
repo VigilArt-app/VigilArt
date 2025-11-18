@@ -1,0 +1,15 @@
+FROM node:20-alpine AS base
+
+WORKDIR /app
+
+RUN corepack enable pnpm
+
+COPY pnpm-workspace.yaml pnpm-lock.yaml package.json ./
+
+COPY backend ./backend
+COPY frontend ./frontend
+COPY shared ./shared
+
+RUN pnpm install --frozen-lockfile
+
+COPY . .

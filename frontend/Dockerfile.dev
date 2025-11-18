@@ -1,0 +1,5 @@
+FROM vigilart-base:latest AS dev
+
+WORKDIR /app/frontend
+
+CMD ["pnpm", "dev"]

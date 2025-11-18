@@ -1,0 +1,17 @@
+FROM vigilart-base:latest AS builder
+
+WORKDIR /app/backend
+RUN pnpm run build
+
+FROM node:20-alpine AS runtime
+
+WORKDIR /app/backend
+
+RUN corepack enable pnpm
+
+COPY --from=builder /app/backend/dist ./dist
+COPY backend/package.json ./
+
+RUN pnpm install --prod --frozen-lockfile --ignore-scripts
+
+CMD ["pnpm", "start"]
