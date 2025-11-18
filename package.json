@@ -7,6 +7,7 @@
     "build": "pnpm -r run build",
     "dev:backend": "pnpm --filter backend dev",
     "dev:frontend": "pnpm --filter frontend dev",
-    "dev": "pnpm --parallel --filter \"backend...\" --filter \"frontend...\" dev"
+    "dev": "pnpm --parallel --filter \"backend...\" --filter \"frontend...\" dev",
+    "test:e2e": "pnpm --filter backend test:e2e"
   }
 }

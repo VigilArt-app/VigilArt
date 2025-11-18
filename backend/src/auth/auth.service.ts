@@ -1,6 +1,6 @@
 import {
   BadRequestException,
-  HttpException,
+  ConflictException,
   Injectable,
   UnauthorizedException,
 } from "@nestjs/common";
@@ -20,41 +20,53 @@ export class AuthService {
   ) {}
 
   async login({ email, password }: LoginDto) {
-    const user = await this.usersService.findOne(email);
-    if (!user) {
+    try {
+      const user = await this.usersService.findByEmail(email);
+      if (user) {
+        const isPasswordValid = await bcrypt.compare(password, user.password);
+        if (!isPasswordValid) {
+          throw new UnauthorizedException("Invalid credentials");
+        }
+        const accessToken = await this.jwtService.signAsync({
+          sub: user.id,
+          email: user.email,
+        });
+        const refreshToken = "";
+        const expiresIn = ""; // TO DO
+        const { password: hashedPassword, ...userProfile } = user;
+        return { user: userProfile, accessToken, refreshToken, expiresIn };
+      } else {
+        throw new UnauthorizedException("Invalid credentials");
+      }
+    } catch (e: any) {
       throw new UnauthorizedException("Invalid credentials");
     }
-
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) {
-      throw new UnauthorizedException("Invalid credentials");
-    }
-    const accessToken = await this.jwtService.signAsync({
-      sub: user.id,
-      email: user.email,
-    });
-    return { accessToken };
   }
 
-  async signUp({ email, password }: SignUpDto) {
+  async signUp({ email, password, firstName, lastName }: SignUpDto) {
     const userExists = await this.usersService.findByEmail(email);
     if (userExists) {
-      throw new BadRequestException("Email already in use");
+      throw new ConflictException("Email already in use");
     }
-    const saltRounds = this.config.get<number>("SALT_ROUNDS") || 10;
+    const saltRounds = Number(this.config.get<number>("SALT_ROUNDS")) || 10;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
     try {
       const user = await this.usersService.create({
         email,
         password: hashedPassword,
+        firstName,
+        lastName,
       });
-
-      const accessToken = await this.jwtService.signAsync({
-        sub: user.id,
-        email: user.email,
-      });
-      return { user, accessToken };
+      if (user) {
+        const accessToken = await this.jwtService.signAsync({
+          sub: user.id,
+          email: user.email,
+        });
+        const refreshToken = "";
+        const expiresIn = ""; // TO DO
+        return { user, accessToken, refreshToken, expiresIn };
+      }
     } catch (e: any) {
       throw e;
     }

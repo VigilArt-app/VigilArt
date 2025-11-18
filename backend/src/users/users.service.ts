@@ -1,32 +1,66 @@
-import { Injectable, Logger } from "@nestjs/common";
+import {
+  ConflictException,
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+  NotFoundException,
+} from "@nestjs/common";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { randomUUID } from "crypto";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import { PrismaService } from "../prisma.service";
 import { User } from "../generated/prisma/client";
+import { DEFAULT_SUBSCRIPTION_TIER, DEFAULT_AVATAR_URL } from "./constants";
+
+export type UserProfile = Omit<User, "password">;
 
 @Injectable()
 export class UsersService {
   constructor(private prisma: PrismaService) {}
   private readonly logger = new Logger(UsersService.name);
 
-  async create(createUserDto: CreateUserDto): Promise<User> {
-    const { email, password } = createUserDto;
+  async create({
+    email,
+    password,
+    firstName,
+    lastName,
+  }: CreateUserDto): Promise<UserProfile | undefined> {
     const userData = {
       id: randomUUID(),
       email,
       password,
+      firstName,
+      lastName,
+      subscriptionTier: DEFAULT_SUBSCRIPTION_TIER,
+      avatar: DEFAULT_AVATAR_URL,
     };
 
     this.logger.log(`Creating new user ${email}`);
-    return await this.prisma.user.create({
-      data: userData,
-    });
+    try {
+      return await this.prisma.user.create({
+        data: userData,
+        omit: {
+          password: true,
+        },
+      });
+    } catch (e: any) {
+      if (e.code == "P2002") {
+        throw new ConflictException();
+      }
+    }
   }
 
-  async findAll(): Promise<User[]> {
+  async findAll(): Promise<UserProfile[]> {
     this.logger.log("Finding all users");
-    return await this.prisma.user.findMany();
+    try {
+      return await this.prisma.user.findMany({
+        omit: {
+          password: true,
+        },
+      });
+    } catch (_) {
+      throw new InternalServerErrorException();
+    }
   }
 
   async findOne(id: string): Promise<User | null> {
@@ -47,21 +81,43 @@ export class UsersService {
     });
   }
 
-  async update(id: string, updateUserDto: UpdateUserDto): Promise<User> {
+  async update(
+    id: string,
+    updateUserDto: UpdateUserDto
+  ): Promise<UserProfile | undefined> {
     this.logger.log(`Updating user ${id}`);
-    return await this.prisma.user.update({
-      where: {
-        id,
-      },
-      data: updateUserDto,
-    });
+    try {
+      return await this.prisma.user.update({
+        where: {
+          id,
+        },
+        data: updateUserDto,
+        omit: {
+          password: true,
+        },
+      });
+    } catch (e: any) {
+      if (e.code == "P2025") {
+        throw new NotFoundException();
+      }
+    }
   }
 
-  async remove(id: string): Promise<User> {
-    return await this.prisma.user.delete({
-      where: {
-        id,
-      },
-    });
+  async remove(id: string): Promise<void> {
+    this.logger.log(`Removing user ${id}`);
+    try {
+      await this.prisma.user.delete({
+        where: {
+          id,
+        },
+        omit: {
+          password: true,
+        },
+      });
+    } catch (e: any) {
+      if (e.code == "P2025") {
+        throw new NotFoundException();
+      }
+    }
   }
 }
