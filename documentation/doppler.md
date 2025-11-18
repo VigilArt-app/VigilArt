@@ -34,7 +34,7 @@ For backend developers, they need to execute the following commands to use their
 
 ```bash
 cd backend
-doppler setup --project vigilart --config dev_[devname]
+doppler setup --project vigilart --config dev_[devname] # (or "--config dev" if you want to work with the shared dev config)
 ```
 
 Finally, the backend developer can setup its env variables on the doppler dashboard, based on it's own database credentials.
