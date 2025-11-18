@@ -2,8 +2,9 @@
   "name": "@vigilart/backend",
   "version": "0.0.1",
   "dependencies": {
-    "@nestjs/core": "^11.1.8",
     "@nestjs/common": "^11.1.8",
+    "@nestjs/core": "^11.1.8",
+    "@nestjs/platform-express": "^11.1.9",
     "@vigilart/shared": "workspace:*"
   },
   "scripts": {
@@ -12,6 +13,9 @@
     "start": "node dist/main.js"
   },
   "devDependencies": {
-    "@nestjs/cli": "^11.0.10"
+    "@nestjs/cli": "^11.0.10",
+    "@types/express": "^5.0.5",
+    "@types/node": "24.10.0",
+    "typescript": "^5.9.3"
   }
 }

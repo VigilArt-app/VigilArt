@@ -1,5 +1,5 @@
 packages:
   - 'backend'
-  - 'frontend'
+  - 'web-app'
   - 'shared'
   - '!mobile'

@@ -1,0 +1,47 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile.dev
+    env_file:
+      - .env
+    volumes:
+      - ./backend:/app/backend
+      - ./shared:/app/shared
+      - backend_modules:/app/backend/node_modules
+    ports:
+      - "3001:3001"
+    depends_on:
+      - db
+
+  frontend:
+    build:
+      context: .
+      dockerfile: web-app/Dockerfile.dev
+    env_file:
+      - .env
+    volumes:
+      - ./web-app:/app/web-app
+      - ./shared:/app/shared
+      - web_app_modules:/app/web-app/node_modules
+    ports:
+      - "3000:3000"
+
+  db:
+    image: postgres:16
+    restart: always
+    env_file:
+      - .env
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_local_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_local_data:
+  backend_modules:
+  web_app_modules:
