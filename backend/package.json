@@ -2,12 +2,27 @@
   "name": "@vigilart/backend",
   "version": "0.0.1",
   "dependencies": {
-    "@nestjs/core": "^11.1.8",
     "@nestjs/common": "^11.1.8",
-    "@vigilart/shared": "workspace:*"
+    "@nestjs/config": "^4.0.2",
+    "@nestjs/core": "^11.1.8",
+    "@nestjs/jwt": "^11.0.1",
+    "@nestjs/platform-express": "^11.1.8",
+    "@nestjs/testing": "^11.1.8",
+    "@prisma/client": "^6.19.0",
+    "@vigilart/shared": "workspace:*",
+    "bcrypt": "^6.0.0",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.2",
+    "dotenv": "^17.2.3"
   },
   "scripts": {
     "dev": "nest start --watch",
     "build": "tsc -p tsconfig.json"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^6.0.0",
+    "@types/jest": "^30.0.0",
+    "@types/mocha": "^10.0.10",
+    "prisma": "^6.19.0"
   }
 }
