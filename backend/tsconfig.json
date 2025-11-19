@@ -1,13 +1,19 @@
 {
   "extends": "../tsconfig.base.json",
   "compilerOptions": {
+    "baseUrl": "./",
+    "paths": {
+      "src/*": ["src/*"],
+      "tests/*": ["__tests__/*"]
+    },
     "outDir": "dist",
     "rootDir": "src",
     "module": "nodenext",
     "moduleResolution": "nodenext",
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
-    "tsBuildInfoFile": "tsconfig.tsbuildinfo"
+    "tsBuildInfoFile": "tsconfig.tsbuildinfo",
+    "isolatedModules": true
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]
