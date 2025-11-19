@@ -443,6 +443,8 @@ See `.github/workflows/` for pipeline configuration.
 
 ## 📚 Documentation
 
+https://epitechfr-my.sharepoint.com/:w:/r/personal/yasmine_bedrane_epitech_eu/Documents/Vigilart%20-%20UX%20UI%20Graphical%20Chart%20Documentation.docx?d=w9f4f68b36e014aeb965d20bff9ba1459&csf=1&web=1&e=aB6pkl
+
 - [API Documentation](../docs/API.md) - Backend API endpoints
 - [Security Policy](./docs/SECURITY.md) - Security measures
 - [Accessibility Features](./docs/ACCESSIBILITY.md) - WCAG compliance
