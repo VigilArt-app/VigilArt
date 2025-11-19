@@ -28,6 +28,8 @@ doppler login
 
 ## Setting up Doppler using the CLI
 
+Doppler will be used for both production and development environments on external VMs. However, for local development, developers can use a root `.env` file. This `.env` file should be based on the provided `example.env` file in the repository.
+
 Frontend developers don't have to execute any additional commands since the npm scripts already include the necessary environment variable injection.
 
 For backend developers, they need to execute the following commands to use their own environment variables:
@@ -37,4 +39,4 @@ cd backend
 doppler setup --project vigilart --config dev_[devname] # (or "--config dev" if you want to work with the shared dev config)
 ```
 
-Finally, the backend developer can setup its env variables on the doppler dashboard, based on it's own database credentials.
+Finally, the backend developer can setup its env variables on the doppler dashboard, based on its own database credentials.

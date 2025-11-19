@@ -1,0 +1,59 @@
+# Node modules
+node_modules
+**/node_modules
+
+# Output directories
+dist
+**/dist
+.next
+**/.next
+out
+**/out
+
+# Local env files
+.env
+.env.*
+**/.env
+**/.env.*
+
+# Logs
+pnpm-debug.log*
+**/*.log
+
+# Git and repo metadata
+.git
+.gitignore
+.gitattributes
+.github
+
+# Docker files
+Dockerfile*
+docker-compose*
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Editor folders
+.vscode
+**/.vscode
+.idea
+**/.idea
+
+# Cache folders
+.cache
+**/.cache
+turbo
+**/turbo
+
+# Prisma client outputs (should be rebuilt inside container)
+prisma/generated
+**/prisma/generated
+
+# Temporary build artifacts
+*.tsbuildinfo
+**/*.tsbuildinfo
+
+# Local only stuff
+tmp
+**/tmp

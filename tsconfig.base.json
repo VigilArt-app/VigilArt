@@ -2,7 +2,7 @@
   "references": [
     { "path": "./shared" },
     { "path": "./backend" },
-    { "path": "./frontend" }
+    { "path": "./web-app" }
   ],
   "compilerOptions": {
     "paths": {
