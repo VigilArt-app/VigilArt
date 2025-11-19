@@ -1,36 +1,24 @@
-# Pull Request
+# Description
 
-## Description
+Please provide a detailed description of what was done in this PR.
 
-Please include a summary of the change and which issue is fixed. Please also include relevant motivation and context.
+## Changes include
 
-Fixes # (issue)
+- [ ] Bugfix (non-breaking change that solves an issue)
+- [ ] New feature (non-breaking change that adds functionality)
+- [ ] Breaking change (change that is not backwards-compatible and/or changes current functionality)
 
-## Type of change
+## Breaking changes
 
-Please delete options that are not relevant.
+Please complete this section if any breaking changes have been made, otherwise delete it.
 
-- [ ] Bug fix (non-breaking change which fixes an issue)
-- [ ] New feature (non-breaking change which adds functionality)
-- [ ] Breaking change (fix or feature that would cause existing functionality to not work as expected)
-- [ ] Documentation update
-- [ ] Tests update
-- [ ] Build update
+## Checklist
 
-## How Has This Been Tested?
+- [ ] I have assigned this PR to myself
+- [ ] I have added at least 1 reviewer
+- [ ] I have tested this code
+- [ ] I have added sufficient documentation in the code
 
-Please describe the tests that you ran to verify your changes. Provide instructions so we can reproduce. 
+## Additional comments
 
-- [ ] Test A
-- [ ] Test B
-
-## Checklist:
-
-- [ ] My code follows the style guidelines of this project
-- [ ] I have performed a self-review of my own code
-- [ ] I have commented my code, particularly in hard-to-understand areas
-- [ ] I have made corresponding changes to the documentation
-- [ ] My changes generate no new warnings
-- [ ] I have added tests that prove my fix is effective or that my feature works
-- [ ] New and existing unit tests pass locally with my changes
-- [ ] Any dependent changes have been merged and published in downstream modules
+Please post additional comments in this section if you have them, otherwise delete it.
