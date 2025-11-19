@@ -8,6 +8,7 @@ services:
     volumes:
       - ./backend:/app/backend
       - ./shared:/app/shared
+      - backend_node_modules:/app/backend/node_modules
     ports:
       - "3001:3001"
     depends_on:
@@ -25,6 +26,7 @@ services:
     volumes:
       - ./web-app:/app/web-app
       - ./shared:/app/shared
+      - web_app_node_modules:/app/web-app/node_modules
     ports:
       - "3000:3000"
 
@@ -74,6 +76,8 @@ services:
 
 volumes:
   postgres_local_data:
+  backend_node_modules:
+  web_app_node_modules:
 
 networks:
   prisma-network:
