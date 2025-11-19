@@ -1,9 +1,11 @@
 import { INestApplication, ValidationPipe } from "@nestjs/common";
-
-export const API_PREFIX = "/api/v1";
+import { ConfigService } from "@nestjs/config";
 
 export function setupApp(app: INestApplication) {
-  app.setGlobalPrefix(API_PREFIX);
+  const configService = app.get(ConfigService);
+  const apiPrefix = configService.get<string>("API_PREFIX") || "/api/v1";
+
+  app.setGlobalPrefix(apiPrefix);
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,

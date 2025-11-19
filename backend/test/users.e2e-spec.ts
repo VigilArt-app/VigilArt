@@ -48,6 +48,42 @@ describe("Users E2E", () => {
     await prismaService.resetDatabase();
   });
 
+  it("Should create a user", async () => {
+    const res = await request(app.getHttpServer())
+      .post("/api/v1/users")
+      .send({
+        email: "yuki.endo@mail.com",
+        password: "Secure_P4ssword",
+        firstName: "Yuki",
+        lastName: "Endo",
+      })
+      .expect(HttpStatus.CREATED);
+
+    expect(res.body.password).toBeUndefined();
+    expect(res.body).toEqual({
+      id: expect.any(String),
+      email: "yuki.endo@mail.com",
+      firstName: "Yuki",
+      lastName: "Endo",
+      avatar: expect.any(String),
+      createdAt: expect.any(String),
+      subscriptionTier: expect.any(String),
+    });
+  });
+
+  it("Shouldn't create a user with an email already used", async () => {
+    const res = await request(app.getHttpServer())
+      .post("/api/v1/users")
+      .send({
+        email: "anna@raimon.com",
+        password: "Secure_P4ssword_",
+        firstName: "Anna",
+        lastName: "Willows",
+      })
+      .expect(HttpStatus.CONFLICT);
+    expect(res.body.message).toBe("Email already in use");
+  });
+
   it("Should get all users", async () => {
     const res = await request(app.getHttpServer())
       .get("/api/v1/users")

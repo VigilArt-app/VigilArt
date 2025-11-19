@@ -45,7 +45,7 @@ export class UsersService {
       });
     } catch (e: any) {
       if (e.code == "P2002") {
-        throw new ConflictException();
+        throw new ConflictException("Email already in use");
       }
     }
   }
@@ -59,7 +59,7 @@ export class UsersService {
         },
       });
     } catch (_) {
-      throw new InternalServerErrorException();
+      throw new InternalServerErrorException("Error when retrieving all users");
     }
   }
 
@@ -98,7 +98,7 @@ export class UsersService {
       });
     } catch (e: any) {
       if (e.code == "P2025") {
-        throw new NotFoundException();
+        throw new NotFoundException(`User ${id} not found`);
       }
     }
   }
@@ -116,7 +116,7 @@ export class UsersService {
       });
     } catch (e: any) {
       if (e.code == "P2025") {
-        throw new NotFoundException();
+        throw new NotFoundException(`User ${id} not found`);
       }
     }
   }
