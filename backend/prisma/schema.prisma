@@ -20,7 +20,33 @@ model User {
   password  String
   firstName String @db.VarChar(50)
   lastName String @db.VarChar(50)
-  avatar String
+  avatar String?
   createdAt DateTime  @default(now())
-  subscriptionTier String
+  subscriptionTier SubscriptionTier
+  artworks Artwork[]
+}
+
+enum SubscriptionTier {
+  FREE
+  CREATOR
+  PRO
+}
+
+model Artwork {
+  id String @id @default(cuid())
+  userId String
+  user User @relation(fields: [userId], references: [id])
+  imageUri String @unique
+
+  originalFilename String?
+  contentType String?  // "image/png", "image/jpeg"
+  sizeBytes Int?
+
+  description String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  lastScanAt DateTime?
+  // later:
+  // scanReports  ScanReport[]
 }

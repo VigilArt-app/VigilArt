@@ -9,8 +9,7 @@ import { CreateUserDto } from "./dto/create-user.dto";
 import { randomUUID } from "crypto";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import { PrismaService } from "../prisma.service";
-import { User } from "../generated/prisma/client";
-import { DEFAULT_SUBSCRIPTION_TIER, DEFAULT_AVATAR_URL } from "./constants";
+import { SubscriptionTier, User } from "../generated/prisma/client";
 
 export type UserProfile = Omit<User, "password">;
 
@@ -31,8 +30,7 @@ export class UsersService {
       password,
       firstName,
       lastName,
-      subscriptionTier: DEFAULT_SUBSCRIPTION_TIER,
-      avatar: DEFAULT_AVATAR_URL,
+      subscriptionTier: SubscriptionTier.FREE,
     };
 
     this.logger.log(`Creating new user ${email}`);

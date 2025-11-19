@@ -4,3 +4,4 @@ node_modules
 .env.test
 
 /src/generated/prisma
+keys/

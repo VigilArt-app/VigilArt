@@ -1,0 +1,225 @@
+{
+  "inputImageUri": "https://i.pinimg.com/736x/84/ef/9e/84ef9ed7b39ca0d26ed51c71054356a8.jpg",
+  "result": {
+    "webDetection": {
+      "webEntities": [
+        {
+          "entityId": "/m/01kr8f",
+          "score": 0.857135534286499,
+          "description": "Illustration"
+        },
+        {
+          "entityId": "/m/0215n",
+          "score": 0.8411914110183716,
+          "description": "Cartoon"
+        },
+        {
+          "entityId": "/m/02csf",
+          "score": 0.8215000033378601,
+          "description": "Drawing"
+        },
+        {
+          "entityId": "/m/0jjw",
+          "score": 0.708899974822998,
+          "description": "Art"
+        },
+        {
+          "entityId": "/m/0jg24",
+          "score": 0.5910000205039978,
+          "description": "Image"
+        },
+        {
+          "entityId": "/m/02cwm",
+          "score": 0.5727999806404114,
+          "description": "Design"
+        },
+        {
+          "entityId": "/g/11pzkdyw98",
+          "score": 0.5666000247001648,
+          "description": "Pencil drawing"
+        },
+        {
+          "entityId": "/m/07ppk6",
+          "score": 0.5467000007629395,
+          "description": "Artwork"
+        },
+        {
+          "entityId": "/g/120p9yhk",
+          "score": 0.5403000116348267,
+          "description": "Animation"
+        },
+        {
+          "entityId": "/m/048kp1w",
+          "score": 0.46700000762939453,
+          "description": "Artistic inspiration"
+        }
+      ],
+      "fullMatchingImages": [
+        {
+          "url": "https://i.pinimg.com/originals/84/ef/9e/84ef9ed7b39ca0d26ed51c71054356a8.jpg",
+          "score": 0
+        },
+        {
+          "url": "https://i.pinimg.com/736x/84/ef/9e/84ef9ed7b39ca0d26ed51c71054356a8.jpg",
+          "score": 0
+        },
+        {
+          "url": "https://i.pinimg.com/736x/7f/77/da/7f77dafeada9c97f5cc45d0d02afb6c8.jpg",
+          "score": 0
+        },
+        {
+          "url": "https://i.pinimg.com/474x/7f/77/da/7f77dafeada9c97f5cc45d0d02afb6c8.jpg",
+          "score": 0
+        },
+        {
+          "url": "https://i.pinimg.com/236x/7f/77/da/7f77dafeada9c97f5cc45d0d02afb6c8.jpg",
+          "score": 0
+        },
+        {
+          "url": "https://i.pinimg.com/236x/c5/9b/f3/c59bf3b12a417fd6f28ca3be8fc6a28f.jpg",
+          "score": 0
+        },
+        {
+          "url": "https://i.pinimg.com/170x/c5/9b/f3/c59bf3b12a417fd6f28ca3be8fc6a28f.jpg",
+          "score": 0
+        }
+      ],
+      "partialMatchingImages": [
+        {
+          "url": "https://i.pinimg.com/170x/ca/47/88/ca478801c9468574046d5d25e4e84dfa.jpg",
+          "score": 0
+        },
+        {
+          "url": "https://i.pinimg.com/236x/ca/47/88/ca478801c9468574046d5d25e4e84dfa.jpg",
+          "score": 0
+        },
+        {
+          "url": "https://lookaside.fbsbx.com/lookaside/crawler/media/?media_id=61570313828667",
+          "score": 0
+        },
+        {
+          "url": "https://i.pinimg.com/136x136/84/ef/9e/84ef9ed7b39ca0d26ed51c71054356a8.jpg",
+          "score": 0
+        },
+        {
+          "url": "https://cdn.polyspeak.ai/speakmaster/poly-sdispatcher/images/ac36f323-3f41-4c23-a305-96b3d2e64a3b.WEBP",
+          "score": 0
+        }
+      ],
+      "pagesWithMatchingImages": [
+        {
+          "fullMatchingImages": [],
+          "partialMatchingImages": [],
+          "url": "https://www.pinterest.com/snicholas1314/illustration/",
+          "score": 0,
+          "pageTitle": "900+ Illustration ideas - Pinterest"
+        },
+        {
+          "fullMatchingImages": [],
+          "partialMatchingImages": [],
+          "url": "https://www.pinterest.com/estee_hill/illustration/",
+          "score": 0,
+          "pageTitle": "73 Illustration ideas - Pinterest"
+        },
+        {
+          "fullMatchingImages": [],
+          "partialMatchingImages": [],
+          "url": "https://www.pinterest.com/onlyhumanco/illustration/",
+          "score": 0,
+          "pageTitle": "84 Illustration ideas - Pinterest"
+        },
+        {
+          "fullMatchingImages": [],
+          "partialMatchingImages": [],
+          "url": "https://www.pinterest.com/CivilianDesign/illustration/",
+          "score": 0,
+          "pageTitle": "430 Illustration ideas | illustration, illustration art, art design - Pinterest"
+        },
+        {
+          "fullMatchingImages": [],
+          "partialMatchingImages": [
+            {
+              "url": "https://cdn.polyspeak.ai/speakmaster/poly-sdispatcher/images/ac36f323-3f41-4c23-a305-96b3d2e64a3b.WEBP",
+              "score": 0
+            }
+          ],
+          "url": "https://www.polybuzz.ai/character/profile/the-cheerleader-pH8MB",
+          "score": 0,
+          "pageTitle": "Best AI Chat Character The cheerleader - Polybuzz"
+        },
+        {
+          "fullMatchingImages": [],
+          "partialMatchingImages": [
+            {
+              "url": "https://lookaside.fbsbx.com/lookaside/crawler/media/?media_id=61570313828667",
+              "score": 0
+            }
+          ],
+          "url": "https://www.facebook.com/STARSINFO24/posts/les-chaussures-que-lady-gaga-a-port%C3%A9es-dans-son-clip-abracadabra/1208136850670534/",
+          "score": 0,
+          "pageTitle": "Les chaussures que Lady GaGa a portées dans son clip ... - Facebook"
+        },
+        {
+          "fullMatchingImages": [],
+          "partialMatchingImages": [
+            {
+              "url": "https://lookaside.fbsbx.com/lookaside/crawler/media/?media_id=61570313828667",
+              "score": 0
+            }
+          ],
+          "url": "https://www.facebook.com/photo.php?fbid=1208136840670535&id=100044226924152&set=a.753073462843544",
+          "score": 0,
+          "pageTitle": "L'univers - Les chaussures que Lady GaGa a portées dans son clip ..."
+        }
+      ],
+      "visuallySimilarImages": [
+        {
+          "url": "https://media.licdn.com/dms/image/v2/D4D12AQERk0lOswtusQ/article-cover_image-shrink_720_1280/article-cover_image-shrink_720_1280/0/1683265030472?e=2147483647&v=beta&t=c_iziuMpzodtjbc8QhMJRN8dnpXk_oJ4t1vV3gF79Kw",
+          "score": 0
+        },
+        {
+          "url": "https://static.wixstatic.com/media/b7eedf_9946be510eb84624bf4e1a640bc48311~mv2.png/v1/fill/w_300,h_300,q_90,enc_avif,quality_auto/b7eedf_9946be510eb84624bf4e1a640bc48311~mv2.png",
+          "score": 0
+        },
+        {
+          "url": "https://cdn.prod.website-files.com/687e8d1b96312cc631cafec7/68921e0c1b743fff4e97388a_603019a75c25911c8ead9a5d_60105b07a2fd46e0e787cecc_naja.jpeg",
+          "score": 0
+        },
+        {
+          "url": "https://mohimix.com/wp-content/uploads/2025/10/black-women-cartoon-1200x1200.jpg",
+          "score": 0
+        },
+        {
+          "url": "https://lookaside.fbsbx.com/lookaside/crawler/media/?media_id=122096277770494067",
+          "score": 0
+        },
+        {
+          "url": "https://lookaside.fbsbx.com/lookaside/crawler/media/?media_id=122116787931015028",
+          "score": 0
+        },
+        {
+          "url": "https://i.scdn.co/image/ab67616d00001e026a69fe17a8cebf50530f45ec",
+          "score": 0
+        },
+        {
+          "url": "https://lookaside.fbsbx.com/lookaside/crawler/threads/kj.writes_/profile_pic.jpg",
+          "score": 0
+        },
+        {
+          "url": "https://cdn.booooooom.com/wp-content/uploads/2021/09/Madojemu-top-1.jpg",
+          "score": 0
+        },
+        {
+          "url": "https://cm4-production-assets.s3.amazonaws.com/1732815428108-chat-bot-keisha-2.jpg",
+          "score": 0
+        }
+      ],
+      "bestGuessLabels": [
+        {
+          "label": "illustration",
+          "languageCode": ""
+        }
+      ]
+    }
+  }
+}

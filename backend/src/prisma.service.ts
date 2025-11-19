@@ -15,7 +15,12 @@ export class PrismaService
   }
 
   async resetDatabase() {
-    if (process.env.NODE_ENV === 'production') return;
+    const env = process.env.NODE_ENV;
+    if (env !== "test") {
+      throw new Error(
+        `resetDatabase blocked: NODE_ENV must be "test" (received "${env}")`
+      );
+    }
     await this.user.deleteMany();
   }
 }
