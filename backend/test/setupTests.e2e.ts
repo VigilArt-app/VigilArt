@@ -14,7 +14,7 @@ beforeAll(async () => {
   const dbUrl = postgresContainer.getConnectionUri();
   process.env.DATABASE_URL = dbUrl;
 
-  execSync("npx prisma migrate deploy", {
+  execSync("pnpm exec prisma migrate deploy", {
     env: { ...process.env, DATABASE_URL: dbUrl },
     stdio: "inherit",
   });
