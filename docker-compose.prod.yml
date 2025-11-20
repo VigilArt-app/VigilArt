@@ -3,7 +3,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.base
-    image: vigilart-base:latest
+    image: local/vigilart-base:latest
 
   backend:
     build:

@@ -1,4 +1,4 @@
-FROM vigilart-base:latest AS builder
+FROM local/vigilart-base:latest AS builder
 
 WORKDIR /app/web-app
 
