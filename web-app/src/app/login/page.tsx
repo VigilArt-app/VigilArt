@@ -1,13 +1,12 @@
 "use client"
 
 import Link from "next/link"
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "../../components/ui/button"
 import { Input } from "../../components/ui/input"
 import { Label } from "../../components/ui/label"
 import { Switch } from "../../components/ui/switch"
-import { useTheme } from "next-themes"
 import { setCookie } from "../cookies"
 
 export default function LoginPage() {
@@ -19,19 +18,12 @@ export default function LoginPage() {
 
     const router = useRouter()
 
-    const { theme, systemTheme } = useTheme()
-    const [mounted, setMounted] = useState(false)
-
-    useEffect(() => setMounted(true), [])
-    const activeTheme = mounted ? (theme === "system" ? systemTheme : theme) : "light"
-    const isDark = activeTheme === "dark"
-
     async function onSubmit(e: React.FormEvent) {
         e.preventDefault()
         setError(null)
         setIsLoading(true)
         try {
-            const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:3001/api/v1"
+            const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001/api/v1"
             const res = await fetch(`${API_BASE}/auth/login`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -62,21 +54,22 @@ export default function LoginPage() {
     }
 
     return (
-        <div className={`min-h-screen flex items-center justify-center ${isDark ? "bg-neutral-900" : "bg-white"}`}>
+        <div className="min-h-screen flex items-center justify-center bg-white dark:bg-neutral-900">
             <div className="w-full max-w-6xl mx-6 rounded-lg overflow-hidden">
                 <div className="grid grid-cols-1 md:grid-cols-2">
-                    <div className={`relative flex items-center justify-start p-12 ${isDark ? 'bg-neutral-900/30' : 'bg-white'}`}>
+                    <div className="relative flex items-center justify-start p-12 bg-white dark:bg-neutral-900/30">
                         <div className="relative z-10 max-w-xs md:max-w-md">
-                            <p className={`text-3xl md:text-4xl ${isDark ? 'text-white' : 'text-gray-800'}`}>Bienvenue</p>
-                            <p className={`text-2xl md:text-3xl ${isDark ? 'text-white' : 'text-gray-800'}`}>sur</p>
-                            <h1 className={`text-6xl md:text-9xl font-giaza tracking-tight ${isDark ? 'text-white' : 'text-black'}`}>VigilArt</h1>
+                            <p className="text-3xl md:text-4xl text-foreground">Bienvenue</p>
+                            <p className="text-2xl md:text-3xl text-foreground">sur</p>
+                            <h1 className="text-6xl md:text-9xl font-giaza tracking-tight text-foreground">VigilArt</h1>
                         </div>
                     </div>
 
                     <div className="flex items-center justify-center p-8 bg-transparent">
-                        <div className={`w-full max-w-md rounded-2xl p-8 shadow-lg border border-transparent backdrop-blur-sm ${isDark ? 'bg-neutral-800/60 text-white' : 'bg-white/95 text-black'}`}>
+                        <div className="w-full max-w-md rounded-2xl p-8 shadow-lg border border-transparent backdrop-blur-sm bg-white/95 dark:bg-neutral-800/60 text-foreground">
                             <div className="mb-4 flex items-center gap-3 justify-between">
-                                <img src={isDark ? '/vigilart_w.png' : '/vigilart_b.png'} alt="VigilArt logo" className="h-20 w-auto" />
+                                <img src="/vigilart_b.png" alt="VigilArt logo" className="h-20 w-auto dark:hidden" />
+                                <img src="/vigilart_w.png" alt="VigilArt logo" className="h-20 w-auto hidden dark:block" />
                                 <div className="text-l text-muted-foreground">Nice to see you again</div>
                             </div>
 
