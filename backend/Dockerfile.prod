@@ -22,4 +22,5 @@ RUN corepack enable && corepack prepare pnpm@10.20.0 --activate
 
 EXPOSE 3001
 
-CMD ["sh", "-c", "pnpm --filter backend exec prisma migrate deploy && pnpm start:backend"]
+CMD ["sh", "-c", "node node_modules/.bin/prisma migrate deploy && node dist/main.js"]
+
