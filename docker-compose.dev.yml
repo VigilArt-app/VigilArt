@@ -8,11 +8,13 @@ services:
     volumes:
       - ./backend:/app/backend
       - ./shared:/app/shared
-      - backend_modules:/app/backend/node_modules
     ports:
       - "3001:3001"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+    networks:
+      - prisma-network
 
   frontend:
     build:
@@ -23,7 +25,6 @@ services:
     volumes:
       - ./web-app:/app/web-app
       - ./shared:/app/shared
-      - web_app_modules:/app/web-app/node_modules
     ports:
       - "3000:3000"
 
@@ -40,8 +41,40 @@ services:
       - "5432:5432"
     volumes:
       - postgres_local_data:/var/lib/postgresql/data
+    networks:
+      - prisma-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    command: postgres -c listen_addresses='*'
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  prisma-studio:
+    image: node:lts-alpine3.17
+    working_dir: /app/backend
+    volumes:
+      - .:/app
+    command: sh -c "corepack enable && corepack prepare pnpm@10.20.0 --activate && pnpm dlx prisma@6.19.0 studio --port 5555 --browser none"
+    ports:
+      - "5555:5555"
+    env_file:
+      - .env
+    networks:
+      - prisma-network
+    depends_on:
+      db:
+        condition: service_healthy
+      backend:
+        condition: service_started
 
 volumes:
   postgres_local_data:
-  backend_modules:
-  web_app_modules:
+
+networks:
+  prisma-network:
+    name: prisma-network

@@ -11,4 +11,4 @@ COPY shared/package.json shared/
 
 RUN pnpm install
 
-CMD ["pnpm", "dev:backend"]
+CMD ["sh", "-c", "pnpm --filter backend db:deploy && pnpm dev:backend"]
