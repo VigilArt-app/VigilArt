@@ -10,7 +10,7 @@ services:
       - ./shared:/app/shared
       - backend_node_modules:/app/backend/node_modules
     ports:
-      - "3001:3001"
+      - "${SERVER_PORT}:${SERVER_PORT}"
     depends_on:
       db:
         condition: service_healthy
@@ -28,7 +28,7 @@ services:
       - ./shared:/app/shared
       - web_app_node_modules:/app/web-app/node_modules
     ports:
-      - "3000:3000"
+      - "${FRONTEND_PORT}:${FRONTEND_PORT}"
 
   db:
     image: postgres:16
@@ -39,8 +39,9 @@ services:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: ${DB_NAME}
+      POSTGRES_PORT: ${DB_PORT}
     ports:
-      - "5432:5432"
+      - "${DB_PORT}:${DB_PORT}"
     volumes:
       - postgres_local_data:/var/lib/postgresql/data
     networks:
