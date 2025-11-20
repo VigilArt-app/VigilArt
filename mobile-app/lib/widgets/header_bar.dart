@@ -70,7 +70,6 @@ class _VigilArtHeaderBarState extends State<VigilArtHeaderBar>
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            // LEFT: LOGO
             GestureDetector(
               onTap: widget.onLogoTap,
               child: MouseRegion(
@@ -113,10 +112,8 @@ class _VigilArtHeaderBarState extends State<VigilArtHeaderBar>
               ),
             ),
 
-            // RIGHT: NOTIFICATIONS & AVATAR
             Row(
               children: [
-                // NOTIFICATION BUTTON
                 GestureDetector(
                   onTap: widget.onNotificationsTap,
                   child: MouseRegion(
@@ -139,7 +136,6 @@ class _VigilArtHeaderBarState extends State<VigilArtHeaderBar>
                             size: 22,
                           ),
 
-                          // NOTIFICATION BADGE
                           if (widget.notificationCount > 0)
                             Positioned(
                               top: 0,
@@ -173,7 +169,6 @@ class _VigilArtHeaderBarState extends State<VigilArtHeaderBar>
 
                 const SizedBox(width: 12),
 
-                // AVATAR BUTTON
                 GestureDetector(
                   onTap: _onAvatarTap,
                   child: MouseRegion(

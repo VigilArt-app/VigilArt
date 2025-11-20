@@ -5,8 +5,7 @@ import 'signup_page.dart';
 import '../widgets/logo_header.dart';
 import '../widgets/custom_input_field.dart';
 import '../widgets/custom_button.dart';
-import '../(api)/auth.dart'; // Import your ApiService class
-
+import '../(api)/auth.dart';
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
 
@@ -19,8 +18,7 @@ class _LoginPageState extends State<LoginPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
-  final ApiService apiService = ApiService(); // Instance of your service
-
+  final ApiService apiService = ApiService();
   @override
   void dispose() {
     _emailController.dispose();
@@ -37,8 +35,6 @@ class _LoginPageState extends State<LoginPage> {
         final response = await apiService.login(context, email, password);
 
         if (response.statusCode == 200) {
-          // Login successful: tokens saved inside ApiService.login already
-          // Optionally read stored token or user ID here
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => const DashboardPage()),

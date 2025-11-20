@@ -4,7 +4,6 @@ import '../widgets/logo_header.dart';
 import '../widgets/custom_input_field.dart';
 import '../widgets/custom_button.dart';
 import '../(api)/auth.dart';
-import 'dashboard/dashboard.dart';
 import 'login_page.dart';
 
 class SignupPage extends StatefulWidget {
@@ -57,13 +56,11 @@ class _SignupPageState extends State<SignupPage> {
         final response = await apiService.signup(context, email, password, firstName, lastName);
 
         if (response.statusCode == 201) {
-          // Signup successful: tokens saved inside ApiService.signup
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => const DashboardPage()),
+            MaterialPageRoute(builder: (context) => const LoginPage()),
           );
         } else if (response.statusCode == 409) {
-          // Email already in use (Conflict)
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('Email already in use'),

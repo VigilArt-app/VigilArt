@@ -3,6 +3,7 @@ import 'package:VigilArt/widgets/editable_from_field.dart';
 import 'package:VigilArt/widgets/header_bar.dart';
 import 'package:VigilArt/widgets/slideMenuBar.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({Key? key}) : super(key: key);
@@ -23,24 +24,46 @@ class _ProfilePageState extends State<ProfilePage> {
   final _formKey = GlobalKey<FormState>();
   int _bottomNavIndex = 2;
 
-  final Map<String, String> _userData = {
-    'firstName': 'Amanda',
-    'lastName': 'Rawles',
-    'email': 'amanda@gmail.com',
+  Map<String, String> _userData = {
+    'firstName': '',
+    'lastName': '',
+    'email': '',
     'password': '••••••••',
     'country': 'France',
     'language': 'French',
     'avatar':
         'https://i.pinimg.com/736x/03/f3/00/03f3001fb8b4abe101d2f72cc61c0904.jpg',
   };
+  final FlutterSecureStorage secureStorage = const FlutterSecureStorage();
 
   @override
   void initState() {
     super.initState();
     _isEditMode = false;
     _initializeControllers();
+    loadUserData();
   }
 
+  Future<void> loadUserData() async {
+    final firstName = await secureStorage.read(key: 'userFirstName') ?? '';
+    final lastName = await secureStorage.read(key: 'userLastName') ?? '';
+    final email = await secureStorage.read(key: 'userEmail') ?? '';
+
+    setState(() {
+      _userData = {
+        'firstName': firstName.isNotEmpty ? firstName : _userData['firstName']!,
+        'lastName': lastName.isNotEmpty ? lastName : _userData['lastName']!,
+        'email': email.isNotEmpty ? email : _userData['email']!,
+        'password': _userData['password']!,
+        'country': _userData['country']!,
+        'language': _userData['language']!,
+        'avatar': _userData['avatar']!,
+      };
+
+      _initializeControllers();
+    });
+  }
+  
   void _initializeControllers() {
     _firstNameController =
         TextEditingController(text: _userData['firstName']!);
