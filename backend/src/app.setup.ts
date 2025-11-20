@@ -4,6 +4,7 @@ import { ConfigService } from "@nestjs/config";
 export function setupApp(app: INestApplication) {
   const configService = app.get(ConfigService);
   const apiPrefix = configService.get<string>("API_PREFIX") || "/api/v1";
+  app.enableCors();
 
   app.setGlobalPrefix(apiPrefix);
   app.useGlobalPipes(

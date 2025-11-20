@@ -32,7 +32,7 @@ export class AuthService {
           email: user.email,
         });
         const refreshToken = "";
-        const expiresIn = ""; // TO DO
+        const expiresIn = "";
         const { password: hashedPassword, ...userProfile } = user;
         return { user: userProfile, accessToken, refreshToken, expiresIn };
       } else {
