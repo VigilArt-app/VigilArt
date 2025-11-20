@@ -4,7 +4,7 @@ WORKDIR /app/backend
 
 COPY backend/ .
 
-COPY prisma ./prisma
+COPY backend/prisma ./prisma
 
 RUN pnpm exec prisma generate
 
