@@ -12,7 +12,7 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 
-import { Palette, User, LayoutDashboard  } from "lucide-react"
+import { Palette, User, LayoutDashboard, LogOut } from "lucide-react"
 
 const items = [
   {
@@ -29,6 +29,14 @@ const items = [
     title: "Artwork Gallery",
     url: "/artwork-gallery",
     icon: Palette,
+  },
+]
+
+const logout_items = [
+  {
+    title: "Logout",
+    url: "/logout",
+    icon: LogOut,
   },
 ]
 
@@ -59,6 +67,18 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+      <SidebarMenu>
+        {logout_items.map((item) => (
+          <SidebarMenuItem key={item.title}>
+            <SidebarMenuButton asChild className="p-5">
+              <Link href={item.url}>
+                <item.icon />
+                <span>{item.title}</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        ))}
+      </SidebarMenu>
       <SidebarFooter>
         <div className="w-full flex items-center justify-center py-4">
           Upgrade to Pro
