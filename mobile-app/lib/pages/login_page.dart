@@ -1,11 +1,11 @@
 import 'package:VigilArt/pages/dashboard/dashboard.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'signup_page.dart';
 import '../widgets/logo_header.dart';
 import '../widgets/custom_input_field.dart';
 import '../widgets/custom_button.dart';
+import '../(api)/auth.dart'; // Import your ApiService class
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -18,34 +18,50 @@ class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  final _confirmPasswordController = TextEditingController();
+
+  final ApiService apiService = ApiService(); // Instance of your service
 
   @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
-    _confirmPasswordController.dispose();
     super.dispose();
   }
 
   void _handleContinue() async {
     if (_formKey.currentState!.validate()) {
-      String email = _emailController.text;
-      String password = _passwordController.text;
+      String email = _emailController.text.trim();
+      String password = _passwordController.text.trim();
 
-      if (email == 'test@vigilart.com' && password == 'password123') {
-        SharedPreferences prefs = await SharedPreferences.getInstance();
-        await prefs.setBool('isLoggedIn', true);
-        await prefs.setString('userEmail', _emailController.text);
-        Navigator.pushReplacement(
-          context, 
-          MaterialPageRoute(builder: (context) => const DashboardPage()),
-        );
+      try {
+        final response = await apiService.login(context, email, password);
 
-      } else {
+        if (response.statusCode == 200) {
+          // Login successful: tokens saved inside ApiService.login already
+          // Optionally read stored token or user ID here
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const DashboardPage()),
+          );
+        } else if (response.statusCode == 401 || response.statusCode == 403) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Invalid email or password'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Login failed with status: ${response.statusCode}'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Wrong email or password'),
+          SnackBar(
+            content: Text('Error occurred: $e'),
             backgroundColor: Colors.red,
           ),
         );
@@ -53,9 +69,9 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
-  void _handleSignup() async {
+  void _handleSignup() {
     Navigator.pushReplacement(
-      context, 
+      context,
       MaterialPageRoute(builder: (context) => const SignupPage()),
     );
   }
@@ -88,15 +104,12 @@ class _LoginPageState extends State<LoginPage> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   const SizedBox(height: 60),
-                  
                   const LogoHeader(
                     logoImagePath: 'assets/icons/vigilart_app_icon.png',
                     appName: 'VigilArt',
                     logoSize: 60,
                   ),
-                  
                   const SizedBox(height: 40),
-                  
                   const Text(
                     'Nice to see again !',
                     style: TextStyle(
@@ -105,9 +118,7 @@ class _LoginPageState extends State<LoginPage> {
                       color: Colors.black87,
                     ),
                   ),
-                  
                   const SizedBox(height: 32),
-                  
                   CustomInputField(
                     labelText: 'Email address',
                     hintText: 'email@domain.com',
@@ -123,9 +134,7 @@ class _LoginPageState extends State<LoginPage> {
                       return null;
                     },
                   ),
-                  
                   const SizedBox(height: 20),
-                  
                   CustomInputField(
                     labelText: 'Password',
                     hintText: '••••••••',
@@ -141,17 +150,13 @@ class _LoginPageState extends State<LoginPage> {
                       return null;
                     },
                   ),
-                  
                   const SizedBox(height: 20),
-                  
                   CustomButton(
                     text: 'Continue',
                     onPressed: _handleContinue,
                     backgroundColor: Colors.black87,
                   ),
-                  
                   const SizedBox(height: 24),
-                  
                   const Row(
                     children: [
                       Expanded(child: Divider(color: Colors.black26)),
@@ -168,9 +173,7 @@ class _LoginPageState extends State<LoginPage> {
                       Expanded(child: Divider(color: Colors.black26)),
                     ],
                   ),
-                  
                   const SizedBox(height: 24),
-
                   CustomButton(
                     text: "Doesn't have an account ? Sign Up",
                     onPressed: _handleSignup,
@@ -178,7 +181,6 @@ class _LoginPageState extends State<LoginPage> {
                     backgroundColor: Colors.black87,
                   ),
                   const SizedBox(height: 24),
-
                   CustomButton(
                     text: 'Continue with Google',
                     onPressed: _handleGoogleSignIn,
@@ -187,9 +189,7 @@ class _LoginPageState extends State<LoginPage> {
                     isOutlined: true,
                     backgroundColor: Colors.black87,
                   ),
-                  
                   const SizedBox(height: 24),
-                  
                   RichText(
                     textAlign: TextAlign.center,
                     text: const TextSpan(
@@ -217,7 +217,6 @@ class _LoginPageState extends State<LoginPage> {
                       ],
                     ),
                   ),
-                  
                   const SizedBox(height: 40),
                 ],
               ),
