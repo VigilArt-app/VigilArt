@@ -17,4 +17,4 @@ COPY --from=builder /app/web-app/node_modules ./node_modules
 
 EXPOSE 3000
 
-CMD ["node", "node_modules/.bin/next", "start", "--turbo"]
+CMD ["./node_modules/.bin/next", "start", "--turbo"]

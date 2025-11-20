@@ -23,4 +23,4 @@ RUN corepack enable && corepack prepare pnpm@10.20.0 --activate
 
 EXPOSE 3001
 
-CMD ["sh", "-c", "node node_modules/.bin/prisma migrate deploy && node dist/main.js"]
+CMD ["sh", "-c", "./node_modules/.bin/prisma migrate deploy && node dist/main.js"]
