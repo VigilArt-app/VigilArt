@@ -12,6 +12,6 @@ COPY backend/package.json ./backend
 COPY web-app/package.json ./web-app
 COPY shared/package.json ./shared
 
-RUN pnpm install --frozen-lockfile
+RUN pnpm install --frozen-lockfile --prod
 
 COPY . .

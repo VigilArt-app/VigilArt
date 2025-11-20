@@ -16,6 +16,6 @@ COPY web-app/package.json ./
 
 RUN corepack enable && corepack prepare pnpm@10.20.0 --activate
 
-RUN pnpm install --prod --frozen-lockfile --ignore-scripts
+EXPOSE 3000
 
 CMD ["pnpm", "start:frontend"]

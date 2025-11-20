@@ -20,8 +20,6 @@ COPY --from=builder /app/backend/prisma ./prisma
 
 RUN corepack enable && corepack prepare pnpm@10.20.0 --activate
 
-RUN pnpm install --prod --frozen-lockfile --ignore-scripts
-
 EXPOSE 3001
 
 CMD ["sh", "-c", "pnpm --filter backend exec prisma migrate deploy && pnpm start:backend"]
