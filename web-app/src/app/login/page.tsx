@@ -2,16 +2,22 @@
 
 import Link from "next/link"
 import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
 import { Button } from "../../components/ui/button"
 import { Input } from "../../components/ui/input"
 import { Label } from "../../components/ui/label"
 import { Switch } from "../../components/ui/switch"
 import { useTheme } from "next-themes"
+import { setCookie } from "../cookies"
 
 export default function LoginPage() {
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const [remember, setRemember] = useState(false)
+    const [isLoading, setIsLoading] = useState(false)
+    const [error, setError] = useState<string | null>(null)
+
+    const router = useRouter()
 
     const { theme, systemTheme } = useTheme()
     const [mounted, setMounted] = useState(false)
@@ -20,9 +26,39 @@ export default function LoginPage() {
     const activeTheme = mounted ? (theme === "system" ? systemTheme : theme) : "light"
     const isDark = activeTheme === "dark"
 
-    function onSubmit(e: React.FormEvent) {
+    async function onSubmit(e: React.FormEvent) {
         e.preventDefault()
-        console.log({ email, password, remember })
+        setError(null)
+        setIsLoading(true)
+        try {
+            const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:3001/api/v1"
+            const res = await fetch(`${API_BASE}/auth/login`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email, password })
+            })
+            if (!res.ok) {
+                const data = await res.json().catch(() => null)
+                const message = data?.message || "Login failed"
+                throw new Error(Array.isArray(message) ? message.join(", ") : message)
+            }
+            const data = await res.json()
+            if (data?.accessToken) {
+                try {
+                    if (remember) {
+                        localStorage.setItem("auth_token", data.accessToken)
+                    } else {
+                        sessionStorage.setItem("auth_token", data.accessToken)
+                    }
+                    setCookie("auth_token", data.accessToken, remember ? 365 : 1)
+                } catch {}
+            }
+            router.push("/dashboard")
+        } catch (err: any) {
+            setError(err.message || "Unexpected error")
+        } finally {
+            setIsLoading(false)
+        }
     }
 
     return (
@@ -65,9 +101,12 @@ export default function LoginPage() {
                                     </Link>
                                 </div>
 
+                                {error && (
+                                    <div className="text-sm text-red-500" role="alert">{error}</div>
+                                )}
                                 <div>
-                                    <Button type="submit" className="w-full">
-                                        Sign in
+                                    <Button type="submit" className="w-full" disabled={isLoading}>
+                                        {isLoading ? "Signing in..." : "Sign in"}
                                     </Button>
                                 </div>
 
