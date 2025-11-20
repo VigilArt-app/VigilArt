@@ -24,7 +24,7 @@ services:
       context: .
       dockerfile: web-app/Dockerfile.prod
     ports:
-      - "${FRONTEND_PORT}:${FRONTEND_PORT}"
+      - "3000:3000"
     depends_on:
       - base
     networks:
