@@ -8,7 +8,7 @@ import {
 import { CreateUserDto } from "./dto/create-user.dto";
 import { randomUUID } from "crypto";
 import { UpdateUserDto } from "./dto/update-user.dto";
-import { PrismaService } from "../prisma.service";
+import { PrismaService } from "../prisma/prisma.service";
 import { SubscriptionTier, User } from "../generated/prisma/client";
 
 export type UserProfile = Omit<User, "password">;
@@ -43,7 +43,7 @@ export class UsersService {
       });
     } catch (e: any) {
       if (e.code == "P2002") {
-        throw new ConflictException();
+        throw new ConflictException("Email already in use");
       }
     }
   }
@@ -57,7 +57,7 @@ export class UsersService {
         },
       });
     } catch (_) {
-      throw new InternalServerErrorException();
+      throw new InternalServerErrorException("Error when retrieving all users");
     }
   }
 
@@ -96,7 +96,7 @@ export class UsersService {
       });
     } catch (e: any) {
       if (e.code == "P2025") {
-        throw new NotFoundException();
+        throw new NotFoundException(`User ${id} not found`);
       }
     }
   }
@@ -114,7 +114,7 @@ export class UsersService {
       });
     } catch (e: any) {
       if (e.code == "P2025") {
-        throw new NotFoundException();
+        throw new NotFoundException(`User ${id} not found`);
       }
     }
   }

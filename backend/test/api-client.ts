@@ -1,11 +1,15 @@
 import request from "supertest";
 import { INestApplication } from "@nestjs/common";
-import { API_PREFIX } from "../src/app.setup";
+import { ConfigService } from "@nestjs/config";
 
 export class ApiClient {
-  constructor(private readonly app: INestApplication) {}
+  private readonly config: ConfigService;
+  private base: string;
 
-  private base = API_PREFIX;
+  constructor(private readonly app: INestApplication) {
+    this.config = app.get(ConfigService);
+    this.base = this.config.get<string>("API_PREFIX") || "/api/v1";
+  }
 
   get(url: string) {
     return request(this.app.getHttpServer()).get(this.base + url);

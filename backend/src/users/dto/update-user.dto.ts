@@ -1,4 +1,5 @@
 import { IsOptional, IsString } from "class-validator";
+import { SubscriptionTier } from "src/generated/prisma";
 
 export class UpdateUserDto {
   @IsString()
@@ -7,5 +8,5 @@ export class UpdateUserDto {
 
   @IsString()
   @IsOptional()
-  subscriptionTier?: string;
+  subscriptionTier?: SubscriptionTier;
 }

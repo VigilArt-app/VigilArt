@@ -5,12 +5,13 @@ import { UsersModule } from "./users/users.module";
 import { ConfigModule } from "@nestjs/config";
 import { AuthModule } from "./auth/auth.module";
 import { VisionModule } from "./vision/vision.module";
-import { ArtworksModule } from './artworks/artworks.module';
+import { ArtworksModule } from "./artworks/artworks.module";
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+      envFilePath: "../.env",
     }),
     UsersModule,
     AuthModule,
