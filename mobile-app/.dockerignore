@@ -1,0 +1,134 @@
+# Flutter Build & Cache
+.dart_tool/
+build/
+coverage/
+*.lock
+
+# iOS
+ios/.symlinks/
+ios/.generated/
+ios/Flutter/Flutter.podspec
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.xcframework
+ios/Podfile.lock
+ios/.dart_tool/
+
+# Android
+android/.gradle/
+android/gradlew
+android/gradlew.bat
+android/local.properties
+android/.dart_tool/
+android/app/debug/
+android/app/release/
+
+# Web
+web/
+
+# Version Control
+.git/
+.gitignore
+.gitattributes
+
+# IDE & Editor Files
+.vscode/
+.idea/
+*.swp
+*.swo
+*.swn
+.DS_Store
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+*.sublime-project
+.env.local
+.env.*.local
+
+# Environment & Secrets
+.env
+.env.*.local
+.env.prod
+.env.dev
+secrets/
+
+# Documentation
+README.md
+CHANGELOG.md
+docs/
+.github/
+wiki/
+
+# Node/NPM (if used for web or tooling)
+node_modules/
+npm-debug.log
+npm-error.log
+package-lock.json
+yarn.lock
+
+# Python (if using any Python tools)
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+venv/
+env/
+
+# OS Files
+*.log
+.DS_Store
+Thumbs.db
+*.tmp
+*.temp
+
+# Development Artifacts
+*.apk
+*.aab
+*.ipa
+*.app
+dist/
+release/
+
+# Test Files (exclude from Docker build)
+test/
+test_driver/
+
+# Temporary Files
+*.bak
+*.swp
+.directory
+.turbo/
+
+# CI/CD
+.circleci/
+.travis.yml
+azure-pipelines.yml
+.gitlab-ci.yml
+
+# Development Tools
+.fvm/
+fvm/
+
+# Analysis
+analysis_options.yaml.bak
+.analysis_cache/
+
+# Local Development
+pubspec.lock
+local.properties
+
+# Docker Files (to avoid recursion)
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Misc
+*.iml
+.gradle
+.gradle/
+*.ipr
+*.iws
+gradlew
+gradlew.bat

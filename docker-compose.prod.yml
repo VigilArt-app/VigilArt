@@ -26,10 +26,19 @@ services:
     environment:
       NODE_ENV: production
       NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
+    volume:
+      - apk_volume:/home/apk
     ports:
       - "3000:3000"
     depends_on:
       - base
+
+    mobile:
+      container_name: mobile
+      build: 
+        context: mobile-app/Dockerfile.prod
+      volumes:
+        - apk_volume:/home/apk
 
   db:
     image: postgres:16
@@ -43,3 +52,4 @@ services:
 
 volumes:
   postgres_prod_data:
+  apk_volume:
