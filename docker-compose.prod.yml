@@ -1,9 +1,4 @@
 services:
-  base:
-    build:
-      context: .
-      dockerfile: Dockerfile.base
-    image: local/vigilart-base:latest
 
   backend:
     build:
@@ -14,8 +9,6 @@ services:
     depends_on:
       db:
         condition: service_healthy
-      base:
-        condition: service_started
     networks:
       - app-network
 
@@ -24,9 +17,7 @@ services:
       context: .
       dockerfile: web-app/Dockerfile.prod
     ports:
-      - "3000:3000"
-    depends_on:
-      - base
+      - "${APP_PORT}:${APP_PORT}"
     networks:
       - app-network
 

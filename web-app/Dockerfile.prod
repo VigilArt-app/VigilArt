@@ -1,12 +1,4 @@
-FROM local/vigilart-base:latest AS builder
-
-WORKDIR /app/web-app
-
-COPY web-app/ .
-
-RUN pnpm build
-
-FROM node:22-alpine AS web-app-prod
+FROM node:22-alpine as base
 
 WORKDIR /app
 
