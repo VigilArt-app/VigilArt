@@ -20,7 +20,7 @@
   "scripts": {
     "dev": "nest start --watch",
     "build": "tsc -p tsconfig.json",
-    "start": "node dist/main.js",
+    "start": "pnpm exec prisma migrate deploy && node dist/main.js",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "db:deploy": "pnpm exec prisma migrate deploy && pnpm exec prisma generate"
   },
