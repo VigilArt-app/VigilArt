@@ -7,10 +7,10 @@ jobs:
   check-branch:
     runs-on: ubuntu-latest
     steps:
-      - name: Ensure PR source is feature/** or fix/**
+      - name: Ensure PR source is feature/** or fix/** or feat/**
         run: |
           BRANCH="${{ github.head_ref }}"
-          if [[ ! "$BRANCH" =~ ^(feature|fix)/ ]]; then
-            echo "❌ Only branches starting with 'feature/' or 'fix/' can be merged into 'dev'."
+          if [[ ! "$BRANCH" =~ ^(feature|fix|feat)/ ]]; then
+            echo "❌ Only branches starting with 'feature/', 'fix/', or 'feat/' can be merged into 'dev'."
             exit 1
           fi
