@@ -1,7 +1,7 @@
 'use client';
 
 import { Skeleton } from "../../components/ui/skeleton";
-import { ThemeProvider, useTheme } from "next-themes";
+import { ThemeProvider } from "next-themes";
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import { useEffect, useState } from 'react';
@@ -10,36 +10,26 @@ import { getCookie, setCookie } from '../cookies';
 import i18next from 'i18next';
 
 function SkeletonLoader() {
-  const [mounted, setMounted] = useState(false);
-  const { theme, systemTheme } = useTheme();
-  const currentTheme = theme === 'system' ? systemTheme : theme;
-  const isDark = currentTheme === 'dark';
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  const skeletonClass = mounted && isDark ? 'bg-white/10' : 'bg-black/5';
 
   return (
     <div className="w-full h-full" suppressHydrationWarning>
       <div className="fixed top-0 left-0 h-screen w-64 border-r bg-background p-6">
         <div className="flex items-center justify-center h-[280px]">
-          <Skeleton className={`h-[200px] w-[200px] rounded-4xl ${skeletonClass}`} suppressHydrationWarning /> {/* Logo */}
+          <Skeleton className="h-[200px] w-[200px] rounded-4xl bg-black/5 dark:bg-white/10" suppressHydrationWarning /> {/* Logo */}
         </div>
         <div className="space-y-4">
           {[1, 2, 3, 4].map((i) => (
-          <Skeleton key={i} className={`h-10 w-full $skeletonClass}`} suppressHydrationWarning />
+          <Skeleton key={i} className="h-10 w-full bg-black/5 dark:bg-white/10" suppressHydrationWarning />
           ))} {/* Nav item */}
         </div>
       </div>
 
       <div className="ml-64 p-6">
         <div className="max-w-3xl">
-          {/* <Skeleton className={`h-12 w-3/4 mb6 ${skeletonClass}`} suppressHydrationWarning /> if potential title */}
+          {/* <Skeleton className="h-12 w-3/4 mb-6 bg-black/5 dark:bg-white/10" suppressHydrationWarning /> if potential title */}
           <div className="space-y-4">
-            <Skeleton className={`h-[200px] w-f ${skeletonClass}`} suppressHydrationWarning /> {/* Card 1 */}
-            <Skeleton className={`h-[200px] w-f ${skeletonClass}`} suppressHydrationWarning /> {/* Card 2 */}
+            <Skeleton className="h-[200px] w-full bg-black/5 dark:bg-white/10" suppressHydrationWarning /> {/* Card 1 */}
+            <Skeleton className="h-[200px] w-full bg-black/5 dark:bg-white/10" suppressHydrationWarning /> {/* Card 2 */}
           </div>
         </div>
       </div>
