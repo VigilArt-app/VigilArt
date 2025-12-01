@@ -27,6 +27,7 @@ services:
       JWT_EXPIRES: ${JWT_EXPIRES}
       SALT_ROUNDS: ${SALT_ROUNDS}
       REDIS_URL: ${REDIS_URL}
+    restart: always
 
   frontend:
     build:
@@ -41,6 +42,7 @@ services:
       NEXT_PUBLIC_APP_ENV: ${NEXT_PUBLIC_APP_ENV}
       NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL}
       API_URL: ${API_URL}
+    restart: always
 
   db:
     image: postgres:16
