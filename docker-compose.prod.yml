@@ -15,7 +15,7 @@ services:
       DB_USER: ${DB_USER}
       DB_PASSWORD: ${DB_PASSWORD}
       DB_NAME: ${DB_NAME}
-      DB_HOST: db
+      DB_HOST: ${DB_HOST}
       DB_PORT: ${DB_PORT}
       DATABASE_URL: ${DATABASE_URL}
       SERVER_PORT: ${SERVER_PORT}
@@ -39,19 +39,19 @@ services:
       - app-network
     environment:
       NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
-    volume:
-      - apk_volume:/home/apk
       NEXT_PUBLIC_APP_ENV: ${NEXT_PUBLIC_APP_ENV}
       NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL}
       API_URL: ${API_URL}
+    volumes:
+      - apk_volume:/home/apk
     restart: always
 
-    mobile:
-      container_name: mobile
-      build: 
-        context: mobile-app/Dockerfile.prod
-      volumes:
-        - apk_volume:/home/apk
+  mobile:
+    container_name: mobile
+    build:
+      context: mobile-app/Dockerfile.prod
+    volumes:
+      - apk_volume:/home/apk
 
   db:
     image: postgres:16
