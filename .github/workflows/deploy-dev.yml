@@ -1,0 +1,24 @@
+name: Deploy to Dev
+
+on:
+  push:
+    branches:
+      - dev
+      - prod-build-deployment
+
+jobs:
+  deploy-dev:
+    name: Deploy to Dev Server
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy via SSH to Dev
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.DEV_SSH_HOST }}
+          username: ${{ secrets.DEV_SSH_USER }}
+          key: ${{ secrets.DEV_SSH_KEY }}
+          port: ${{ secrets.DEV_SSH_PORT || 22 }}
+          script: |
+            cd /srv/VigilArt
+            ./deploy.sh
