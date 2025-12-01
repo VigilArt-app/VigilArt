@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - dev
-      - prod-build-deployment
+      - prod-build-deployement
 
 jobs:
   deploy-dev:
