@@ -28,6 +28,11 @@ services:
         condition: service_started
     networks:
       - prisma-network
+    command: >
+      sh -c "
+        pnpm install &&
+        pnpm dev:backend
+      "
 
   frontend:
     build:
