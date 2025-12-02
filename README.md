@@ -91,3 +91,10 @@ pnpm add <package-name> -w -D -F <package-folder>
 ```
 
 You can also `cd` into the package folder and run the command without `-F` and `-w` flags.
+
+### Access the website online
+
+The VigilArt development website is accessible at: [https://dev.vigilart.app](https://dev.vigilart.app).  
+The production website is accessible at: [https://vigilart.app](https://vigilart.app).
+
+The APIs are also accessible online by using dev-api.vigilart.app and api.vigilart.app respectively.
