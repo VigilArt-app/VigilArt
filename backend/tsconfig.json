@@ -3,7 +3,8 @@
   "compilerOptions": {
     "paths": {
       "src/*": ["./src/*"],
-      "tests/*": ["./__tests__/*"]
+      "tests/*": ["./__tests__/*"],
+      "prisma/*": ["./src/generated/prisma/*"]
     },
     "outDir": "dist",
     "rootDir": "src",

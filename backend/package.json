@@ -7,6 +7,7 @@
     "@nestjs/core": "^11.1.8",
     "@nestjs/jwt": "^11.0.1",
     "@nestjs/platform-express": "^11.1.8",
+    "@prisma/adapter-pg": "^6.19.0",
     "@prisma/client": "^6.19.0",
     "@testcontainers/postgresql": "^11.8.1",
     "@vigilart/shared": "workspace:*",
@@ -14,15 +15,17 @@
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.2",
     "dotenv": "^17.2.3",
+    "pg": "^8.16.3",
     "supertest": "^7.1.4",
     "testcontainers": "^11.8.1"
   },
   "scripts": {
-    "dev": "nest start --watch",
+    "dev": "pnpm db:migrate && pnpm db:generate && nest start --watch",
     "build": "tsc -p tsconfig.json",
-    "start": "pnpm exec prisma migrate deploy && node dist/main.js",
+    "start": "pnpm db:migrate && node dist/main.js",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "db:deploy": "pnpm exec prisma migrate deploy && pnpm exec prisma generate"
+    "db:migrate": "pnpm exec prisma migrate deploy",
+    "db:generate": "pnpm exec prisma generate"
   },
   "devDependencies": {
     "@nestjs/cli": "^11.0.12",
