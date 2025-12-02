@@ -42,16 +42,7 @@ services:
       NEXT_PUBLIC_APP_ENV: ${NEXT_PUBLIC_APP_ENV}
       NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL}
       API_URL: ${API_URL}
-    volumes:
-      - apk_volume:/home/apk
     restart: always
-
-  mobile:
-    container_name: mobile
-    build:
-      context: mobile-app/Dockerfile.prod
-    volumes:
-      - apk_volume:/home/apk
 
   db:
     image: postgres:16
@@ -72,7 +63,6 @@ services:
 
 volumes:
   postgres_prod_data:
-  apk_volume:
 
 networks:
   app-network:
