@@ -6,8 +6,8 @@ RUN corepack enable && corepack prepare pnpm@10.20.0 --activate
 
 COPY pnpm-workspace.yaml pnpm-lock.yaml package.json tsconfig.base.json ./
 
-COPY web-app/package.json web-app/
-COPY shared/package.json shared/
+COPY web-app/ web-app/
+COPY shared/ shared/
 
 RUN pnpm install
 

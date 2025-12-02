@@ -1,10 +1,16 @@
-FROM ghcr.io/cirruslabs/flutter:latest
+FROM ghcr.io/cirruslabs/flutter:latest AS base
 
-WORKDIR /home/mobile
-COPY . .
+WORKDIR /app
+COPY /mobile-app/ /app/mobile-app/
+
+FROM base AS build
+
+WORKDIR /app/mobile-app
+
+RUN flutter pub get
 
 RUN flutter build apk --release
 
-RUN mkdir ../apk
+RUN mkdir -p /app/apk
 
-CMD cp build/app/outputs/flutter-apk/* ../apk/
+ENTRYPOINT [ "cp", "build/app/outputs/flutter-apk/*", "/app/apk/" ]

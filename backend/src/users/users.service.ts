@@ -9,7 +9,7 @@ import { CreateUserDto } from "./dto/create-user.dto";
 import { randomUUID } from "crypto";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import { PrismaService } from "../prisma.service";
-import { User } from "@prisma/client";
+import { User } from "../generated/prisma/client";
 import { DEFAULT_SUBSCRIPTION_TIER, DEFAULT_AVATAR_URL } from "./constants";
 
 export type UserProfile = Omit<User, "password">;

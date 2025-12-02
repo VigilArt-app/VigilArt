@@ -4,7 +4,9 @@
   "version": "0.0.1",
   "packageManager": "pnpm@10.20.0",
   "scripts": {
-    "build": "pnpm -r run build",
+    "build:backend": "pnpm --filter backend run build",
+    "build:frontend": "pnpm --filter web-app run build",
+    "build:shared": "pnpm --filter shared run build",
     "dev:backend": "pnpm --filter backend dev",
     "dev:frontend": "pnpm --filter web-app dev",
     "dev": "pnpm --parallel --filter \"backend...\" --filter \"web-app...\" dev",
