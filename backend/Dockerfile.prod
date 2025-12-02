@@ -26,6 +26,12 @@ COPY backend/src/ backend/src/
 
 COPY backend/prisma/ backend/prisma/
 
+COPY shared/ shared/
+
+RUN pnpm install --frozen-lockfile --filter shared...
+
+RUN pnpm build:shared
+
 RUN pnpm install --frozen-lockfile --filter backend...
 
 FROM setup AS build
