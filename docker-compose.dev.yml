@@ -1,4 +1,13 @@
 services:
+  shared:
+    build:
+      context: .
+      dockerfile: shared/Dockerfile.dev
+    volumes:
+      - ./shared:/app/shared
+    command: pnpm build:shared --watch
+    networks:
+      - prisma-network
   backend:
     build:
       context: .
@@ -9,11 +18,14 @@ services:
       - ./backend:/app/backend
       - ./shared:/app/shared
       - backend_node_modules:/app/backend/node_modules
+      - ./shared/dist:/app/shared/dist
     ports:
       - "${SERVER_PORT}:${SERVER_PORT}"
     depends_on:
       db:
         condition: service_healthy
+      shared:
+        condition: service_started
     networks:
       - prisma-network
 
@@ -27,6 +39,7 @@ services:
       - ./web-app:/app/web-app
       - ./shared:/app/shared
       - web_app_node_modules:/app/web-app/node_modules
+      - ./shared/dist:/app/shared/dist
     ports:
       - "3000:3000"
 
