@@ -1,11 +1,6 @@
 {
   "extends": "../tsconfig.base.json",
   "compilerOptions": {
-    "paths": {
-      "src/*": ["./src/*"],
-      "tests/*": ["./__tests__/*"],
-      "prisma/*": ["./src/generated/prisma/*"]
-    },
     "outDir": "dist",
     "rootDir": "src",
     "module": "nodenext",
