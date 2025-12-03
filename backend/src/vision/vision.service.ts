@@ -1,13 +1,12 @@
 import { Injectable } from "@nestjs/common";
 import { ImageAnnotatorClient } from "@google-cloud/vision";
 import {
-  IArtworkIndividualReport,
+  IVisualSearchResult,
   IArtworkMetadata,
   IArtworkMetadataLabel,
-  IArtworkStatistics,
   IArtworkWebEntity,
   IMatchingPage,
-} from "./interfaces";
+} from "src/reports/interfaces";
 import { WebEntity, WebLabel, WebPage } from "./types";
 import { classifyWebsite, extractRootDomain, getImageUrl } from "./utils";
 
@@ -100,14 +99,6 @@ export class VisionService {
     return matchingPages;
   }
 
-  getArtworkReportStatistics = (
-    matchingPages: IMatchingPage[]
-  ): IArtworkStatistics => {
-    return {
-      totalMatches: matchingPages.length,
-    };
-  };
-
   async webDetection(imageUri: string) {
     const [result] = await this.client.webDetection(imageUri);
     const webDetection = result.webDetection;
@@ -115,9 +106,7 @@ export class VisionService {
     return webDetection;
   }
 
-  async getArtworkIndividualReport(
-    imageUri: string
-  ): Promise<IArtworkIndividualReport | null> {
+  async searchImage(imageUri: string): Promise<IVisualSearchResult | null> {
     try {
       const webDetection = await this.webDetection(imageUri);
 
@@ -131,11 +120,8 @@ export class VisionService {
       const matchingPages = this.getArtworkReportMatchingPages(
         webDetection.pagesWithMatchingImages
       );
-      const statistics = this.getArtworkReportStatistics(matchingPages);
 
       return {
-        detectionDate: new Date().toString(),
-        statistics,
         metadata,
         matchingPages,
       };

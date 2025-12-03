@@ -2,7 +2,7 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { VisionService } from "./vision.service";
 import { ConfigModule } from "@nestjs/config";
 import fs from "fs";
-import { IArtworkIndividualReport } from "./interfaces";
+import { IVisualSearchResult } from "src/reports/interfaces";
 
 describe("VisionService", () => {
   let service: VisionService;
@@ -24,7 +24,7 @@ describe("VisionService", () => {
     expect(service).toBeDefined();
   });
 
-  it("Should return individual report for each artwork", async () => {
+  it("Should return matching pages and metadata for each artwork", async () => {
     const inputFolder = "./src/vision/sample-inputs";
     const outputFolder = "./src/vision/expected-outputs";
     const inputFiles = ["artwork_ayaka-suda", "its-a-small-world_kevandram"];
@@ -42,25 +42,16 @@ describe("VisionService", () => {
         .spyOn(service, "webDetection")
         .mockReturnValue(webDetectionResult.result.webDetection);
 
-      const res: IArtworkIndividualReport | null =
-        await service.getArtworkIndividualReport(
-          webDetectionResult.inputImageUri
-        );
+      const res: IVisualSearchResult | null = await service.searchImage(
+        webDetectionResult.inputImageUri
+      );
 
       if (!res) {
         fail("Report shouldn't be null");
       }
-      if (!res.statistics) {
-        fail("Report statistics shouldn't be null");
-      }
       if (!res.metadata) {
         fail("Report metadata result shouldn't be null");
       }
-      expect(res.detectionDate).toEqual(expect.any(String));
-      expect(res.statistics).toEqual(expectedOutput.statistics);
-      expect(res.statistics.totalMatches).toEqual(
-        expectedOutput.statistics.totalMatches
-      );
 
       expect(res.metadata.bestGuessLabels).toEqual(
         expectedOutput.metadata.bestGuessLabels

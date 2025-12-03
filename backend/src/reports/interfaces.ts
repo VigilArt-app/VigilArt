@@ -1,14 +1,13 @@
 import { WebsiteCategory } from "src/generated/prisma";
 
-export interface IArtworkIndividualReport {
-  detectionDate: string;
-  statistics: IArtworkStatistics | null;
+export interface IVisualSearchResult {
   metadata: IArtworkMetadata | null;
   matchingPages: IMatchingPage[];
 }
 
 export interface IArtworkStatistics {
   totalMatches: number;
+  // totalUncreditedMatches: number;
 }
 
 export interface IArtworkMetadataLabel {
@@ -32,4 +31,18 @@ export interface IMatchingPage {
   category: WebsiteCategory | null;
   websiteName: string | null;
   imageUrl?: string;
+}
+
+export interface ReportDetails {
+  artworkId: string;
+  detectionDate: string;
+  statistics: IArtworkStatistics;
+  matchingPages: IMatchingPage[];
+}
+
+export interface ArtworksReport {
+  detectionDate: string;
+  totalMatches: number;
+  statistics: IArtworkStatistics;
+  details: ReportDetails[];
 }

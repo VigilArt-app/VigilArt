@@ -57,7 +57,7 @@ model Artwork {
 model ArtworkStatistics {
   id String @id @default(uuid())
 
-  report ArtworkIndividualReport?
+  // report ArtworkIndividualReport?
   totalMatches Int
 }
 
@@ -115,13 +115,14 @@ model ArtworkIndividualReport {
   artworkId String
   artwork Artwork @relation(fields: [artworkId], references: [id], onDelete: Cascade)
 
-  detectionDate DateTime
-  statisticsId String @unique
-  statistics ArtworkStatistics @relation(fields: [statisticsId], references: [id], onDelete: Cascade)
+  // detectionDate DateTime
+  // statisticsId String @unique
+  // statistics ArtworkStatistics @relation(fields: [statisticsId], references: [id], onDelete: Cascade)
   metadataId String @unique
   metadata ArtworkMetadata @relation(fields: [metadataId], references: [id], onDelete: Cascade)
 
   matchingPages MatchingPage[]
 }
 
+// TO UPDATE /!\
 //make model for scan report of each artwork and of all artworks
