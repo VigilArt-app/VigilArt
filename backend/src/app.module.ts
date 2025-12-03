@@ -6,6 +6,8 @@ import { ConfigModule } from "@nestjs/config";
 import { AuthModule } from "./auth/auth.module";
 import { VisionModule } from "./vision/vision.module";
 import { ArtworksModule } from "./artworks/artworks.module";
+import { ReportsModule } from './reports/reports.module';
+import { PrismaModule } from './prisma/prisma.module';
 
 @Module({
   imports: [
@@ -17,6 +19,8 @@ import { ArtworksModule } from "./artworks/artworks.module";
     AuthModule,
     VisionModule,
     ArtworksModule,
+    ReportsModule,
+    PrismaModule,
   ],
   controllers: [AppController],
   providers: [AppService],

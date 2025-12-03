@@ -1,4 +1,9 @@
-import { IsNotEmpty, IsString, IsStrongPassword } from "class-validator";
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsString,
+  IsStrongPassword,
+} from "class-validator";
 import {
   MIN_PASSWORD_LENGTH,
   MIN_PASSWORD_LOWERCASE,
@@ -9,7 +14,7 @@ import {
 import { Transform } from "class-transformer";
 
 export class SignUpDto {
-  @IsString()
+  @IsEmail()
   @IsNotEmpty()
   @Transform(({ value }) => value.trim().toLowerCase())
   email!: string;

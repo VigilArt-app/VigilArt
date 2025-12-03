@@ -1,6 +1,8 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { VisionService } from "./vision.service";
 import { ConfigModule } from "@nestjs/config";
+import fs from "fs";
+import { IArtworkIndividualReport } from "./interfaces";
 
 describe("VisionService", () => {
   let service: VisionService;
@@ -22,12 +24,51 @@ describe("VisionService", () => {
     expect(service).toBeDefined();
   });
 
-  //To retrieve easily web detections result of an image, dont remove comments
-  //   it("Should get web detections result of an image", async () => {
-  //     const imageUri =
-  //       "https://i.pinimg.com/736x/b0/42/f7/b042f7f4d3583298407291b0a8882fef.jpg";
-  //     const result = await service.webDetection(imageUri);
+  it("Should return individual report for each artwork", async () => {
+    const inputFolder = "./src/vision/sample-inputs";
+    const outputFolder = "./src/vision/expected-outputs";
+    const inputFiles = ["artwork_ayaka-suda", "its-a-small-world_kevandram"];
 
-  //     expect(result).toBeDefined();
-  //   });
+    for (const inputName of inputFiles) {
+      const inputFile = `${inputFolder}/${inputName}.json`;
+      const expectedOutputFile = `${outputFolder}/${inputName}.json`;
+      const webDetectionResult = JSON.parse(
+        fs.readFileSync(inputFile).toString()
+      );
+      const expectedOutput = JSON.parse(
+        fs.readFileSync(expectedOutputFile).toString()
+      );
+      jest
+        .spyOn(service, "webDetection")
+        .mockReturnValue(webDetectionResult.result.webDetection);
+
+      const res: IArtworkIndividualReport | null =
+        await service.getArtworkIndividualReport(
+          webDetectionResult.inputImageUri
+        );
+
+      if (!res) {
+        fail("Report shouldn't be null");
+      }
+      if (!res.statistics) {
+        fail("Report statistics shouldn't be null");
+      }
+      if (!res.metadata) {
+        fail("Report metadata result shouldn't be null");
+      }
+      expect(res.detectionDate).toEqual(expect.any(String));
+      expect(res.statistics).toEqual(expectedOutput.statistics);
+      expect(res.statistics.totalMatches).toEqual(
+        expectedOutput.statistics.totalMatches
+      );
+
+      expect(res.metadata.bestGuessLabels).toEqual(
+        expectedOutput.metadata.bestGuessLabels
+      );
+      expect(res.metadata.webEntities).toEqual(
+        expectedOutput.metadata.webEntities
+      );
+      expect(res.matchingPages).toEqual(expectedOutput.matchingPages);
+    }
+  });
 });

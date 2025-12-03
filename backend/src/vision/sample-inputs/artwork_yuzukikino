@@ -1,0 +1,164 @@
+{
+  "inputImageUri": "https://pbs.twimg.com/media/G6_XTh0bcAAHaGv?format=png&name=900x900",
+  "result": {
+    "webDetection": {
+      "webEntities": [
+        {
+          "entityId": "/m/01kr8f",
+          "score": 1.1582095623016357,
+          "description": "Illustration"
+        },
+        {
+          "entityId": "/m/02csf",
+          "score": 0.5504999756813049,
+          "description": "Drawing"
+        },
+        {
+          "entityId": "/m/0jg24",
+          "score": 0.43389999866485596,
+          "description": "Image"
+        },
+        {
+          "entityId": "/g/120p9yhk",
+          "score": 0.31769999861717224,
+          "description": "Animation"
+        },
+        {
+          "entityId": "/m/0rp4kd0",
+          "score": 0.2354000061750412,
+          "description": ""
+        },
+        {
+          "entityId": "/m/0289n8t",
+          "score": 0.2354000061750412,
+          "description": "X"
+        },
+        {
+          "entityId": "/g/11j0d343ld",
+          "score": 0.18379999697208405,
+          "description": "On"
+        },
+        {
+          "entityId": "/m/01vq3",
+          "score": 0.18325501680374146,
+          "description": "Christmas"
+        },
+        {
+          "entityId": "/m/0jjw",
+          "score": 0.17354145646095276,
+          "description": "Art"
+        },
+        {
+          "entityId": "/m/033lpr",
+          "score": 0.1615999937057495,
+          "description": "Audience"
+        }
+      ],
+      "fullMatchingImages": [
+        {
+          "url": "https://pbs.twimg.com/media/G6_XTh0bcAAHaGv.png",
+          "score": 0
+        }
+      ],
+      "partialMatchingImages": [],
+      "pagesWithMatchingImages": [
+        {
+          "fullMatchingImages": [
+            {
+              "url": "https://pbs.twimg.com/media/G6_XTh0bcAAHaGv.png",
+              "score": 0
+            }
+          ],
+          "partialMatchingImages": [],
+          "url": "https://x.com/klarax_klara",
+          "score": 0,
+          "pageTitle": "Klara (@klarax_klara) / Posts / X - Twitter"
+        },
+        {
+          "fullMatchingImages": [
+            {
+              "url": "https://pbs.twimg.com/media/G6_XTh0bcAAHaGv.png",
+              "score": 0
+            }
+          ],
+          "partialMatchingImages": [],
+          "url": "https://x.com/proteidaes",
+          "score": 0,
+          "pageTitle": "Kaeti V. (@proteidaes) / Posts / X - Twitter"
+        },
+        {
+          "fullMatchingImages": [
+            {
+              "url": "https://pbs.twimg.com/media/G6_XTh0bcAAHaGv.png",
+              "score": 0
+            }
+          ],
+          "partialMatchingImages": [],
+          "url": "https://x.com/ote_mo",
+          "score": 0,
+          "pageTitle": "ᴍᴏʏᴀᴄᴏ (@ote_mo) / Posts / X"
+        },
+        {
+          "fullMatchingImages": [
+            {
+              "url": "https://pbs.twimg.com/media/G6_XTh0bcAAHaGv.png",
+              "score": 0
+            }
+          ],
+          "partialMatchingImages": [],
+          "url": "https://x.com/bloo20242",
+          "score": 0,
+          "pageTitle": "bloo (@bloo20242) / Posts / X"
+        }
+      ],
+      "visuallySimilarImages": [
+        {
+          "url": "https://pbs.twimg.com/media/G6_XTh0bcAAHaGv.png",
+          "score": 0
+        },
+        {
+          "url": "https://images.playground.com/07842c0b-844a-4543-a478-6e5099759937.jpeg",
+          "score": 0
+        },
+        {
+          "url": "https://e53rrtjrr3f.exactdn.com/wp-content/uploads/2019/06/libra-facebook.webp?strip=all&lossy=1&quality=92&resize=400%2C400&ssl=1",
+          "score": 0
+        },
+        {
+          "url": "https://www.datocms-assets.com/91892/1743681643-twinkleby-screenshot-05.png?ar64=Mzo0&auto=format&dpi=72&fit=crop&w=600",
+          "score": 0
+        },
+        {
+          "url": "https://m.media-amazon.com/images/M/MV5BMGM1YjQ4YmYtMzJhNy00NmRmLWFkYWItYWMxZWFlNDE3YjkyXkEyXkFqcGc@._V1_.jpg",
+          "score": 0
+        },
+        {
+          "url": "https://media.istockphoto.com/id/124910597/vector/landscape-night-winter-forest.jpg?s=612x612&w=is&k=20&c=UNvpwGMCn9_njkkyiQR5DB_uutBJoy00kT0Nfdnc8_I=",
+          "score": 0
+        },
+        {
+          "url": "https://www.olenashmahalo.com/wp-content/uploads/2025/07/Time-Domain-Astro_4x5_600x750.jpg",
+          "score": 0
+        },
+        {
+          "url": "https://lookaside.fbsbx.com/lookaside/crawler/media/?media_id=894676066167548&get_thumbnail=1",
+          "score": 0
+        },
+        {
+          "url": "https://i.scdn.co/image/ab67616d0000b2730d41331614d65198898ffb69",
+          "score": 0
+        },
+        {
+          "url": "https://i.scdn.co/image/ab67616d0000b2735bd6b29c572886548609a806",
+          "score": 0
+        }
+      ],
+      "bestGuessLabels": [
+        {
+          "label": "illustration",
+          "languageCode": ""
+        }
+      ]
+    }
+  }
+}

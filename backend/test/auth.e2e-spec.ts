@@ -1,9 +1,10 @@
 import { Test } from "@nestjs/testing";
-import { HttpStatus, INestApplication, ValidationPipe } from "@nestjs/common";
+import { HttpStatus, INestApplication } from "@nestjs/common";
 import { AppModule } from "../src/app.module";
 import { PrismaService } from "../src/prisma/prisma.service";
 import { setupApp } from "../src/app.setup";
 import { ApiClient } from "./api-client";
+import { SubscriptionTier } from "../src/generated/prisma";
 
 describe("Auth E2E", () => {
   let app: INestApplication;
@@ -49,7 +50,7 @@ describe("Auth E2E", () => {
           firstName: "Emma",
           lastName: "Dao",
           createdAt: expect.any(String),
-          subscriptionTier: expect.any(String),
+          subscriptionTier: SubscriptionTier.FREE,
         })
       );
     });
@@ -87,6 +88,27 @@ describe("Auth E2E", () => {
         })
         .expect(HttpStatus.BAD_REQUEST);
     });
+
+    it("Shouldn't signup when required fields are missing", async () => {
+      const res = await api
+        .post("/auth/signup")
+        .send({ email: "amelia@mail.com" })
+        .expect(HttpStatus.BAD_REQUEST);
+      expect(res.body.message).toBeDefined();
+    });
+
+    it("Shouldn't signup with invalid mail", async () => {
+      const res = await api
+        .post("/auth/signup")
+        .send({
+          email: "amanda",
+          password: "Secure_P4ssword",
+          firstName: "Amanda",
+          lastName: "Rowles",
+        })
+        .expect(HttpStatus.BAD_REQUEST);
+      expect(res.body.message).toBeDefined();
+    });
   });
 
   describe("POST /login", () => {
@@ -119,7 +141,7 @@ describe("Auth E2E", () => {
           firstName: "Emma",
           lastName: "Dao",
           createdAt: expect.any(String),
-          subscriptionTier: expect.any(String),
+          subscriptionTier: SubscriptionTier.FREE,
         })
       );
     });

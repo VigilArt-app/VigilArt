@@ -1,0 +1,110 @@
+{
+  "detectionDate": "Wed Dec 03 2025 08:42:52 GMT-0500 (Eastern Standard Time)",
+  "statistics": {
+    "totalMatches": 8
+  },
+  "metadata": {
+    "bestGuessLabels": [
+      {
+        "label": "disney ride posters",
+        "languageCode": "en"
+      }
+    ],
+    "webEntities": [
+      {
+        "score": 1.6495051383972168,
+        "description": "\"it's a small world\""
+      },
+      {
+        "score": 0.9425294995307922,
+        "description": "Disneyland Park"
+      },
+      {
+        "score": 0.8156080842018127,
+        "description": "Graphic design"
+      },
+      {
+        "score": 0.8106450438499451,
+        "description": "Fantasyland"
+      },
+      {
+        "score": 0.7114999890327454,
+        "description": "Poster"
+      },
+      {
+        "score": 0.7013999819755554,
+        "description": "The Walt Disney Company"
+      },
+      {
+        "score": 0.6743589639663696,
+        "description": "Illustration"
+      },
+      {
+        "score": 0.5582000017166138,
+        "description": "Image"
+      },
+      {
+        "score": 0.498199999332428,
+        "description": "Graphics"
+      }
+    ]
+  },
+  "matchingPages": [
+    {
+      "url": "https://www.pinterest.com/pin/its-a-small-world-posters--351912461900311/",
+      "pageTitle": "Disney Attraction Posters — Kevin Ramirez - Pinterest",
+      "category": "SOCIAL",
+      "websiteName": "pinterest.com",
+      "imageUrl": "https://i.pinimg.com/736x/72/06/1d/72061d4f4cf959ceeea2fdba880b6f89.jpg"
+    },
+    {
+      "url": "https://in.pinterest.com/emmalinelola/mary-blair-sw/",
+      "pageTitle": "Discover 21 mary blair sw and disney posters ideas",
+      "category": "SOCIAL",
+      "websiteName": "pinterest.com",
+      "imageUrl": "https://i.pinimg.com/236x/72/06/1d/72061d4f4cf959ceeea2fdba880b6f89.jpg"
+    },
+    {
+      "url": "https://www.etsy.com/listing/1756566654/its-a-small-world-clock-disneyland-walt",
+      "pageTitle": "Its A Small World Clock Disneyland Walt Disney World Attraction ...",
+      "category": "MARKETPLACES",
+      "websiteName": "etsy.com",
+      "imageUrl": "https://i.etsystatic.com/9203233/r/il/3b4344/6210177483/il_fullxfull.6210177483_2lhu.jpg"
+    },
+    {
+      "url": "https://www.kevinramirez.com/disney-attraction-posters",
+      "pageTitle": "Disney Attraction Posters | Enhance Your Space - Kevin Ramirez",
+      "category": "OTHER",
+      "websiteName": "kevinramirez.com",
+      "imageUrl": "https://images.squarespace-cdn.com/content/v1/575793c1e707eb750db1f798/1630389880395-EO802J50DC8EK6E6YK3Q/REV.jpg"
+    },
+    {
+      "url": "https://www.ebay.com/itm/285979964469",
+      "pageTitle": "Disneyland Its a Small World Clock Boat Attraction Fantasyland ...",
+      "category": "MARKETPLACES",
+      "websiteName": "ebay.com",
+      "imageUrl": "https://i.ebayimg.com/images/g/zsgAAOSwSTFmo7uP/s-l400.png"
+    },
+    {
+      "url": "https://www.ebay.com/itm/286010016336",
+      "pageTitle": "NON GLOSSY Its a Small World Clock Boat Attraction Fantasyland ...",
+      "category": "MARKETPLACES",
+      "websiteName": "ebay.com",
+      "imageUrl": "https://i.ebayimg.com/images/g/zsgAAOSwSTFmo7uP/s-l400.png"
+    },
+    {
+      "url": "https://www.ebay.com/itm/286113952242",
+      "pageTitle": "MATTE 13x19 Its a Small World Clock Boat Attraction Fantasyland ...",
+      "category": "MARKETPLACES",
+      "websiteName": "ebay.com",
+      "imageUrl": "https://i.ebayimg.com/images/g/zsgAAOSwSTFmo7uP/s-l400.png"
+    },
+    {
+      "url": "https://www.ebay.com/itm/395880994133",
+      "pageTitle": "Disney It's a Small World Clock Boat Poster 13x19 Satin Finish Print",
+      "category": "MARKETPLACES",
+      "websiteName": "ebay.com",
+      "imageUrl": "https://i.ebayimg.com/images/g/zsgAAOSwSTFmo7uP/s-l1200.png"
+    }
+  ]
+}

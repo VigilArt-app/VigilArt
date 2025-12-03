@@ -2,6 +2,8 @@
   "testPathIgnorePatterns": ["<rootDir>/dist/"],
   "preset": "ts-jest",
   "testEnvironment": "node",
-
-  "transformIgnorePatterns": ["/node_modules/(?!@google-cloud|uuid)/"]
+  "transformIgnorePatterns": ["/node_modules/(?!@google-cloud|uuid)/"],
+  "moduleNameMapper": {
+    "^src/(.*)$": "<rootDir>/src/$1"
+  }
 }

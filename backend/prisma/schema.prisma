@@ -33,21 +33,95 @@ enum SubscriptionTier {
   PRO
 }
 
-model Artwork {
-  id String @id @default(cuid())
-  userId String
-  user User @relation(fields: [userId], references: [id])
-  imageUri String @unique
+enum MatchType {
+  FULL
+  PARTIAL
+}
 
+model Artwork {
+  id String @id @default(uuid())
+  userId String
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  imageUri String
   originalFilename String?
   contentType String?  // "image/png", "image/jpeg"
   sizeBytes Int?
-
   description String?
-
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   lastScanAt DateTime?
-  // later:
-  // scanReports  ScanReport[]
+  reports ArtworkIndividualReport[]
 }
+
+model ArtworkStatistics {
+  id String @id @default(uuid())
+
+  report ArtworkIndividualReport?
+  totalMatches Int
+}
+
+model ArtworkMetadataLabel {
+  id String @id @default(uuid())
+  artworkMetadataId String
+  artworkMetadata ArtworkMetadata @relation(fields: [artworkMetadataId], references: [id], onDelete: Cascade)
+
+  label String
+  languageCode String?
+}
+
+model ArtworkWebEntity {
+  id String @id @default(uuid())
+  artworkMetadataId String
+  artworkMetadata ArtworkMetadata @relation(fields: [artworkMetadataId], references: [id], onDelete: Cascade)
+
+  score Int
+  description String
+}
+
+model ArtworkMetadata {
+  id String @id @default(uuid())
+
+  report ArtworkIndividualReport?
+  bestGuessLabels ArtworkMetadataLabel[]
+  webEntities ArtworkWebEntity[]
+}
+
+enum WebsiteCategory {
+  SOCIAL
+  ART_PLATFORMS
+  MARKETPLACES
+  BLOG
+  MEDIA
+  SEARCH
+  OTHER
+}
+
+model MatchingPage {
+  id String @id @default(uuid())  
+  artworkReportId String
+  artworkReport ArtworkIndividualReport @relation(fields: [artworkReportId], references: [id], onDelete: Cascade)
+
+  matchType MatchType
+  url String
+  pageTitle String?
+  category WebsiteCategory
+  websiteName String
+  imageUrl String?
+}
+
+model ArtworkIndividualReport {
+  id String @id @default(uuid())
+  artworkId String
+  artwork Artwork @relation(fields: [artworkId], references: [id], onDelete: Cascade)
+
+  detectionDate DateTime
+  statisticsId String @unique
+  statistics ArtworkStatistics @relation(fields: [statisticsId], references: [id], onDelete: Cascade)
+  metadataId String @unique
+  metadata ArtworkMetadata @relation(fields: [metadataId], references: [id], onDelete: Cascade)
+
+  matchingPages MatchingPage[]
+}
+
+//make model for scan report of each artwork and of all artworks

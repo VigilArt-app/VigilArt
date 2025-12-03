@@ -11,7 +11,7 @@ import { UpdateUserDto } from "./dto/update-user.dto";
 import { PrismaService } from "../prisma/prisma.service";
 import { SubscriptionTier, User } from "../generated/prisma/client";
 
-export type UserProfile = Omit<User, "password">;
+type UserProfile = Omit<User, "password">;
 
 @Injectable()
 export class UsersService {
