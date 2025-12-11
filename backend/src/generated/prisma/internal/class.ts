@@ -57,8 +57,8 @@ const config: runtime.GetPrismaClientConfig = {
       }
     }
   },
-  "inlineSchema": "// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\n// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?\n// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init\n\ngenerator client {\n  provider     = \"prisma-client\"\n  output       = \"../src/generated/prisma\"\n  engineType   = \"client\"\n  moduleFormat = \"cjs\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\nmodel User {\n  id               String   @id @default(uuid())\n  email            String   @unique @db.VarChar(254)\n  password         String\n  firstName        String   @db.VarChar(64)\n  lastName         String   @db.VarChar(64)\n  avatar           String\n  createdAt        DateTime @default(now())\n  subscriptionTier String\n}\n",
-  "inlineSchemaHash": "aec213e20539350fa4b32f3b0157d623e750a1d0b9de1aa469f51b7a1b522b7f",
+  "inlineSchema": "// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\n// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?\n// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init\n\ngenerator client {\n  provider     = \"prisma-client\"\n  output       = \"../src/generated/prisma\"\n  engineType   = \"client\"\n  moduleFormat = \"cjs\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\n// User Models & Enums\n\nmodel User {\n  id               String   @id @default(uuid())\n  email            String   @unique @db.VarChar(254)\n  password         String\n  firstName        String   @db.VarChar(64)\n  lastName         String   @db.VarChar(64)\n  avatar           String\n  createdAt        DateTime @default(now())\n  subscriptionTier String\n}\n",
+  "inlineSchemaHash": "b1e38e2d9b13476b2275fd62971e6d0fa84ed5278d834f8749b2ea332e330497",
   "copyEngine": true,
   "runtimeDataModel": {
     "models": {},

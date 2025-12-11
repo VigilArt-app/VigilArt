@@ -69,6 +69,7 @@ doppler run -- docker compose -f docker-compose.prod.yml up
 You can also run a single service (e.g., backend):
 
 ```bash
+doppler run -- docker compose -f docker-compose.prod.yml build backend
 doppler run -- docker compose -f docker-compose.prod.yml up backend
 ```
 
