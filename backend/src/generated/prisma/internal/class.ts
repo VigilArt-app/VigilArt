@@ -23,7 +23,7 @@ const config: runtime.GetPrismaClientConfig = {
       "value": "prisma-client"
     },
     "output": {
-      "value": "/app/backend/src/generated/prisma",
+      "value": "/home/capuchegianni/projects/epitech/VigilArt/backend/src/generated/prisma",
       "fromEnvVar": null
     },
     "config": {
@@ -33,17 +33,17 @@ const config: runtime.GetPrismaClientConfig = {
     "binaryTargets": [
       {
         "fromEnvVar": null,
-        "value": "linux-musl-openssl-3.0.x",
+        "value": "debian-openssl-3.0.x",
         "native": true
       }
     ],
     "previewFeatures": [],
-    "sourceFilePath": "/app/backend/prisma/schema.prisma",
+    "sourceFilePath": "/home/capuchegianni/projects/epitech/VigilArt/backend/prisma/schema.prisma",
     "isCustomOutput": true
   },
   "relativePath": "../../../prisma",
-  "clientVersion": "6.19.0",
-  "engineVersion": "2ba551f319ab1df4bc874a89965d8b3641056773",
+  "clientVersion": "6.19.1",
+  "engineVersion": "c2990dca591cba766e3b7ef5d9e8a84796e47ab7",
   "datasourceNames": [
     "db"
   ],

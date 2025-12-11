@@ -1,53 +1,4 @@
 services:
-  shared:
-    build:
-      context: .
-      dockerfile: shared/Dockerfile.dev
-    volumes:
-      - ./shared:/app/shared
-    command: pnpm build:shared --watch
-    networks:
-      - prisma-network
-  backend:
-    build:
-      context: .
-      dockerfile: backend/Dockerfile.dev
-    env_file:
-      - .env
-    volumes:
-      - ./backend:/app/backend
-      - ./shared:/app/shared
-      - backend_node_modules:/app/backend/node_modules
-      - ./shared/dist:/app/shared/dist
-    ports:
-      - "${SERVER_PORT}:${SERVER_PORT}"
-    depends_on:
-      db:
-        condition: service_healthy
-      shared:
-        condition: service_started
-    networks:
-      - prisma-network
-    command: >
-      sh -c "
-        pnpm install &&
-        pnpm dev:backend
-      "
-
-  frontend:
-    build:
-      context: .
-      dockerfile: web-app/Dockerfile.dev
-    env_file:
-      - .env
-    volumes:
-      - ./web-app:/app/web-app
-      - ./shared:/app/shared
-      - web_app_node_modules:/app/web-app/node_modules
-      - ./shared/dist:/app/shared/dist
-    ports:
-      - "3000:3000"
-
   db:
     image: postgres:16
     restart: always
@@ -93,13 +44,11 @@ services:
     depends_on:
       db:
         condition: service_healthy
-      backend:
-        condition: service_started
+    environment:
+      DATABASE_URL: "postgresql://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}?schema=public"
 
 volumes:
   postgres_local_data:
-  backend_node_modules:
-  web_app_node_modules:
 
 networks:
   prisma-network:
