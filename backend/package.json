@@ -27,7 +27,7 @@
     "test:e2e": "cross-env NODE_ENV=test jest --config ./test/jest-e2e.json",
     "db:reset": "pnpm exec prisma migrate reset",
     "db:push": "pnpm exec prisma db push",
-    "db:migrate-prod": "dotenv -e ../.env -- pnpm exec prisma migrate deploy",
+    "db:migrate-prod": "pnpm exec prisma migrate deploy",
     "db:generate": "dotenv -e ../.env -- pnpm exec prisma generate",
     "db:migrate-dev": "dotenv -e ../.env -- pnpm exec prisma migrate dev",
     "psql": "docker exec -it vigilart-dev-db bash -c 'psql -U \"$POSTGRES_USER\" -d \"$POSTGRES_DB\"'",
