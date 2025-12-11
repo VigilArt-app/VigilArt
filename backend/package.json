@@ -7,17 +7,15 @@
     "@nestjs/core": "^11.1.8",
     "@nestjs/jwt": "^11.0.1",
     "@nestjs/platform-express": "^11.1.8",
-    "@prisma/adapter-pg": "^6.19.0",
-    "@prisma/client": "^6.19.0",
-    "@testcontainers/postgresql": "^11.8.1",
+    "@prisma/adapter-pg": "^7.1.0",
+    "@prisma/client": "^7.1.0",
     "@vigilart/shared": "workspace:*",
     "bcrypt": "^6.0.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.2",
     "cross-env": "^10.1.0",
     "pg": "^8.16.3",
-    "supertest": "^7.1.4",
-    "testcontainers": "^11.8.1"
+    "supertest": "^7.1.4"
   },
   "scripts": {
     "dev": "dotenv -e ../.env -- pnpm db:migrate-prod && pnpm db:generate && nest start --watch",
@@ -36,13 +34,15 @@
   "devDependencies": {
     "@nestjs/cli": "^11.0.12",
     "@nestjs/testing": "^11.1.8",
+    "@testcontainers/postgresql": "^11.8.1",
     "@types/bcrypt": "^6.0.0",
     "@types/jest": "^30.0.0",
     "@types/mocha": "^10.0.10",
     "@types/pg": "^8.15.6",
     "@types/supertest": "^6.0.3",
     "jest": "^30.2.0",
-    "prisma": "^6.19.0",
+    "prisma": "^7.1.0",
+    "testcontainers": "^11.8.1",
     "ts-jest": "^29.4.5",
     "typescript": "^5.9.3"
   }
