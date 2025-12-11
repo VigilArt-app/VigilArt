@@ -28,6 +28,7 @@ services:
       SALT_ROUNDS: ${SALT_ROUNDS}
       REDIS_URL: ${REDIS_URL}
     restart: always
+    init: true
 
   frontend:
     build:
