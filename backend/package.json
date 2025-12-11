@@ -22,7 +22,7 @@
     "build": "tsc -p tsconfig.json",
     "start": "pnpm db:migrate-prod && node dist/main.js",
     "test": "jest --config ./jest.config.json",
-    "test:e2e": "cross-env NODE_ENV=test jest --config ./test/jest-e2e.json",
+    "test:e2e": "cross-env NODE_ENV=test NODE_OPTIONS=\"$NODE_OPTIONS --experimental-vm-modules\" jest --config ./test/jest-e2e.json",
     "db:reset": "pnpm exec prisma migrate reset",
     "db:push": "pnpm exec prisma db push",
     "db:migrate-prod": "pnpm exec prisma migrate deploy",
