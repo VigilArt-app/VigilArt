@@ -21,9 +21,4 @@ export class PrismaService
   async onModuleDestroy() {
     await this.$disconnect();
   }
-
-  async resetDatabase() {
-    if (process.env.NODE_ENV === 'production') return;
-    await this.user.deleteMany();
-  }
 }

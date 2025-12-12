@@ -26,7 +26,7 @@ describe("Auth E2E", () => {
   });
 
   afterEach(async () => {
-    await prismaService.resetDatabase();
+    await prismaService.user.deleteMany();
   });
 
   it("Should signup successfully and return tokens and user profile", async () => {

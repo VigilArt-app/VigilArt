@@ -45,7 +45,7 @@ describe("Users E2E", () => {
   });
 
   afterEach(async () => {
-    await prismaService.resetDatabase();
+    await prismaService.user.deleteMany();
   });
 
   it("Should create a user", async () => {
