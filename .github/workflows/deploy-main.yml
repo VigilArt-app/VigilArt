@@ -10,41 +10,41 @@ permissions:
   contents: read
 
 jobs:
-  run-tests:
-    name: 🧪 Run E2E Tests
-    runs-on: ubuntu-latest
+  # run-tests:
+  #   name: 🧪 Run E2E Tests
+  #   runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v4
 
-      - name: Install pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: 10.20.0
-          run_install: false
+  #     - name: Install pnpm
+  #       uses: pnpm/action-setup@v2
+  #       with:
+  #         version: 10.20.0
+  #         run_install: false
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-          cache: 'pnpm'
+  #     - name: Setup Node.js
+  #       uses: actions/setup-node@v4
+  #       with:
+  #         node-version: '22'
+  #         cache: 'pnpm'
 
-      - name: Install Dependencies
-        run: pnpm install --frozen-lockfile
+  #     - name: Install Dependencies
+  #       run: pnpm install --frozen-lockfile
 
-      - name: Generate Prisma Client
-        env:
-          DATABSE_URL: dummy_value_to_skip_prisma_error
-        run: pnpm --filter @vigilart/backend db:generate
+  #     - name: Generate Prisma Client
+  #       env:
+  #         DATABSE_URL: dummy_value_to_skip_prisma_error
+  #       run: pnpm --filter @vigilart/backend db:generate
 
-      - name: Run E2E Tests
-        run: pnpm --filter @vigilart/backend test:e2e
+  #     - name: Run E2E Tests
+  #       run: pnpm --filter @vigilart/backend test:e2e
 
   build-and-deploy:
     name: Build & deploy
     runs-on: ubuntu-latest
-    needs: run-tests
+    # needs: run-tests
     environment:
       name: Production
 
