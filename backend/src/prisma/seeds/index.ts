@@ -1,18 +1,18 @@
-import { PrismaClient } from "../../src/generated/prisma/client";
+import { PrismaClient } from "../../generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
 const prisma = new PrismaClient({ adapter });
 
 async function main() {
-
+    console.log('🌱 Starting seeding...');
+    console.log('✅ Seeding completed.');
 }
 
 main()
-    .then(async () => await prisma.$disconnect())
-    .catch(async (e) => {
+    .catch((e) => {
         console.error("Could not seed the database");
         console.error(e);
-        await prisma.$disconnect()
         process.exit(1);
-    });
+    })
+    .finally(async () => await prisma.$disconnect());

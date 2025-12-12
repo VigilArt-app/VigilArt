@@ -20,7 +20,7 @@
   "scripts": {
     "dev": "dotenv -e ../.env -- pnpm db:migrate-prod && pnpm db:generate && nest start --watch",
     "build": "tsc -p tsconfig.json",
-    "start": "pnpm db:migrate-prod && node dist/main.js",
+    "start": "pnpm db:migrate-prod && pnpm db:seed:prod && node dist/main.js",
     "test": "jest --config ./jest.config.json",
     "test:e2e": "cross-env NODE_ENV=test NODE_OPTIONS=\"$NODE_OPTIONS --experimental-vm-modules\" jest --config ./test/jest-e2e.json",
     "db:reset": "dotenv -e ../.env -- pnpm exec prisma migrate reset",
@@ -30,7 +30,8 @@
     "db:migrate-dev": "dotenv -e ../.env -- pnpm exec prisma migrate dev",
     "psql": "docker exec -it vigilart-dev-db bash -c 'psql -U \"$POSTGRES_USER\" -d \"$POSTGRES_DB\"'",
     "db:studio": "pnpm exec prisma studio --config ./prisma.config.ts --port 5555 --browser none",
-    "db:seed": "pnpm exec prisma db seed --config ./prisma.config.ts"
+    "db:seed": "pnpm exec prisma db seed --config ./prisma.config.ts",
+    "db:seed:prod": "node dist/prisma/seeds/index.js"
   },
   "devDependencies": {
     "@nestjs/cli": "^11.0.12",
