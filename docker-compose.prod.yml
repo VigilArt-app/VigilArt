@@ -1,6 +1,7 @@
 services:
 
   backend:
+    image: ghcr.io/${REPO_OWNER:-vigilart-app}/vigilart-backend:${IMAGE_TAG}
     build:
       context: .
       dockerfile: backend/Dockerfile.prod
@@ -29,8 +30,15 @@ services:
       REDIS_URL: ${REDIS_URL}
     restart: always
     init: true
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:${SERVER_PORT}/api/v1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
   frontend:
+    image: ghcr.io/${REPO_OWNER:-vigilart-app}/vigilart-frontend:${IMAGE_TAG}
     build:
       context: .
       dockerfile: web-app/Dockerfile.prod
@@ -49,6 +57,12 @@ services:
       NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL}
       API_URL: ${API_URL}
     restart: always
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:${APP_PORT}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
   db:
     image: postgres:16
