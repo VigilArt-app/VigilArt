@@ -22,6 +22,8 @@ COPY backend/tsconfig.build.json backend/tsconfig.build.json
 
 COPY backend/tsconfig.json backend/tsconfig.json
 
+COPY backend/prisma.config.ts backend/prisma.config.ts
+
 COPY backend/src/ backend/src/
 
 COPY backend/prisma/ backend/prisma/
@@ -36,7 +38,7 @@ RUN pnpm install --frozen-lockfile --filter backend...
 
 FROM setup AS build
 
-RUN pnpm --filter backend exec prisma generate
+RUN DATABASE_URL=dummy pnpm --filter backend exec prisma generate
 
 RUN pnpm build:backend
 

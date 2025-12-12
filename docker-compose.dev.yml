@@ -55,6 +55,7 @@ services:
     command: >
       sh -c "
         corepack enable && corepack prepare pnpm@10.20.0 --activate &&
+        pnpm db:push &&
         pnpm db:seed
       "
     env_file:
