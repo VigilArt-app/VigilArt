@@ -33,10 +33,30 @@ services:
     command: >
       sh -c "
         corepack enable && corepack prepare pnpm@10.20.0 --activate &&
-        pnpm prisma studio --config ./prisma.config.ts --port 5555 --browser none
+        pnpm db:studio
       "
     ports:
       - "5555:5555"
+    env_file:
+      - .env
+    networks:
+      - prisma-network
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: "postgresql://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}?schema=public"
+
+  seed-db:
+    image: node:22-alpine
+    working_dir: /app/backend
+    volumes:
+      - .:/app
+    command: >
+      sh -c "
+        corepack enable && corepack prepare pnpm@10.20.0 --activate &&
+        pnpm db:seed
+      "
     env_file:
       - .env
     networks:
