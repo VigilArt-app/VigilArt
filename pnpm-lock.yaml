@@ -56,6 +56,12 @@ importers:
       supertest:
         specifier: ^7.1.4
         version: 7.1.4
+      zod:
+        specifier: ^4.1.13
+        version: 4.1.13
+      zod-prisma-types:
+        specifier: ^3.3.10
+        version: 3.3.10(@prisma/client@7.1.0(prisma@7.1.0(@types/react@19.2.6)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(typescript@5.9.3))(typescript@5.9.3))(prisma@7.1.0(@types/react@19.2.6)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(typescript@5.9.3))(zod@4.1.13)
     devDependencies:
       '@nestjs/cli':
         specifier: ^11.0.12
@@ -98,6 +104,10 @@ importers:
         version: 5.9.3
 
   shared:
+    dependencies:
+      zod:
+        specifier: ^4.1.13
+        version: 4.1.13
     devDependencies:
       typescript:
         specifier: ^5.9.3
@@ -1087,6 +1097,9 @@ packages:
   '@prisma/dev@0.15.0':
     resolution: {integrity: sha512-KhWaipnFlS/fWEs6I6Oqjcy2S08vKGmxJ5LexqUl/3Ve0EgLUsZwdKF0MvqPM5F5ttw8GtfZarjM5y7VLwv9Ow==}
 
+  '@prisma/dmmf@7.1.0':
+    resolution: {integrity: sha512-O4F5aaACdqpJKDEUOhArLfqaIJmiR3DtZ9gT0aMw+em+CBYD9z+mj6u1RQDdb4FJu60TN9ABDiVZLh4Nbf+stw==}
+
   '@prisma/driver-adapter-utils@7.1.0':
     resolution: {integrity: sha512-AlVLzeXkw81+47MvQ9M8DvTiHkRfJ8xzklTbYjpskb0cTTDVHboTI/OVwT6Wcep/bNvfLKJYO0nylBiM5rxgww==}
 
@@ -1098,6 +1111,12 @@ packages:
 
   '@prisma/fetch-engine@7.1.0':
     resolution: {integrity: sha512-GZYF5Q8kweXWGfn87hTu17kw7x1DgnehgKoE4Zg1BmHYF3y1Uu0QRY/qtSE4veH3g+LW8f9HKqA0tARG66bxxQ==}
+
+  '@prisma/generator-helper@7.1.0':
+    resolution: {integrity: sha512-co1zrpEuNP4xvRmOEo3wzbyxr0BrP2Eag49z/EQe6yhlJorUZRD2HTkU2TZwsernbA7IZlvjsN2LOfUfxqMXVQ==}
+
+  '@prisma/generator@7.1.0':
+    resolution: {integrity: sha512-Pik1tpYadYDaaZ7KSROzM2nZrwSGMH3mHT/C2RURRuQW3x15FWo3czkcaFyq8BNE82TdWGU06VC1LoZL3gGGQQ==}
 
   '@prisma/get-platform@6.8.2':
     resolution: {integrity: sha512-vXSxyUgX3vm1Q70QwzwkjeYfRryIvKno1SXbIqwSptKwqKzskINnDUcx85oX+ys6ooN2ATGSD0xN2UTfg6Zcow==}
@@ -2337,6 +2356,9 @@ packages:
   co@4.6.0:
     resolution: {integrity: sha512-QVb0dM5HvG+uaxitm8wONl7jltx8dqhfU33DcqtOZcLSVIKSDDLDi7+0LbAKiyI8hD9u42m2YxXSkMGWThaecQ==}
     engines: {iojs: '>= 1.0.0', node: '>= 0.12.0'}
+
+  code-block-writer@13.0.3:
+    resolution: {integrity: sha512-Oofo0pq3IKnsFtuHqSF7TqBfr71aeyZDVJ0HpmqB7FBM2qEigL0iPONSCZSO9pE9dZTAxANe5XHG9Uy0YMv8cg==}
 
   collect-v8-coverage@1.0.3:
     resolution: {integrity: sha512-1L5aqIkwPfiodaMgQunkF1zRhNqifHBmtbbbxcr6yVxxBnliw4TDOW6NxpO8DJLgJ16OT+Y4ztZqP6p/FtXnAw==}
@@ -4525,6 +4547,17 @@ packages:
     resolution: {integrity: sha512-zK7YHHz4ZXpW89AHXUPbQVGKI7uvkd3hzusTdotCg1UxyaVtg0zFJSTfW/Dq5f7OBBVnq6cZIaC8Ti4hb6dtCA==}
     engines: {node: '>= 14'}
 
+  zod-prisma-types@3.3.10:
+    resolution: {integrity: sha512-JvgW7XhajDPhnq9yR7dZwPQvD8rdWX2JRNmSxaYghXBb5o2G1XIgayOjKTmxEsZ72bhXegpmca5dcWz9olzS7w==}
+    hasBin: true
+    peerDependencies:
+      '@prisma/client': ^4.x.x || ^5.x.x || ^6.x.x || ^7.x.x
+      prisma: ^4.x.x || ^5.x.x || ^6.x.x || ^7.x.x
+      zod: ^3.25.0 || ^4.0.0
+
+  zod@4.1.13:
+    resolution: {integrity: sha512-AvvthqfqrAhNH9dnfmrfKzX5upOdjUVJYFqNSlkmGf64gRaTzlPwz99IHYnVs28qYAybvAlBV+H7pn0saFY4Ig==}
+
 snapshots:
 
   '@alloc/quick-lru@5.2.0': {}
@@ -5538,6 +5571,8 @@ snapshots:
     transitivePeerDependencies:
       - typescript
 
+  '@prisma/dmmf@7.1.0': {}
+
   '@prisma/driver-adapter-utils@7.1.0':
     dependencies:
       '@prisma/debug': 7.1.0
@@ -5556,6 +5591,14 @@ snapshots:
       '@prisma/debug': 7.1.0
       '@prisma/engines-version': 7.1.0-6.ab635e6b9d606fa5c8fb8b1a7f909c3c3c1c98ba
       '@prisma/get-platform': 7.1.0
+
+  '@prisma/generator-helper@7.1.0':
+    dependencies:
+      '@prisma/debug': 7.1.0
+      '@prisma/dmmf': 7.1.0
+      '@prisma/generator': 7.1.0
+
+  '@prisma/generator@7.1.0': {}
 
   '@prisma/get-platform@6.8.2':
     dependencies:
@@ -6810,6 +6853,8 @@ snapshots:
   clsx@2.1.1: {}
 
   co@4.6.0: {}
+
+  code-block-writer@13.0.3: {}
 
   collect-v8-coverage@1.0.3: {}
 
@@ -9201,3 +9246,15 @@ snapshots:
       archiver-utils: 5.0.2
       compress-commons: 6.0.2
       readable-stream: 4.7.0
+
+  zod-prisma-types@3.3.10(@prisma/client@7.1.0(prisma@7.1.0(@types/react@19.2.6)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(typescript@5.9.3))(typescript@5.9.3))(prisma@7.1.0(@types/react@19.2.6)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(typescript@5.9.3))(zod@4.1.13):
+    dependencies:
+      '@prisma/client': 7.1.0(prisma@7.1.0(@types/react@19.2.6)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(typescript@5.9.3))(typescript@5.9.3)
+      '@prisma/dmmf': 7.1.0
+      '@prisma/generator-helper': 7.1.0
+      code-block-writer: 13.0.3
+      lodash: 4.17.21
+      prisma: 7.1.0(@types/react@19.2.6)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(typescript@5.9.3)
+      zod: 4.1.13
+
+  zod@4.1.13: {}
