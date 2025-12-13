@@ -32,13 +32,13 @@ COPY shared/ shared/
 
 RUN pnpm install --frozen-lockfile --filter shared...
 
-RUN pnpm build:shared
-
 RUN pnpm install --frozen-lockfile --filter backend...
 
 FROM setup AS build
 
 RUN DATABASE_URL=dummy pnpm --filter backend exec prisma generate
+
+RUN pnpm build:shared
 
 RUN pnpm build:backend
 
@@ -56,7 +56,13 @@ COPY --from=build /app/package.json /app/package.json
 
 COPY --from=build /app/pnpm-lock.yaml /app/pnpm-lock.yaml
 
+COPY --from=build /app/pnpm-workspace.yaml /app/pnpm-workspace.yaml
+
 COPY --from=build /app/backend/ /app/backend/
+
+COPY --from=build /app/shared/package.json /app/shared/package.json
+
+COPY --from=build /app/shared/dist/ /app/shared/dist/
 
 COPY --from=build /app/node_modules /app/node_modules
 
