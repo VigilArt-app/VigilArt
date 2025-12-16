@@ -21,6 +21,11 @@ export function setupApp(app: INestApplication) {
       .setTitle("VigilArt API")
       .setDescription("Official API documentation for the VigilArt application.")
       .setVersion("0.0.1")
+      .addBearerAuth()
+      .addGlobalResponse({
+        status: 500,
+        description: "Internal Server Error",
+      })
       .build();
     const documentFactory = SwaggerModule.createDocument(app, swaggerConfig);
 
