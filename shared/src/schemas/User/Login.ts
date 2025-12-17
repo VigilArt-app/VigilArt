@@ -6,7 +6,7 @@ export const LoginSchema = z.object({
     email: z.email().transform((m) => m.toLowerCase()),
     password: z.string().min(1)
 });
-export class Login extends createZodDto(LoginSchema) {}
+export class LoginDTO extends createZodDto(LoginSchema) {}
 
 export const AuthResponseSchema = z.object({
     user: UserSchema.omit({ password: true }),
@@ -14,4 +14,4 @@ export const AuthResponseSchema = z.object({
     refreshToken: z.string(),
     expiresIn: z.string()
 });
-export class AuthResponse extends createZodDto(AuthResponseSchema) {}
+export class AuthResponseDTO extends createZodDto(AuthResponseSchema) {}

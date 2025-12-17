@@ -3,7 +3,7 @@ import {
   Injectable,
   UnauthorizedException
 } from "@nestjs/common";
-import type { LoginDto, SignUpDto, AuthResponseDto } from "@vigilart/shared/types";
+import type { Login, SignUp, AuthResponse } from "@vigilart/shared/types";
 import { UsersService } from "../users/users.service";
 import { JwtService } from "@nestjs/jwt";
 import * as bcrypt from "bcrypt";
@@ -17,7 +17,7 @@ export class AuthService {
     private readonly config: ConfigService
   ) {}
 
-  async login({ email, password }: LoginDto): Promise<AuthResponseDto> {
+  async login({ email, password }: Login): Promise<AuthResponse> {
     const user = await this.usersService.findByEmail(email);
     if (!user)
       throw new UnauthorizedException("Invalid credentials");
@@ -40,7 +40,7 @@ export class AuthService {
     };
   }
 
-  async signUp({ email, password, firstName, lastName }: SignUpDto): Promise<AuthResponseDto> {
+  async signUp({ email, password, firstName, lastName }: SignUp): Promise<AuthResponse> {
     const userExists = await this.usersService.findByEmail(email);
     if (userExists)
       throw new ConflictException("Email already in use");

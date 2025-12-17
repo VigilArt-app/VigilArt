@@ -4,14 +4,14 @@ import {
 } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import { DEFAULT_SUBSCRIPTION_TIER, DEFAULT_AVATAR_URL } from "@vigilart/shared/constants";
-import type { UserCreateDto, UserUpdateDto, UserGetDto, UserDto } from "@vigilart/shared/types";
+import type { UserCreate, UserUpdate, UserGet, User } from "@vigilart/shared/types";
 
 @Injectable()
 export class UsersService {
   constructor(private prisma: PrismaService) {}
   private readonly logger = new Logger(UsersService.name);
 
-  async create(user: UserCreateDto): Promise<UserGetDto> {
+  async create(user: UserCreate): Promise<UserGet> {
     this.logger.log(`Creating new user ${user.email}`);
     return this.prisma.user.create({
       data: {
@@ -25,7 +25,7 @@ export class UsersService {
     });
   }
 
-  async findAll(): Promise<UserGetDto[]> {
+  async findAll(): Promise<UserGet[]> {
     this.logger.log("Finding all users");
     return this.prisma.user.findMany({
       omit: {
@@ -34,7 +34,7 @@ export class UsersService {
     });
   }
 
-  async findOne(id: string): Promise<UserDto> {
+  async findOne(id: string): Promise<User> {
     this.logger.log(`Finding user ${id}`);
     return this.prisma.user.findUniqueOrThrow({
       where: {
@@ -43,7 +43,7 @@ export class UsersService {
     });
   }
 
-  async findByEmail(email: string): Promise<UserDto> {
+  async findByEmail(email: string): Promise<User> {
     this.logger.log(`Finding user with ${email}`);
     return this.prisma.user.findUniqueOrThrow({
       where: {
@@ -54,8 +54,8 @@ export class UsersService {
 
   async update(
     id: string,
-    updateUserDto: UserUpdateDto
-  ): Promise<UserGetDto> {
+    updateUserDto: UserUpdate
+  ): Promise<UserGet> {
     this.logger.log(`Updating user ${id}`);
     return this.prisma.user.update({
       where: {

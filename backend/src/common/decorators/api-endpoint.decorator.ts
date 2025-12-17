@@ -2,22 +2,22 @@ import { applyDecorators, HttpCode, HttpStatus, Type } from "@nestjs/common";
 import { ApiOperation, ApiResponse, ApiBearerAuth } from "@nestjs/swagger";
 import { ApiResponseGeneric } from "./api-ok-response-generic.decorator";
 import {
-    BadRequestErrorClass,
-    UnauthorizedErrorClass,
-    ForbiddenErrorClass,
-    NotFoundErrorClass,
-    ConflictErrorClass,
-    InternalServerErrorClass,
-    ApiErrorClass
+    BadRequestErrorDTO,
+    UnauthorizedErrorDTO,
+    ForbiddenErrorDTO,
+    NotFoundErrorDTO,
+    ConflictErrorDTO,
+    InternalServerErrorDTO,
+    ApiErrorDTO
 } from "@vigilart/shared/schemas";
 
-const ERROR_MAP: Record<number, Type<ApiErrorClass>> = {
-    [HttpStatus.BAD_REQUEST]: BadRequestErrorClass,
-    [HttpStatus.UNAUTHORIZED]: UnauthorizedErrorClass,
-    [HttpStatus.FORBIDDEN]: ForbiddenErrorClass,
-    [HttpStatus.NOT_FOUND]: NotFoundErrorClass,
-    [HttpStatus.CONFLICT]: ConflictErrorClass,
-    [HttpStatus.INTERNAL_SERVER_ERROR]: InternalServerErrorClass,
+const ERROR_MAP: Record<number, Type<ApiErrorDTO>> = {
+    [HttpStatus.BAD_REQUEST]: BadRequestErrorDTO,
+    [HttpStatus.UNAUTHORIZED]: UnauthorizedErrorDTO,
+    [HttpStatus.FORBIDDEN]: ForbiddenErrorDTO,
+    [HttpStatus.NOT_FOUND]: NotFoundErrorDTO,
+    [HttpStatus.CONFLICT]: ConflictErrorDTO,
+    [HttpStatus.INTERNAL_SERVER_ERROR]: InternalServerErrorDTO,
 };
 
 interface ApiEndpointOptions200 {
@@ -72,8 +72,8 @@ export function ApiEndpoint(options: ApiEndpointOptions) {
         });
     }
     if (options.protected) {
-        decorators.push(ApiResponse({ status: HttpStatus.UNAUTHORIZED, type: UnauthorizedErrorClass }));
-        decorators.push(ApiResponse({ status: HttpStatus.FORBIDDEN, type: ForbiddenErrorClass }));
+        decorators.push(ApiResponse({ status: HttpStatus.UNAUTHORIZED, type: UnauthorizedErrorDTO }));
+        decorators.push(ApiResponse({ status: HttpStatus.FORBIDDEN, type: ForbiddenErrorDTO }));
         decorators.push(ApiBearerAuth());
     }
 

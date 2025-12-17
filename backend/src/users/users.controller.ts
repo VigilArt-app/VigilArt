@@ -11,8 +11,8 @@ import {
 import { UsersService } from "./users.service";
 import { ApiEndpoint } from "../common/decorators/api-endpoint.decorator";
 import { ApiBody, ApiParam } from "@nestjs/swagger";
-import { UserCreate, UserUpdate, UserGet, User } from "@vigilart/shared/schemas";
-import type { UserCreateDto, UserUpdateDto, UserGetDto, UserDto } from "@vigilart/shared/types";
+import { UserCreateDTO, UserUpdateDTO, UserGetDTO, UserDTO } from "@vigilart/shared/schemas";
+import type { UserCreate, UserUpdate, UserGet, User } from "@vigilart/shared/types";
 
 @Controller("users")
 export class UsersController {
@@ -23,13 +23,13 @@ export class UsersController {
     summary: "Create a new user",
     success: {
       status: HttpStatus.CREATED,
-      type: UserGet
+      type: UserGetDTO
     },
     errors: [HttpStatus.CONFLICT],
     protected: true,
   })
-  @ApiBody({ type: UserCreate })
-  async create(@Body() createUserDto: UserCreateDto): Promise<UserGetDto> {
+  @ApiBody({ type: UserCreateDTO })
+  async create(@Body() createUserDto: UserCreate): Promise<UserGet> {
     return this.usersService.create(createUserDto);
   }
 
@@ -38,12 +38,12 @@ export class UsersController {
     summary: "Retrieve all users",
     success: {
       status: HttpStatus.OK,
-      type: [UserGet]
+      type: [UserGetDTO]
     },
     errors: [],
     protected: true,
   })
-  async findAll(): Promise<UserGetDto[]> {
+  async findAll(): Promise<UserGet[]> {
     return this.usersService.findAll();
   }
 
@@ -52,13 +52,13 @@ export class UsersController {
     summary: "Retrieve a user by ID",
     success: {
       status: HttpStatus.OK,
-      type: User
+      type: UserDTO
     },
     errors: [HttpStatus.NOT_FOUND],
     protected: true,
   })
   @ApiParam({ name: "id", type: String })
-  async findOne(@Param("id") id: string): Promise<UserDto> {
+  async findOne(@Param("id") id: string): Promise<User> {
     return this.usersService.findOne(id);
   }
 
@@ -67,13 +67,13 @@ export class UsersController {
     summary: "Retrieve a user by email",
     success: {
       status: HttpStatus.OK,
-      type: User
+      type: UserDTO
     },
     errors: [HttpStatus.NOT_FOUND],
     protected: true,
   })
   @ApiParam({ name: "email", type: String })
-  async findByEmail(@Param("email") email: string): Promise<UserDto> {
+  async findByEmail(@Param("email") email: string): Promise<User> {
     return this.usersService.findByEmail(email);
   }
 
@@ -82,14 +82,14 @@ export class UsersController {
     summary: "Update a user by ID",
     success: {
       status: HttpStatus.OK,
-      type: UserGet
+      type: UserGetDTO
     },
     errors: [HttpStatus.BAD_REQUEST, HttpStatus.NOT_FOUND],
     protected: true,
   })
   @ApiParam({ name: "id", type: String })
-  @ApiBody({ type: UserUpdate })
-  async update(@Param("id") id: string, @Body() updateUserDto: UserUpdateDto): Promise<UserGetDto> {
+  @ApiBody({ type: UserUpdateDTO })
+  async update(@Param("id") id: string, @Body() updateUserDto: UserUpdate): Promise<UserGet> {
     return this.usersService.update(id, updateUserDto);
   }
 

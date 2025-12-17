@@ -1,4 +1,4 @@
 import { z } from "zod";
 import { SignUpSchema } from "../../schemas/User";
 
-export type SignUpDto = z.infer<typeof SignUpSchema>;
+export type SignUp = z.infer<typeof SignUpSchema>;

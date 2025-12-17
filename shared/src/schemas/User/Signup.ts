@@ -27,4 +27,4 @@ export const SignUpSchema = z.object({
     firstName: z.string().min(1),
     lastName: z.string().min(1)
 });
-export class SignUp extends createZodDto(SignUpSchema) {}
+export class SignUpDTO extends createZodDto(SignUpSchema) {}

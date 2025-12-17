@@ -2,7 +2,7 @@ import { INestApplication, ValidationPipe } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import { cleanupOpenApiDoc } from "nestjs-zod";
-import { InternalServerErrorClass } from "@vigilart/shared";
+import { InternalServerErrorDTO } from "@vigilart/shared";
 import { HttpExceptionFilter } from "./common/filters/http-exception.filter";
 import { ResponseWrapperInterceptor } from "./common/interceptors/response-wrapper.interceptor";
 import { PrismaClientExceptionFilter } from "./common/filters/prisma-client-exception.filter";
@@ -36,7 +36,7 @@ export function setupApp(app: INestApplication) {
       .addBearerAuth()
       .addGlobalResponse({
         status: 500,
-        type: InternalServerErrorClass
+        type: InternalServerErrorDTO
       })
       .build();
     const documentFactory = SwaggerModule.createDocument(app, swaggerConfig);

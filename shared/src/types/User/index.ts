@@ -1,13 +1,13 @@
 import { z } from "zod";
 import { UserSchema, UserGetSchema, UserCreateSchema, UserUpdateSchema } from "../../schemas/User";
 
-export type UserDto = z.infer<typeof UserSchema>;
+export type User = z.infer<typeof UserSchema>;
 
-export type UserGetDto = z.infer<typeof UserGetSchema>;
+export type UserGet = z.infer<typeof UserGetSchema>;
 
-export type UserCreateDto = z.infer<typeof UserCreateSchema>;
+export type UserCreate = z.infer<typeof UserCreateSchema>;
 
-export type UserUpdateDto = z.infer<typeof UserUpdateSchema>;
+export type UserUpdate = z.infer<typeof UserUpdateSchema>;
 
 export * from "./Signup";
 export * from "./Login";

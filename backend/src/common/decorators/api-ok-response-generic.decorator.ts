@@ -1,6 +1,6 @@
 import { applyDecorators, Type, HttpStatus } from '@nestjs/common';
 import { ApiExtraModels, ApiResponse, getSchemaPath } from '@nestjs/swagger';
-import { ApiSuccessClass, ApiCreatedClass, ApiNoContentClass } from '@vigilart/shared/schemas';
+import { ApiSuccessDTO, ApiCreatedDTO, ApiNoContentDTO } from '@vigilart/shared/schemas';
 
 export const ApiResponseGeneric = <DataDto extends Type<unknown>>(
     status: HttpStatus.OK | HttpStatus.CREATED | HttpStatus.NO_CONTENT,
@@ -8,12 +8,12 @@ export const ApiResponseGeneric = <DataDto extends Type<unknown>>(
 ) => {
     if (status === HttpStatus.NO_CONTENT) {
         return applyDecorators(
-            ApiExtraModels(ApiNoContentClass),
+            ApiExtraModels(ApiNoContentDTO),
             ApiResponse({
                 status: HttpStatus.NO_CONTENT,
                 schema: {
                     allOf: [
-                        { $ref: getSchemaPath(ApiNoContentClass) }
+                        { $ref: getSchemaPath(ApiNoContentDTO) }
                     ]
                 }
             })
@@ -21,21 +21,21 @@ export const ApiResponseGeneric = <DataDto extends Type<unknown>>(
     }
 
     const isArray = Array.isArray(dataDto);
-    const actualDto = isArray ? dataDto[0] : dataDto;
-    const dataSchema = actualDto
+    const actualDTO = isArray ? dataDto[0] : dataDto;
+    const dataSchema = actualDTO
         ? (isArray
-            ? { type: 'array', items: { $ref: getSchemaPath(actualDto) } }
-            : { $ref: getSchemaPath(actualDto) })
+            ? { type: 'array', items: { $ref: getSchemaPath(actualDTO) } }
+            : { $ref: getSchemaPath(actualDTO) })
         : { type: 'object', example: {} };
     return applyDecorators(
-        actualDto ?
-            ApiExtraModels(ApiSuccessClass, ApiCreatedClass, actualDto) :
-            ApiExtraModels(ApiSuccessClass, ApiCreatedClass),
+        actualDTO ?
+            ApiExtraModels(ApiSuccessDTO, ApiCreatedDTO, actualDTO) :
+            ApiExtraModels(ApiSuccessDTO, ApiCreatedDTO),
         ApiResponse({
             status: status,
             schema: {
                 allOf: [
-                    { $ref: getSchemaPath(status === HttpStatus.OK ? ApiSuccessClass : ApiCreatedClass) },
+                    { $ref: getSchemaPath(status === HttpStatus.OK ? ApiSuccessDTO : ApiCreatedDTO) },
                     {
                         properties: {
                             data: dataSchema,
