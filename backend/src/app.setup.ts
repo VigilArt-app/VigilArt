@@ -29,7 +29,7 @@ export function setupApp(app: INestApplication) {
       .build();
     const documentFactory = SwaggerModule.createDocument(app, swaggerConfig);
 
-    SwaggerModule.setup("api/v1/documentation", app, documentFactory);
+    SwaggerModule.setup("api/v1/docs", app, documentFactory);
   }
   return app;
 }
