@@ -1,14 +1,19 @@
 import { Controller, Get } from "@nestjs/common";
 import { AppService } from "./app.service";
-import { ApiOperation, ApiResponse } from "@nestjs/swagger";
+import { ApiEndpoint } from "./common/decorators/api-endpoint.decorator";
 
 @Controller()
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
   @Get()
-  @ApiOperation({ summary: "Health check endpoint" })
-  @ApiResponse({ status: 200, description: "API is running" })
+  @ApiEndpoint({
+    summary: "Health check endpoint",
+    success: {
+      status: 200,
+      type: String
+    }
+  })
   getHello(): string {
     return this.appService.getHello();
   }
