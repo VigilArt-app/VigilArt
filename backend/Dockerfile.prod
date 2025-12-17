@@ -36,7 +36,7 @@ RUN pnpm install --frozen-lockfile --filter backend...
 
 FROM setup AS build
 
-RUN DATABASE_URL=dummy pnpm --filter backend exec prisma generate
+RUN pnpm --filter backend exec prisma generate
 
 RUN pnpm build:shared
 

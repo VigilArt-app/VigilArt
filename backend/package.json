@@ -28,7 +28,7 @@
     "db:reset": "dotenv -e ../.env -- pnpm exec prisma migrate reset",
     "db:push": "pnpm exec prisma db push",
     "db:migrate-prod": "pnpm exec prisma migrate deploy",
-    "db:generate": "dotenv -e ../.env -- pnpm exec prisma generate",
+    "db:generate": "pnpm exec prisma generate",
     "db:migrate-dev": "dotenv -e ../.env -- pnpm exec prisma migrate dev",
     "psql": "docker exec -it vigilart-dev-db bash -c 'psql -U \"$POSTGRES_USER\" -d \"$POSTGRES_DB\"'",
     "db:studio": "pnpm exec prisma studio --config ./prisma.config.ts --port 5555 --browser none",
