@@ -2,7 +2,7 @@ import request from "supertest";
 import { Test } from "@nestjs/testing";
 import { HttpStatus, INestApplication, ValidationPipe } from "@nestjs/common";
 import { AppModule } from "../src/app.module";
-import { PrismaService } from "../src/prisma.service";
+import { PrismaService } from "../src/prisma/prisma.service";
 import { setupApp } from "../src/app.setup";
 import { ConfigService } from "@nestjs/config";
 

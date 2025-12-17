@@ -1,8 +1,8 @@
 import request from "supertest";
 import { Test } from "@nestjs/testing";
-import { HttpStatus, INestApplication, ValidationPipe } from "@nestjs/common";
+import { HttpStatus, INestApplication } from "@nestjs/common";
 import { AppModule } from "../src/app.module";
-import { PrismaService } from "../src/prisma.service";
+import { PrismaService } from "../src/prisma/prisma.service";
 import { setupApp } from "../src/app.setup";
 
 describe("Users E2E", () => {
@@ -30,7 +30,7 @@ describe("Users E2E", () => {
           firstName: "Emma",
           lastName: "Dao",
           avatar: "url",
-          subscriptionTier: "free",
+          subscriptionTier: "FREE",
         },
         {
           email: "anna@raimon.com",
@@ -38,7 +38,7 @@ describe("Users E2E", () => {
           firstName: "Anna",
           lastName: "Raimon",
           avatar: "url",
-          subscriptionTier: "free",
+          subscriptionTier: "FREE",
         },
       ],
     });
@@ -122,7 +122,7 @@ describe("Users E2E", () => {
         firstName: "Amanda",
         lastName: "Rawles",
         avatar: "url",
-        subscriptionTier: "free",
+        subscriptionTier: "FREE",
       },
     });
     const res = await request(app.getHttpServer())
@@ -155,7 +155,7 @@ describe("Users E2E", () => {
         firstName: "Amanda",
         lastName: "Rawles",
         avatar: "url",
-        subscriptionTier: "free",
+        subscriptionTier: "FREE",
       },
     });
     const res = await request(app.getHttpServer())
@@ -192,7 +192,7 @@ describe("Users E2E", () => {
         firstName: "Amanda",
         lastName: "Rawles",
         avatar: "url",
-        subscriptionTier: "free",
+        subscriptionTier: "FREE",
       },
     });
     const res = await request(app.getHttpServer())
