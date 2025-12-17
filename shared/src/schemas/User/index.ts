@@ -21,3 +21,6 @@ export const UserUpdateSchema = UserGetSchema.omit({
     createdAt: true,
 }).partial();
 export class UserUpdate extends createZodDto(UserUpdateSchema) {}
+
+export * from "./Login";
+export * from "./Signup";

@@ -1,6 +1,6 @@
 import { Body, Controller, HttpStatus, Post } from "@nestjs/common";
-import { LoginDto } from "./dto/login.dto";
-import { SignUpDto } from "./dto/sign-up.dto";
+import { Login, SignUp, AuthResponse } from "@vigilart/shared/schemas";
+import type { LoginDto, SignUpDto } from "@vigilart/shared/types";
 import { AuthService } from "./auth.service";
 import { ApiEndpoint } from "../common/decorators/api-endpoint.decorator";
 import { ApiBody } from "@nestjs/swagger";
@@ -14,11 +14,12 @@ export class AuthController {
     summary: "Register a new user",
     success: {
         status: HttpStatus.CREATED,
+        type: AuthResponse
     },
     errors: [HttpStatus.CONFLICT],
     protected: false
   })
-  @ApiBody({ type: SignUpDto })
+  @ApiBody({ type: SignUp })
   async signUp(@Body() signUpDto: SignUpDto) {
     return await this.authService.signUp(signUpDto);
   }
@@ -28,11 +29,12 @@ export class AuthController {
     summary: "Authenticate a user and obtain a JWT token",
     success: {
         status: HttpStatus.OK,
+        type: AuthResponse
     },
     errors: [HttpStatus.UNAUTHORIZED],
     protected: false
   })
-  @ApiBody({ type: LoginDto })
+  @ApiBody({ type: Login })
   async login(@Body() loginDto: LoginDto) {
     return await this.authService.login(loginDto);
   }
