@@ -174,7 +174,9 @@ describe("Users E2E", () => {
     });
 
     it("Shouldn't get user with non-existent ID", async () => {
-      const res = await api.get("/users/10").expect(HttpStatus.OK);
+      const res = await api
+        .get("/users/123e4567-e89b-12d3-a456-426614174000")
+        .expect(HttpStatus.OK);
       expect(res.body).toEqual({});
     });
   });
@@ -209,7 +211,7 @@ describe("Users E2E", () => {
 
     it("Shouldn't update specific user with non-existent ID", async () => {
       await api
-        .patch("/users/1")
+        .patch("/users/123e4567-e89b-12d3-a456-426614174000")
         .send({
           avatar: "new_url",
         })
@@ -232,7 +234,9 @@ describe("Users E2E", () => {
     });
 
     it("Shouldn't remove user with non-existent ID", async () => {
-      await api.delete("/users/100").expect(HttpStatus.NOT_FOUND);
+      await api
+        .delete("/users/123e4567-e89b-12d3-a456-426614174000")
+        .expect(HttpStatus.NOT_FOUND);
     });
   });
 

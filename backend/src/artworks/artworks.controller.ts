@@ -6,6 +6,7 @@ import {
   HttpCode,
   HttpStatus,
   Param,
+  ParseUUIDPipe,
   Patch,
   Post,
 } from "@nestjs/common";
@@ -33,7 +34,7 @@ export class ArtworksController {
 
   @Get("user/:id")
   @HttpCode(HttpStatus.OK)
-  async findAllPerUser(@Param("id") id: string) {
+  async findAllPerUser(@Param("id", ParseUUIDPipe) id: string) {
     return {
       artworks: await this.artworksService.findAllPerUser(id),
     };
@@ -41,14 +42,14 @@ export class ArtworksController {
 
   @Get(":id")
   @HttpCode(HttpStatus.OK)
-  async findOne(@Param("id") id: string) {
+  async findOne(@Param("id", ParseUUIDPipe) id: string) {
     return await this.artworksService.findOne(id);
   }
 
   @Patch(":id")
   @HttpCode(HttpStatus.OK)
   async update(
-    @Param("id") id: string,
+    @Param("id", ParseUUIDPipe) id: string,
     @Body() updateArtworkDto: UpdateArtworkDto
   ) {
     return await this.artworksService.update(id, updateArtworkDto);
@@ -56,7 +57,7 @@ export class ArtworksController {
 
   @Delete(":id")
   @HttpCode(HttpStatus.NO_CONTENT)
-  async remove(@Param("id") id: string) {
+  async remove(@Param("id", ParseUUIDPipe) id: string) {
     return await this.artworksService.remove(id);
   }
 }

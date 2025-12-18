@@ -4,7 +4,7 @@ import { ConfigService } from "@nestjs/config";
 
 export class ApiClient {
   private readonly config: ConfigService;
-  private base: string;
+  private readonly base: string;
 
   constructor(private readonly app: INestApplication) {
     this.config = app.get(ConfigService);

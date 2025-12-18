@@ -138,7 +138,10 @@ describe("Artworks E2E", () => {
     it("Shouldn't create an artwork if non-existent user id", async () => {
       const res = await api
         .post("/artworks")
-        .send({ userId: "id", imageUri: "image_uri" })
+        .send({
+          userId: "123e4567-e89b-12d3-a456-426614174000",
+          imageUri: "image_uri",
+        })
         .expect(HttpStatus.BAD_REQUEST);
       expect(res.body.message).toEqual("User does not exist");
     });
@@ -226,7 +229,7 @@ describe("Artworks E2E", () => {
     });
 
     it("Shouldn't get artwork with non-existent ID", async () => {
-      const res = await api.get("/artworks/10").expect(HttpStatus.OK);
+      const res = await api.get("/artworks/123e4567-e89b-12d3-a456-426614174000").expect(HttpStatus.OK);
       expect(res.body).toEqual({});
     });
   });
@@ -265,7 +268,7 @@ describe("Artworks E2E", () => {
 
     it("Shouldn't update specific artwork with non-existent ID", async () => {
       await api
-        .patch("/artworks/1")
+        .patch("/artworks/123e4567-e89b-12d3-a456-426614174000")
         .send({
           description: "New description",
         })
@@ -295,7 +298,7 @@ describe("Artworks E2E", () => {
     });
 
     it("Shouldn't remove artwork with non-existent ID", async () => {
-      await api.delete("/artworks/100").expect(HttpStatus.NOT_FOUND);
+      await api.delete("/artworks/123e4567-e89b-12d3-a456-426614174000").expect(HttpStatus.NOT_FOUND);
     });
   });
 

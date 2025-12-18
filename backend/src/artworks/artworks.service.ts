@@ -8,12 +8,12 @@ import {
 import { CreateArtworkDto } from "./dto/create-artwork.dto";
 import { UpdateArtworkDto } from "./dto/update-artwork.dto";
 import { PrismaService } from "../prisma/prisma.service";
-import { Artwork } from "../generated/prisma/client";
+import { Artwork } from "src/generated/prisma";
 import { randomUuid } from "testcontainers";
 
 @Injectable()
 export class ArtworksService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   private readonly logger = new Logger(ArtworksService.name);
 

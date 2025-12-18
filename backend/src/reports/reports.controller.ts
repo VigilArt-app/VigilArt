@@ -1,10 +1,52 @@
-import { Controller } from "@nestjs/common";
+import {
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  ParseUUIDPipe,
+  Query,
+} from "@nestjs/common";
+import { ReportsService } from "./reports.service";
+import {
+  ArtworksReport,
+  MatchingPage,
+} from "./interfaces";
+import { GetArtworksMatchesDto } from "./dto/get-matches";
 
 @Controller("reports")
 export class ReportsController {
-  //make a route /reports/artwork/:id
-  // that return IVisualSearchResult
-  // with sample for MatchingPages
-  // and another /reports/artwork/:id/matches
-  // that return all matchingpages with pagination (limit, offset, matchType: default all, partial or full)
+  constructor(private readonly reportsService: ReportsService) {}
+
+  @Get("/user/:id")
+  @HttpCode(HttpStatus.OK)
+  async getArtworksReport(
+    @Param("id", ParseUUIDPipe) userId: string
+  ): Promise<ArtworksReport> {
+    return await this.reportsService.getArtworksReport(userId);
+  }
+
+  @Get("/matches/user/:id")
+  @HttpCode(HttpStatus.OK)
+  async getArtworksMatches(
+    @Param("id", ParseUUIDPipe) userId: string,
+    @Query() getArtworksMatchesDto: GetArtworksMatchesDto
+  ): Promise<MatchingPage[]> {
+    return await this.reportsService.getAllArtworksMatches(
+      userId,
+      getArtworksMatchesDto
+    );
+  }
+
+  @Get("/matches/artwork/:id")
+  @HttpCode(HttpStatus.OK)
+  async getArtworkMatches(
+    @Param("id", ParseUUIDPipe) artworkId: string,
+    @Query() getArtworksMatchesDto: GetArtworksMatchesDto
+  ): Promise<MatchingPage[]> {
+    return await this.reportsService.getArtworkMatches(
+      artworkId,
+      getArtworksMatchesDto
+    );
+  }
 }

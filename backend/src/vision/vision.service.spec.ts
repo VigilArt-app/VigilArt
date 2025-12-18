@@ -2,7 +2,7 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { VisionService } from "./vision.service";
 import { ConfigModule } from "@nestjs/config";
 import fs from "fs";
-import { IVisualSearchResult } from "src/reports/interfaces";
+import { VisualSearchResult } from "src/reports/interfaces";
 
 describe("VisionService", () => {
   let service: VisionService;
@@ -40,9 +40,9 @@ describe("VisionService", () => {
       );
       jest
         .spyOn(service, "webDetection")
-        .mockReturnValue(webDetectionResult.result.webDetection);
+        .mockResolvedValue(webDetectionResult.result.webDetection);
 
-      const res: IVisualSearchResult | null = await service.searchImage(
+      const res: VisualSearchResult | null = await service.searchImage(
         webDetectionResult.inputImageUri
       );
 

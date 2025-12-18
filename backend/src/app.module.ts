@@ -6,8 +6,8 @@ import { ConfigModule } from "@nestjs/config";
 import { AuthModule } from "./auth/auth.module";
 import { VisionModule } from "./vision/vision.module";
 import { ArtworksModule } from "./artworks/artworks.module";
-import { ReportsModule } from './reports/reports.module';
-import { PrismaModule } from './prisma/prisma.module';
+import { ReportsModule } from "./reports/reports.module";
+import { PrismaModule } from "src/prisma/prisma.module";
 
 @Module({
   imports: [

@@ -63,3 +63,8 @@ Or run inside a package folder:
 cd backend
 pnpm run dev
 ```
+
+## Developers
+
+| [<img src="https://github.com/yasssb.png?size=85" width=85><br><sub>Yasmine BEDRANE</sub>](https://github.com/yasssb) | [<img src="https://github.com/Sachaplr.png?size=85" width=85><br><sub>Sacha POLEROWICZ</sub>](https://github.com/Sachaplr) | [<img src="https://github.com/capuchegianni.png?size=85" width=85><br><sub>Gianni HENRIQUES</sub>](https://github.com/capuchegianni) |[<img src="https://github.com/sephorah.png?size=85" width=85><br><sub>Séphorah ANIAMBOSSOU</sub>](https://github.com/sephorah)
+| :---: | :---: | :---: | :---: |

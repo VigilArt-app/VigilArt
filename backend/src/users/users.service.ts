@@ -9,13 +9,13 @@ import { CreateUserDto } from "./dto/create-user.dto";
 import { randomUUID } from "crypto";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import { PrismaService } from "../prisma/prisma.service";
-import { SubscriptionTier, User } from "../generated/prisma/client";
+import { SubscriptionTier, User } from "src/generated/prisma";
 
 type UserProfile = Omit<User, "password">;
 
 @Injectable()
 export class UsersService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) {}
   private readonly logger = new Logger(UsersService.name);
 
   async create({

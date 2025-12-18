@@ -2,10 +2,10 @@ import { Module } from "@nestjs/common";
 import { ReportsController } from "./reports.controller";
 import { ReportsService } from "./reports.service";
 import { VisionModule } from "src/vision/vision.module";
-import { PrismaModule } from "src/prisma/prisma.module";
+import { ArtworksModule } from "src/artworks/artworks.module";
 
 @Module({
-  imports: [VisionModule, PrismaModule],
+  imports: [VisionModule, ArtworksModule],
   controllers: [ReportsController],
   providers: [ReportsService],
 })

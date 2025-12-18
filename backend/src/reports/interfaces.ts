@@ -1,31 +1,36 @@
 import { WebsiteCategory } from "src/generated/prisma";
 
-export interface IVisualSearchResult {
-  metadata: IArtworkMetadata | null;
-  matchingPages: IMatchingPage[];
+export interface VisualSearchResult {
+  metadata: ArtworkMetadata | null;
+  matchingPages: MatchingPage[];
 }
 
-export interface IArtworkStatistics {
+export interface ArtworksReportEntryStatistics {
   totalMatches: number;
   // totalUncreditedMatches: number;
 }
 
-export interface IArtworkMetadataLabel {
+export interface ArtworksReportStatistics { 
+  totalMatches: number;
+  // totalUncreditedMatches: number;
+}
+
+export interface ArtworkMetadataLabel {
   label: string;
   languageCode?: string;
 }
 
-export interface IArtworkWebEntity {
+export interface ArtworkWebEntity {
   score: number;
   description: string;
 }
 
-export interface IArtworkMetadata {
-  bestGuessLabels: IArtworkMetadataLabel[];
-  webEntities: IArtworkWebEntity[];
+export interface ArtworkMetadata {
+  bestGuessLabels: ArtworkMetadataLabel[];
+  webEntities: ArtworkWebEntity[];
 }
 
-export interface IMatchingPage {
+export interface MatchingPage {
   url: string;
   pageTitle?: string;
   category: WebsiteCategory | null;
@@ -33,16 +38,14 @@ export interface IMatchingPage {
   imageUrl?: string;
 }
 
-export interface ReportDetails {
+export interface ArtworksReportEntry {
   artworkId: string;
-  detectionDate: string;
-  statistics: IArtworkStatistics;
-  matchingPages: IMatchingPage[];
+  statistics: ArtworksReportEntryStatistics;
+  matchingPages: MatchingPage[];
 }
 
 export interface ArtworksReport {
   detectionDate: string;
-  totalMatches: number;
-  statistics: IArtworkStatistics;
-  details: ReportDetails[];
+  statistics: ArtworksReportStatistics;
+  entries: ArtworksReportEntry[];
 }
