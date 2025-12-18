@@ -76,16 +76,16 @@ export const mockedArtworksReportEntries: ArtworksReportEntry[] = [
   {
     artworkId: "1",
     statistics: { totalMatches: 4 },
-    matchingPages: mockedSearchImageReturnValue.matchingPages.slice(0, 5),
+    matchingPages: mockedSearchImageReturnValue.matchingPages.slice(0, 4),
   },
   {
     artworkId: "2",
     statistics: { totalMatches: 4 },
-    matchingPages: mockedSearchImageReturnValue.matchingPages.slice(0, 5),
+    matchingPages: mockedSearchImageReturnValue.matchingPages.slice(0, 4),
   },
   {
     artworkId: "3",
     statistics: { totalMatches: 4 },
-    matchingPages: mockedSearchImageReturnValue.matchingPages.slice(0, 5),
+    matchingPages: mockedSearchImageReturnValue.matchingPages.slice(0, 4),
   },
 ];

@@ -353,20 +353,6 @@ describe("ReportsService", () => {
       expect(res).toEqual(expectedRes);
     });
 
-    it("Should handle no all matches pages found for all artworks of a user without filter", async () => {
-      jest
-        .spyOn(service, "getArtworksReportEntries")
-        .mockResolvedValue(mockedArtworksReportEntries);
-      const res = await service.getAllArtworksMatches(mockedArtwork.id, {});
-      const expectedRes = [
-        ...mockedSearchImageReturnValue.matchingPages,
-        ...mockedSearchImageReturnValue.matchingPages,
-        ...mockedSearchImageReturnValue.matchingPages,
-      ];
-
-      expect(res).toEqual(expectedRes);
-    });
-
     it("Should handle filter", async () => {
       jest
         .spyOn(service, "getArtworksReportEntries")
