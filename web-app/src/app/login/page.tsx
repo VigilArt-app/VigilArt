@@ -23,7 +23,7 @@ export default function LoginPage() {
         setError(null)
         setIsLoading(true)
         try {
-            const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001/api/v1"
+            const API_BASE = process.env.NEXT_PUBLIC_API_URL
             const res = await fetch(`${API_BASE}/auth/login`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },

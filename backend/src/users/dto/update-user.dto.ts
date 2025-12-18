@@ -1,5 +1,5 @@
 import { IsOptional, IsString } from "class-validator";
-import { SubscriptionTier } from "src/generated/prisma";
+import { SubscriptionTier } from "src/generated/prisma/client";
 
 export class UpdateUserDto {
   @IsString()

@@ -1,4 +1,13 @@
 services:
+  shared:
+    build:
+      context: .
+      dockerfile: shared/Dockerfile.dev
+    volumes:
+      - ./shared:/app/shared
+    command: pnpm build:shared --watch
+    networks:
+      - prisma-network
   backend:
     build:
       context: .
@@ -9,13 +18,21 @@ services:
       - ./backend:/app/backend
       - ./shared:/app/shared
       - backend_node_modules:/app/backend/node_modules
+      - ./shared/dist:/app/shared/dist
     ports:
-      - "3001:3001"
+      - "${SERVER_PORT}:${SERVER_PORT}"
     depends_on:
       db:
         condition: service_healthy
+      shared:
+        condition: service_started
     networks:
       - prisma-network
+    command: >
+      sh -c "
+        pnpm install &&
+        pnpm dev:backend
+      "
 
   frontend:
     build:
@@ -27,6 +44,7 @@ services:
       - ./web-app:/app/web-app
       - ./shared:/app/shared
       - web_app_node_modules:/app/web-app/node_modules
+      - ./shared/dist:/app/shared/dist
     ports:
       - "3000:3000"
 
@@ -40,7 +58,7 @@ services:
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: ${DB_NAME}
     ports:
-      - "5432:5432"
+      - "${DB_PORT}:5432"
     volumes:
       - postgres_local_data:/var/lib/postgresql/data
     networks:
@@ -57,11 +75,15 @@ services:
         max-file: "3"
 
   prisma-studio:
-    image: node:lts-alpine3.17
+    image: node:22-alpine
     working_dir: /app/backend
     volumes:
       - .:/app
-    command: sh -c "corepack enable && corepack prepare pnpm@10.20.0 --activate && pnpm dlx prisma@6.19.0 studio --port 5555 --browser none"
+    command: >
+      sh -c "
+        corepack enable && corepack prepare pnpm@10.20.0 --activate &&
+        pnpm prisma studio --config ./prisma.config.ts --port 5555 --browser none
+      "
     ports:
       - "5555:5555"
     env_file:

@@ -4,7 +4,7 @@ import { AppModule } from "../src/app.module";
 import { PrismaService } from "../src/prisma/prisma.service";
 import { setupApp } from "../src/app.setup";
 import { ApiClient } from "./api-client";
-import { SubscriptionTier } from "../src/generated/prisma";
+import { SubscriptionTier } from "../src/generated/prisma/client";
 
 describe("Users E2E", () => {
   let app: INestApplication;

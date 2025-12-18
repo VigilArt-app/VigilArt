@@ -1,4 +1,4 @@
-import { WebsiteCategory } from "src/generated/prisma";
+import { WebsiteCategory } from "src/generated/prisma/client";
 
 export interface VisualSearchResult {
   metadata: ArtworkMetadata | null;
@@ -10,7 +10,7 @@ export interface ArtworksReportEntryStatistics {
   // totalUncreditedMatches: number;
 }
 
-export interface ArtworksReportStatistics { 
+export interface ArtworksReportStatistics {
   totalMatches: number;
   // totalUncreditedMatches: number;
 }

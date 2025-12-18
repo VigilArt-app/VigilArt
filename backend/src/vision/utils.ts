@@ -1,4 +1,4 @@
-import { WebsiteCategory } from "src/generated/prisma";
+import { WebsiteCategory } from "src/generated/prisma/client";
 import { WebImage } from "./types";
 
 const DOMAIN_PATTERNS: Record<WebsiteCategory, RegExp[]> = {
@@ -102,7 +102,7 @@ export const extractRootDomain = (url: string): string | null => {
 export const getImageUrl = (
   matchingImages: WebImage[] | null | undefined
 ): string | null => {
-  if (!matchingImages) {
+  if (!matchingImages || matchingImages.length == 0) {
     return null;
   }
   return matchingImages[0].url ?? null;

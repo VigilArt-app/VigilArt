@@ -4,7 +4,7 @@ import { AppModule } from "../src/app.module";
 import { PrismaService } from "../src/prisma/prisma.service";
 import { setupApp } from "../src/app.setup";
 import { ApiClient } from "./api-client";
-import { SubscriptionTier } from "../src/generated/prisma";
+import { SubscriptionTier } from "../src/generated/prisma/client";
 
 describe("Artworks E2E", () => {
   let app: INestApplication;
@@ -229,7 +229,9 @@ describe("Artworks E2E", () => {
     });
 
     it("Shouldn't get artwork with non-existent ID", async () => {
-      const res = await api.get("/artworks/123e4567-e89b-12d3-a456-426614174000").expect(HttpStatus.OK);
+      const res = await api
+        .get("/artworks/123e4567-e89b-12d3-a456-426614174000")
+        .expect(HttpStatus.OK);
       expect(res.body).toEqual({});
     });
   });
@@ -298,7 +300,9 @@ describe("Artworks E2E", () => {
     });
 
     it("Shouldn't remove artwork with non-existent ID", async () => {
-      await api.delete("/artworks/123e4567-e89b-12d3-a456-426614174000").expect(HttpStatus.NOT_FOUND);
+      await api
+        .delete("/artworks/123e4567-e89b-12d3-a456-426614174000")
+        .expect(HttpStatus.NOT_FOUND);
     });
   });
 

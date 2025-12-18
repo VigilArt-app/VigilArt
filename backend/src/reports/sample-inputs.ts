@@ -1,4 +1,4 @@
-import { Artwork, WebsiteCategory } from "src/generated/prisma";
+import { Artwork, WebsiteCategory } from "src/generated/prisma/client";
 import { AggregatedVisualSearchResults } from "./types";
 import { ArtworksReportEntry } from "./interfaces";
 

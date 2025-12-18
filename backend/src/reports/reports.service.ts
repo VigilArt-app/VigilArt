@@ -10,7 +10,7 @@ import {
   ArtworksReport,
 } from "./interfaces";
 import { ArtworksService } from "src/artworks/artworks.service";
-import { Artwork } from "src/generated/prisma";
+import { Artwork } from "src/generated/prisma/client";
 import { DEFAULT_PAGINATION_LIMIT } from "./constants";
 import { GetArtworksMatchesDto } from "./dto/get-matches";
 
@@ -92,7 +92,7 @@ export class ReportsService {
   ): ArtworksReportStatistics {
     const totalMatches = entries.reduce(
       (acc: number, entry: ArtworksReportEntry) =>
-        acc + entry.matchingPages.length,
+        acc + entry.statistics.totalMatches,
       0
     );
 

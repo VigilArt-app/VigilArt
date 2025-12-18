@@ -8,8 +8,9 @@ import {
 import { CreateArtworkDto } from "./dto/create-artwork.dto";
 import { UpdateArtworkDto } from "./dto/update-artwork.dto";
 import { PrismaService } from "../prisma/prisma.service";
-import { Artwork } from "src/generated/prisma";
+
 import { randomUuid } from "testcontainers";
+import { Artwork } from "src/generated/prisma/client";
 
 @Injectable()
 export class ArtworksService {
