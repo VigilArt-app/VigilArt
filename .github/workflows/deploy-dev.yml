@@ -34,8 +34,6 @@ jobs:
   #       run: pnpm install --frozen-lockfile
 
   #     - name: Generate Prisma Client
-  #       env:
-  #         DATABSE_URL: dummy_value_to_skip_prisma_error
   #       run: pnpm --filter @vigilart/backend db:generate
 
   #     - name: Run E2E Tests

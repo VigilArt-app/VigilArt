@@ -5,24 +5,34 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client"
-  output = "../src/generated/prisma"
-  engineType = "client"
+  provider     = "prisma-client"
+  output       = "../../shared/src/generated/prisma"
+  engineType   = "client"
   moduleFormat = "cjs"
+}
+
+generator zod {
+  provider          = "zod-prisma-types"
+  output            = "../../shared/src/generated/zod"
+  prismaClientPath  = "../prisma/client"
+  createInputTypes  = false
+  addIncludeType    = false
+  useTypeAssertions = true
 }
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
+// User Models & Enums
+
 model User {
-  id  String   @id @default(uuid())
-  email String  @db.VarChar(254) @unique
-  password  String
-  firstName String @db.VarChar(64)
-  lastName String @db.VarChar(64)
-  avatar String
-  createdAt DateTime  @default(now())
+  id               String           @id @default(uuid())
+  email            String           @unique @db.VarChar(254)
+  password         String
+  firstName        String           @db.VarChar(64)
+  lastName         String           @db.VarChar(64)
+  avatar           String
+  createdAt        DateTime         @default(now())
   subscriptionTier String
 }

@@ -1,5 +1,5 @@
 import { Injectable, OnModuleInit, OnModuleDestroy } from "@nestjs/common";
-import { PrismaClient } from "./generated/prisma/client";
+import { PrismaClient } from "@vigilart/shared/server";
 import { PrismaPg } from '@prisma/adapter-pg';
 
 @Injectable()
@@ -20,10 +20,5 @@ export class PrismaService
 
   async onModuleDestroy() {
     await this.$disconnect();
-  }
-
-  async resetDatabase() {
-    if (process.env.NODE_ENV === 'production') return;
-    await this.user.deleteMany();
   }
 }

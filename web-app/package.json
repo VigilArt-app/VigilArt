@@ -2,7 +2,7 @@
   "name": "@vigilart/web-app",
   "version": "0.1.0",
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "dotenv -e ../.env -- next dev --turbopack",
     "build": "next build --turbopack",
     "start": "next start"
   },
