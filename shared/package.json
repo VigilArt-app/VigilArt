@@ -3,10 +3,44 @@
   "version": "0.0.1",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "default": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./constants": {
+      "default": "./dist/constants/index.js",
+      "types": "./dist/constants/index.d.ts"
+    },
+    "./enums": {
+      "default": "./dist/enums/index.js",
+      "types": "./dist/enums/index.d.ts"
+    },
+    "./functions": {
+      "default": "./dist/functions/index.js",
+      "types": "./dist/functions/index.d.ts"
+    },
+    "./schemas": {
+      "default": "./dist/schemas/index.js",
+      "types": "./dist/schemas/index.d.ts"
+    },
+    "./types": {
+      "default": "./dist/types/index.js",
+      "types": "./dist/types/index.d.ts"
+    },
+    "./server": {
+      "default": "./dist/server.js",
+      "types": "./dist/server.d.ts"
+    }
+  },
   "scripts": {
-    "build": "tsc -p tsconfig.json"
+    "build": "tsc -p tsconfig.json",
+    "dev": "dotenv -e ../.env -- tsc -p tsconfig.json --watch"
   },
   "devDependencies": {
     "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "zod": "^4.1.13"
   }
 }

@@ -1,4 +1,4 @@
-import { WebsiteCategory } from "src/generated/prisma/client";
+import { WebsiteCategory } from "@vigilart/shared";
 
 export interface VisualSearchResult {
   metadata: ArtworkMetadata | null;

@@ -1,5 +1,5 @@
 {
-  "testPathIgnorePatterns": ["<rootDir>/dist/", "<rootDir>/src/vision/test-vision.spec.ts"],
+  "testPathIgnorePatterns": ["<rootDir>/dist/"],
   "preset": "ts-jest",
   "testEnvironment": "node",
   "transformIgnorePatterns": ["/node_modules/(?!@google-cloud|uuid)/"],

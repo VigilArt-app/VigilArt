@@ -13,7 +13,7 @@ import {
 import { AggregatedVisualSearchResults } from "./types";
 import { ArtworksReportEntry } from "./interfaces";
 import { NotFoundException } from "@nestjs/common";
-import { WebsiteCategory } from "src/generated/prisma/client";
+import { WebsiteCategory } from "@vigilart/shared/server";
 
 describe("ReportsService", () => {
   let service: ReportsService;

@@ -9,12 +9,16 @@
     "build:shared": "pnpm --filter shared run build",
     "dev:backend": "pnpm --filter backend dev",
     "dev:frontend": "pnpm --filter web-app dev",
-    "dev": "pnpm --parallel --filter \"backend...\" --filter \"web-app...\" dev",
+    "dev:shared": "pnpm --filter shared dev",
+    "dev": "pnpm --parallel --filter \"shared...\" --filter \"backend...\" --filter \"web-app...\" dev",
     "test": "pnpm --filter backend test",
     "test:it": "pnpm --filter backend test:it",
     "test:e2e": "pnpm --filter backend test:e2e",
     "start:backend": "pnpm --filter backend start",
     "start:frontend": "pnpm --filter web-app start",
     "dev:db": "docker compose -f docker-compose.dev.yml up db"
+  },
+  "devDependencies": {
+    "dotenv-cli": "^11.0.0"
   }
 }

@@ -1,4 +1,4 @@
-import { WebsiteCategory } from "src/generated/prisma/client";
+import { WebsiteCategory } from "@vigilart/shared/enums";
 import { WebImage } from "./types";
 
 const DOMAIN_PATTERNS: Record<WebsiteCategory, RegExp[]> = {

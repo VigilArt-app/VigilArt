@@ -24,7 +24,7 @@ describe("Auth E2E", () => {
   });
 
   afterEach(async () => {
-    await prismaService.resetDatabase();
+    await prismaService.user.deleteMany();
   });
 
   describe("POST /signup", () => {

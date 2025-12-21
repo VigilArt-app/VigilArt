@@ -19,26 +19,31 @@
     "dotenv": "^17.2.3",
     "pg": "^8.16.3",
     "supertest": "^7.1.4",
-    "testcontainers": "^11.8.1"
+    "zod": "^4.1.13",
+    "zod-prisma-types": "^3.3.10"
   },
   "scripts": {
-    "dev": "pnpm db:migrate && pnpm db:generate && nest start --watch",
+    "dev": "dotenv -e ../.env -- pnpm db:push && pnpm db:generate && nest start --watch",
     "build": "tsc -p tsconfig.json",
-    "start": "pnpm db:migrate && node dist/main.js",
+    "start": "pnpm db:migrate-prod && pnpm db:seed:prod && node dist/main.js",
     "test": "jest --config ./jest.config.json",
     "test:it": "jest --config ./jest-it.json",
-    "test:e2e": "cross-env NODE_ENV=test jest --config ./test/jest-e2e.json",
-    "db:reset": "dotenv -e ../.env -- pnpm exec prisma migrate reset",
-    "db:push": "npx prisma db push",
-    "db:deploy": "dotenv -e ../.env -- pnpm exec prisma migrate deploy && pnpm exec prisma generate --env-file ../.env",
-    "psql": "docker exec -it vigilart-dev-db bash -c 'psql -U \"$POSTGRES_USER\" -d \"$POSTGRES_DB\"'",
-    "db:studio": "dotenv -e ../.env --  pnpm exec prisma studio --config ./prisma.config.ts --port 5555 --browser none",
+    "test:e2e": "cross-env NODE_ENV=test NODE_OPTIONS=\"$NODE_OPTIONS --experimental-vm-modules\" jest --config ./test/jest-e2e.json",
     "db:migrate": "dotenv -e ../.env -- pnpm exec prisma migrate deploy",
-    "db:generate": "pnpm exec prisma generate"
+    "db:reset": "dotenv -e ../.env -- pnpm exec prisma migrate reset",
+    "db:push": "dotenv -e ../.env -- pnpm exec prisma db push",
+    "db:migrate-prod": "pnpm exec prisma migrate deploy",
+    "db:generate": "pnpm exec prisma generate",
+    "db:migrate-dev": "dotenv -e ../.env -- pnpm exec prisma migrate dev",
+    "psql": "docker exec -it vigilart-dev-db bash -c 'psql -U \"$POSTGRES_USER\" -d \"$POSTGRES_DB\"'",
+    "db:studio": "dotenv -e ../.env -- pnpm exec prisma studio --config ./prisma.config.ts --port 5555 --browser none",
+    "db:seed": "pnpm exec prisma db seed --config ./prisma.config.ts",
+    "db:seed:prod": "node dist/prisma/seeds/index.js"
   },
   "devDependencies": {
     "@nestjs/cli": "^11.0.12",
     "@nestjs/testing": "^11.1.8",
+    "@testcontainers/postgresql": "^11.8.1",
     "@types/bcrypt": "^6.0.0",
     "@types/jest": "^30.0.0",
     "@types/mocha": "^10.0.10",
@@ -47,6 +52,7 @@
     "dotenv-cli": "^11.0.0",
     "jest": "^30.2.0",
     "prisma": "^7.2.0",
+    "testcontainers": "^11.8.1",
     "ts-jest": "^29.4.5",
     "typescript": "^5.9.3"
   }

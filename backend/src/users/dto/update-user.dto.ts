@@ -1,5 +1,5 @@
 import { IsOptional, IsString } from "class-validator";
-import { SubscriptionTier } from "src/generated/prisma/client";
+import { SubscriptionTier } from "@vigilart/shared/enums";
 
 export class UpdateUserDto {
   @IsString()

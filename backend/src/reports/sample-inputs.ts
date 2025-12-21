@@ -1,4 +1,4 @@
-import { Artwork, WebsiteCategory } from "src/generated/prisma/client";
+import { Artwork, WebsiteCategory } from "@vigilart/shared";
 import { AggregatedVisualSearchResults } from "./types";
 import { ArtworksReportEntry } from "./interfaces";
 import { DEFAULT_PAGINATION_LIMIT } from "./constants";

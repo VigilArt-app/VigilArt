@@ -25,7 +25,7 @@ describe("Users E2E", () => {
   });
 
   afterEach(async () => {
-    await prismaService.resetDatabase();
+    await prismaService.user.deleteMany();
   });
 
   describe("POST /users", () => {

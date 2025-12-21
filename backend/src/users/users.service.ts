@@ -9,7 +9,7 @@ import { CreateUserDto } from "./dto/create-user.dto";
 import { randomUUID } from "crypto";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import { PrismaService } from "../prisma/prisma.service";
-import { SubscriptionTier, User } from "src/generated/prisma/client";
+import { SubscriptionTier, User } from "@vigilart/shared";
 
 type UserProfile = Omit<User, "password">;
 

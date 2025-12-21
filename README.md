@@ -40,29 +40,39 @@ pnpm install
 ### Doppler CLI — install & setup
 *See Doppler's [readme file](./documentation/doppler.md) for more details.*
 
-### Running with Docker Compose
-
-You can run the entire stack using Docker Compose in either development or production mode.
 
 #### Development Mode
 
-- Uses `docker-compose.dev.yml`
-- Loads environment variables from a local `.env` file at root of the repository (see [.env.example](.env.example)).
+- Uses `docker-compose.dev.yml` to easily start the database and Prisma Studio for local development.
+- Loads environment variables from a local `.env` file at the root of the repository (see [.env.example](.env.example)).
 - Suitable for local development, debugging, and testing.
 
-**Start the stack in development mode:**
+**Start the database and Prisma Studio:**
 
 ```bash
-docker compose -f docker-compose.dev.yml up --build
+docker compose -f docker-compose.dev.yml up db
+docker compose -f docker-compose.dev.yml up prisma-studio
 ```
 
-You can also run a single service (e.g., backend):
+You can also start both at once:
 
 ```bash
-docker compose -f docker-compose.dev.yml up backend
+docker compose -f docker-compose.dev.yml up
 ```
 
 > **Note:** Make sure your `.env` file is present and contains all required variables.
+
+**Start the backend and frontend for development:**
+
+From the repository root, use the following scripts:
+
+```bash
+pnpm dev          # Starts both backend and frontend
+pnpm dev:backend  # Starts only the backend
+pnpm dev:frontend # Starts only the frontend
+```
+
+This allows you to use hot-reloading and other dev features outside of Docker for the app code, while still using Docker for the database and Prisma Studio.
 
 #### Production Mode
 
@@ -79,6 +89,7 @@ doppler run -- docker compose -f docker-compose.prod.yml up
 You can also run a single service (e.g., backend):
 
 ```bash
+doppler run -- docker compose -f docker-compose.prod.yml build backend
 doppler run -- docker compose -f docker-compose.prod.yml up backend
 ```
 
@@ -86,14 +97,14 @@ doppler run -- docker compose -f docker-compose.prod.yml up backend
 
 #### Key Differences
 
-- **Environment Variables:**  
-	- Dev: Uses `.env` files for local configuration.  
+- **Environment Variables:**
+	- Dev: Uses `.env` files for local configuration.
 	- Prod: Uses Doppler for secure secret injection.
-- **Compose Files:**  
-	- Dev: `docker-compose.dev.yml` (local setup, hot-reloading, debug tools)  
+- **Compose Files:**
+	- Dev: `docker-compose.dev.yml` and pnpm scripts.
 	- Prod: `docker-compose.prod.yml` (optimized for deployment, secure, persistent volumes)
-- **Usage:**  
-	- Dev: Fast iteration, local testing.  
+- **Usage:**
+	- Dev: Fast iteration, local testing.
 	- Prod: Realistic environment, secure secrets, ready for deployment.
 
 ### Add a new dependency to one of the packages

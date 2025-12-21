@@ -26,17 +26,17 @@ COPY pnpm-workspace.yaml pnpm-workspace.yaml
 
 COPY tsconfig.base.json tsconfig.base.json
 
+COPY web-app/ web-app/
+
 COPY shared/ shared/
 
 RUN pnpm install --frozen-lockfile --filter shared...
 
-RUN pnpm build:shared
-
-COPY web-app/ web-app/
-
 RUN pnpm install --frozen-lockfile --filter web-app...
 
 FROM setup AS build
+
+RUN pnpm build:shared
 
 RUN pnpm build:frontend
 
@@ -59,6 +59,10 @@ COPY --from=build /app/web-app/package.json /app/web-app/package.json
 COPY --from=build /app/web-app/.next /app/web-app/.next
 
 COPY --from=build /app/web-app/public /app/web-app/public
+
+COPY --from=build /app/shared/package.json /app/shared/package.json
+
+COPY --from=build /app/shared/dist/ /app/shared/dist/
 
 COPY --from=build /app/node_modules /app/node_modules
 

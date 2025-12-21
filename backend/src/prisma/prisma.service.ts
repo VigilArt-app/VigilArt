@@ -1,7 +1,7 @@
 import { Injectable, OnModuleInit, OnModuleDestroy } from "@nestjs/common";
-import { PrismaClient } from "src/generated/prisma/client";
-import { PrismaPg } from "@prisma/adapter-pg";
 import { ConfigService } from "@nestjs/config";
+import { PrismaClient } from "@vigilart/shared/server";
+import { PrismaPg } from "@prisma/adapter-pg";
 
 @Injectable()
 export class PrismaService
@@ -23,15 +23,5 @@ export class PrismaService
 
   async onModuleDestroy() {
     await this.$disconnect();
-  }
-
-  async resetDatabase() {
-    const env = this.config.get<string>("NODE_ENV");
-    if (env !== "test") {
-      throw new Error(
-        `resetDatabase blocked: NODE_ENV must be "test" (received "${env}")`
-      );
-    }
-    await this.user.deleteMany();
   }
 }
