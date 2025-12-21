@@ -51,7 +51,10 @@ export const AnyNull = runtime.AnyNull
 
 
 export const ModelName = {
-  User: 'User'
+  User: 'User',
+  DmcaPlatform: 'DmcaPlatform',
+  DmcaProfile: 'DmcaProfile',
+  DmcaNotice: 'DmcaNotice'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -77,11 +80,58 @@ export const UserScalarFieldEnum = {
   firstName: 'firstName',
   lastName: 'lastName',
   avatar: 'avatar',
+  subscriptionTier: 'subscriptionTier',
   createdAt: 'createdAt',
-  subscriptionTier: 'subscriptionTier'
+  updatedAt: 'updatedAt'
 } as const
 
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
+
+
+export const DmcaPlatformScalarFieldEnum = {
+  id: 'id',
+  code: 'code',
+  displayName: 'displayName',
+  domain: 'domain',
+  dmcaUrl: 'dmcaUrl',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type DmcaPlatformScalarFieldEnum = (typeof DmcaPlatformScalarFieldEnum)[keyof typeof DmcaPlatformScalarFieldEnum]
+
+
+export const DmcaProfileScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  fullName: 'fullName',
+  addressLine1: 'addressLine1',
+  addressLine2: 'addressLine2',
+  city: 'city',
+  postalCode: 'postalCode',
+  country: 'country',
+  email: 'email',
+  phone: 'phone',
+  signature: 'signature',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type DmcaProfileScalarFieldEnum = (typeof DmcaProfileScalarFieldEnum)[keyof typeof DmcaProfileScalarFieldEnum]
+
+
+export const DmcaNoticeScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  dmcaPlatformCode: 'dmcaPlatformCode',
+  status: 'status',
+  body: 'body',
+  submittedAt: 'submittedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type DmcaNoticeScalarFieldEnum = (typeof DmcaNoticeScalarFieldEnum)[keyof typeof DmcaNoticeScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -98,4 +148,12 @@ export const QueryMode = {
 } as const
 
 export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
+
+
+export const NullsOrder = {
+  first: 'first',
+  last: 'last'
+} as const
+
+export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
 

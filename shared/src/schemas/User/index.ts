@@ -2,7 +2,10 @@ import { UserSchema as base } from "../../generated/zod";
 import { dateTimeStringToDate } from "../../constants/DateTimeStringToDate";
 import { createZodDto } from "nestjs-zod/dto";
 
-export const UserSchema = base.extend({ createdAt: dateTimeStringToDate });
+export const UserSchema = base.extend({
+    createdAt: dateTimeStringToDate,
+    updatedAt: dateTimeStringToDate
+});
 export class UserDTO extends createZodDto(UserSchema) {}
 
 export const UserGetSchema = UserSchema.omit({ password: true });

@@ -32,7 +32,83 @@ model User {
   password         String
   firstName        String           @db.VarChar(64)
   lastName         String           @db.VarChar(64)
-  avatar           String
+  avatar           String?
+  subscriptionTier String?
+
   createdAt        DateTime         @default(now())
-  subscriptionTier String
+  updatedAt        DateTime         @updatedAt @default(now())
+
+  dmcaProfile      DmcaProfile?
+  dmcaNotices      DmcaNotice[]
+}
+
+// DMCA Models & Enums
+
+enum DmcaPlatformCode {
+  PINTEREST
+  ETSY
+  REDBUBBLE
+  INSTAGRAM
+  X
+  DEVIANTART
+  TUMBLR
+  OTHER
+}
+
+enum DmcaStatus {
+  DRAFT
+  GENERATED
+  EXPORTED
+  SUBMITTED
+}
+
+model DmcaPlatform {
+  id            String           @id @default(uuid())
+  code          DmcaPlatformCode @unique
+
+  displayName   String
+  domain        String           @unique
+  dmcaUrl       String
+
+  dmcaNotices   DmcaNotice[]
+
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt @default(now())
+}
+
+model DmcaProfile {
+  id           String   @id @default(uuid())
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId       String   @unique
+
+  fullName     String
+  addressLine1 String
+  addressLine2 String?
+  city         String?
+  postalCode   String?
+  country      String
+  email        String
+  phone        String?
+  signature    String? // typed name or URL/base64 of signature
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt @default(now())
+}
+
+model DmcaNotice {
+  id String @id @default(uuid())
+
+  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userId String?
+
+  dmcaPlatform   DmcaPlatform @relation(fields: [dmcaPlatformCode], references: [code], onDelete: Restrict)
+  dmcaPlatformCode DmcaPlatformCode
+
+  status DmcaStatus @default(DRAFT)
+
+  body        String?
+  submittedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt @default(now())
 }

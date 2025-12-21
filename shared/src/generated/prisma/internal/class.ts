@@ -20,7 +20,7 @@ const config: runtime.GetPrismaClientConfig = {
   "clientVersion": "7.1.0",
   "engineVersion": "ab635e6b9d606fa5c8fb8b1a7f909c3c3c1c98ba",
   "activeProvider": "postgresql",
-  "inlineSchema": "// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\n// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?\n// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init\n\ngenerator client {\n  provider     = \"prisma-client\"\n  output       = \"../../shared/src/generated/prisma\"\n  engineType   = \"client\"\n  moduleFormat = \"cjs\"\n}\n\ngenerator zod {\n  provider          = \"zod-prisma-types\"\n  output            = \"../../shared/src/generated/zod\"\n  prismaClientPath  = \"../prisma/client\"\n  createInputTypes  = false\n  addIncludeType    = false\n  useTypeAssertions = true\n}\n\ndatasource db {\n  provider = \"postgresql\"\n}\n\n// User Models & Enums\n\nmodel User {\n  id               String   @id @default(uuid())\n  email            String   @unique @db.VarChar(254)\n  password         String\n  firstName        String   @db.VarChar(64)\n  lastName         String   @db.VarChar(64)\n  avatar           String\n  createdAt        DateTime @default(now())\n  subscriptionTier String\n}\n",
+  "inlineSchema": "// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\n// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?\n// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init\n\ngenerator client {\n  provider     = \"prisma-client\"\n  output       = \"../../shared/src/generated/prisma\"\n  engineType   = \"client\"\n  moduleFormat = \"cjs\"\n}\n\ngenerator zod {\n  provider          = \"zod-prisma-types\"\n  output            = \"../../shared/src/generated/zod\"\n  prismaClientPath  = \"../prisma/client\"\n  createInputTypes  = false\n  addIncludeType    = false\n  useTypeAssertions = true\n}\n\ndatasource db {\n  provider = \"postgresql\"\n}\n\n// User Models & Enums\n\nmodel User {\n  id               String  @id @default(uuid())\n  email            String  @unique @db.VarChar(254)\n  password         String\n  firstName        String  @db.VarChar(64)\n  lastName         String  @db.VarChar(64)\n  avatar           String?\n  subscriptionTier String?\n\n  createdAt DateTime @default(now())\n  updatedAt DateTime @default(now()) @updatedAt\n\n  dmcaProfile DmcaProfile?\n  dmcaNotices DmcaNotice[]\n}\n\n// DMCA Models & Enums\n\nenum DmcaPlatformCode {\n  PINTEREST\n  ETSY\n  REDBUBBLE\n  INSTAGRAM\n  X\n  DEVIANTART\n  TUMBLR\n  OTHER\n}\n\nenum DmcaStatus {\n  DRAFT\n  GENERATED\n  EXPORTED\n  SUBMITTED\n}\n\nmodel DmcaPlatform {\n  id   String           @id @default(uuid())\n  code DmcaPlatformCode @unique\n\n  displayName String\n  domain      String @unique\n  dmcaUrl     String\n\n  dmcaNotices DmcaNotice[]\n\n  createdAt DateTime @default(now())\n  updatedAt DateTime @default(now()) @updatedAt\n}\n\nmodel DmcaProfile {\n  id     String @id @default(uuid())\n  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)\n  userId String @unique\n\n  fullName     String\n  addressLine1 String\n  addressLine2 String?\n  city         String?\n  postalCode   String?\n  country      String\n  email        String\n  phone        String?\n  signature    String? // typed name or URL/base64 of signature\n\n  createdAt DateTime @default(now())\n  updatedAt DateTime @default(now()) @updatedAt\n}\n\nmodel DmcaNotice {\n  id String @id @default(uuid())\n\n  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)\n  userId String?\n\n  dmcaPlatform     DmcaPlatform     @relation(fields: [dmcaPlatformCode], references: [code], onDelete: Restrict)\n  dmcaPlatformCode DmcaPlatformCode\n\n  status DmcaStatus @default(DRAFT)\n\n  body        String?\n  submittedAt DateTime?\n\n  createdAt DateTime @default(now())\n  updatedAt DateTime @default(now()) @updatedAt\n}\n",
   "runtimeDataModel": {
     "models": {},
     "enums": {},
@@ -28,7 +28,7 @@ const config: runtime.GetPrismaClientConfig = {
   }
 }
 
-config.runtimeDataModel = JSON.parse("{\"models\":{\"User\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"email\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"password\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"firstName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"lastName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"avatar\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"subscriptionTier\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null}},\"enums\":{},\"types\":{}}")
+config.runtimeDataModel = JSON.parse("{\"models\":{\"User\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"email\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"password\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"firstName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"lastName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"avatar\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"subscriptionTier\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"dmcaProfile\",\"kind\":\"object\",\"type\":\"DmcaProfile\",\"relationName\":\"DmcaProfileToUser\"},{\"name\":\"dmcaNotices\",\"kind\":\"object\",\"type\":\"DmcaNotice\",\"relationName\":\"DmcaNoticeToUser\"}],\"dbName\":null},\"DmcaPlatform\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"code\",\"kind\":\"enum\",\"type\":\"DmcaPlatformCode\"},{\"name\":\"displayName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"domain\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"dmcaUrl\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"dmcaNotices\",\"kind\":\"object\",\"type\":\"DmcaNotice\",\"relationName\":\"DmcaNoticeToDmcaPlatform\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"DmcaProfile\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"DmcaProfileToUser\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"fullName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"addressLine1\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"addressLine2\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"city\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"postalCode\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"country\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"email\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"phone\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"signature\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"DmcaNotice\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"DmcaNoticeToUser\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"dmcaPlatform\",\"kind\":\"object\",\"type\":\"DmcaPlatform\",\"relationName\":\"DmcaNoticeToDmcaPlatform\"},{\"name\":\"dmcaPlatformCode\",\"kind\":\"enum\",\"type\":\"DmcaPlatformCode\"},{\"name\":\"status\",\"kind\":\"enum\",\"type\":\"DmcaStatus\"},{\"name\":\"body\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"submittedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null}},\"enums\":{},\"types\":{}}")
 
 async function decodeBase64AsWasm(wasmBase64: string): Promise<WebAssembly.Module> {
   const { Buffer } = await import('node:buffer')
@@ -183,6 +183,36 @@ export interface PrismaClient<
     * ```
     */
   get user(): Prisma.UserDelegate<ExtArgs, { omit: OmitOpts }>;
+
+  /**
+   * `prisma.dmcaPlatform`: Exposes CRUD operations for the **DmcaPlatform** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more DmcaPlatforms
+    * const dmcaPlatforms = await prisma.dmcaPlatform.findMany()
+    * ```
+    */
+  get dmcaPlatform(): Prisma.DmcaPlatformDelegate<ExtArgs, { omit: OmitOpts }>;
+
+  /**
+   * `prisma.dmcaProfile`: Exposes CRUD operations for the **DmcaProfile** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more DmcaProfiles
+    * const dmcaProfiles = await prisma.dmcaProfile.findMany()
+    * ```
+    */
+  get dmcaProfile(): Prisma.DmcaProfileDelegate<ExtArgs, { omit: OmitOpts }>;
+
+  /**
+   * `prisma.dmcaNotice`: Exposes CRUD operations for the **DmcaNotice** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more DmcaNotices
+    * const dmcaNotices = await prisma.dmcaNotice.findMany()
+    * ```
+    */
+  get dmcaNotice(): Prisma.DmcaNoticeDelegate<ExtArgs, { omit: OmitOpts }>;
 }
 
 export function getPrismaClientClass(): PrismaClientConstructor {

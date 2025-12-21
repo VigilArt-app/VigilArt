@@ -9,7 +9,25 @@
 * 🟢 You can import this file directly.
 */
 
+export const DmcaPlatformCode = {
+  PINTEREST: 'PINTEREST',
+  ETSY: 'ETSY',
+  REDBUBBLE: 'REDBUBBLE',
+  INSTAGRAM: 'INSTAGRAM',
+  X: 'X',
+  DEVIANTART: 'DEVIANTART',
+  TUMBLR: 'TUMBLR',
+  OTHER: 'OTHER'
+} as const
+
+export type DmcaPlatformCode = (typeof DmcaPlatformCode)[keyof typeof DmcaPlatformCode]
 
 
-// This file is empty because there are no enums in the schema.
-export {}
+export const DmcaStatus = {
+  DRAFT: 'DRAFT',
+  GENERATED: 'GENERATED',
+  EXPORTED: 'EXPORTED',
+  SUBMITTED: 'SUBMITTED'
+} as const
+
+export type DmcaStatus = (typeof DmcaStatus)[keyof typeof DmcaStatus]

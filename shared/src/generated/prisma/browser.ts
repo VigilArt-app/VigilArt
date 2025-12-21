@@ -22,3 +22,18 @@ export * from './enums.js';
  * 
  */
 export type User = Prisma.UserModel
+/**
+ * Model DmcaPlatform
+ * 
+ */
+export type DmcaPlatform = Prisma.DmcaPlatformModel
+/**
+ * Model DmcaProfile
+ * 
+ */
+export type DmcaProfile = Prisma.DmcaProfileModel
+/**
+ * Model DmcaNotice
+ * 
+ */
+export type DmcaNotice = Prisma.DmcaNoticeModel

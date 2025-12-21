@@ -66,8 +66,9 @@ describe("Users E2E", () => {
       firstName: "Yuki",
       lastName: "Endo",
       avatar: expect.any(String),
-      createdAt: expect.any(String),
       subscriptionTier: expect.any(String),
+      createdAt: expect.any(String),
+      updatedAt: expect.any(String)
     });
   });
 
@@ -135,8 +136,9 @@ describe("Users E2E", () => {
       firstName: "Amanda",
       lastName: "Rawles",
       avatar: expect.any(String),
-      createdAt: expect.any(String),
       subscriptionTier: expect.any(String),
+      createdAt: expect.any(String),
+      updatedAt: expect.any(String)
     });
   });
 
@@ -170,8 +172,9 @@ describe("Users E2E", () => {
       firstName: "Amanda",
       lastName: "Rawles",
       avatar: "new_url",
-      createdAt: expect.any(String),
       subscriptionTier: user.subscriptionTier,
+      createdAt: expect.any(String),
+      updatedAt: expect.any(String)
     });
   });
 
