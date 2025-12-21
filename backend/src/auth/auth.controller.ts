@@ -1,21 +1,41 @@
-import { Body, Controller, HttpCode, HttpStatus, Post } from "@nestjs/common";
-import { LoginDto } from "./dto/login.dto";
-import { SignUpDto } from "./dto/sign-up.dto";
+import { Body, Controller, HttpStatus, Post } from "@nestjs/common";
+import { LoginDTO, SignUpDTO, AuthResponseDTO } from "@vigilart/shared/schemas";
+import type { AuthResponse, Login, SignUp } from "@vigilart/shared/types";
 import { AuthService } from "./auth.service";
+import { ApiEndpoint } from "../common/decorators/api-endpoint.decorator";
+import { ApiBody } from "@nestjs/swagger";
 
 @Controller("auth")
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post("signup")
-  @HttpCode(HttpStatus.CREATED)
-  async signUp(@Body() signUpDto: SignUpDto) {
+  @ApiEndpoint({
+    summary: "Register a new user",
+    success: {
+        status: HttpStatus.CREATED,
+        type: AuthResponseDTO
+    },
+    errors: [HttpStatus.CONFLICT],
+    protected: false
+  })
+  @ApiBody({ type: SignUpDTO })
+  async signUp(@Body() signUpDto: SignUp): Promise<AuthResponse> {
     return await this.authService.signUp(signUpDto);
   }
 
   @Post("login")
-  @HttpCode(HttpStatus.OK)
-  async login(@Body() loginDto: LoginDto) {
+  @ApiEndpoint({
+    summary: "Authenticate a user and obtain a JWT token",
+    success: {
+        status: HttpStatus.OK,
+        type: AuthResponseDTO
+    },
+    errors: [HttpStatus.UNAUTHORIZED],
+    protected: false
+  })
+  @ApiBody({ type: LoginDTO })
+  async login(@Body() loginDto: Login): Promise<AuthResponse> {
     return await this.authService.login(loginDto);
   }
 }

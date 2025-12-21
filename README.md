@@ -108,4 +108,13 @@ You can also `cd` into the package folder and run the command without `-F` and `
 The VigilArt development website is accessible at: [https://dev.vigilart.app](https://dev.vigilart.app).  
 The production website is accessible at: [https://vigilart.app](https://vigilart.app).
 
-The APIs are also accessible online by using dev-api.vigilart.app and api.vigilart.app respectively.
+### documentation
+
+Further documentation can be found in the [documentation folder](./documentation).
+
+API documentation is auto-generated and can be accessed at different URLs based on your environment:
+- Local development: `http://localhost:3000/api/v1/docs`
+- Development environment: `https://dev-api.vigilart.app/api/v1/docs`
+- Production environment: Not available.
+
+The API documentation is generated using Swagger and provides detailed information about the available endpoints, request/response schemas, and authentication methods.
