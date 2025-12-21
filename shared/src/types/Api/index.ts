@@ -25,10 +25,7 @@ export type NotFoundApiError = z.infer<typeof NotFoundApiErrorSchema>;
 export type ConflictApiError = z.infer<typeof ConflictApiErrorSchema>;
 export type InternalServerApiError = z.infer<typeof InternalServerApiErrorSchema>;
 
-export type ApiResponseData<T = undefined> =
-    | ApiSuccess<T>
-    | ApiCreated<T>
-    | ApiNoContent
+export type ApiErrorData =
     | ApiError
     | BadRequestApiError
     | UnauthorizedApiError
@@ -36,5 +33,14 @@ export type ApiResponseData<T = undefined> =
     | NotFoundApiError
     | ConflictApiError
     | InternalServerApiError;
+
+export type ApiSuccessData<T = undefined> =
+    | ApiSuccess<T>
+    | ApiCreated<T>
+    | ApiNoContent;
+
+export type ApiResponseData<T = undefined> =
+    | ApiErrorData
+    | ApiSuccessData<T>;
 
 export type ApiResponseAsync<T = undefined> = Promise<ApiResponseData<T>>;

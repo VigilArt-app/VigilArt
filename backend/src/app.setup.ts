@@ -23,8 +23,8 @@ export function setupApp(app: INestApplication) {
     })
   );
   app.useGlobalFilters(
-    new PrismaClientExceptionFilter(httpAdapter),
-    new HttpExceptionFilter(httpAdapter)
+    new PrismaClientExceptionFilter(),
+    new HttpExceptionFilter()
   );
   app.useGlobalInterceptors(new ResponseWrapperInterceptor());
 

@@ -1,4 +1,4 @@
-import { Controller, Get } from "@nestjs/common";
+import { Controller, Get, HttpStatus } from "@nestjs/common";
 import { AppService } from "./app.service";
 import { ApiEndpoint } from "./common/decorators/api-endpoint.decorator";
 
@@ -10,8 +10,7 @@ export class AppController {
   @ApiEndpoint({
     summary: "Health check endpoint",
     success: {
-      status: 200,
-      type: String
+      status: HttpStatus.NO_CONTENT
     }
   })
   getHello(): string {
