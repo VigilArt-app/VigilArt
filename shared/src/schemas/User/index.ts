@@ -1,6 +1,6 @@
 import { UserSchema as base } from "../../generated/zod";
 import { dateTimeStringToDate } from "../../constants/DateTimeStringToDate";
-import { createZodDto } from "nestjs-zod/dto";
+import { createZodDto } from "nestjs-zod";
 
 export const UserSchema = base.extend({
     createdAt: dateTimeStringToDate,

@@ -1,6 +1,6 @@
 import request from "supertest";
 import { Test } from "@nestjs/testing";
-import { HttpStatus, INestApplication, ValidationPipe } from "@nestjs/common";
+import { HttpStatus, INestApplication } from "@nestjs/common";
 import { AppModule } from "../src/app.module";
 import { PrismaService } from "../src/prisma/prisma.service";
 import { setupApp } from "../src/app.setup";
@@ -40,18 +40,19 @@ describe("Auth E2E", () => {
       })
       .expect(HttpStatus.CREATED);
 
-    expect(res.body.accessToken).toBeDefined();
-    expect(res.body.refreshToken).toBeDefined();
-    expect(res.body.expiresIn).toBeDefined();
-    expect(res.body.user.password).toBeUndefined();
-    expect(res.body.user).toEqual({
+    expect(res.body.data.accessToken).toBeDefined();
+    expect(res.body.data.refreshToken).toBeDefined();
+    expect(res.body.data.expiresIn).toBeDefined();
+    expect(res.body.data.user.password).toBeUndefined();
+    expect(res.body.data.user).toEqual({
       id: expect.any(String),
       email: "emma.dao@mail.com",
       firstName: "Emma",
       lastName: "Dao",
       avatar: expect.any(String),
-      createdAt: expect.any(String),
       subscriptionTier: expect.any(String),
+      createdAt: expect.any(String),
+      updatedAt: expect.any(String)
     });
   });
 
@@ -107,18 +108,19 @@ describe("Auth E2E", () => {
         password: "Secure_P4ssword",
       })
       .expect(HttpStatus.OK);
-    expect(res.body.accessToken).toBeDefined();
-    expect(res.body.refreshToken).toBeDefined();
-    expect(res.body.expiresIn).toBeDefined();
-    expect(res.body.user.password).toBeUndefined();
-    expect(res.body.user).toEqual({
+    expect(res.body.data.accessToken).toBeDefined();
+    expect(res.body.data.refreshToken).toBeDefined();
+    expect(res.body.data.expiresIn).toBeDefined();
+    expect(res.body.data.user.password).toBeUndefined();
+    expect(res.body.data.user).toEqual({
       id: expect.any(String),
       email: "emma.dao@mail.com",
       firstName: "Emma",
       lastName: "Dao",
       avatar: expect.any(String),
-      createdAt: expect.any(String),
       subscriptionTier: expect.any(String),
+      createdAt: expect.any(String),
+      updatedAt: expect.any(String)
     });
   });
 

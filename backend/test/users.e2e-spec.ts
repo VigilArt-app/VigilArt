@@ -59,8 +59,8 @@ describe("Users E2E", () => {
       })
       .expect(HttpStatus.CREATED);
 
-    expect(res.body.password).toBeUndefined();
-    expect(res.body).toEqual({
+    expect(res.body.data.password).toBeUndefined();
+    expect(res.body.data).toEqual({
       id: expect.any(String),
       email: "yuki.endo@mail.com",
       firstName: "Yuki",
@@ -82,7 +82,7 @@ describe("Users E2E", () => {
         lastName: "Willows",
       })
       .expect(HttpStatus.CONFLICT);
-    expect(res.body.message).toBe("Email already in use");
+    expect(res.body.error).toBe("Conflict");
   });
 
   it("Should get all users", async () => {
@@ -90,8 +90,8 @@ describe("Users E2E", () => {
       .get("/api/v1/users")
       .expect(HttpStatus.OK);
 
-    expect(res.body.users).toHaveLength(2);
-    expect(res.body.users).toEqual(
+    expect(res.body.data).toHaveLength(2);
+    expect(res.body.data).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
           id: expect.any(String),
@@ -129,7 +129,7 @@ describe("Users E2E", () => {
     const res = await request(app.getHttpServer())
       .get(`/api/v1/users/${user.id}`)
       .expect(HttpStatus.OK);
-    expect(res.body).toEqual({
+    expect(res.body.data).toEqual({
       id: expect.any(String),
       email: "amanda.rawles@mail.com",
       password: expect.any(String),
@@ -143,10 +143,9 @@ describe("Users E2E", () => {
   });
 
   it("Shouldn't get user with non-existent ID", async () => {
-    const res = await request(app.getHttpServer())
+    await request(app.getHttpServer())
       .get("/api/v1/users/10")
-      .expect(HttpStatus.OK);
-    expect(res.body).toEqual({});
+      .expect(HttpStatus.NOT_FOUND);
   });
 
   it("Should update specific user with ID", async () => {
@@ -166,7 +165,7 @@ describe("Users E2E", () => {
         avatar: "new_url",
       })
       .expect(HttpStatus.OK);
-    expect(res.body).toEqual({
+    expect(res.body.data).toEqual({
       id: expect.any(String),
       email: "amanda.rawles@mail.com",
       firstName: "Amanda",

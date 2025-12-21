@@ -12,7 +12,7 @@ import { UsersService } from "./users.service";
 import { ApiEndpoint } from "../common/decorators/api-endpoint.decorator";
 import { ApiBody, ApiParam } from "@nestjs/swagger";
 import { UserCreateDTO, UserUpdateDTO, UserGetDTO, UserDTO } from "@vigilart/shared/schemas";
-import type { UserCreate, UserUpdate, UserGet, User } from "@vigilart/shared/types";
+import type { UserGet, User } from "@vigilart/shared/types";
 
 @Controller("users")
 export class UsersController {
@@ -29,7 +29,7 @@ export class UsersController {
     protected: true,
   })
   @ApiBody({ type: UserCreateDTO })
-  async create(@Body() createUserDto: UserCreate): Promise<UserGet> {
+  async create(@Body() createUserDto: UserCreateDTO): Promise<UserGet> {
     return this.usersService.create(createUserDto);
   }
 
@@ -67,13 +67,14 @@ export class UsersController {
     summary: "Retrieve a user by email",
     success: {
       status: HttpStatus.OK,
-      type: UserDTO
+      type: UserDTO,
+      nullable: true
     },
     errors: [HttpStatus.NOT_FOUND],
     protected: true,
   })
   @ApiParam({ name: "email", type: String })
-  async findByEmail(@Param("email") email: string): Promise<User> {
+  async findByEmail(@Param("email") email: string): Promise<User | null> {
     return this.usersService.findByEmail(email);
   }
 
@@ -89,7 +90,7 @@ export class UsersController {
   })
   @ApiParam({ name: "id", type: String })
   @ApiBody({ type: UserUpdateDTO })
-  async update(@Param("id") id: string, @Body() updateUserDto: UserUpdate): Promise<UserGet> {
+  async update(@Param("id") id: string, @Body() updateUserDto: UserUpdateDTO): Promise<UserGet> {
     return this.usersService.update(id, updateUserDto);
   }
 

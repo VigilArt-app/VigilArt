@@ -43,9 +43,9 @@ export class UsersService {
     });
   }
 
-  async findByEmail(email: string): Promise<User> {
+  async findByEmail(email: string): Promise<User | null> {
     this.logger.log(`Finding user with ${email}`);
-    return this.prisma.user.findUniqueOrThrow({
+    return this.prisma.user.findUnique({
       where: {
         email
       }

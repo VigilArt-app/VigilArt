@@ -4,7 +4,8 @@ import { ApiSuccessDTO, ApiCreatedDTO, ApiNoContentDTO } from '@vigilart/shared/
 
 export const ApiResponseGeneric = <DataDto extends Type<unknown>>(
     status: HttpStatus.OK | HttpStatus.CREATED | HttpStatus.NO_CONTENT,
-    dataDto?: DataDto | [DataDto]
+    dataDto?: DataDto | [DataDto],
+    nullable?: boolean
 ) => {
     if (status === HttpStatus.NO_CONTENT) {
         return applyDecorators(
@@ -22,11 +23,20 @@ export const ApiResponseGeneric = <DataDto extends Type<unknown>>(
 
     const isArray = Array.isArray(dataDto);
     const actualDTO = isArray ? dataDto[0] : dataDto;
-    const dataSchema = actualDTO
+    const baseDataSchema = actualDTO
         ? (isArray
             ? { type: 'array', items: { $ref: getSchemaPath(actualDTO) } }
             : { $ref: getSchemaPath(actualDTO) })
         : { type: 'object', example: {} };
+    const dataSchema = nullable && actualDTO
+        ? {
+            oneOf: [
+                baseDataSchema,
+                { type: 'null' }
+            ]
+        }
+        : baseDataSchema;
+
     return applyDecorators(
         actualDTO ?
             ApiExtraModels(ApiSuccessDTO, ApiCreatedDTO, actualDTO) :
@@ -40,7 +50,7 @@ export const ApiResponseGeneric = <DataDto extends Type<unknown>>(
                         properties: {
                             data: dataSchema,
                         },
-                    },
+                    }
                 ],
             },
         }),

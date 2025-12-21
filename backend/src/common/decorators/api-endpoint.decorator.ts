@@ -25,6 +25,7 @@ interface ApiEndpointOptions200 {
     success: {
         status: HttpStatus.OK;
         type?: Type<unknown> | [Type<unknown>];
+        nullable?: boolean;
     };
     errors?: number[];
     protected?: boolean;
@@ -35,6 +36,7 @@ interface ApiEndpointOptions201 {
     success: {
         status: HttpStatus.CREATED;
         type?: Type<unknown> | [Type<unknown>];
+        nullable?: boolean;
     };
     errors?: number[];
     protected?: boolean;
@@ -45,6 +47,7 @@ interface ApiEndpointOptions204 {
     success: {
         status: HttpStatus.NO_CONTENT;
         type?: never;
+        nullable?: never;
     };
     errors?: number[];
     protected?: boolean;
@@ -58,7 +61,7 @@ export function ApiEndpoint(options: ApiEndpointOptions) {
     decorators.push(ApiOperation({ summary: options.summary }));
     decorators.push(HttpCode(options.success.status));
     if (options.success.status !== HttpStatus.NO_CONTENT)
-        decorators.push(ApiResponseGeneric(options.success.status, options.success.type));
+        decorators.push(ApiResponseGeneric(options.success.status, options.success.type, options.success.nullable));
     if (options.success.status === HttpStatus.NO_CONTENT)
         decorators.push(ApiResponseGeneric(options.success.status));
     if (options.errors) {

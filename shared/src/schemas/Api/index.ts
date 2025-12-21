@@ -11,18 +11,21 @@ export class ApiResponseDTO extends createZodDto(ApiResponseSchema) {};
 export const ApiSuccessSchema = ApiResponseSchema.extend({
     success: z.literal(true).meta({ example: true }),
     statusCode: z.literal(200).meta({ example: 200 }),
-    data: z.any().nullable()
+    data: z.any().nullable(),
+    message: z.literal("OK").meta({ example: "OK" })
 });
 export class ApiSuccessDTO extends createZodDto(ApiSuccessSchema) {}
 
 export const ApiCreatedSchema = ApiSuccessSchema.extend({
     statusCode: z.literal(201).meta({ example: 201 }),
-    data: z.any().nullable()
+    data: z.any().nullable(),
+    message: z.literal("Created").meta({ example: "Created" })
 });
 export class ApiCreatedDTO extends createZodDto(ApiCreatedSchema) {}
 
 export const ApiNoContentSchema = ApiResponseSchema.extend({
-    statusCode: z.literal(204).meta({ example: 204 })
+    statusCode: z.literal(204).meta({ example: 204 }),
+    message: z.literal("No Content").meta({ example: "No Content" })
 });
 export class ApiNoContentDTO extends createZodDto(ApiNoContentSchema) {}
 
