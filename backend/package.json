@@ -8,8 +8,8 @@
     "@nestjs/core": "^11.1.8",
     "@nestjs/jwt": "^11.0.1",
     "@nestjs/platform-express": "^11.1.8",
-    "@prisma/adapter-pg": "^6.19.0",
-    "@prisma/client": "^6.19.0",
+    "@prisma/adapter-pg": "^7.2.0",
+    "@prisma/client": "^7.2.0",
     "@testcontainers/postgresql": "^11.8.1",
     "@vigilart/shared": "workspace:*",
     "bcrypt": "^6.0.0",
@@ -26,14 +26,15 @@
     "build": "tsc -p tsconfig.json",
     "start": "pnpm db:migrate && node dist/main.js",
     "test": "jest --config ./jest.config.json",
+    "test:it": "jest --config ./jest-it.json",
     "test:e2e": "cross-env NODE_ENV=test jest --config ./test/jest-e2e.json",
-    "db:reset": "dotenv -e .env -- npx prisma migrate reset",
-    "db:push": "dotenv -e .env -- npx prisma db push",
-    "db:deploy": "dotenv -e .env -- pnpm exec prisma migrate deploy && pnpm exec prisma generate",
+    "db:reset": "dotenv -e ../.env -- pnpm exec prisma migrate reset",
+    "db:push": "npx prisma db push",
+    "db:deploy": "dotenv -e ../.env -- pnpm exec prisma migrate deploy && pnpm exec prisma generate --env-file ../.env",
     "psql": "docker exec -it vigilart-dev-db bash -c 'psql -U \"$POSTGRES_USER\" -d \"$POSTGRES_DB\"'",
-    "db:studio": "dotenv -e .env -- prisma studio",
-    "db:migrate": "dotenv -e .env -- pnpm exec prisma migrate deploy",
-    "db:generate": "dotenv -e .env -- pnpm exec prisma generate"
+    "db:studio": "dotenv -e ../.env --  pnpm exec prisma studio --config ./prisma.config.ts --port 5555 --browser none",
+    "db:migrate": "dotenv -e ../.env -- pnpm exec prisma migrate deploy",
+    "db:generate": "pnpm exec prisma generate"
   },
   "devDependencies": {
     "@nestjs/cli": "^11.0.12",
@@ -45,7 +46,7 @@
     "@types/supertest": "^6.0.3",
     "dotenv-cli": "^11.0.0",
     "jest": "^30.2.0",
-    "prisma": "^6.19.0",
+    "prisma": "^7.2.0",
     "ts-jest": "^29.4.5",
     "typescript": "^5.9.3"
   }

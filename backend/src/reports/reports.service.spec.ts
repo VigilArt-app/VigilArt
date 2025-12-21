@@ -7,6 +7,7 @@ import {
   mockedArtwork,
   mockedArtworks,
   mockedArtworksReportEntries,
+  mockedFilteredArtworksReportEntries,
   mockedSearchImageReturnValue,
 } from "./sample-inputs";
 import { AggregatedVisualSearchResults } from "./types";
@@ -254,7 +255,7 @@ describe("ReportsService", () => {
 
     it("Should return global statistics about all artworks", () => {
       const res = service.getArtworksReportStatistics(
-        mockedArtworksReportEntries
+        mockedFilteredArtworksReportEntries
       );
 
       expect(res).toEqual({
@@ -275,13 +276,13 @@ describe("ReportsService", () => {
     it("Should return artworks report", async () => {
       jest
         .spyOn(service, "getArtworksReportEntries")
-        .mockResolvedValue(mockedArtworksReportEntries);
+        .mockResolvedValue(mockedFilteredArtworksReportEntries);
       const res = await service.getArtworksReport("0");
 
       expect(res).toEqual({
         detectionDate: expect.any(String),
         statistics: { totalMatches: 12 },
-        entries: mockedArtworksReportEntries,
+        entries: mockedFilteredArtworksReportEntries,
       });
     });
 

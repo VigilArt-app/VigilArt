@@ -92,7 +92,7 @@ export class ReportsService {
   ): ArtworksReportStatistics {
     const totalMatches = entries.reduce(
       (acc: number, entry: ArtworksReportEntry) =>
-        acc + entry.statistics.totalMatches,
+        acc + entry.statistics.totalMatches, 
       0
     );
 

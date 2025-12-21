@@ -1,6 +1,7 @@
 import { Artwork, WebsiteCategory } from "src/generated/prisma/client";
 import { AggregatedVisualSearchResults } from "./types";
 import { ArtworksReportEntry } from "./interfaces";
+import { DEFAULT_PAGINATION_LIMIT } from "./constants";
 
 export const mockedSearchImageReturnValue = {
   metadata: null,
@@ -52,7 +53,9 @@ export const mockedArtwork: Artwork = {
 };
 
 export const mockedAggregatedResults: AggregatedVisualSearchResults = {
-  statistics: { totalMatches: 4 },
+  statistics: {
+    totalMatches: mockedSearchImageReturnValue.matchingPages.length,
+  },
   matchingPages: mockedSearchImageReturnValue.matchingPages,
 };
 
@@ -72,20 +75,59 @@ export const mockedArtworks: Artwork[] = [
   },
 ];
 
-export const mockedArtworksReportEntries: ArtworksReportEntry[] = [
+export const mockedFilteredArtworksReportEntries: ArtworksReportEntry[] = [
   {
     artworkId: "1",
-    statistics: { totalMatches: 4 },
-    matchingPages: mockedSearchImageReturnValue.matchingPages.slice(0, 4),
+    statistics: {
+      totalMatches: mockedSearchImageReturnValue.matchingPages.length,
+    },
+    matchingPages: mockedSearchImageReturnValue.matchingPages.slice(
+      0,
+      DEFAULT_PAGINATION_LIMIT
+    ),
   },
   {
     artworkId: "2",
-    statistics: { totalMatches: 4 },
-    matchingPages: mockedSearchImageReturnValue.matchingPages.slice(0, 4),
+    statistics: {
+      totalMatches: mockedSearchImageReturnValue.matchingPages.length,
+    },
+    matchingPages: mockedSearchImageReturnValue.matchingPages.slice(
+      0,
+      DEFAULT_PAGINATION_LIMIT
+    ),
   },
   {
     artworkId: "3",
-    statistics: { totalMatches: 4 },
-    matchingPages: mockedSearchImageReturnValue.matchingPages.slice(0, 4),
+    statistics: {
+      totalMatches: mockedSearchImageReturnValue.matchingPages.length,
+    },
+    matchingPages: mockedSearchImageReturnValue.matchingPages.slice(
+      0,
+      DEFAULT_PAGINATION_LIMIT
+    ),
+  },
+];
+
+export const mockedArtworksReportEntries: ArtworksReportEntry[] = [
+  {
+    artworkId: "1",
+    statistics: {
+      totalMatches: mockedSearchImageReturnValue.matchingPages.length,
+    },
+    matchingPages: mockedSearchImageReturnValue.matchingPages,
+  },
+  {
+    artworkId: "2",
+    statistics: {
+      totalMatches: mockedSearchImageReturnValue.matchingPages.length,
+    },
+    matchingPages: mockedSearchImageReturnValue.matchingPages,
+  },
+  {
+    artworkId: "3",
+    statistics: {
+      totalMatches: mockedSearchImageReturnValue.matchingPages.length,
+    },
+    matchingPages: mockedSearchImageReturnValue.matchingPages,
   },
 ];

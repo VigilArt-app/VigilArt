@@ -158,9 +158,7 @@ describe("Users E2E", () => {
           email: "emma.dao@mail.com",
         },
       });
-      if (!user) {
-        fail("User emma.dao@mail.com should exist");
-      }
+      expect(user).toBeDefined();
       const res = await api.get(`/users/${user.id}`).expect(HttpStatus.OK);
       expect(res.body).toEqual(
         expect.objectContaining({

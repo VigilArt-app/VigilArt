@@ -19,7 +19,7 @@ Currently working on a website and a mobile app!
 
 - **Upload** your artworks to the app.
 - Each week, see where your artworks appear **online** in a single dashboard.
-- **Take action** with pre-filled DMCA reports to take down unauthorized uses of your artworks.
+- **Take action** with generated DMCA reports to take down unauthorized uses of your artworks.
 
 ## Getting started
 

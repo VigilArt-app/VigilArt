@@ -73,9 +73,7 @@ describe("Artworks E2E", () => {
         },
       });
 
-      if (!user) {
-        fail("User emma.dao@mail.com should exist");
-      }
+      expect(user).toBeDefined()
       const res = await api
         .post("/artworks")
         .send({
@@ -99,9 +97,7 @@ describe("Artworks E2E", () => {
         },
       });
 
-      if (!user) {
-        fail("User emma.dao@mail.com should exist");
-      }
+      expect(user).toBeDefined()
 
       const res = await api
         .post("/artworks")
@@ -177,9 +173,7 @@ describe("Artworks E2E", () => {
         },
       });
 
-      if (!user) {
-        fail("User emma.dao@mail.com should exist");
-      }
+      expect(user).toBeDefined()
 
       const res = await api
         .get(`/artworks/user/${user.id}`)
@@ -207,9 +201,7 @@ describe("Artworks E2E", () => {
         },
       });
 
-      if (!user) {
-        fail("User emma.dao@mail.com should exist");
-      }
+      expect(user).toBeDefined()
       const artwork = await prismaService.artwork.create({
         data: {
           userId: user.id,
@@ -244,9 +236,7 @@ describe("Artworks E2E", () => {
         },
       });
 
-      if (!user) {
-        fail("User emma.dao@mail.com should exist");
-      }
+      expect(user).toBeDefined()
       const artwork = await prismaService.artwork.create({
         data: {
           userId: user.id,
@@ -286,9 +276,7 @@ describe("Artworks E2E", () => {
         },
       });
 
-      if (!user) {
-        fail("User emma.dao@mail.com should exist");
-      }
+      expect(user).toBeDefined()
       const artwork = await prismaService.artwork.create({
         data: {
           userId: user.id,

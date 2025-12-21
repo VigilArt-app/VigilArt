@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, OnModuleDestroy } from "@nestjs/common";
 import { ImageAnnotatorClient } from "@google-cloud/vision";
 import {
   VisualSearchResult,
@@ -11,11 +11,17 @@ import { WebEntity, WebLabel, WebPage } from "./types";
 import { classifyWebsite, extractRootDomain, getImageUrl } from "./utils";
 
 @Injectable()
-export class VisionService {
+export class VisionService implements OnModuleDestroy {
   private readonly client: ImageAnnotatorClient;
 
   constructor() {
     this.client = new ImageAnnotatorClient();
+  }
+
+  async onModuleDestroy() {
+    if (this.client) {
+      await this.client.close();
+    }
   }
 
   getArtworkReportMetadata(
@@ -80,7 +86,7 @@ export class VisionService {
           imageUrl = getImageUrl(page.fullMatchingImages);
         }
         if (hasPartialMatches) {
-          imageUrl = getImageUrl(page.fullMatchingImages);
+          imageUrl = getImageUrl(page.partialMatchingImages);
         }
         if (page.url && (hasFullMatches || hasPartialMatches)) {
           const validItem: MatchingPage = {
