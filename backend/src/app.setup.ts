@@ -6,12 +6,11 @@ import { InternalServerErrorDTO } from "@vigilart/shared";
 import { HttpExceptionFilter } from "./common/filters/http-exception.filter";
 import { ResponseWrapperInterceptor } from "./common/interceptors/response-wrapper.interceptor";
 import { PrismaClientExceptionFilter } from "./common/filters/prisma-client-exception.filter";
-import { HttpAdapterHost } from "@nestjs/core";
+import { ZodExceptionFilter } from "./common/filters/zod-exception.filter";
 
 export function setupApp(app: INestApplication) {
   const configService = app.get(ConfigService);
   const apiPrefix = configService.get<string>("API_PREFIX") || "/api/v1";
-  const { httpAdapter } = app.get(HttpAdapterHost);
 
   app.enableCors();
   app.setGlobalPrefix(apiPrefix);
@@ -24,7 +23,8 @@ export function setupApp(app: INestApplication) {
   );
   app.useGlobalFilters(
     new PrismaClientExceptionFilter(),
-    new HttpExceptionFilter()
+    new HttpExceptionFilter(),
+    new ZodExceptionFilter()
   );
   app.useGlobalInterceptors(new ResponseWrapperInterceptor());
 
