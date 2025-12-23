@@ -1,7 +1,7 @@
-import { WebsiteCategory } from "@vigilart/shared/enums";
+import { WebsiteCategory, WebsiteCategoryType } from "@vigilart/shared/enums";
 import { WebImage } from "./types";
 
-const DOMAIN_PATTERNS: Record<WebsiteCategory, RegExp[]> = {
+const DOMAIN_PATTERNS: Record<WebsiteCategoryType, RegExp[]> = {
   SOCIAL: [
     /(?:^|\.)instagram\.com$/i,
     /(?:^|\.)twitter\.com$/i,
@@ -64,7 +64,7 @@ const DOMAIN_PATTERNS: Record<WebsiteCategory, RegExp[]> = {
   OTHER: [],
 };
 
-export const classifyWebsite = (rawUrl: string): WebsiteCategory | null => {
+export const classifyWebsite = (rawUrl: string): WebsiteCategoryType | null => {
   let url: URL;
 
   try {
@@ -76,7 +76,7 @@ export const classifyWebsite = (rawUrl: string): WebsiteCategory | null => {
 
   for (const [category, patterns] of Object.entries(DOMAIN_PATTERNS)) {
     if (patterns.some((regExp) => regExp.test(hostname))) {
-      return category as WebsiteCategory;
+      return category as WebsiteCategoryType;
     }
   }
   return WebsiteCategory.OTHER;

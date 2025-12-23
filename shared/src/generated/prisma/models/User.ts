@@ -171,7 +171,7 @@ export type UserGroupByOutputType = {
   password: string
   firstName: string
   lastName: string
-  avatar: string
+  avatar: string | null
   createdAt: Date
   subscriptionTier: $Enums.SubscriptionTier
   _count: UserCountAggregateOutputType | null
@@ -203,7 +203,7 @@ export type UserWhereInput = {
   password?: Prisma.StringFilter<"User"> | string
   firstName?: Prisma.StringFilter<"User"> | string
   lastName?: Prisma.StringFilter<"User"> | string
-  avatar?: Prisma.StringFilter<"User"> | string
+  avatar?: Prisma.StringNullableFilter<"User"> | string | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   subscriptionTier?: Prisma.EnumSubscriptionTierFilter<"User"> | $Enums.SubscriptionTier
   artworks?: Prisma.ArtworkListRelationFilter
@@ -215,7 +215,7 @@ export type UserOrderByWithRelationInput = {
   password?: Prisma.SortOrder
   firstName?: Prisma.SortOrder
   lastName?: Prisma.SortOrder
-  avatar?: Prisma.SortOrder
+  avatar?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   subscriptionTier?: Prisma.SortOrder
   artworks?: Prisma.ArtworkOrderByRelationAggregateInput
@@ -230,7 +230,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   password?: Prisma.StringFilter<"User"> | string
   firstName?: Prisma.StringFilter<"User"> | string
   lastName?: Prisma.StringFilter<"User"> | string
-  avatar?: Prisma.StringFilter<"User"> | string
+  avatar?: Prisma.StringNullableFilter<"User"> | string | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   subscriptionTier?: Prisma.EnumSubscriptionTierFilter<"User"> | $Enums.SubscriptionTier
   artworks?: Prisma.ArtworkListRelationFilter
@@ -242,7 +242,7 @@ export type UserOrderByWithAggregationInput = {
   password?: Prisma.SortOrder
   firstName?: Prisma.SortOrder
   lastName?: Prisma.SortOrder
-  avatar?: Prisma.SortOrder
+  avatar?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   subscriptionTier?: Prisma.SortOrder
   _count?: Prisma.UserCountOrderByAggregateInput
@@ -259,7 +259,7 @@ export type UserScalarWhereWithAggregatesInput = {
   password?: Prisma.StringWithAggregatesFilter<"User"> | string
   firstName?: Prisma.StringWithAggregatesFilter<"User"> | string
   lastName?: Prisma.StringWithAggregatesFilter<"User"> | string
-  avatar?: Prisma.StringWithAggregatesFilter<"User"> | string
+  avatar?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
   subscriptionTier?: Prisma.EnumSubscriptionTierWithAggregatesFilter<"User"> | $Enums.SubscriptionTier
 }
@@ -270,7 +270,7 @@ export type UserCreateInput = {
   password: string
   firstName: string
   lastName: string
-  avatar: string
+  avatar?: string | null
   createdAt?: Date | string
   subscriptionTier: $Enums.SubscriptionTier
   artworks?: Prisma.ArtworkCreateNestedManyWithoutUserInput
@@ -282,7 +282,7 @@ export type UserUncheckedCreateInput = {
   password: string
   firstName: string
   lastName: string
-  avatar: string
+  avatar?: string | null
   createdAt?: Date | string
   subscriptionTier: $Enums.SubscriptionTier
   artworks?: Prisma.ArtworkUncheckedCreateNestedManyWithoutUserInput
@@ -294,7 +294,7 @@ export type UserUpdateInput = {
   password?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
-  avatar?: Prisma.StringFieldUpdateOperationsInput | string
+  avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   subscriptionTier?: Prisma.EnumSubscriptionTierFieldUpdateOperationsInput | $Enums.SubscriptionTier
   artworks?: Prisma.ArtworkUpdateManyWithoutUserNestedInput
@@ -306,7 +306,7 @@ export type UserUncheckedUpdateInput = {
   password?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
-  avatar?: Prisma.StringFieldUpdateOperationsInput | string
+  avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   subscriptionTier?: Prisma.EnumSubscriptionTierFieldUpdateOperationsInput | $Enums.SubscriptionTier
   artworks?: Prisma.ArtworkUncheckedUpdateManyWithoutUserNestedInput
@@ -318,7 +318,7 @@ export type UserCreateManyInput = {
   password: string
   firstName: string
   lastName: string
-  avatar: string
+  avatar?: string | null
   createdAt?: Date | string
   subscriptionTier: $Enums.SubscriptionTier
 }
@@ -329,7 +329,7 @@ export type UserUpdateManyMutationInput = {
   password?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
-  avatar?: Prisma.StringFieldUpdateOperationsInput | string
+  avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   subscriptionTier?: Prisma.EnumSubscriptionTierFieldUpdateOperationsInput | $Enums.SubscriptionTier
 }
@@ -340,7 +340,7 @@ export type UserUncheckedUpdateManyInput = {
   password?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
-  avatar?: Prisma.StringFieldUpdateOperationsInput | string
+  avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   subscriptionTier?: Prisma.EnumSubscriptionTierFieldUpdateOperationsInput | $Enums.SubscriptionTier
 }
@@ -387,6 +387,10 @@ export type StringFieldUpdateOperationsInput = {
   set?: string
 }
 
+export type NullableStringFieldUpdateOperationsInput = {
+  set?: string | null
+}
+
 export type DateTimeFieldUpdateOperationsInput = {
   set?: Date | string
 }
@@ -415,7 +419,7 @@ export type UserCreateWithoutArtworksInput = {
   password: string
   firstName: string
   lastName: string
-  avatar: string
+  avatar?: string | null
   createdAt?: Date | string
   subscriptionTier: $Enums.SubscriptionTier
 }
@@ -426,7 +430,7 @@ export type UserUncheckedCreateWithoutArtworksInput = {
   password: string
   firstName: string
   lastName: string
-  avatar: string
+  avatar?: string | null
   createdAt?: Date | string
   subscriptionTier: $Enums.SubscriptionTier
 }
@@ -453,7 +457,7 @@ export type UserUpdateWithoutArtworksInput = {
   password?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
-  avatar?: Prisma.StringFieldUpdateOperationsInput | string
+  avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   subscriptionTier?: Prisma.EnumSubscriptionTierFieldUpdateOperationsInput | $Enums.SubscriptionTier
 }
@@ -464,7 +468,7 @@ export type UserUncheckedUpdateWithoutArtworksInput = {
   password?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
-  avatar?: Prisma.StringFieldUpdateOperationsInput | string
+  avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   subscriptionTier?: Prisma.EnumSubscriptionTierFieldUpdateOperationsInput | $Enums.SubscriptionTier
 }
@@ -565,7 +569,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     password: string
     firstName: string
     lastName: string
-    avatar: string
+    avatar: string | null
     createdAt: Date
     subscriptionTier: $Enums.SubscriptionTier
   }, ExtArgs["result"]["user"]>

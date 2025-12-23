@@ -2,7 +2,7 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { VisionService } from "./vision.service";
 import { ConfigModule } from "@nestjs/config";
 import { WebEntity, WebLabel, WebPage } from "./types";
-import { WebsiteCategory } from "src/generated/prisma";
+import { WebsiteCategory } from "@vigilart/shared";
 
 jest.mock("@google-cloud/vision", () => {
   return {

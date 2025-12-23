@@ -130,6 +130,17 @@ The production website is accessible at: [https://vigilart.app](https://vigilart
 
 The APIs are also accessible online by using dev-api.vigilart.app and api.vigilart.app respectively.
 
+### Documentation
+
+Further documentation can be found in the [documentation folder](./documentation).
+
+API documentation is auto-generated and can be accessed at different URLs based on your environment:
+- Local development: `http://localhost:3000/api/v1/docs`
+- Development environment: `https://dev-api.vigilart.app/api/v1/docs`
+- Production environment: Not available.
+
+The API documentation is generated using Swagger and provides detailed information about the available endpoints, request/response schemas, and authentication methods.
+
 ## Developers
 
 | [<img src="https://github.com/yasssb.png?size=85" width=85><br><sub>Yasmine BEDRANE</sub>](https://github.com/yasssb) | [<img src="https://github.com/Sachaplr.png?size=85" width=85><br><sub>Sacha POLEROWICZ</sub>](https://github.com/Sachaplr) | [<img src="https://github.com/capuchegianni.png?size=85" width=85><br><sub>Gianni HENRIQUES</sub>](https://github.com/capuchegianni) |[<img src="https://github.com/sephorah.png?size=85" width=85><br><sub>Séphorah ANIAMBOSSOU</sub>](https://github.com/sephorah)

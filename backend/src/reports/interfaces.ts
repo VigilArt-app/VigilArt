@@ -1,4 +1,4 @@
-import { WebsiteCategory } from "@vigilart/shared";
+import { WebsiteCategoryType } from "@vigilart/shared/enums";
 
 export interface VisualSearchResult {
   metadata: ArtworkMetadata | null;
@@ -33,7 +33,7 @@ export interface ArtworkMetadata {
 export interface MatchingPage {
   url: string;
   pageTitle?: string;
-  category: WebsiteCategory | null;
+  category: WebsiteCategoryType | null;
   websiteName: string | null;
   imageUrl?: string;
 }

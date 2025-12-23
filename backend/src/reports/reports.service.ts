@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
-import { VisionService } from "src/vision/vision.service";
+import { VisionService } from "../vision/vision.service";
 import { AggregatedVisualSearchResults } from "./types";
 import {
   VisualSearchResult,
@@ -9,7 +9,7 @@ import {
   ArtworksReportStatistics,
   ArtworksReport,
 } from "./interfaces";
-import { ArtworksService } from "src/artworks/artworks.service";
+import { ArtworksService } from "../artworks/artworks.service";
 import { Artwork } from "@vigilart/shared";
 import { DEFAULT_PAGINATION_LIMIT } from "./constants";
 import { GetArtworksMatchesDto } from "./dto/get-matches";
@@ -29,7 +29,7 @@ export class ReportsService {
         this.visionService.searchImage(imageUri),
       ]);
       const matchingPages = visualSearchResults.reduce<MatchingPage[]>(
-        (acc, value: VisualSearchResult | null) => {
+        (acc: MatchingPage[], value: VisualSearchResult | null) => {
           if (value) {
             acc.push(...value.matchingPages);
           }

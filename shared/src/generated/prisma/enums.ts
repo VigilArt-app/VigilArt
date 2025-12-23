@@ -18,14 +18,6 @@ export const SubscriptionTier = {
 export type SubscriptionTier = (typeof SubscriptionTier)[keyof typeof SubscriptionTier]
 
 
-export const MatchType = {
-  FULL: 'FULL',
-  PARTIAL: 'PARTIAL'
-} as const
-
-export type MatchType = (typeof MatchType)[keyof typeof MatchType]
-
-
 export const WebsiteCategory = {
   SOCIAL: 'SOCIAL',
   ART_PLATFORMS: 'ART_PLATFORMS',

@@ -1,1 +1,0 @@
-export { WebsiteCategoryType as WebsiteCategory } from "../../generated/zod";

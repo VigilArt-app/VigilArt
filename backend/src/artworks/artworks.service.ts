@@ -1,16 +1,11 @@
 import {
   BadRequestException,
   Injectable,
-  InternalServerErrorException,
   Logger,
   NotFoundException,
 } from "@nestjs/common";
-import { CreateArtworkDto } from "./dto/create-artwork.dto";
-import { UpdateArtworkDto } from "./dto/update-artwork.dto";
 import { PrismaService } from "../prisma/prisma.service";
-
-import { randomUuid } from "testcontainers";
-import { Artwork } from "@vigilart/shared";
+import { Artwork, ArtworkCreateDTO, ArtworkUpdateDTO } from "@vigilart/shared";
 
 @Injectable()
 export class ArtworksService {
@@ -25,9 +20,8 @@ export class ArtworksService {
     contentType,
     sizeBytes,
     description,
-  }: CreateArtworkDto): Promise<Artwork | undefined> {
-    const userData = {
-      id: randomUuid(),
+  }: ArtworkCreateDTO): Promise<Artwork> {
+    const artworkData = {
       userId,
       imageUri,
       originalFilename,
@@ -39,55 +33,51 @@ export class ArtworksService {
     this.logger.log(`Creating new artwork ${imageUri} of user ${userId}`);
     try {
       return await this.prisma.artwork.create({
-        data: userData,
+        data: artworkData,
       });
     } catch (e: any) {
       if (e.code === "P2003") {
         throw new BadRequestException("User does not exist");
       }
-      throw new InternalServerErrorException("Error when creating artwork");
+      throw e;
     }
   }
 
   async findAll(): Promise<Artwork[]> {
     this.logger.log("Finding all artworks");
-    try {
-      return await this.prisma.artwork.findMany();
-    } catch (_) {
-      throw new InternalServerErrorException(
-        "Error when retrieving all artworks"
-      );
-    }
+    return this.prisma.artwork.findMany();
   }
 
   async findAllPerUser(userId: string): Promise<Artwork[]> {
     this.logger.log(`Finding all artworks for user ${userId}`);
-    try {
-      return await this.prisma.artwork.findMany({
-        where: {
-          userId,
-        },
-      });
-    } catch (_) {
-      throw new InternalServerErrorException(
-        `Error when retrieving all artworks for user ${userId}`
-      );
-    }
-  }
 
-  async findOne(id: string): Promise<Artwork | null> {
-    this.logger.log(`Finding artwork ${id}`);
-    return await this.prisma.artwork.findUnique({
+    return this.prisma.artwork.findMany({
       where: {
-        id,
+        userId,
       },
     });
   }
 
+  async findOne(id: string): Promise<Artwork> {
+    try {
+      this.logger.log(`Finding artwork ${id}`);
+      return await this.prisma.artwork.findUniqueOrThrow({
+        where: {
+          id,
+        },
+      });
+    } catch (e: any) {
+      if (e.code == "P2025") {
+        throw new NotFoundException("Artwork not found");
+      }
+      throw e;
+    }
+  }
+
   async update(
     id: string,
-    updateArtworkDto: UpdateArtworkDto
-  ): Promise<Artwork | undefined> {
+    updateArtworkDto: ArtworkUpdateDTO
+  ): Promise<Artwork> {
     this.logger.log(`Updating artwork ${id}`);
     try {
       return await this.prisma.artwork.update({
@@ -98,8 +88,9 @@ export class ArtworksService {
       });
     } catch (e: any) {
       if (e.code == "P2025") {
-        throw new NotFoundException(`Artwork ${id} not found`);
+        throw new NotFoundException("Artwork not found");
       }
+      throw e;
     }
   }
 
@@ -113,8 +104,9 @@ export class ArtworksService {
       });
     } catch (e: any) {
       if (e.code == "P2025") {
-        throw new NotFoundException(`Artwork ${id} not found`);
+        throw new NotFoundException("Artwork not found");
       }
+      throw e;
     }
   }
 }

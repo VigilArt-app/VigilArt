@@ -6,7 +6,7 @@ import {
   ArtworkMetadataLabel,
   ArtworkWebEntity,
   MatchingPage,
-} from "src/reports/interfaces";
+} from "../reports/interfaces";
 import { WebEntity, WebLabel, WebPage } from "./types";
 import { classifyWebsite, extractRootDomain, getImageUrl } from "./utils";
 

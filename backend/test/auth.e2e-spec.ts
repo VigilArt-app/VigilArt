@@ -4,7 +4,7 @@ import { AppModule } from "../src/app.module";
 import { PrismaService } from "../src/prisma/prisma.service";
 import { setupApp } from "../src/app.setup";
 import { ApiClient } from "./api-client";
-import { SubscriptionTier } from "../src/generated/prisma/client";
+import { SubscriptionTier } from "@vigilart/shared/enums";
 
 describe("Auth E2E", () => {
   let app: INestApplication;
@@ -39,20 +39,57 @@ describe("Auth E2E", () => {
         })
         .expect(HttpStatus.CREATED);
 
-      expect(res.body.accessToken).toBeDefined();
-      expect(res.body.refreshToken).toBeDefined();
-      expect(res.body.expiresIn).toBeDefined();
-      expect(res.body.user.password).toBeUndefined();
-      expect(res.body.user).toEqual(
-        expect.objectContaining({
-          id: expect.any(String),
-          email: "emma.dao@mail.com",
+      expect(res.body).toEqual({
+        success: true,
+        statusCode: HttpStatus.CREATED,
+        message: "Data created successfully.",
+        data: {
+          accessToken: expect.any(String),
+          refreshToken: expect.any(String),
+          expiresIn: expect.any(String),
+          user: {
+            id: expect.any(String),
+            email: "emma.dao@mail.com",
+            firstName: "Emma",
+            lastName: "Dao",
+            createdAt: expect.any(String),
+            avatar: null,
+            subscriptionTier: SubscriptionTier.FREE,
+          },
+        },
+      });
+    });
+
+    it("Should handle uppercase in email", async () => {
+      const res = await api
+        .post("/auth/signup")
+        .send({
+          email: "EMMA.dao@mail.com",
+          password: "Secure_P4ssword",
           firstName: "Emma",
           lastName: "Dao",
-          createdAt: expect.any(String),
-          subscriptionTier: SubscriptionTier.FREE,
         })
-      );
+        .expect(HttpStatus.CREATED);
+
+      expect(res.body).toEqual({
+        success: true,
+        statusCode: HttpStatus.CREATED,
+        message: "Data created successfully.",
+        data: {
+          accessToken: expect.any(String),
+          refreshToken: expect.any(String),
+          expiresIn: expect.any(String),
+          user: {
+            id: expect.any(String),
+            email: "emma.dao@mail.com",
+            firstName: "Emma",
+            lastName: "Dao",
+            createdAt: expect.any(String),
+            avatar: null,
+            subscriptionTier: SubscriptionTier.FREE,
+          },
+        },
+      });
     });
 
     it("Shouldn't signup with an email already used", async () => {
@@ -74,7 +111,13 @@ describe("Auth E2E", () => {
           lastName: "Rowles",
         })
         .expect(HttpStatus.CONFLICT);
-      expect(res.body.message).toBe("Email already in use");
+
+      expect(res.body).toEqual({
+        success: false,
+        statusCode: HttpStatus.CONFLICT,
+        message: "Email already in use",
+        error: "Conflict",
+      });
     });
 
     it("Shouldn't signup with a weak password", async () => {
@@ -87,6 +130,12 @@ describe("Auth E2E", () => {
           lastName: "Rowles",
         })
         .expect(HttpStatus.BAD_REQUEST);
+      expect(res.body).toEqual({
+        success: false,
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: "Validation failed",
+        error: expect.any(String),
+      });
     });
 
     it("Shouldn't signup when required fields are missing", async () => {
@@ -107,7 +156,12 @@ describe("Auth E2E", () => {
           lastName: "Rowles",
         })
         .expect(HttpStatus.BAD_REQUEST);
-      expect(res.body.message).toBeDefined();
+      expect(res.body).toEqual({
+        success: false,
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: "Validation failed",
+        error: "Invalid email address",
+      });
     });
   });
 
@@ -130,20 +184,26 @@ describe("Auth E2E", () => {
           password: "Secure_P4ssword",
         })
         .expect(HttpStatus.OK);
-      expect(res.body.accessToken).toBeDefined();
-      expect(res.body.refreshToken).toBeDefined();
-      expect(res.body.expiresIn).toBeDefined();
-      expect(res.body.user.password).toBeUndefined();
-      expect(res.body.user).toEqual(
-        expect.objectContaining({
-          id: expect.any(String),
-          email: "emma.dao@mail.com",
-          firstName: "Emma",
-          lastName: "Dao",
-          createdAt: expect.any(String),
-          subscriptionTier: SubscriptionTier.FREE,
-        })
-      );
+
+      expect(res.body).toEqual({
+        success: true,
+        statusCode: HttpStatus.OK,
+        message: "Request successful.",
+        data: {
+          accessToken: expect.any(String),
+          refreshToken: expect.any(String),
+          expiresIn: expect.any(String),
+          user: {
+            id: expect.any(String),
+            email: "emma.dao@mail.com",
+            firstName: "Emma",
+            lastName: "Dao",
+            createdAt: expect.any(String),
+            subscriptionTier: SubscriptionTier.FREE,
+            avatar: null,
+          },
+        },
+      });
     });
 
     it("Shouldn't login - email not registered", async () => {
@@ -154,7 +214,13 @@ describe("Auth E2E", () => {
           password: "Secure_P4ssword",
         })
         .expect(HttpStatus.UNAUTHORIZED);
-      expect(res.body.message).toBe("Invalid credentials");
+
+      expect(res.body).toEqual({
+        success: false,
+        statusCode: HttpStatus.UNAUTHORIZED,
+        message: "Invalid credentials",
+        error: "Unauthorized",
+      });
     });
 
     it("Shouldn't login - wrong password", async () => {
@@ -174,7 +240,13 @@ describe("Auth E2E", () => {
           password: "Wrong_password",
         })
         .expect(HttpStatus.UNAUTHORIZED);
-      expect(res.body.message).toBe("Invalid credentials");
+
+      expect(res.body).toEqual({
+        success: false,
+        statusCode: HttpStatus.UNAUTHORIZED,
+        message: "Invalid credentials",
+        error: "Unauthorized",
+      });
     });
   });
 

@@ -11,8 +11,7 @@ import {
   Post,
 } from "@nestjs/common";
 import { ArtworksService } from "./artworks.service";
-import { CreateArtworkDto } from "./dto/create-artwork.dto";
-import { UpdateArtworkDto } from "./dto/update-artwork.dto";
+import { ArtworkCreateDTO, ArtworkUpdateDTO } from "@vigilart/shared";
 
 @Controller("artworks")
 export class ArtworksController {
@@ -20,24 +19,20 @@ export class ArtworksController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  async create(@Body() createArtworkDto: CreateArtworkDto) {
+  async create(@Body() createArtworkDto: ArtworkCreateDTO) {
     return await this.artworksService.create(createArtworkDto);
   }
 
   @Get()
   @HttpCode(HttpStatus.OK)
   async findAll() {
-    return {
-      artworks: await this.artworksService.findAll(),
-    };
+    return this.artworksService.findAll();
   }
 
   @Get("user/:id")
   @HttpCode(HttpStatus.OK)
   async findAllPerUser(@Param("id", ParseUUIDPipe) id: string) {
-    return {
-      artworks: await this.artworksService.findAllPerUser(id),
-    };
+    return await this.artworksService.findAllPerUser(id);
   }
 
   @Get(":id")
@@ -50,7 +45,7 @@ export class ArtworksController {
   @HttpCode(HttpStatus.OK)
   async update(
     @Param("id", ParseUUIDPipe) id: string,
-    @Body() updateArtworkDto: UpdateArtworkDto
+    @Body() updateArtworkDto: ArtworkUpdateDTO
   ) {
     return await this.artworksService.update(id, updateArtworkDto);
   }

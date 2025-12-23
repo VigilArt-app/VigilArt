@@ -1,8 +1,8 @@
 import { Module } from "@nestjs/common";
 import { ReportsController } from "./reports.controller";
 import { ReportsService } from "./reports.service";
-import { VisionModule } from "src/vision/vision.module";
-import { ArtworksModule } from "src/artworks/artworks.module";
+import { VisionModule } from "../vision/vision.module";
+import { ArtworksModule } from "../artworks/artworks.module";
 
 @Module({
   imports: [VisionModule, ArtworksModule],

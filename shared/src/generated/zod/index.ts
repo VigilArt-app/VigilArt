@@ -26,10 +26,6 @@ export const SubscriptionTierSchema = z.enum(['FREE','CREATOR','PRO']);
 
 export type SubscriptionTierType = `${z.infer<typeof SubscriptionTierSchema>}`
 
-export const MatchTypeSchema = z.enum(['FULL','PARTIAL']);
-
-export type MatchTypeType = `${z.infer<typeof MatchTypeSchema>}`
-
 export const WebsiteCategorySchema = z.enum(['SOCIAL','ART_PLATFORMS','MARKETPLACES','BLOG','MEDIA','SEARCH','OTHER']);
 
 export type WebsiteCategoryType = `${z.infer<typeof WebsiteCategorySchema>}`
@@ -49,7 +45,7 @@ export const UserSchema = z.object({
   password: z.string(),
   firstName: z.string(),
   lastName: z.string(),
-  avatar: z.string(),
+  avatar: z.string().nullable(),
   createdAt: z.coerce.date(),
 })
 

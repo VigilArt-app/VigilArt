@@ -513,10 +513,6 @@ export type ArtworkUncheckedUpdateManyWithoutUserNestedInput = {
   deleteMany?: Prisma.ArtworkScalarWhereInput | Prisma.ArtworkScalarWhereInput[]
 }
 
-export type NullableStringFieldUpdateOperationsInput = {
-  set?: string | null
-}
-
 export type NullableIntFieldUpdateOperationsInput = {
   set?: number | null
   increment?: number

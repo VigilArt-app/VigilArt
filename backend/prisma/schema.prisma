@@ -32,7 +32,7 @@ model User {
   password         String
   firstName        String           @db.VarChar(64)
   lastName         String           @db.VarChar(64)
-  avatar           String
+  avatar           String?
   createdAt        DateTime         @default(now())
   subscriptionTier SubscriptionTier
   artworks Artwork[]
@@ -44,10 +44,10 @@ enum SubscriptionTier {
   PRO
 }
 
-enum MatchType {
-  FULL
-  PARTIAL
-}
+// enum MatchType {
+//   FULL
+//   PARTIAL
+// }
 
 model Artwork {
   id String @id @default(uuid())

@@ -4,7 +4,7 @@ import { AppModule } from "../src/app.module";
 import { PrismaService } from "../src/prisma/prisma.service";
 import { setupApp } from "../src/app.setup";
 import { ApiClient } from "./api-client";
-import { SubscriptionTier } from "../src/generated/prisma/client";
+import { SubscriptionTier } from "@vigilart/shared/enums";
 
 describe("Artworks E2E", () => {
   let app: INestApplication;
@@ -62,18 +62,18 @@ describe("Artworks E2E", () => {
   });
 
   afterEach(async () => {
-    await prismaService.resetDatabase();
+    await prismaService.artwork.deleteMany();
+    await prismaService.user.deleteMany();
   });
 
   describe("POST /artworks", () => {
     it("Should create an artwork - required fields only", async () => {
-      const user = await prismaService.user.findUnique({
+      const user = await prismaService.user.findUniqueOrThrow({
         where: {
           email: "emma.dao@mail.com",
         },
       });
 
-      expect(user).toBeDefined()
       const res = await api
         .post("/artworks")
         .send({
@@ -81,23 +81,32 @@ describe("Artworks E2E", () => {
           imageUri: "image_uri",
         })
         .expect(HttpStatus.CREATED);
-      expect(res.body).toEqual(
-        expect.objectContaining({
+
+      expect(res.body).toEqual({
+        success: true,
+        statusCode: HttpStatus.CREATED,
+        message: "Data created successfully.",
+        data: {
           id: expect.any(String),
           userId: user.id,
           imageUri: "image_uri",
-        })
-      );
+          contentType: null,
+          description: null,
+          lastScanAt: null,
+          originalFilename: null,
+          sizeBytes: null,
+          createdAt: expect.any(String),
+          updatedAt: expect.any(String),
+        },
+      });
     });
 
     it("Should create an artwork - with optional fields", async () => {
-      const user = await prismaService.user.findUnique({
+      const user = await prismaService.user.findUniqueOrThrow({
         where: {
           email: "emma.dao@mail.com",
         },
       });
-
-      expect(user).toBeDefined()
 
       const res = await api
         .post("/artworks")
@@ -110,8 +119,12 @@ describe("Artworks E2E", () => {
           description: "Watercolor painting",
         })
         .expect(HttpStatus.CREATED);
-      expect(res.body).toEqual(
-        expect.objectContaining({
+
+      expect(res.body).toEqual({
+        success: true,
+        statusCode: HttpStatus.CREATED,
+        message: "Data created successfully.",
+        data: {
           id: expect.any(String),
           userId: user.id,
           imageUri: "image_uri",
@@ -119,8 +132,11 @@ describe("Artworks E2E", () => {
           contentType: "image/png",
           sizeBytes: 2543872,
           description: "Watercolor painting",
-        })
-      );
+          createdAt: expect.any(String),
+          updatedAt: expect.any(String),
+          lastScanAt: null,
+        },
+      });
     });
 
     it("Shouldn't create an artwork when required fields are missing", async () => {
@@ -128,7 +144,12 @@ describe("Artworks E2E", () => {
         .post("/artworks")
         .send({ imageUri: "image_uri" })
         .expect(HttpStatus.BAD_REQUEST);
-      expect(res.body.message).toBeDefined();
+      expect(res.body).toEqual({
+        success: false,
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: "Validation failed",
+        error: "User id is required.",
+      });
     });
 
     it("Shouldn't create an artwork if non-existent user id", async () => {
@@ -139,69 +160,99 @@ describe("Artworks E2E", () => {
           imageUri: "image_uri",
         })
         .expect(HttpStatus.BAD_REQUEST);
-      expect(res.body.message).toEqual("User does not exist");
+
+      expect(res.body).toEqual({
+        success: false,
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: "User does not exist",
+        error: "Bad Request",
+      });
     });
   });
 
   describe("GET /artworks", () => {
     it("Should get all artworks", async () => {
       const res = await api.get("/artworks").expect(HttpStatus.OK);
+      const expectedArtworks = [
+        {
+          id: expect.any(String),
+          imageUri: "image_uri",
+          userId: expect.any(String),
+          originalFilename: "watercolor",
+          contentType: "image/png",
+          sizeBytes: 2543872,
+          description: "Watercolor painting",
+          createdAt: expect.any(String),
+          updatedAt: expect.any(String),
+          lastScanAt: null,
+        },
+        {
+          id: expect.any(String),
+          imageUri: "image_uri_drawing",
+          userId: expect.any(String),
+          createdAt: expect.any(String),
+          updatedAt: expect.any(String),
+          contentType: null,
+          description: null,
+          lastScanAt: null,
+          originalFilename: null,
+          sizeBytes: null,
+        },
+      ];
 
-      expect(res.body.artworks).toHaveLength(2);
-      expect(res.body.artworks).toEqual(
-        expect.arrayContaining([
-          expect.objectContaining({
-            imageUri: "image_uri",
-            originalFilename: "watercolor",
-            contentType: "image/png",
-            sizeBytes: 2543872,
-            description: "Watercolor painting",
-          }),
-          expect.objectContaining({
-            imageUri: "image_uri_drawing",
-          }),
-        ])
-      );
+      expect(res.body).toEqual({
+        success: true,
+        statusCode: HttpStatus.OK,
+        message: "Request successful.",
+        data: expectedArtworks,
+      });
     });
   });
 
   describe("GET /artworks/user/:id", () => {
     it("Should get all artworks for user with specific ID", async () => {
-      const user = await prismaService.user.findUnique({
+      const user = await prismaService.user.findUniqueOrThrow({
         where: {
           email: "emma.dao@mail.com",
         },
       });
 
-      expect(user).toBeDefined()
+      expect(user).toBeDefined();
 
       const res = await api
         .get(`/artworks/user/${user.id}`)
         .expect(HttpStatus.OK);
-      expect(res.body.artworks).toHaveLength(1);
-      expect(res.body.artworks).toEqual(
-        expect.arrayContaining([
-          expect.objectContaining({
+
+      expect(res.body).toEqual({
+        success: true,
+        statusCode: HttpStatus.OK,
+        message: "Request successful.",
+        data: [
+          {
+            id: expect.any(String),
             imageUri: "image_uri",
+            userId: expect.any(String),
             originalFilename: "watercolor",
             contentType: "image/png",
             sizeBytes: 2543872,
             description: "Watercolor painting",
-          }),
-        ])
-      );
+            createdAt: expect.any(String),
+            updatedAt: expect.any(String),
+            lastScanAt: null,
+          },
+        ],
+      });
     });
   });
 
   describe("GET /artworks/:id", () => {
     it("Should get specific artwork with ID", async () => {
-      const user = await prismaService.user.findUnique({
+      const user = await prismaService.user.findUniqueOrThrow({
         where: {
           email: "emma.dao@mail.com",
         },
       });
 
-      expect(user).toBeDefined()
       const artwork = await prismaService.artwork.create({
         data: {
           userId: user.id,
@@ -212,31 +263,48 @@ describe("Artworks E2E", () => {
       const res = await api
         .get(`/artworks/${artwork.id}`)
         .expect(HttpStatus.OK);
-      expect(res.body).toEqual(
-        expect.objectContaining({
+
+      expect(res.body).toEqual({
+        success: true,
+        statusCode: HttpStatus.OK,
+        message: "Request successful.",
+        data: {
+          id: expect.any(String),
+          userId: expect.any(String),
           imageUri: "image_uri",
           description: "Emma artwork",
-        })
-      );
+          createdAt: expect.any(String),
+          updatedAt: expect.any(String),
+          contentType: null,
+          lastScanAt: null,
+          originalFilename: null,
+          sizeBytes: null,
+        },
+      });
     });
 
     it("Shouldn't get artwork with non-existent ID", async () => {
       const res = await api
         .get("/artworks/123e4567-e89b-12d3-a456-426614174000")
-        .expect(HttpStatus.OK);
-      expect(res.body).toEqual({});
+        .expect(HttpStatus.NOT_FOUND);
+
+      expect(res.body).toEqual({
+        success: false,
+        statusCode: HttpStatus.NOT_FOUND,
+        message: "Artwork not found",
+        error: "Not Found",
+      });
     });
   });
 
   describe("PATCH /artworks/:id", () => {
     it("Should update specific artwork with ID", async () => {
-      const user = await prismaService.user.findUnique({
+      const user = await prismaService.user.findUniqueOrThrow({
         where: {
           email: "emma.dao@mail.com",
         },
       });
 
-      expect(user).toBeDefined()
       const artwork = await prismaService.artwork.create({
         data: {
           userId: user.id,
@@ -250,33 +318,51 @@ describe("Artworks E2E", () => {
           description: "Black and white version",
         })
         .expect(HttpStatus.OK);
-      expect(res.body).toEqual(
-        expect.objectContaining({
+
+      expect(res.body).toEqual({
+        success: true,
+        statusCode: HttpStatus.OK,
+        message: "Request successful.",
+        data: {
+          id: expect.any(String),
+          userId: expect.any(String),
           imageUri: "image_uri",
           description: "Black and white version",
-        })
-      );
+          createdAt: expect.any(String),
+          updatedAt: expect.any(String),
+          contentType: null,
+          lastScanAt: null,
+          originalFilename: null,
+          sizeBytes: null,
+        },
+      });
     });
 
     it("Shouldn't update specific artwork with non-existent ID", async () => {
-      await api
+      const res = await api
         .patch("/artworks/123e4567-e89b-12d3-a456-426614174000")
         .send({
           description: "New description",
         })
         .expect(HttpStatus.NOT_FOUND);
+
+      expect(res.body).toEqual({
+        success: false,
+        statusCode: HttpStatus.NOT_FOUND,
+        message: "Artwork not found",
+        error: "Not Found",
+      });
     });
   });
 
   describe("DELETE /artworks/:id", () => {
     it("Should remove specific artwork with ID", async () => {
-      const user = await prismaService.user.findUnique({
+      const user = await prismaService.user.findUniqueOrThrow({
         where: {
           email: "emma.dao@mail.com",
         },
       });
 
-      expect(user).toBeDefined()
       const artwork = await prismaService.artwork.create({
         data: {
           userId: user.id,
@@ -284,13 +370,24 @@ describe("Artworks E2E", () => {
           description: "Emma artwork",
         },
       });
-      await api.delete(`/artworks/${artwork.id}`).expect(HttpStatus.NO_CONTENT);
+      const res = await api
+        .delete(`/artworks/${artwork.id}`)
+        .expect(HttpStatus.NO_CONTENT);
+
+      expect(res.body).toEqual({});
     });
 
     it("Shouldn't remove artwork with non-existent ID", async () => {
-      await api
+      const res = await api
         .delete("/artworks/123e4567-e89b-12d3-a456-426614174000")
         .expect(HttpStatus.NOT_FOUND);
+
+      expect(res.body).toEqual({
+        success: false,
+        statusCode: HttpStatus.NOT_FOUND,
+        message: "Artwork not found",
+        error: "Not Found",
+      });
     });
   });
 
