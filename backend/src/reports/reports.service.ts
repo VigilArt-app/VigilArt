@@ -12,7 +12,7 @@ import {
 import { ArtworksService } from "../artworks/artworks.service";
 import { Artwork } from "@vigilart/shared";
 import { DEFAULT_PAGINATION_LIMIT } from "./constants";
-import { GetArtworksMatchesDto } from "./dto/get-matches";
+import { GetArtworksMatchesDTO } from "@vigilart/shared";
 
 @Injectable()
 export class ReportsService {
@@ -120,7 +120,7 @@ export class ReportsService {
 
   async getAllArtworksMatches(
     userId: string,
-    { websiteCategory }: GetArtworksMatchesDto
+    { websiteCategory }: GetArtworksMatchesDTO
   ): Promise<MatchingPage[]> {
     try {
       const entries: ArtworksReportEntry[] =
@@ -146,7 +146,7 @@ export class ReportsService {
 
   async getArtworkMatches(
     artworkId: string,
-    { websiteCategory }: GetArtworksMatchesDto
+    { websiteCategory }: GetArtworksMatchesDTO
   ): Promise<MatchingPage[]> {
     try {
       const artwork = await this.artworksService.findOne(artworkId);

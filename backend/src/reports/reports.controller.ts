@@ -8,11 +8,8 @@ import {
   Query,
 } from "@nestjs/common";
 import { ReportsService } from "./reports.service";
-import {
-  ArtworksReport,
-  MatchingPage,
-} from "./interfaces";
-import { GetArtworksMatchesDto } from "./dto/get-matches";
+import { ArtworksReport, MatchingPage } from "./interfaces";
+import { GetArtworksMatchesDTO } from "@vigilart/shared";
 
 @Controller("reports")
 export class ReportsController {
@@ -30,7 +27,7 @@ export class ReportsController {
   @HttpCode(HttpStatus.OK)
   async getArtworksMatches(
     @Param("id", ParseUUIDPipe) userId: string,
-    @Query() getArtworksMatchesDto: GetArtworksMatchesDto
+    @Query() getArtworksMatchesDto: GetArtworksMatchesDTO
   ): Promise<MatchingPage[]> {
     return await this.reportsService.getAllArtworksMatches(
       userId,
@@ -42,7 +39,7 @@ export class ReportsController {
   @HttpCode(HttpStatus.OK)
   async getArtworkMatches(
     @Param("id", ParseUUIDPipe) artworkId: string,
-    @Query() getArtworksMatchesDto: GetArtworksMatchesDto
+    @Query() getArtworksMatchesDto: GetArtworksMatchesDTO
   ): Promise<MatchingPage[]> {
     return await this.reportsService.getArtworkMatches(
       artworkId,
