@@ -30,7 +30,8 @@ export const ArtworkCreateSchema = ArtworkSchema.pick({
         e.input === undefined ? "User id is required." : undefined,
     }),
     imageUri: z.string({
-      error: (e) => (e.input === undefined ? "Image URI is required." : undefined),
+      error: (e) =>
+        e.input === undefined ? "Image URI is required." : undefined,
     }),
   });
 
@@ -38,5 +39,8 @@ export class ArtworkCreateDTO extends createZodDto(ArtworkCreateSchema) {}
 
 export const ArtworkUpdateSchema = ArtworkSchema.pick({
   description: true,
+}).partial({
+  description: true,
 });
+
 export class ArtworkUpdateDTO extends createZodDto(ArtworkUpdateSchema) {}

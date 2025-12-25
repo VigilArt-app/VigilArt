@@ -5,7 +5,6 @@ import { PrismaService } from "../src/prisma/prisma.service";
 import { setupApp } from "../src/app.setup";
 import { ApiClient } from "./api-client";
 import { SubscriptionTier } from "@vigilart/shared/enums";
-import { ApiResponseData } from "@vigilart/shared/types";
 
 describe("Users E2E", () => {
   let app: INestApplication;
@@ -215,6 +214,17 @@ describe("Users E2E", () => {
         error: "Not Found",
       });
     });
+
+    it("Should expect an UUID", async () => {
+      const res = await api.get("/users/1").expect(HttpStatus.BAD_REQUEST);
+
+      expect(res.body).toEqual({
+        success: false,
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: "Validation failed (uuid is expected)",
+        error: "Bad Request",
+      });
+    });
   });
 
   describe("PATCH /users/:id", () => {
@@ -266,6 +276,22 @@ describe("Users E2E", () => {
         error: "Not Found",
       });
     });
+
+    it("Should expect an UUID", async () => {
+      const res = await api
+        .patch("/users/1")
+        .send({
+          avatar: "new_url"
+        })
+        .expect(HttpStatus.BAD_REQUEST);
+
+      expect(res.body).toEqual({
+        success: false,
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: "Validation failed (uuid is expected)",
+        error: "Bad Request",
+      });
+    });
   });
 
   describe("DELETE /users/:id", () => {
@@ -295,6 +321,19 @@ describe("Users E2E", () => {
         statusCode: HttpStatus.NOT_FOUND,
         message: "User not found",
         error: "Not Found",
+      });
+    });
+
+    it("Should expect an UUID", async () => {
+      const res = await api
+        .delete("/users/1")
+        .expect(HttpStatus.BAD_REQUEST);
+
+      expect(res.body).toEqual({
+        success: false,
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: "Validation failed (uuid is expected)",
+        error: "Bad Request",
       });
     });
   });

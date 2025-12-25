@@ -5,6 +5,7 @@ import {
   Get,
   HttpStatus,
   Param,
+  ParseUUIDPipe,
   Patch,
   Post,
 } from "@nestjs/common";
@@ -17,11 +18,7 @@ import {
   UserGetDTO,
   UserDTO,
 } from "@vigilart/shared/schemas";
-import type {
-  UserCreate,
-  UserUpdate,
-  UserGet,
-} from "@vigilart/shared/types";
+import type { UserCreate, UserUpdate, UserGet } from "@vigilart/shared/types";
 
 @Controller("users")
 export class UsersController {
@@ -34,7 +31,7 @@ export class UsersController {
       status: HttpStatus.CREATED,
       type: UserGetDTO,
     },
-    errors: [HttpStatus.CONFLICT],
+    errors: [HttpStatus.BAD_REQUEST, HttpStatus.CONFLICT],
     protected: true,
   })
   @ApiBody({ type: UserCreateDTO })
@@ -67,7 +64,7 @@ export class UsersController {
     protected: true,
   })
   @ApiParam({ name: "id", type: String })
-  async findOne(@Param("id") id: string): Promise<UserGet> {
+  async findOne(@Param("id", ParseUUIDPipe) id: string): Promise<UserGet> {
     return this.usersService.findOneWithoutPassword(id);
   }
 
@@ -99,7 +96,7 @@ export class UsersController {
   @ApiParam({ name: "id", type: String })
   @ApiBody({ type: UserUpdateDTO })
   async update(
-    @Param("id") id: string,
+    @Param("id", ParseUUIDPipe) id: string,
     @Body() updateUserDto: UserUpdateDTO
   ): Promise<UserGet> {
     return this.usersService.update(id, updateUserDto);
@@ -115,7 +112,7 @@ export class UsersController {
     protected: true,
   })
   @ApiParam({ name: "id", type: String })
-  async remove(@Param("id") id: string): Promise<void> {
+  async remove(@Param("id", ParseUUIDPipe) id: string): Promise<void> {
     return this.usersService.remove(id);
   }
 }

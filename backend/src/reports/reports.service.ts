@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { VisionService } from "../vision/vision.service";
-import { AggregatedVisualSearchResults } from "./types";
+import { AggregatedVisualSearchResults } from "@vigilart/shared";
 import {
   VisualSearchResult,
   MatchingPage,
@@ -8,10 +8,10 @@ import {
   ArtworksReportEntry,
   ArtworksReportStatistics,
   ArtworksReport,
-} from "./interfaces";
+} from "@vigilart/shared";
 import { ArtworksService } from "../artworks/artworks.service";
 import { Artwork } from "@vigilart/shared";
-import { DEFAULT_PAGINATION_LIMIT } from "./constants";
+import { DEFAULT_PAGINATION_LIMIT } from "@vigilart/shared";
 import { GetArtworksMatchesDTO } from "@vigilart/shared";
 
 @Injectable()
@@ -109,7 +109,7 @@ export class ReportsService {
         this.getArtworksReportStatistics(entries);
 
       return {
-        detectionDate: new Date().toISOString(),
+        detectionDate: new Date(),
         statistics,
         entries,
       };
@@ -152,7 +152,7 @@ export class ReportsService {
       const artwork = await this.artworksService.findOne(artworkId);
 
       if (!artwork) {
-        throw new NotFoundException(`Artwork ${artworkId} not found`);
+        throw new NotFoundException("Artwork not found");
       }
       const aggregatedVisualSearchResults =
         await this.aggregateVisualSearchResults(artwork.imageUri);

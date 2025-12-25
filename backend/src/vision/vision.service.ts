@@ -6,7 +6,7 @@ import {
   ArtworkMetadataLabel,
   ArtworkWebEntity,
   MatchingPage,
-} from "../reports/interfaces";
+} from "@vigilart/shared";
 import { WebEntity, WebLabel, WebPage } from "./types";
 import { classifyWebsite, extractRootDomain, getImageUrl } from "./utils";
 

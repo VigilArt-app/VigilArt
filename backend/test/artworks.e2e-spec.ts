@@ -159,13 +159,13 @@ describe("Artworks E2E", () => {
           userId: "123e4567-e89b-12d3-a456-426614174000",
           imageUri: "image_uri",
         })
-        .expect(HttpStatus.BAD_REQUEST);
+        .expect(HttpStatus.NOT_FOUND);
 
       expect(res.body).toEqual({
         success: false,
-        statusCode: HttpStatus.BAD_REQUEST,
+        statusCode: HttpStatus.NOT_FOUND,
         message: "User does not exist",
-        error: "Bad Request",
+        error: "Not Found",
       });
     });
   });
@@ -216,9 +216,6 @@ describe("Artworks E2E", () => {
           email: "emma.dao@mail.com",
         },
       });
-
-      expect(user).toBeDefined();
-
       const res = await api
         .get(`/artworks/user/${user.id}`)
         .expect(HttpStatus.OK);
@@ -241,6 +238,19 @@ describe("Artworks E2E", () => {
             lastScanAt: null,
           },
         ],
+      });
+    });
+
+    it("Should expect an UUID", async () => {
+      const res = await api
+        .get("/artworks/user/1")
+        .expect(HttpStatus.BAD_REQUEST);
+
+      expect(res.body).toEqual({
+        success: false,
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: "Validation failed (uuid is expected)",
+        error: "Bad Request",
       });
     });
   });
@@ -293,6 +303,17 @@ describe("Artworks E2E", () => {
         statusCode: HttpStatus.NOT_FOUND,
         message: "Artwork not found",
         error: "Not Found",
+      });
+    });
+
+    it("Should expect an UUID", async () => {
+      const res = await api.get("/artworks/1").expect(HttpStatus.BAD_REQUEST);
+
+      expect(res.body).toEqual({
+        success: false,
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: "Validation failed (uuid is expected)",
+        error: "Bad Request",
       });
     });
   });
@@ -353,6 +374,22 @@ describe("Artworks E2E", () => {
         error: "Not Found",
       });
     });
+
+    it("Should expect an UUID", async () => {
+      const res = await api
+        .patch("/artworks/1")
+        .send({
+          description: "Black and white version",
+        })
+        .expect(HttpStatus.BAD_REQUEST);
+
+      expect(res.body).toEqual({
+        success: false,
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: "Validation failed (uuid is expected)",
+        error: "Bad Request",
+      });
+    });
   });
 
   describe("DELETE /artworks/:id", () => {
@@ -387,6 +424,19 @@ describe("Artworks E2E", () => {
         statusCode: HttpStatus.NOT_FOUND,
         message: "Artwork not found",
         error: "Not Found",
+      });
+    });
+
+    it("Should expect an UUID", async () => {
+      const res = await api
+        .delete("/artworks/1")
+        .expect(HttpStatus.BAD_REQUEST);
+
+      expect(res.body).toEqual({
+        success: false,
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: "Validation failed (uuid is expected)",
+        error: "Bad Request",
       });
     });
   });

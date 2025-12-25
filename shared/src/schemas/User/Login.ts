@@ -8,9 +8,12 @@ export const LoginSchema = z.object({
       error: (e) => (e.input === undefined ? "Email is required." : undefined),
     })
     .transform((m) => m.toLowerCase()),
-  password: z.string({
-      error: (e) => (e.input === undefined ? "Password is required." : undefined),
-    }).min(1),
+  password: z
+    .string({
+      error: (e) =>
+        e.input === undefined ? "Password is required." : undefined,
+    })
+    .min(1),
 });
 export class LoginDTO extends createZodDto(LoginSchema) {}
 

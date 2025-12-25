@@ -1,7 +1,7 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { ReportsService } from "./reports.service";
-import { VisionService } from "src/vision/vision.service";
-import { ArtworksService } from "src/artworks/artworks.service";
+import { VisionService } from "../vision/vision.service";
+import { ArtworksService } from "../artworks/artworks.service";
 import {
   mockedAggregatedResults,
   mockedArtwork,
@@ -10,8 +10,8 @@ import {
   mockedFilteredArtworksReportEntries,
   mockedSearchImageReturnValue,
 } from "./sample-inputs";
-import { AggregatedVisualSearchResults } from "./types";
-import { ArtworksReportEntry } from "./interfaces";
+import { AggregatedVisualSearchResults } from "@vigilart/shared";
+import { ArtworksReportEntry } from "@vigilart/shared";
 import { NotFoundException } from "@nestjs/common";
 import { WebsiteCategory } from "@vigilart/shared/server";
 
@@ -280,7 +280,7 @@ describe("ReportsService", () => {
       const res = await service.getArtworksReport("0");
 
       expect(res).toEqual({
-        detectionDate: expect.any(String),
+        detectionDate: expect.any(Date),
         statistics: { totalMatches: 12 },
         entries: mockedFilteredArtworksReportEntries,
       });
@@ -291,7 +291,7 @@ describe("ReportsService", () => {
       const res = await service.getArtworksReport("0");
 
       expect(res).toEqual({
-        detectionDate: expect.any(String),
+        detectionDate: expect.any(Date),
         statistics: { totalMatches: 0 },
         entries: [],
       });
@@ -310,11 +310,10 @@ describe("ReportsService", () => {
     });
 
     it("Should handle artwork not found", async () => {
-      jest.spyOn(artworksService, "findOne").mockResolvedValue(null);
       const f = service.getArtworkMatches(mockedArtwork.id, {});
 
       await expect(f).rejects.toThrow(
-        new NotFoundException(`Artwork ${mockedArtwork.id} not found`)
+        new NotFoundException("Artwork not found")
       );
     });
 

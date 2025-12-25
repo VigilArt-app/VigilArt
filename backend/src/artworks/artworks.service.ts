@@ -37,7 +37,7 @@ export class ArtworksService {
       });
     } catch (e: any) {
       if (e.code === "P2003") {
-        throw new BadRequestException("User does not exist");
+        throw new NotFoundException("User does not exist");
       }
       throw e;
     }
@@ -50,7 +50,6 @@ export class ArtworksService {
 
   async findAllPerUser(userId: string): Promise<Artwork[]> {
     this.logger.log(`Finding all artworks for user ${userId}`);
-
     return this.prisma.artwork.findMany({
       where: {
         userId,

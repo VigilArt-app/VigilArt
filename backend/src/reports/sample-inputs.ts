@@ -1,7 +1,9 @@
 import { Artwork, WebsiteCategory } from "@vigilart/shared";
-import { AggregatedVisualSearchResults } from "./types";
-import { ArtworksReportEntry } from "./interfaces";
-import { DEFAULT_PAGINATION_LIMIT } from "./constants";
+import {
+  ArtworksReportEntry,
+  AggregatedVisualSearchResults,
+} from "@vigilart/shared";
+import { DEFAULT_PAGINATION_LIMIT } from "@vigilart/shared";
 
 export const mockedSearchImageReturnValue = {
   metadata: null,

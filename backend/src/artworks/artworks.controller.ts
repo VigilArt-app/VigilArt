@@ -3,7 +3,6 @@ import {
   Controller,
   Delete,
   Get,
-  HttpCode,
   HttpStatus,
   Param,
   ParseUUIDPipe,
@@ -11,48 +10,109 @@ import {
   Post,
 } from "@nestjs/common";
 import { ArtworksService } from "./artworks.service";
-import { ArtworkCreateDTO, ArtworkUpdateDTO } from "@vigilart/shared";
+import {
+  Artwork,
+  ArtworkCreateDTO,
+  ArtworkDTO,
+  ArtworkUpdateDTO,
+} from "@vigilart/shared";
+import { ApiEndpoint } from "../common/decorators/api-endpoint.decorator";
+import { ApiBody, ApiParam } from "@nestjs/swagger";
 
 @Controller("artworks")
 export class ArtworksController {
   constructor(private readonly artworksService: ArtworksService) {}
 
   @Post()
-  @HttpCode(HttpStatus.CREATED)
-  async create(@Body() createArtworkDto: ArtworkCreateDTO) {
+  @ApiEndpoint({
+    summary: "Create a new artwork",
+    success: {
+      status: HttpStatus.CREATED,
+      type: ArtworkDTO,
+    },
+    errors: [HttpStatus.BAD_REQUEST, HttpStatus.NOT_FOUND],
+    protected: true,
+  })
+  @ApiBody({ type: ArtworkCreateDTO })
+  async create(@Body() createArtworkDto: ArtworkCreateDTO): Promise<Artwork> {
     return await this.artworksService.create(createArtworkDto);
   }
 
   @Get()
-  @HttpCode(HttpStatus.OK)
-  async findAll() {
+  @ApiEndpoint({
+    summary: "Retrieve all artworks",
+    success: {
+      status: HttpStatus.OK,
+      type: [ArtworkDTO],
+    },
+    errors: [],
+    protected: true,
+  })
+  async findAll(): Promise<Artwork[]> {
     return this.artworksService.findAll();
   }
 
   @Get("user/:id")
-  @HttpCode(HttpStatus.OK)
-  async findAllPerUser(@Param("id", ParseUUIDPipe) id: string) {
-    return await this.artworksService.findAllPerUser(id);
+  @ApiEndpoint({
+    summary: "Retrieve all artworks by user ID",
+    success: {
+      status: HttpStatus.OK,
+      type: [ArtworkDTO],
+    },
+    errors: [],
+    protected: true,
+  })
+  @ApiParam({ name: "id", type: String })
+  async findAllPerUser(
+    @Param("id", ParseUUIDPipe) id: string
+  ): Promise<Artwork[]> {
+    return this.artworksService.findAllPerUser(id);
   }
 
   @Get(":id")
-  @HttpCode(HttpStatus.OK)
-  async findOne(@Param("id", ParseUUIDPipe) id: string) {
-    return await this.artworksService.findOne(id);
+  @ApiEndpoint({
+    summary: "Retrieve an artwork by ID",
+    success: {
+      status: HttpStatus.OK,
+      type: [ArtworkDTO],
+    },
+    errors: [HttpStatus.NOT_FOUND],
+    protected: true,
+  })
+  @ApiParam({ name: "id", type: String })
+  async findOne(@Param("id", ParseUUIDPipe) id: string): Promise<Artwork> {
+    return this.artworksService.findOne(id);
   }
 
   @Patch(":id")
-  @HttpCode(HttpStatus.OK)
+  @ApiEndpoint({
+    summary: "Retrieve an artwork by ID",
+    success: {
+      status: HttpStatus.OK,
+      type: [ArtworkDTO],
+    },
+    errors: [HttpStatus.BAD_REQUEST, HttpStatus.NOT_FOUND],
+    protected: true,
+  })
+  @ApiBody({ type: ArtworkUpdateDTO })
   async update(
     @Param("id", ParseUUIDPipe) id: string,
     @Body() updateArtworkDto: ArtworkUpdateDTO
-  ) {
-    return await this.artworksService.update(id, updateArtworkDto);
+  ): Promise<Artwork> {
+    return this.artworksService.update(id, updateArtworkDto);
   }
 
   @Delete(":id")
-  @HttpCode(HttpStatus.NO_CONTENT)
-  async remove(@Param("id", ParseUUIDPipe) id: string) {
-    return await this.artworksService.remove(id);
+  @ApiEndpoint({
+    summary: "Delete an artwork by ID",
+    success: {
+      status: HttpStatus.NO_CONTENT,
+    },
+    errors: [HttpStatus.NOT_FOUND],
+    protected: true,
+  })
+  @ApiParam({ name: "id", type: String })
+  async remove(@Param("id", ParseUUIDPipe) id: string): Promise<void> {
+    return this.artworksService.remove(id);
   }
 }
