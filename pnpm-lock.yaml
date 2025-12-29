@@ -53,9 +53,6 @@ importers:
       class-transformer:
         specifier: ^0.5.1
         version: 0.5.1
-      class-validator:
-        specifier: ^0.14.2
-        version: 0.14.2
       cross-env:
         specifier: ^10.1.0
         version: 10.1.0
@@ -6600,7 +6597,8 @@ snapshots:
       '@types/methods': 1.1.4
       '@types/superagent': 8.1.9
 
-  '@types/validator@13.15.10': {}
+  '@types/validator@13.15.10':
+    optional: true
 
   '@types/yargs-parser@21.0.3': {}
 
@@ -7137,6 +7135,7 @@ snapshots:
       '@types/validator': 13.15.10
       libphonenumber-js: 1.12.27
       validator: 13.15.23
+    optional: true
 
   class-variance-authority@0.7.1:
     dependencies:
@@ -8345,7 +8344,8 @@ snapshots:
 
   leven@3.1.0: {}
 
-  libphonenumber-js@1.12.27: {}
+  libphonenumber-js@1.12.27:
+    optional: true
 
   lightningcss-android-arm64@1.30.2:
     optional: true
@@ -9602,7 +9602,8 @@ snapshots:
     optionalDependencies:
       typescript: 5.9.3
 
-  validator@13.15.23: {}
+  validator@13.15.23:
+    optional: true
 
   vary@1.1.2: {}
 
