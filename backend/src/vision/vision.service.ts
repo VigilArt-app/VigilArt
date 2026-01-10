@@ -7,7 +7,7 @@ import {
   ArtworkWebEntity,
   MatchingPage,
 } from "@vigilart/shared";
-import { WebEntity, WebLabel, WebPage } from "./types";
+import { WebDetection, WebEntity, WebLabel, WebPage } from "./types";
 import { classifyWebsite, extractRootDomain, getImageUrl } from "./utils";
 
 @Injectable()
@@ -18,7 +18,7 @@ export class VisionService implements OnModuleDestroy {
     this.client = new ImageAnnotatorClient();
   }
 
-  async onModuleDestroy() {
+  async onModuleDestroy(): Promise<void> {
     if (this.client) {
       await this.client.close();
     }
@@ -105,7 +105,9 @@ export class VisionService implements OnModuleDestroy {
     return matchingPages;
   }
 
-  async webDetection(imageUri: string) {
+  async webDetection(
+    imageUri: string
+  ): Promise<WebDetection | null | undefined> {
     const [result] = await this.client.webDetection(imageUri);
     const webDetection = result.webDetection;
 
