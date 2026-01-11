@@ -9,6 +9,28 @@
 * 🟢 You can import this file directly.
 */
 
+export const SubscriptionTier = {
+  FREE: 'FREE',
+  CREATOR: 'CREATOR',
+  PRO: 'PRO'
+} as const
+
+export type SubscriptionTier = (typeof SubscriptionTier)[keyof typeof SubscriptionTier]
+
+
+export const WebsiteCategory = {
+  SOCIAL: 'SOCIAL',
+  ART_PLATFORMS: 'ART_PLATFORMS',
+  MARKETPLACES: 'MARKETPLACES',
+  BLOG: 'BLOG',
+  MEDIA: 'MEDIA',
+  SEARCH: 'SEARCH',
+  OTHER: 'OTHER'
+} as const
+
+export type WebsiteCategory = (typeof WebsiteCategory)[keyof typeof WebsiteCategory]
+
+
 export const DmcaPlatformCode = {
   PINTEREST: 'PINTEREST',
   ETSY: 'ETSY',

@@ -80,12 +80,12 @@ export type PrismaVersion = {
 }
 
 /**
- * Prisma Client JS version: 7.1.0
- * Query Engine version: ab635e6b9d606fa5c8fb8b1a7f909c3c3c1c98ba
+ * Prisma Client JS version: 7.2.0
+ * Query Engine version: 0c8ef2ce45c83248ab3df073180d5eda9e8be7a3
  */
 export const prismaVersion: PrismaVersion = {
-  client: "7.1.0",
-  engine: "ab635e6b9d606fa5c8fb8b1a7f909c3c3c1c98ba"
+  client: "7.2.0",
+  engine: "0c8ef2ce45c83248ab3df073180d5eda9e8be7a3"
 }
 
 /**
@@ -385,6 +385,7 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 
 export const ModelName = {
   User: 'User',
+  Artwork: 'Artwork',
   DmcaPlatform: 'DmcaPlatform',
   DmcaProfile: 'DmcaProfile',
   DmcaNotice: 'DmcaNotice'
@@ -403,7 +404,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "dmcaPlatform" | "dmcaProfile" | "dmcaNotice"
+    modelProps: "user" | "artwork" | "dmcaPlatform" | "dmcaProfile" | "dmcaNotice"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -478,6 +479,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.UserCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.UserCountAggregateOutputType> | number
+        }
+      }
+    }
+    Artwork: {
+      payload: Prisma.$ArtworkPayload<ExtArgs>
+      fields: Prisma.ArtworkFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ArtworkFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtworkPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ArtworkFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtworkPayload>
+        }
+        findFirst: {
+          args: Prisma.ArtworkFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtworkPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ArtworkFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtworkPayload>
+        }
+        findMany: {
+          args: Prisma.ArtworkFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtworkPayload>[]
+        }
+        create: {
+          args: Prisma.ArtworkCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtworkPayload>
+        }
+        createMany: {
+          args: Prisma.ArtworkCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ArtworkCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtworkPayload>[]
+        }
+        delete: {
+          args: Prisma.ArtworkDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtworkPayload>
+        }
+        update: {
+          args: Prisma.ArtworkUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtworkPayload>
+        }
+        deleteMany: {
+          args: Prisma.ArtworkDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ArtworkUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ArtworkUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtworkPayload>[]
+        }
+        upsert: {
+          args: Prisma.ArtworkUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtworkPayload>
+        }
+        aggregate: {
+          args: Prisma.ArtworkAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateArtwork>
+        }
+        groupBy: {
+          args: Prisma.ArtworkGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ArtworkGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ArtworkCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ArtworkCountAggregateOutputType> | number
         }
       }
     }
@@ -757,6 +832,22 @@ export const UserScalarFieldEnum = {
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
 
 
+export const ArtworkScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  imageUri: 'imageUri',
+  originalFilename: 'originalFilename',
+  contentType: 'contentType',
+  sizeBytes: 'sizeBytes',
+  description: 'description',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  lastScanAt: 'lastScanAt'
+} as const
+
+export type ArtworkScalarFieldEnum = (typeof ArtworkScalarFieldEnum)[keyof typeof ArtworkScalarFieldEnum]
+
+
 export const DmcaPlatformScalarFieldEnum = {
   id: 'id',
   code: 'code',
@@ -848,6 +939,20 @@ export type ListStringFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaMod
 
 
 /**
+ * Reference to a field of type 'SubscriptionTier'
+ */
+export type EnumSubscriptionTierFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SubscriptionTier'>
+    
+
+
+/**
+ * Reference to a field of type 'SubscriptionTier[]'
+ */
+export type ListEnumSubscriptionTierFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SubscriptionTier[]'>
+    
+
+
+/**
  * Reference to a field of type 'DateTime'
  */
 export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime'>
@@ -858,6 +963,20 @@ export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel
  * Reference to a field of type 'DateTime[]'
  */
 export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime[]'>
+    
+
+
+/**
+ * Reference to a field of type 'Int'
+ */
+export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
+    
+
+
+/**
+ * Reference to a field of type 'Int[]'
+ */
+export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
     
 
 
@@ -890,16 +1009,16 @@ export type ListEnumDmcaStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$P
 
 
 /**
- * Reference to a field of type 'Int'
+ * Reference to a field of type 'Float'
  */
-export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
+export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
     
 
 
 /**
- * Reference to a field of type 'Int[]'
+ * Reference to a field of type 'Float[]'
  */
-export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
+export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
     
 
 /**
@@ -998,6 +1117,7 @@ export type PrismaClientOptions = ({
 }
 export type GlobalOmitConfig = {
   user?: Prisma.UserOmit
+  artwork?: Prisma.ArtworkOmit
   dmcaPlatform?: Prisma.DmcaPlatformOmit
   dmcaProfile?: Prisma.DmcaProfileOmit
   dmcaNotice?: Prisma.DmcaNoticeOmit

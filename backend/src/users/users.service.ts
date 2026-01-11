@@ -1,79 +1,141 @@
 import {
+  ConflictException,
   Injectable,
   Logger,
+  NotFoundException,
 } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
-import { DEFAULT_SUBSCRIPTION_TIER, DEFAULT_AVATAR_URL } from "@vigilart/shared/constants";
-import type { UserCreate, UserUpdate, UserGet, User } from "@vigilart/shared/types";
+import type {
+  UserCreate,
+  UserUpdate,
+  UserGet,
+  User,
+} from "@vigilart/shared/types";
+import { SubscriptionTier } from "@vigilart/shared";
 
 @Injectable()
 export class UsersService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) {}
   private readonly logger = new Logger(UsersService.name);
 
   async create(user: UserCreate): Promise<UserGet> {
-    this.logger.log(`Creating new user ${user.email}`);
-    return this.prisma.user.create({
-      data: {
-        ...user,
-        subscriptionTier: DEFAULT_SUBSCRIPTION_TIER,
-        avatar: DEFAULT_AVATAR_URL,
-      },
-      omit: {
-        password: true,
+    try {
+      this.logger.log(`Creating new user ${user.email}`);
+      return await this.prisma.user.create({
+        data: {
+          ...user,
+          subscriptionTier: SubscriptionTier.FREE,
+        },
+        omit: {
+          password: true,
+        },
+      });
+    } catch (e: any) {
+      if (e.code === "P2002") {
+        throw new ConflictException("Email already in use");
       }
-    });
+      throw e;
+    }
   }
 
   async findAll(): Promise<UserGet[]> {
     this.logger.log("Finding all users");
     return this.prisma.user.findMany({
       omit: {
-        password: true
-      }
+        password: true,
+      },
     });
   }
 
   async findOne(id: string): Promise<User> {
-    this.logger.log(`Finding user ${id}`);
-    return this.prisma.user.findUniqueOrThrow({
-      where: {
-        id
+    try {
+      this.logger.log(`Finding user ${id}`);
+      return await this.prisma.user.findUniqueOrThrow({
+        where: {
+          id,
+        },
+      });
+    } catch (e: any) {
+      if (e.code == "P2025") {
+        throw new NotFoundException("User not found");
       }
-    });
+      throw e;
+    }
   }
 
   async findByEmail(email: string): Promise<User | null> {
     this.logger.log(`Finding user with ${email}`);
     return this.prisma.user.findUnique({
       where: {
-        email
-      }
+        email,
+      },
     });
   }
 
-  async update(
-    id: string,
-    updateUserDto: UserUpdate
-  ): Promise<UserGet> {
-    this.logger.log(`Updating user ${id}`);
-    return this.prisma.user.update({
-      where: {
-        id
-      },
-      data: updateUserDto,
-      omit: {
-        password: true
+  async findOneWithoutPassword(id: string): Promise<UserGet> {
+    try {
+      this.logger.log(`Finding user ${id}`);
+      return await this.prisma.user.findUniqueOrThrow({
+        where: {
+          id,
+        },
+        omit: {
+          password: true,
+        },
+      });
+    } catch (e: any) {
+      if (e.code == "P2025") {
+        throw new NotFoundException("User not found");
       }
+      throw e;
+    }
+  }
+
+  async findByEmailWithoutPassword(email: string): Promise<UserGet> {
+    this.logger.log(`Finding user with ${email}`);
+    return this.prisma.user.findUniqueOrThrow({
+      where: {
+        email,
+      },
+      omit: {
+        password: true,
+      },
     });
+  }
+
+  async update(id: string, updateUserDto: UserUpdate): Promise<UserGet> {
+    try {
+      this.logger.log(`Updating user ${id}`);
+      return await this.prisma.user.update({
+        where: {
+          id,
+        },
+        data: updateUserDto,
+        omit: {
+          password: true,
+        },
+      });
+    } catch (e: any) {
+      if (e.code == "P2025") {
+        throw new NotFoundException("User not found");
+      }
+      throw e;
+    }
   }
 
   async remove(id: string): Promise<void> {
-    this.logger.log(`Removing user ${id}`);
-    await this.prisma.user.delete({
-      where: {
-        id
+    try {
+      this.logger.log(`Removing user ${id}`);
+      await this.prisma.user.delete({
+        where: {
+          id,
+        },
+      });
+    } catch (e: any) {
+      if (e.code == "P2025") {
+        throw new NotFoundException("User not found");
       }
-    });
+      throw e;
+    }
   }
 }

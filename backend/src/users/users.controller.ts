@@ -5,6 +5,7 @@ import {
   Get,
   HttpStatus,
   Param,
+  ParseUUIDPipe,
   Patch,
   Post,
 } from "@nestjs/common";
@@ -23,9 +24,9 @@ export class UsersController {
     summary: "Create a new user",
     success: {
       status: HttpStatus.CREATED,
-      type: UserGetDTO
+      type: UserGetDTO,
     },
-    errors: [HttpStatus.CONFLICT],
+    errors: [HttpStatus.BAD_REQUEST, HttpStatus.CONFLICT],
     protected: true,
   })
   @ApiBody({ type: UserCreateDTO })
@@ -38,9 +39,8 @@ export class UsersController {
     summary: "Retrieve all users",
     success: {
       status: HttpStatus.OK,
-      type: [UserGetDTO]
+      type: [UserGetDTO],
     },
-    errors: [],
     protected: true,
   })
   async findAll(): Promise<UserGet[]> {
@@ -52,14 +52,14 @@ export class UsersController {
     summary: "Retrieve a user by ID",
     success: {
       status: HttpStatus.OK,
-      type: UserDTO
+      type: UserDTO,
     },
     errors: [HttpStatus.NOT_FOUND],
     protected: true,
   })
   @ApiParam({ name: "id", type: String })
-  async findOne(@Param("id") id: string): Promise<User> {
-    return this.usersService.findOne(id);
+  async findOne(@Param("id", ParseUUIDPipe) id: string): Promise<UserGet> {
+    return this.usersService.findOneWithoutPassword(id);
   }
 
   @Get("email/:email")
@@ -74,8 +74,8 @@ export class UsersController {
     protected: true,
   })
   @ApiParam({ name: "email", type: String })
-  async findByEmail(@Param("email") email: string): Promise<User | null> {
-    return this.usersService.findByEmail(email);
+  async findByEmail(@Param("email") email: string): Promise<UserGet> {
+    return this.usersService.findByEmailWithoutPassword(email);
   }
 
   @Patch(":id")
@@ -83,14 +83,17 @@ export class UsersController {
     summary: "Update a user by ID",
     success: {
       status: HttpStatus.OK,
-      type: UserGetDTO
+      type: UserGetDTO,
     },
     errors: [HttpStatus.BAD_REQUEST, HttpStatus.NOT_FOUND],
     protected: true,
   })
   @ApiParam({ name: "id", type: String })
   @ApiBody({ type: UserUpdateDTO })
-  async update(@Param("id") id: string, @Body() updateUserDto: UserUpdateDTO): Promise<UserGet> {
+  async update(
+    @Param("id", ParseUUIDPipe) id: string,
+    @Body() updateUserDto: UserUpdateDTO
+  ): Promise<UserGet> {
     return this.usersService.update(id, updateUserDto);
   }
 
@@ -98,13 +101,13 @@ export class UsersController {
   @ApiEndpoint({
     summary: "Delete a user by ID",
     success: {
-      status: HttpStatus.NO_CONTENT
+      status: HttpStatus.NO_CONTENT,
     },
     errors: [HttpStatus.NOT_FOUND],
     protected: true,
   })
   @ApiParam({ name: "id", type: String })
-  async remove(@Param("id") id: string): Promise<void> {
+  async remove(@Param("id", ParseUUIDPipe) id: string): Promise<void> {
     return this.usersService.remove(id);
   }
 }

@@ -9,6 +9,7 @@
  * 🟢 You can import this file directly.
  */
 export type * from './models/User.js'
+export type * from './models/Artwork.js'
 export type * from './models/DmcaPlatform.js'
 export type * from './models/DmcaProfile.js'
 export type * from './models/DmcaNotice.js'

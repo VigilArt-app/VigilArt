@@ -10,16 +10,22 @@ import { APP_PIPE } from "@nestjs/core";
 import { UsersModule } from "./users/users.module";
 import { ConfigModule } from "@nestjs/config";
 import { AuthModule } from "./auth/auth.module";
+import { VisionModule } from "./vision/vision.module";
+import { ArtworksModule } from "./artworks/artworks.module";
+import { ReportsModule } from "./reports/reports.module";
 import { PrismaModule } from "./prisma/prisma.module";
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: "../.env"
+      envFilePath: "../.env",
     }),
     UsersModule,
     AuthModule,
+    VisionModule,
+    ArtworksModule,
+    ReportsModule,
     PrismaModule,
   ],
   controllers: [AppController],

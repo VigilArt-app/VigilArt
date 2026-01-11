@@ -473,10 +473,6 @@ export type EnumDmcaStatusFieldUpdateOperationsInput = {
   set?: $Enums.DmcaStatus
 }
 
-export type NullableDateTimeFieldUpdateOperationsInput = {
-  set?: Date | string | null
-}
-
 export type DmcaNoticeCreateWithoutUserInput = {
   id?: string
   status?: $Enums.DmcaStatus

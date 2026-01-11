@@ -1,5 +1,10 @@
 import { z } from "zod";
-import { UserSchema, UserGetSchema, UserCreateSchema, UserUpdateSchema } from "../../schemas/User";
+import {
+  UserSchema,
+  UserGetSchema,
+  UserCreateSchema,
+  UserUpdateSchema,
+} from "../../schemas/User";
 
 export type User = z.infer<typeof UserSchema>;
 

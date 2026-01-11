@@ -43,6 +43,11 @@ export { Prisma }
  */
 export type User = Prisma.UserModel
 /**
+ * Model Artwork
+ * 
+ */
+export type Artwork = Prisma.ArtworkModel
+/**
  * Model DmcaPlatform
  * 
  */

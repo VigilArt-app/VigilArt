@@ -33,13 +33,45 @@ model User {
   firstName        String           @db.VarChar(64)
   lastName         String           @db.VarChar(64)
   avatar           String?
-  subscriptionTier String?
+  subscriptionTier SubscriptionTier @default(FREE)
 
   createdAt        DateTime         @default(now())
   updatedAt        DateTime         @updatedAt @default(now())
 
   dmcaProfile      DmcaProfile?
   dmcaNotices      DmcaNotice[]
+  artworks Artwork[]
+}
+
+enum SubscriptionTier {
+  FREE
+  CREATOR
+  PRO
+}
+
+model Artwork {
+  id String @id @default(uuid())
+  userId String
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  imageUri String
+  originalFilename String?
+  contentType String?  // "image/png", "image/jpeg"
+  sizeBytes Int?
+  description String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  lastScanAt DateTime?
+}
+
+enum WebsiteCategory {
+  SOCIAL
+  ART_PLATFORMS
+  MARKETPLACES
+  BLOG
+  MEDIA
+  SEARCH
+  OTHER
 }
 
 // DMCA Models & Enums

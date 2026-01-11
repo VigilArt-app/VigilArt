@@ -1,0 +1,1 @@
+export { Artwork } from "../../generated/zod";

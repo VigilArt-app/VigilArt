@@ -1,5 +1,25 @@
+<div align="center">
+
+<p align="center">
+<img src="https://github.com/user-attachments/assets/28412052-109c-40c3-b28e-70c7fdd97505" alt="VigilArt banner" title="VigilArt" width="800" />
+</p>
+
 # VigilArt
-Helping artists track their work with insightful reports! ✨
+
+<p align="center">
+<strong>Our goal:</strong> help artists protect their work online.
+
+Currently working on a website and a mobile app!
+</p>
+</div>
+
+## About
+
+<p align="center"><img width="800" alt="Vigilart workflow" src="https://github.com/user-attachments/assets/0a53d857-a542-464f-ae9d-f791c0c0aa60" /></p>
+
+- **Upload** your artworks to the app.
+- Get regularly **notified** about where your artworks appear online, all in one dashboard.
+- **Take action** with automatically generated DMCA reports to remove unauthorized uses of your artworks.
 
 ## Getting started
 
@@ -108,7 +128,9 @@ You can also `cd` into the package folder and run the command without `-F` and `
 The VigilArt development website is accessible at: [https://dev.vigilart.app](https://dev.vigilart.app).  
 The production website is accessible at: [https://vigilart.app](https://vigilart.app).
 
-### documentation
+The APIs are also accessible online by using dev-api.vigilart.app and api.vigilart.app respectively.
+
+### Documentation
 
 Further documentation can be found in the [documentation folder](./documentation).
 
@@ -118,3 +140,8 @@ API documentation is auto-generated and can be accessed at different URLs based 
 - Production environment: Not available.
 
 The API documentation is generated using Swagger and provides detailed information about the available endpoints, request/response schemas, and authentication methods.
+
+## Developers
+
+| [<img src="https://github.com/yasssb.png?size=85" width=85><br><sub>Yasmine BEDRANE</sub>](https://github.com/yasssb) | [<img src="https://github.com/Sachaplr.png?size=85" width=85><br><sub>Sacha POLEROWICZ</sub>](https://github.com/Sachaplr) | [<img src="https://github.com/capuchegianni.png?size=85" width=85><br><sub>Gianni HENRIQUES</sub>](https://github.com/capuchegianni) |[<img src="https://github.com/sephorah.png?size=85" width=85><br><sub>Séphorah ANIAMBOSSOU</sub>](https://github.com/sephorah)
+| :---: | :---: | :---: | :---: |

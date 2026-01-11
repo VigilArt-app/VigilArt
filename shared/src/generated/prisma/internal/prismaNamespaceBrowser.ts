@@ -52,6 +52,7 @@ export const AnyNull = runtime.AnyNull
 
 export const ModelName = {
   User: 'User',
+  Artwork: 'Artwork',
   DmcaPlatform: 'DmcaPlatform',
   DmcaProfile: 'DmcaProfile',
   DmcaNotice: 'DmcaNotice'
@@ -86,6 +87,22 @@ export const UserScalarFieldEnum = {
 } as const
 
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
+
+
+export const ArtworkScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  imageUri: 'imageUri',
+  originalFilename: 'originalFilename',
+  contentType: 'contentType',
+  sizeBytes: 'sizeBytes',
+  description: 'description',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  lastScanAt: 'lastScanAt'
+} as const
+
+export type ArtworkScalarFieldEnum = (typeof ArtworkScalarFieldEnum)[keyof typeof ArtworkScalarFieldEnum]
 
 
 export const DmcaPlatformScalarFieldEnum = {

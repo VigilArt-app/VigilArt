@@ -14,6 +14,8 @@ export const TransactionIsolationLevelSchema = z.enum(['ReadUncommitted','ReadCo
 
 export const UserScalarFieldEnumSchema = z.enum(['id','email','password','firstName','lastName','avatar','subscriptionTier','createdAt','updatedAt']);
 
+export const ArtworkScalarFieldEnumSchema = z.enum(['id','userId','imageUri','originalFilename','contentType','sizeBytes','description','createdAt','updatedAt','lastScanAt']);
+
 export const DmcaPlatformScalarFieldEnumSchema = z.enum(['id','code','displayName','domain','dmcaUrl','createdAt','updatedAt']);
 
 export const DmcaProfileScalarFieldEnumSchema = z.enum(['id','userId','fullName','addressLine1','addressLine2','city','postalCode','country','email','phone','signature','createdAt','updatedAt']);
@@ -25,6 +27,14 @@ export const SortOrderSchema = z.enum(['asc','desc']);
 export const QueryModeSchema = z.enum(['default','insensitive']);
 
 export const NullsOrderSchema = z.enum(['first','last']);
+
+export const SubscriptionTierSchema = z.enum(['FREE','CREATOR','PRO']);
+
+export type SubscriptionTierType = `${z.infer<typeof SubscriptionTierSchema>}`
+
+export const WebsiteCategorySchema = z.enum(['SOCIAL','ART_PLATFORMS','MARKETPLACES','BLOG','MEDIA','SEARCH','OTHER']);
+
+export type WebsiteCategoryType = `${z.infer<typeof WebsiteCategorySchema>}`
 
 export const DmcaPlatformCodeSchema = z.enum(['PINTEREST','ETSY','REDBUBBLE','INSTAGRAM','X','DEVIANTART','TUMBLR','OTHER']);
 
@@ -43,18 +53,37 @@ export type DmcaStatusType = `${z.infer<typeof DmcaStatusSchema>}`
 /////////////////////////////////////////
 
 export const UserSchema = z.object({
+  subscriptionTier: SubscriptionTierSchema,
   id: z.uuid(),
   email: z.string(),
   password: z.string(),
   firstName: z.string(),
   lastName: z.string(),
   avatar: z.string().nullable(),
-  subscriptionTier: z.string().nullable(),
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),
 })
 
 export type User = z.infer<typeof UserSchema>
+
+/////////////////////////////////////////
+// ARTWORK SCHEMA
+/////////////////////////////////////////
+
+export const ArtworkSchema = z.object({
+  id: z.uuid(),
+  userId: z.string(),
+  imageUri: z.string(),
+  originalFilename: z.string().nullable(),
+  contentType: z.string().nullable(),
+  sizeBytes: z.number().int().nullable(),
+  description: z.string().nullable(),
+  createdAt: z.coerce.date(),
+  updatedAt: z.coerce.date(),
+  lastScanAt: z.coerce.date().nullable(),
+})
+
+export type Artwork = z.infer<typeof ArtworkSchema>
 
 /////////////////////////////////////////
 // DMCA PLATFORM SCHEMA
