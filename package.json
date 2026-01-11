@@ -11,10 +11,13 @@
     "dev:frontend": "pnpm --filter web-app dev",
     "dev:shared": "pnpm --filter shared dev",
     "dev": "pnpm --parallel --filter \"shared...\" --filter \"backend...\" --filter \"web-app...\" dev",
+    "test": "pnpm --filter backend test",
+    "test:it": "pnpm --filter backend test:it",
     "test:e2e": "pnpm --filter backend test:e2e",
     "start:backend": "pnpm --filter backend start",
     "start:frontend": "pnpm --filter web-app start",
-    "dev:db": "docker compose -f docker-compose.dev.yml up db"
+    "dev:db": "docker compose -f docker-compose.dev.yml up db",
+    "dev:seed-db": "docker compose -f docker-compose.dev.yml up seed-db"
   },
   "devDependencies": {
     "dotenv-cli": "^11.0.0"

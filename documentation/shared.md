@@ -44,7 +44,7 @@ shared/src/
 import { z } from "zod";
 
 export const UserCreateSchema = z.object({
-  email: z.string().email(),
+  email: z.email(),
   password: z.string().min(8),
   firstName: z.string().min(1),
   lastName: z.string().min(1),
@@ -234,7 +234,7 @@ function SignUpForm() {
 Application-wide constants used across frontend and backend.
 
 ```typescript
-import { DEFAULT_SUBSCRIPTION_TIER, DEFAULT_AVATAR_URL } from "@vigilart/shared/constants";
+import { MIN_PASSWORD_NUMBERS, MIN_PASSWORD_UPPERCASE } from "@vigilart/shared/constants";
 ```
 
 ### Enums (`shared/src/enums/`)

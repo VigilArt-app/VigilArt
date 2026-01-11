@@ -9,7 +9,23 @@
 * 🟢 You can import this file directly.
 */
 
+export const SubscriptionTier = {
+  FREE: 'FREE',
+  CREATOR: 'CREATOR',
+  PRO: 'PRO'
+} as const
+
+export type SubscriptionTier = (typeof SubscriptionTier)[keyof typeof SubscriptionTier]
 
 
-// This file is empty because there are no enums in the schema.
-export {}
+export const WebsiteCategory = {
+  SOCIAL: 'SOCIAL',
+  ART_PLATFORMS: 'ART_PLATFORMS',
+  MARKETPLACES: 'MARKETPLACES',
+  BLOG: 'BLOG',
+  MEDIA: 'MEDIA',
+  SEARCH: 'SEARCH',
+  OTHER: 'OTHER'
+} as const
+
+export type WebsiteCategory = (typeof WebsiteCategory)[keyof typeof WebsiteCategory]
