@@ -45,7 +45,6 @@ export class ArtworksController {
       status: HttpStatus.OK,
       type: [ArtworkDTO],
     },
-    errors: [],
     protected: true,
   })
   async findAll(): Promise<Artwork[]> {
@@ -59,7 +58,6 @@ export class ArtworksController {
       status: HttpStatus.OK,
       type: [ArtworkDTO],
     },
-    errors: [],
     protected: true,
   })
   @ApiParam({ name: "id", type: String })

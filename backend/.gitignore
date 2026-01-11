@@ -4,4 +4,3 @@ node_modules
 .env.test
 
 keys/
-src/vision/test-vision.spec.ts

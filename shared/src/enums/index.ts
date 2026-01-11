@@ -1,2 +1,1 @@
-export * from "./ArtworksReport";
-export * from "./User";
+export * from "../generated/prisma/enums";

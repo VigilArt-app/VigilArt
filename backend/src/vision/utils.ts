@@ -1,4 +1,7 @@
-import { WebsiteCategory, WebsiteCategoryType } from "@vigilart/shared/enums";
+import {
+  WebsiteCategory,
+  type WebsiteCategory as WebsiteCategoryType,
+} from "@vigilart/shared/enums";
 import { WebImage } from "./types";
 
 const DOMAIN_PATTERNS: Record<WebsiteCategoryType, RegExp[]> = {
@@ -65,13 +68,7 @@ const DOMAIN_PATTERNS: Record<WebsiteCategoryType, RegExp[]> = {
 };
 
 export const classifyWebsite = (rawUrl: string): WebsiteCategoryType | null => {
-  let url: URL;
-
-  try {
-    url = new URL(rawUrl);
-  } catch (error: any) {
-    throw null;
-  }
+  let url = new URL(rawUrl);
   const hostname = url.hostname.toLowerCase();
 
   for (const [category, patterns] of Object.entries(DOMAIN_PATTERNS)) {
@@ -83,20 +80,16 @@ export const classifyWebsite = (rawUrl: string): WebsiteCategoryType | null => {
 };
 
 export const extractRootDomain = (url: string): string | null => {
-  try {
-    const hostname = new URL(url).hostname.replace(/^www\./, "");
-    const parts = hostname.split(".");
-    let rootDomain: string;
+  const hostname = new URL(url).hostname.replace(/^www\./, "");
+  const parts = hostname.split(".");
+  let rootDomain: string;
 
-    if (parts.length <= 2) {
-      rootDomain = hostname;
-    } else {
-      rootDomain = parts.slice(-2).join(".");
-    }
-    return rootDomain;
-  } catch {
-    return null;
+  if (parts.length <= 2) {
+    rootDomain = hostname;
+  } else {
+    rootDomain = parts.slice(-2).join(".");
   }
+  return rootDomain;
 };
 
 export const getImageUrl = (

@@ -115,26 +115,22 @@ export class VisionService implements OnModuleDestroy {
   }
 
   async searchImage(imageUri: string): Promise<VisualSearchResult | null> {
-    try {
-      const webDetection = await this.webDetection(imageUri);
+    const webDetection = await this.webDetection(imageUri);
 
-      if (!webDetection || !webDetection.pagesWithMatchingImages) {
-        return null;
-      }
-      const metadata = this.getArtworkReportMetadata(
-        webDetection?.bestGuessLabels,
-        webDetection?.webEntities
-      );
-      const matchingPages = this.getArtworkReportMatchingPages(
-        webDetection.pagesWithMatchingImages
-      );
-
-      return {
-        metadata,
-        matchingPages,
-      };
-    } catch (e: any) {
-      throw e;
+    if (!webDetection || !webDetection.pagesWithMatchingImages) {
+      return null;
     }
+    const metadata = this.getArtworkReportMetadata(
+      webDetection?.bestGuessLabels,
+      webDetection?.webEntities
+    );
+    const matchingPages = this.getArtworkReportMatchingPages(
+      webDetection.pagesWithMatchingImages
+    );
+
+    return {
+      metadata,
+      matchingPages,
+    };
   }
 }

@@ -30,7 +30,6 @@ export class ReportsController {
       status: HttpStatus.OK,
       type: ArtworksReportDTO,
     },
-    errors: [HttpStatus.INTERNAL_SERVER_ERROR],
     protected: true,
   })
   @ApiParam({ name: "id", type: String })
@@ -47,7 +46,6 @@ export class ReportsController {
       status: HttpStatus.OK,
       type: [MatchingPageDTO],
     },
-    errors: [HttpStatus.INTERNAL_SERVER_ERROR],
     protected: true,
   })
   @ApiParam({ name: "id", type: String })

@@ -24,67 +24,55 @@ export class ReportsService {
   async aggregateVisualSearchResults(
     imageUri: string
   ): Promise<AggregatedVisualSearchResults> {
-    try {
-      const visualSearchResults = await Promise.all([
-        this.visionService.searchImage(imageUri),
-      ]);
-      const matchingPages = visualSearchResults.reduce<MatchingPage[]>(
-        (acc: MatchingPage[], value: VisualSearchResult | null) => {
-          if (value) {
-            acc.push(...value.matchingPages);
-          }
-          return acc;
-        },
-        []
-      );
-      const statistics: ArtworksReportEntryStatistics = {
-        totalMatches: matchingPages.length,
-      };
+    const visualSearchResults = await Promise.all([
+      this.visionService.searchImage(imageUri),
+    ]);
+    const matchingPages = visualSearchResults.reduce<MatchingPage[]>(
+      (acc: MatchingPage[], value: VisualSearchResult | null) => {
+        if (value) {
+          acc.push(...value.matchingPages);
+        }
+        return acc;
+      },
+      []
+    );
+    const statistics: ArtworksReportEntryStatistics = {
+      totalMatches: matchingPages.length,
+    };
 
-      return {
-        statistics,
-        matchingPages,
-      };
-    } catch (e) {
-      throw e;
-    }
+    return {
+      statistics,
+      matchingPages,
+    };
   }
 
   async getArtworksReportEntry(
     artwork: Artwork,
     limit?: number
   ): Promise<ArtworksReportEntry> {
-    try {
-      const aggregatedVisualSearchResults =
-        await this.aggregateVisualSearchResults(artwork.imageUri);
-      const matchingPages = aggregatedVisualSearchResults.matchingPages;
-      const statistics = aggregatedVisualSearchResults.statistics;
+    const aggregatedVisualSearchResults =
+      await this.aggregateVisualSearchResults(artwork.imageUri);
+    const matchingPages = aggregatedVisualSearchResults.matchingPages;
+    const statistics = aggregatedVisualSearchResults.statistics;
 
-      return {
-        artworkId: artwork.id,
-        statistics,
-        matchingPages: matchingPages.slice(0, limit ?? matchingPages.length),
-      };
-    } catch (e) {
-      throw e;
-    }
+    return {
+      artworkId: artwork.id,
+      statistics,
+      matchingPages: matchingPages.slice(0, limit ?? matchingPages.length),
+    };
   }
 
   async getArtworksReportEntries(
     userId: string,
     limit?: number
   ): Promise<ArtworksReportEntry[]> {
-    try {
-      const artworks = await this.artworksService.findAllPerUser(userId);
-      const entries: ArtworksReportEntry[] = await Promise.all(
-        artworks.map(async (artwork: Artwork) => {
-          return this.getArtworksReportEntry(artwork, limit);
-        })
-      );
-      return entries;
-    } catch (e: any) {
-      throw e;
-    }
+    const artworks = await this.artworksService.findAllPerUser(userId);
+    const entries: ArtworksReportEntry[] = await Promise.all(
+      artworks.map(async (artwork: Artwork) => {
+        return this.getArtworksReportEntry(artwork, limit);
+      })
+    );
+    return entries;
   }
 
   getArtworksReportStatistics(
@@ -102,70 +90,61 @@ export class ReportsService {
   }
 
   async getArtworksReport(userId: string): Promise<ArtworksReport> {
-    try {
-      const entries: ArtworksReportEntry[] =
-        await this.getArtworksReportEntries(userId, DEFAULT_PAGINATION_LIMIT);
-      const statistics: ArtworksReportStatistics =
-        this.getArtworksReportStatistics(entries);
+    const entries: ArtworksReportEntry[] = await this.getArtworksReportEntries(
+      userId,
+      DEFAULT_PAGINATION_LIMIT
+    );
+    const statistics: ArtworksReportStatistics =
+      this.getArtworksReportStatistics(entries);
 
-      return {
-        detectionDate: new Date(),
-        statistics,
-        entries,
-      };
-    } catch (e: any) {
-      throw e;
-    }
+    return {
+      detectionDate: new Date(),
+      statistics,
+      entries,
+    };
   }
 
   async getAllArtworksMatches(
     userId: string,
     { websiteCategory }: GetArtworksMatchesDTO
   ): Promise<MatchingPage[]> {
-    try {
-      const entries: ArtworksReportEntry[] =
-        await this.getArtworksReportEntries(userId);
-      const matchingPages = entries.reduce(
-        (acc: MatchingPage[], value: ArtworksReportEntry) => {
-          acc.push(...value.matchingPages);
-          return acc;
-        },
-        []
+    const entries: ArtworksReportEntry[] = await this.getArtworksReportEntries(
+      userId
+    );
+    const matchingPages = entries.reduce(
+      (acc: MatchingPage[], value: ArtworksReportEntry) => {
+        acc.push(...value.matchingPages);
+        return acc;
+      },
+      []
+    );
+    if (websiteCategory) {
+      const filteredMatchingPages = matchingPages.filter(
+        (page: MatchingPage) => page.category == websiteCategory
       );
-      if (websiteCategory) {
-        const filteredMatchingPages = matchingPages.filter(
-          (page: MatchingPage) => page.category == websiteCategory
-        );
-        return filteredMatchingPages;
-      }
-      return matchingPages;
-    } catch (e) {
-      throw e;
+      return filteredMatchingPages;
     }
+    return matchingPages;
   }
 
   async getArtworkMatches(
     artworkId: string,
     { websiteCategory }: GetArtworksMatchesDTO
   ): Promise<MatchingPage[]> {
-    try {
-      const artwork = await this.artworksService.findOne(artworkId);
+    const artwork = await this.artworksService.findOne(artworkId);
 
-      if (!artwork) {
-        throw new NotFoundException("Artwork not found");
-      }
-      const aggregatedVisualSearchResults =
-        await this.aggregateVisualSearchResults(artwork.imageUri);
-      const matchingPages = aggregatedVisualSearchResults.matchingPages;
-      if (websiteCategory) {
-        const filteredMatchingPages = matchingPages.filter(
-          (page: MatchingPage) => page.category == websiteCategory
-        );
-        return filteredMatchingPages;
-      }
-      return matchingPages;
-    } catch (e) {
-      throw e;
+    if (!artwork) {
+      throw new NotFoundException("Artwork not found");
     }
+    const aggregatedVisualSearchResults =
+      await this.aggregateVisualSearchResults(artwork.imageUri);
+    const matchingPages = aggregatedVisualSearchResults.matchingPages;
+    if (websiteCategory) {
+      const filteredMatchingPages = matchingPages.filter(
+        (page: MatchingPage) => page.category == websiteCategory
+      );
+      return filteredMatchingPages;
+    }
+    return matchingPages;
   }
 }

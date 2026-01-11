@@ -11,14 +11,12 @@ import {
 export const SignUpSchema = z.object({
   email: z
     .email({
-      error: (e) => (e.input === undefined ? "Email is required." : undefined),
+      error: (e) =>
+        e.input === undefined ? "Email is required." : "Invalid email address",
     })
     .transform((m) => m.toLowerCase()),
   password: z
-    .string({
-      error: (e) =>
-        e.input === undefined ? "Password is required." : undefined,
-    })
+    .string("Password is required.")
     .min(
       MIN_PASSWORD_LENGTH,
       `Password must be at least ${MIN_PASSWORD_LENGTH} characters long`
