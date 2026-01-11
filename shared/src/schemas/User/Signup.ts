@@ -12,7 +12,7 @@ export const SignUpSchema = z.object({
   email: z
     .email({
       error: (e) =>
-        e.input === undefined ? "Email is required." : "Invalid email address",
+        e.input === undefined ? "Email is required." : undefined,
     })
     .transform((m) => m.toLowerCase()),
   password: z

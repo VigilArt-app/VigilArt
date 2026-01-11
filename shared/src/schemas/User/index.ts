@@ -12,8 +12,7 @@ import {
 
 export const UserSchema = base.extend({
   email: z.email({
-    error: (e) =>
-      e.input === undefined ? "Email is required." : "Invalid email address",
+    error: (e) => (e.input === undefined ? "Email is required." : undefined),
   }),
   createdAt: dateTimeStringToDate,
 });
@@ -29,8 +28,7 @@ export const UserCreateSchema = UserSchema.pick({
   lastName: true,
 }).extend({
   email: z.email({
-    error: (e) =>
-      e.input === undefined ? "Email is required." : "Invalid email address",
+    error: (e) => (e.input === undefined ? "Email is required." : undefined),
   }),
   password: z
     .string({
