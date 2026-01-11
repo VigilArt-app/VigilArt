@@ -46,7 +46,6 @@ export class UsersController {
       status: HttpStatus.OK,
       type: [UserGetDTO],
     },
-    errors: [],
     protected: true,
   })
   async findAll(): Promise<UserGet[]> {
