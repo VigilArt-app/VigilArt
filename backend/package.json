@@ -16,11 +16,10 @@
     "class-transformer": "^0.5.1",
     "cross-env": "^10.1.0",
     "dotenv": "^17.2.3",
-    "nestjs-zod": "^5.0.1",
+    "nestjs-zod": "^5.1.1",
     "pg": "^8.16.3",
     "supertest": "^7.1.4",
-    "zod": "^4.1.13",
-    "zod-prisma-types": "^3.3.10"
+    "zod": "^4.1.13"
   },
   "scripts": {
     "dev": "dotenv -e ../.env -- pnpm db:push && pnpm db:generate && nest start --watch",
@@ -54,6 +53,7 @@
     "dotenv-cli": "^11.0.0",
     "jest": "^30.2.0",
     "prisma": "^7.2.0",
+    "prisma-zod-generator": "^2.1.2",
     "testcontainers": "^11.8.1",
     "ts-jest": "^29.4.5",
     "typescript": "^5.9.3"

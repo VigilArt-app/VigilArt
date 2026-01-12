@@ -12,12 +12,9 @@ generator client {
 }
 
 generator zod {
-  provider          = "zod-prisma-types"
-  output            = "../../shared/src/generated/zod"
-  prismaClientPath  = "../prisma/client"
-  createInputTypes  = false
-  addIncludeType    = false
-  useTypeAssertions = true
+  provider = "prisma-zod-generator"
+  output   = "../../shared/src/generated/zod"
+  config   = "../zod-generator.config.json"
 }
 
 datasource db {
