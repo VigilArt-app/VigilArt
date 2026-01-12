@@ -5,6 +5,6 @@ import {
     DmcaProfileUpdateSchema
 } from "../../../schemas/Dmca/Profile";
 
-export type DmcaProfileGetType = z.infer<typeof DmcaProfileGetSchema>;
-export type DmcaProfileCreateType = z.infer<typeof DmcaProfileCreateSchema>;
-export type DmcaProfileUpdateType = z.infer<typeof DmcaProfileUpdateSchema>;
+export type DmcaProfileGet = z.infer<typeof DmcaProfileGetSchema>;
+export type DmcaProfileCreate = z.infer<typeof DmcaProfileCreateSchema>;
+export type DmcaProfileUpdate = z.infer<typeof DmcaProfileUpdateSchema>;

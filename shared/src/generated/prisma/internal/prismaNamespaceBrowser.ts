@@ -107,10 +107,12 @@ export type ArtworkScalarFieldEnum = (typeof ArtworkScalarFieldEnum)[keyof typeo
 
 export const DmcaPlatformScalarFieldEnum = {
   id: 'id',
-  code: 'code',
+  slug: 'slug',
   displayName: 'displayName',
   domain: 'domain',
   dmcaUrl: 'dmcaUrl',
+  websiteCategory: 'websiteCategory',
+  formSchema: 'formSchema',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -140,8 +142,10 @@ export type DmcaProfileScalarFieldEnum = (typeof DmcaProfileScalarFieldEnum)[key
 export const DmcaNoticeScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
-  dmcaPlatformCode: 'dmcaPlatformCode',
+  dmcaPlatformSlug: 'dmcaPlatformSlug',
+  artworkId: 'artworkId',
   status: 'status',
+  payload: 'payload',
   body: 'body',
   submittedAt: 'submittedAt',
   createdAt: 'createdAt',
@@ -159,6 +163,21 @@ export const SortOrder = {
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
 
 
+export const JsonNullValueInput = {
+  JsonNull: 'JsonNull'
+} as const
+
+export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
+
+
+export const NullableJsonNullValueInput = {
+  DbNull: 'DbNull',
+  JsonNull: 'JsonNull'
+} as const
+
+export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
+
+
 export const QueryMode = {
   default: 'default',
   insensitive: 'insensitive'
@@ -173,4 +192,13 @@ export const NullsOrder = {
 } as const
 
 export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
+
+
+export const JsonNullValueFilter = {
+  DbNull: 'DbNull',
+  JsonNull: 'JsonNull',
+  AnyNull: 'AnyNull'
+} as const
+
+export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
 

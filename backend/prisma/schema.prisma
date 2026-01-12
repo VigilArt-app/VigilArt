@@ -59,6 +59,8 @@ model Artwork {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   lastScanAt DateTime?
+
+  dmcaNotices DmcaNotice[]
 }
 
 enum WebsiteCategory {
@@ -73,17 +75,6 @@ enum WebsiteCategory {
 
 // DMCA Models & Enums
 
-enum DmcaPlatformCode {
-  PINTEREST
-  ETSY
-  REDBUBBLE
-  INSTAGRAM
-  X
-  DEVIANTART
-  TUMBLR
-  OTHER
-}
-
 enum DmcaStatus {
   DRAFT
   GENERATED
@@ -92,17 +83,19 @@ enum DmcaStatus {
 }
 
 model DmcaPlatform {
-  id            String           @id @default(uuid())
-  code          DmcaPlatformCode @unique
+  id            String            @id @default(uuid())
 
+  slug          String            @unique
   displayName   String
-  domain        String           @unique
+  domain        String            @unique
   dmcaUrl       String
+  websiteCategory WebsiteCategory
+  formSchema    Json
 
   dmcaNotices   DmcaNotice[]
 
-  createdAt     DateTime         @default(now())
-  updatedAt     DateTime         @updatedAt @default(now())
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt @default(now())
 }
 
 model DmcaProfile {
@@ -130,12 +123,15 @@ model DmcaNotice {
   user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
   userId String?
 
-  dmcaPlatform   DmcaPlatform @relation(fields: [dmcaPlatformCode], references: [code], onDelete: Restrict)
-  dmcaPlatformCode DmcaPlatformCode
+  dmcaPlatform   DmcaPlatform @relation(fields: [dmcaPlatformSlug], references: [slug], onDelete: Restrict)
+  dmcaPlatformSlug String
+
+  artwork   Artwork? @relation(fields: [artworkId], references: [id], onDelete: SetNull)
+  artworkId String?
 
   status DmcaStatus @default(DRAFT)
-
-  body        String?
+  payload Json?
+  body String?
   submittedAt DateTime?
 
   createdAt DateTime @default(now())

@@ -31,20 +31,6 @@ export const WebsiteCategory = {
 export type WebsiteCategory = (typeof WebsiteCategory)[keyof typeof WebsiteCategory]
 
 
-export const DmcaPlatformCode = {
-  PINTEREST: 'PINTEREST',
-  ETSY: 'ETSY',
-  REDBUBBLE: 'REDBUBBLE',
-  INSTAGRAM: 'INSTAGRAM',
-  X: 'X',
-  DEVIANTART: 'DEVIANTART',
-  TUMBLR: 'TUMBLR',
-  OTHER: 'OTHER'
-} as const
-
-export type DmcaPlatformCode = (typeof DmcaPlatformCode)[keyof typeof DmcaPlatformCode]
-
-
 export const DmcaStatus = {
   DRAFT: 'DRAFT',
   GENERATED: 'GENERATED',

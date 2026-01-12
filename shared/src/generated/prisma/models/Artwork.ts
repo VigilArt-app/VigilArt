@@ -257,6 +257,7 @@ export type ArtworkWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"Artwork"> | Date | string
   lastScanAt?: Prisma.DateTimeNullableFilter<"Artwork"> | Date | string | null
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  dmcaNotices?: Prisma.DmcaNoticeListRelationFilter
 }
 
 export type ArtworkOrderByWithRelationInput = {
@@ -271,6 +272,7 @@ export type ArtworkOrderByWithRelationInput = {
   updatedAt?: Prisma.SortOrder
   lastScanAt?: Prisma.SortOrderInput | Prisma.SortOrder
   user?: Prisma.UserOrderByWithRelationInput
+  dmcaNotices?: Prisma.DmcaNoticeOrderByRelationAggregateInput
 }
 
 export type ArtworkWhereUniqueInput = Prisma.AtLeast<{
@@ -288,6 +290,7 @@ export type ArtworkWhereUniqueInput = Prisma.AtLeast<{
   updatedAt?: Prisma.DateTimeFilter<"Artwork"> | Date | string
   lastScanAt?: Prisma.DateTimeNullableFilter<"Artwork"> | Date | string | null
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  dmcaNotices?: Prisma.DmcaNoticeListRelationFilter
 }, "id">
 
 export type ArtworkOrderByWithAggregationInput = {
@@ -335,6 +338,7 @@ export type ArtworkCreateInput = {
   updatedAt?: Date | string
   lastScanAt?: Date | string | null
   user: Prisma.UserCreateNestedOneWithoutArtworksInput
+  dmcaNotices?: Prisma.DmcaNoticeCreateNestedManyWithoutArtworkInput
 }
 
 export type ArtworkUncheckedCreateInput = {
@@ -348,6 +352,7 @@ export type ArtworkUncheckedCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   lastScanAt?: Date | string | null
+  dmcaNotices?: Prisma.DmcaNoticeUncheckedCreateNestedManyWithoutArtworkInput
 }
 
 export type ArtworkUpdateInput = {
@@ -361,6 +366,7 @@ export type ArtworkUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastScanAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   user?: Prisma.UserUpdateOneRequiredWithoutArtworksNestedInput
+  dmcaNotices?: Prisma.DmcaNoticeUpdateManyWithoutArtworkNestedInput
 }
 
 export type ArtworkUncheckedUpdateInput = {
@@ -374,6 +380,7 @@ export type ArtworkUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastScanAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  dmcaNotices?: Prisma.DmcaNoticeUncheckedUpdateManyWithoutArtworkNestedInput
 }
 
 export type ArtworkCreateManyInput = {
@@ -471,6 +478,11 @@ export type ArtworkSumOrderByAggregateInput = {
   sizeBytes?: Prisma.SortOrder
 }
 
+export type ArtworkNullableScalarRelationFilter = {
+  is?: Prisma.ArtworkWhereInput | null
+  isNot?: Prisma.ArtworkWhereInput | null
+}
+
 export type ArtworkCreateNestedManyWithoutUserInput = {
   create?: Prisma.XOR<Prisma.ArtworkCreateWithoutUserInput, Prisma.ArtworkUncheckedCreateWithoutUserInput> | Prisma.ArtworkCreateWithoutUserInput[] | Prisma.ArtworkUncheckedCreateWithoutUserInput[]
   connectOrCreate?: Prisma.ArtworkCreateOrConnectWithoutUserInput | Prisma.ArtworkCreateOrConnectWithoutUserInput[]
@@ -525,6 +537,22 @@ export type NullableDateTimeFieldUpdateOperationsInput = {
   set?: Date | string | null
 }
 
+export type ArtworkCreateNestedOneWithoutDmcaNoticesInput = {
+  create?: Prisma.XOR<Prisma.ArtworkCreateWithoutDmcaNoticesInput, Prisma.ArtworkUncheckedCreateWithoutDmcaNoticesInput>
+  connectOrCreate?: Prisma.ArtworkCreateOrConnectWithoutDmcaNoticesInput
+  connect?: Prisma.ArtworkWhereUniqueInput
+}
+
+export type ArtworkUpdateOneWithoutDmcaNoticesNestedInput = {
+  create?: Prisma.XOR<Prisma.ArtworkCreateWithoutDmcaNoticesInput, Prisma.ArtworkUncheckedCreateWithoutDmcaNoticesInput>
+  connectOrCreate?: Prisma.ArtworkCreateOrConnectWithoutDmcaNoticesInput
+  upsert?: Prisma.ArtworkUpsertWithoutDmcaNoticesInput
+  disconnect?: Prisma.ArtworkWhereInput | boolean
+  delete?: Prisma.ArtworkWhereInput | boolean
+  connect?: Prisma.ArtworkWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ArtworkUpdateToOneWithWhereWithoutDmcaNoticesInput, Prisma.ArtworkUpdateWithoutDmcaNoticesInput>, Prisma.ArtworkUncheckedUpdateWithoutDmcaNoticesInput>
+}
+
 export type ArtworkCreateWithoutUserInput = {
   id?: string
   imageUri: string
@@ -535,6 +563,7 @@ export type ArtworkCreateWithoutUserInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   lastScanAt?: Date | string | null
+  dmcaNotices?: Prisma.DmcaNoticeCreateNestedManyWithoutArtworkInput
 }
 
 export type ArtworkUncheckedCreateWithoutUserInput = {
@@ -547,6 +576,7 @@ export type ArtworkUncheckedCreateWithoutUserInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   lastScanAt?: Date | string | null
+  dmcaNotices?: Prisma.DmcaNoticeUncheckedCreateNestedManyWithoutArtworkInput
 }
 
 export type ArtworkCreateOrConnectWithoutUserInput = {
@@ -591,6 +621,74 @@ export type ArtworkScalarWhereInput = {
   lastScanAt?: Prisma.DateTimeNullableFilter<"Artwork"> | Date | string | null
 }
 
+export type ArtworkCreateWithoutDmcaNoticesInput = {
+  id?: string
+  imageUri: string
+  originalFilename?: string | null
+  contentType?: string | null
+  sizeBytes?: number | null
+  description?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  lastScanAt?: Date | string | null
+  user: Prisma.UserCreateNestedOneWithoutArtworksInput
+}
+
+export type ArtworkUncheckedCreateWithoutDmcaNoticesInput = {
+  id?: string
+  userId: string
+  imageUri: string
+  originalFilename?: string | null
+  contentType?: string | null
+  sizeBytes?: number | null
+  description?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  lastScanAt?: Date | string | null
+}
+
+export type ArtworkCreateOrConnectWithoutDmcaNoticesInput = {
+  where: Prisma.ArtworkWhereUniqueInput
+  create: Prisma.XOR<Prisma.ArtworkCreateWithoutDmcaNoticesInput, Prisma.ArtworkUncheckedCreateWithoutDmcaNoticesInput>
+}
+
+export type ArtworkUpsertWithoutDmcaNoticesInput = {
+  update: Prisma.XOR<Prisma.ArtworkUpdateWithoutDmcaNoticesInput, Prisma.ArtworkUncheckedUpdateWithoutDmcaNoticesInput>
+  create: Prisma.XOR<Prisma.ArtworkCreateWithoutDmcaNoticesInput, Prisma.ArtworkUncheckedCreateWithoutDmcaNoticesInput>
+  where?: Prisma.ArtworkWhereInput
+}
+
+export type ArtworkUpdateToOneWithWhereWithoutDmcaNoticesInput = {
+  where?: Prisma.ArtworkWhereInput
+  data: Prisma.XOR<Prisma.ArtworkUpdateWithoutDmcaNoticesInput, Prisma.ArtworkUncheckedUpdateWithoutDmcaNoticesInput>
+}
+
+export type ArtworkUpdateWithoutDmcaNoticesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  imageUri?: Prisma.StringFieldUpdateOperationsInput | string
+  originalFilename?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contentType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lastScanAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  user?: Prisma.UserUpdateOneRequiredWithoutArtworksNestedInput
+}
+
+export type ArtworkUncheckedUpdateWithoutDmcaNoticesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  imageUri?: Prisma.StringFieldUpdateOperationsInput | string
+  originalFilename?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contentType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lastScanAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+}
+
 export type ArtworkCreateManyUserInput = {
   id?: string
   imageUri: string
@@ -613,6 +711,7 @@ export type ArtworkUpdateWithoutUserInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastScanAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  dmcaNotices?: Prisma.DmcaNoticeUpdateManyWithoutArtworkNestedInput
 }
 
 export type ArtworkUncheckedUpdateWithoutUserInput = {
@@ -625,6 +724,7 @@ export type ArtworkUncheckedUpdateWithoutUserInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastScanAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  dmcaNotices?: Prisma.DmcaNoticeUncheckedUpdateManyWithoutArtworkNestedInput
 }
 
 export type ArtworkUncheckedUpdateManyWithoutUserInput = {
@@ -640,6 +740,35 @@ export type ArtworkUncheckedUpdateManyWithoutUserInput = {
 }
 
 
+/**
+ * Count Type ArtworkCountOutputType
+ */
+
+export type ArtworkCountOutputType = {
+  dmcaNotices: number
+}
+
+export type ArtworkCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  dmcaNotices?: boolean | ArtworkCountOutputTypeCountDmcaNoticesArgs
+}
+
+/**
+ * ArtworkCountOutputType without action
+ */
+export type ArtworkCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ArtworkCountOutputType
+   */
+  select?: Prisma.ArtworkCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * ArtworkCountOutputType without action
+ */
+export type ArtworkCountOutputTypeCountDmcaNoticesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.DmcaNoticeWhereInput
+}
+
 
 export type ArtworkSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -653,6 +782,8 @@ export type ArtworkSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   updatedAt?: boolean
   lastScanAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  dmcaNotices?: boolean | Prisma.Artwork$dmcaNoticesArgs<ExtArgs>
+  _count?: boolean | Prisma.ArtworkCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["artwork"]>
 
 export type ArtworkSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -699,6 +830,8 @@ export type ArtworkSelectScalar = {
 export type ArtworkOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "imageUri" | "originalFilename" | "contentType" | "sizeBytes" | "description" | "createdAt" | "updatedAt" | "lastScanAt", ExtArgs["result"]["artwork"]>
 export type ArtworkInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  dmcaNotices?: boolean | Prisma.Artwork$dmcaNoticesArgs<ExtArgs>
+  _count?: boolean | Prisma.ArtworkCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ArtworkIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -711,6 +844,7 @@ export type $ArtworkPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
   name: "Artwork"
   objects: {
     user: Prisma.$UserPayload<ExtArgs>
+    dmcaNotices: Prisma.$DmcaNoticePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1118,6 +1252,7 @@ readonly fields: ArtworkFieldRefs;
 export interface Prisma__ArtworkClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   user<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  dmcaNotices<T extends Prisma.Artwork$dmcaNoticesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Artwork$dmcaNoticesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DmcaNoticePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1550,6 +1685,30 @@ export type ArtworkDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Inter
    * Limit how many Artworks to delete.
    */
   limit?: number
+}
+
+/**
+ * Artwork.dmcaNotices
+ */
+export type Artwork$dmcaNoticesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the DmcaNotice
+   */
+  select?: Prisma.DmcaNoticeSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the DmcaNotice
+   */
+  omit?: Prisma.DmcaNoticeOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.DmcaNoticeInclude<ExtArgs> | null
+  where?: Prisma.DmcaNoticeWhereInput
+  orderBy?: Prisma.DmcaNoticeOrderByWithRelationInput | Prisma.DmcaNoticeOrderByWithRelationInput[]
+  cursor?: Prisma.DmcaNoticeWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.DmcaNoticeScalarFieldEnum | Prisma.DmcaNoticeScalarFieldEnum[]
 }
 
 /**

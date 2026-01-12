@@ -27,7 +27,8 @@ export type AggregateDmcaNotice = {
 export type DmcaNoticeMinAggregateOutputType = {
   id: string | null
   userId: string | null
-  dmcaPlatformCode: $Enums.DmcaPlatformCode | null
+  dmcaPlatformSlug: string | null
+  artworkId: string | null
   status: $Enums.DmcaStatus | null
   body: string | null
   submittedAt: Date | null
@@ -38,7 +39,8 @@ export type DmcaNoticeMinAggregateOutputType = {
 export type DmcaNoticeMaxAggregateOutputType = {
   id: string | null
   userId: string | null
-  dmcaPlatformCode: $Enums.DmcaPlatformCode | null
+  dmcaPlatformSlug: string | null
+  artworkId: string | null
   status: $Enums.DmcaStatus | null
   body: string | null
   submittedAt: Date | null
@@ -49,8 +51,10 @@ export type DmcaNoticeMaxAggregateOutputType = {
 export type DmcaNoticeCountAggregateOutputType = {
   id: number
   userId: number
-  dmcaPlatformCode: number
+  dmcaPlatformSlug: number
+  artworkId: number
   status: number
+  payload: number
   body: number
   submittedAt: number
   createdAt: number
@@ -62,7 +66,8 @@ export type DmcaNoticeCountAggregateOutputType = {
 export type DmcaNoticeMinAggregateInputType = {
   id?: true
   userId?: true
-  dmcaPlatformCode?: true
+  dmcaPlatformSlug?: true
+  artworkId?: true
   status?: true
   body?: true
   submittedAt?: true
@@ -73,7 +78,8 @@ export type DmcaNoticeMinAggregateInputType = {
 export type DmcaNoticeMaxAggregateInputType = {
   id?: true
   userId?: true
-  dmcaPlatformCode?: true
+  dmcaPlatformSlug?: true
+  artworkId?: true
   status?: true
   body?: true
   submittedAt?: true
@@ -84,8 +90,10 @@ export type DmcaNoticeMaxAggregateInputType = {
 export type DmcaNoticeCountAggregateInputType = {
   id?: true
   userId?: true
-  dmcaPlatformCode?: true
+  dmcaPlatformSlug?: true
+  artworkId?: true
   status?: true
+  payload?: true
   body?: true
   submittedAt?: true
   createdAt?: true
@@ -168,8 +176,10 @@ export type DmcaNoticeGroupByArgs<ExtArgs extends runtime.Types.Extensions.Inter
 export type DmcaNoticeGroupByOutputType = {
   id: string
   userId: string | null
-  dmcaPlatformCode: $Enums.DmcaPlatformCode
+  dmcaPlatformSlug: string
+  artworkId: string | null
   status: $Enums.DmcaStatus
+  payload: runtime.JsonValue | null
   body: string | null
   submittedAt: Date | null
   createdAt: Date
@@ -200,27 +210,33 @@ export type DmcaNoticeWhereInput = {
   NOT?: Prisma.DmcaNoticeWhereInput | Prisma.DmcaNoticeWhereInput[]
   id?: Prisma.StringFilter<"DmcaNotice"> | string
   userId?: Prisma.StringNullableFilter<"DmcaNotice"> | string | null
-  dmcaPlatformCode?: Prisma.EnumDmcaPlatformCodeFilter<"DmcaNotice"> | $Enums.DmcaPlatformCode
+  dmcaPlatformSlug?: Prisma.StringFilter<"DmcaNotice"> | string
+  artworkId?: Prisma.StringNullableFilter<"DmcaNotice"> | string | null
   status?: Prisma.EnumDmcaStatusFilter<"DmcaNotice"> | $Enums.DmcaStatus
+  payload?: Prisma.JsonNullableFilter<"DmcaNotice">
   body?: Prisma.StringNullableFilter<"DmcaNotice"> | string | null
   submittedAt?: Prisma.DateTimeNullableFilter<"DmcaNotice"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"DmcaNotice"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"DmcaNotice"> | Date | string
   user?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   dmcaPlatform?: Prisma.XOR<Prisma.DmcaPlatformScalarRelationFilter, Prisma.DmcaPlatformWhereInput>
+  artwork?: Prisma.XOR<Prisma.ArtworkNullableScalarRelationFilter, Prisma.ArtworkWhereInput> | null
 }
 
 export type DmcaNoticeOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrderInput | Prisma.SortOrder
-  dmcaPlatformCode?: Prisma.SortOrder
+  dmcaPlatformSlug?: Prisma.SortOrder
+  artworkId?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
+  payload?: Prisma.SortOrderInput | Prisma.SortOrder
   body?: Prisma.SortOrderInput | Prisma.SortOrder
   submittedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   user?: Prisma.UserOrderByWithRelationInput
   dmcaPlatform?: Prisma.DmcaPlatformOrderByWithRelationInput
+  artwork?: Prisma.ArtworkOrderByWithRelationInput
 }
 
 export type DmcaNoticeWhereUniqueInput = Prisma.AtLeast<{
@@ -229,21 +245,26 @@ export type DmcaNoticeWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.DmcaNoticeWhereInput[]
   NOT?: Prisma.DmcaNoticeWhereInput | Prisma.DmcaNoticeWhereInput[]
   userId?: Prisma.StringNullableFilter<"DmcaNotice"> | string | null
-  dmcaPlatformCode?: Prisma.EnumDmcaPlatformCodeFilter<"DmcaNotice"> | $Enums.DmcaPlatformCode
+  dmcaPlatformSlug?: Prisma.StringFilter<"DmcaNotice"> | string
+  artworkId?: Prisma.StringNullableFilter<"DmcaNotice"> | string | null
   status?: Prisma.EnumDmcaStatusFilter<"DmcaNotice"> | $Enums.DmcaStatus
+  payload?: Prisma.JsonNullableFilter<"DmcaNotice">
   body?: Prisma.StringNullableFilter<"DmcaNotice"> | string | null
   submittedAt?: Prisma.DateTimeNullableFilter<"DmcaNotice"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"DmcaNotice"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"DmcaNotice"> | Date | string
   user?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   dmcaPlatform?: Prisma.XOR<Prisma.DmcaPlatformScalarRelationFilter, Prisma.DmcaPlatformWhereInput>
+  artwork?: Prisma.XOR<Prisma.ArtworkNullableScalarRelationFilter, Prisma.ArtworkWhereInput> | null
 }, "id">
 
 export type DmcaNoticeOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrderInput | Prisma.SortOrder
-  dmcaPlatformCode?: Prisma.SortOrder
+  dmcaPlatformSlug?: Prisma.SortOrder
+  artworkId?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
+  payload?: Prisma.SortOrderInput | Prisma.SortOrder
   body?: Prisma.SortOrderInput | Prisma.SortOrder
   submittedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -259,8 +280,10 @@ export type DmcaNoticeScalarWhereWithAggregatesInput = {
   NOT?: Prisma.DmcaNoticeScalarWhereWithAggregatesInput | Prisma.DmcaNoticeScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"DmcaNotice"> | string
   userId?: Prisma.StringNullableWithAggregatesFilter<"DmcaNotice"> | string | null
-  dmcaPlatformCode?: Prisma.EnumDmcaPlatformCodeWithAggregatesFilter<"DmcaNotice"> | $Enums.DmcaPlatformCode
+  dmcaPlatformSlug?: Prisma.StringWithAggregatesFilter<"DmcaNotice"> | string
+  artworkId?: Prisma.StringNullableWithAggregatesFilter<"DmcaNotice"> | string | null
   status?: Prisma.EnumDmcaStatusWithAggregatesFilter<"DmcaNotice"> | $Enums.DmcaStatus
+  payload?: Prisma.JsonNullableWithAggregatesFilter<"DmcaNotice">
   body?: Prisma.StringNullableWithAggregatesFilter<"DmcaNotice"> | string | null
   submittedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"DmcaNotice"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"DmcaNotice"> | Date | string
@@ -270,19 +293,23 @@ export type DmcaNoticeScalarWhereWithAggregatesInput = {
 export type DmcaNoticeCreateInput = {
   id?: string
   status?: $Enums.DmcaStatus
+  payload?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   body?: string | null
   submittedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   user?: Prisma.UserCreateNestedOneWithoutDmcaNoticesInput
   dmcaPlatform: Prisma.DmcaPlatformCreateNestedOneWithoutDmcaNoticesInput
+  artwork?: Prisma.ArtworkCreateNestedOneWithoutDmcaNoticesInput
 }
 
 export type DmcaNoticeUncheckedCreateInput = {
   id?: string
   userId?: string | null
-  dmcaPlatformCode: $Enums.DmcaPlatformCode
+  dmcaPlatformSlug: string
+  artworkId?: string | null
   status?: $Enums.DmcaStatus
+  payload?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   body?: string | null
   submittedAt?: Date | string | null
   createdAt?: Date | string
@@ -292,19 +319,23 @@ export type DmcaNoticeUncheckedCreateInput = {
 export type DmcaNoticeUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumDmcaStatusFieldUpdateOperationsInput | $Enums.DmcaStatus
+  payload?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   body?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneWithoutDmcaNoticesNestedInput
   dmcaPlatform?: Prisma.DmcaPlatformUpdateOneRequiredWithoutDmcaNoticesNestedInput
+  artwork?: Prisma.ArtworkUpdateOneWithoutDmcaNoticesNestedInput
 }
 
 export type DmcaNoticeUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  dmcaPlatformCode?: Prisma.EnumDmcaPlatformCodeFieldUpdateOperationsInput | $Enums.DmcaPlatformCode
+  dmcaPlatformSlug?: Prisma.StringFieldUpdateOperationsInput | string
+  artworkId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumDmcaStatusFieldUpdateOperationsInput | $Enums.DmcaStatus
+  payload?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   body?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -314,8 +345,10 @@ export type DmcaNoticeUncheckedUpdateInput = {
 export type DmcaNoticeCreateManyInput = {
   id?: string
   userId?: string | null
-  dmcaPlatformCode: $Enums.DmcaPlatformCode
+  dmcaPlatformSlug: string
+  artworkId?: string | null
   status?: $Enums.DmcaStatus
+  payload?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   body?: string | null
   submittedAt?: Date | string | null
   createdAt?: Date | string
@@ -325,6 +358,7 @@ export type DmcaNoticeCreateManyInput = {
 export type DmcaNoticeUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumDmcaStatusFieldUpdateOperationsInput | $Enums.DmcaStatus
+  payload?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   body?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -334,8 +368,10 @@ export type DmcaNoticeUpdateManyMutationInput = {
 export type DmcaNoticeUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  dmcaPlatformCode?: Prisma.EnumDmcaPlatformCodeFieldUpdateOperationsInput | $Enums.DmcaPlatformCode
+  dmcaPlatformSlug?: Prisma.StringFieldUpdateOperationsInput | string
+  artworkId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumDmcaStatusFieldUpdateOperationsInput | $Enums.DmcaStatus
+  payload?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   body?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -355,8 +391,10 @@ export type DmcaNoticeOrderByRelationAggregateInput = {
 export type DmcaNoticeCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
-  dmcaPlatformCode?: Prisma.SortOrder
+  dmcaPlatformSlug?: Prisma.SortOrder
+  artworkId?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  payload?: Prisma.SortOrder
   body?: Prisma.SortOrder
   submittedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -366,7 +404,8 @@ export type DmcaNoticeCountOrderByAggregateInput = {
 export type DmcaNoticeMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
-  dmcaPlatformCode?: Prisma.SortOrder
+  dmcaPlatformSlug?: Prisma.SortOrder
+  artworkId?: Prisma.SortOrder
   status?: Prisma.SortOrder
   body?: Prisma.SortOrder
   submittedAt?: Prisma.SortOrder
@@ -377,7 +416,8 @@ export type DmcaNoticeMaxOrderByAggregateInput = {
 export type DmcaNoticeMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
-  dmcaPlatformCode?: Prisma.SortOrder
+  dmcaPlatformSlug?: Prisma.SortOrder
+  artworkId?: Prisma.SortOrder
   status?: Prisma.SortOrder
   body?: Prisma.SortOrder
   submittedAt?: Prisma.SortOrder
@@ -424,6 +464,48 @@ export type DmcaNoticeUncheckedUpdateManyWithoutUserNestedInput = {
   connect?: Prisma.DmcaNoticeWhereUniqueInput | Prisma.DmcaNoticeWhereUniqueInput[]
   update?: Prisma.DmcaNoticeUpdateWithWhereUniqueWithoutUserInput | Prisma.DmcaNoticeUpdateWithWhereUniqueWithoutUserInput[]
   updateMany?: Prisma.DmcaNoticeUpdateManyWithWhereWithoutUserInput | Prisma.DmcaNoticeUpdateManyWithWhereWithoutUserInput[]
+  deleteMany?: Prisma.DmcaNoticeScalarWhereInput | Prisma.DmcaNoticeScalarWhereInput[]
+}
+
+export type DmcaNoticeCreateNestedManyWithoutArtworkInput = {
+  create?: Prisma.XOR<Prisma.DmcaNoticeCreateWithoutArtworkInput, Prisma.DmcaNoticeUncheckedCreateWithoutArtworkInput> | Prisma.DmcaNoticeCreateWithoutArtworkInput[] | Prisma.DmcaNoticeUncheckedCreateWithoutArtworkInput[]
+  connectOrCreate?: Prisma.DmcaNoticeCreateOrConnectWithoutArtworkInput | Prisma.DmcaNoticeCreateOrConnectWithoutArtworkInput[]
+  createMany?: Prisma.DmcaNoticeCreateManyArtworkInputEnvelope
+  connect?: Prisma.DmcaNoticeWhereUniqueInput | Prisma.DmcaNoticeWhereUniqueInput[]
+}
+
+export type DmcaNoticeUncheckedCreateNestedManyWithoutArtworkInput = {
+  create?: Prisma.XOR<Prisma.DmcaNoticeCreateWithoutArtworkInput, Prisma.DmcaNoticeUncheckedCreateWithoutArtworkInput> | Prisma.DmcaNoticeCreateWithoutArtworkInput[] | Prisma.DmcaNoticeUncheckedCreateWithoutArtworkInput[]
+  connectOrCreate?: Prisma.DmcaNoticeCreateOrConnectWithoutArtworkInput | Prisma.DmcaNoticeCreateOrConnectWithoutArtworkInput[]
+  createMany?: Prisma.DmcaNoticeCreateManyArtworkInputEnvelope
+  connect?: Prisma.DmcaNoticeWhereUniqueInput | Prisma.DmcaNoticeWhereUniqueInput[]
+}
+
+export type DmcaNoticeUpdateManyWithoutArtworkNestedInput = {
+  create?: Prisma.XOR<Prisma.DmcaNoticeCreateWithoutArtworkInput, Prisma.DmcaNoticeUncheckedCreateWithoutArtworkInput> | Prisma.DmcaNoticeCreateWithoutArtworkInput[] | Prisma.DmcaNoticeUncheckedCreateWithoutArtworkInput[]
+  connectOrCreate?: Prisma.DmcaNoticeCreateOrConnectWithoutArtworkInput | Prisma.DmcaNoticeCreateOrConnectWithoutArtworkInput[]
+  upsert?: Prisma.DmcaNoticeUpsertWithWhereUniqueWithoutArtworkInput | Prisma.DmcaNoticeUpsertWithWhereUniqueWithoutArtworkInput[]
+  createMany?: Prisma.DmcaNoticeCreateManyArtworkInputEnvelope
+  set?: Prisma.DmcaNoticeWhereUniqueInput | Prisma.DmcaNoticeWhereUniqueInput[]
+  disconnect?: Prisma.DmcaNoticeWhereUniqueInput | Prisma.DmcaNoticeWhereUniqueInput[]
+  delete?: Prisma.DmcaNoticeWhereUniqueInput | Prisma.DmcaNoticeWhereUniqueInput[]
+  connect?: Prisma.DmcaNoticeWhereUniqueInput | Prisma.DmcaNoticeWhereUniqueInput[]
+  update?: Prisma.DmcaNoticeUpdateWithWhereUniqueWithoutArtworkInput | Prisma.DmcaNoticeUpdateWithWhereUniqueWithoutArtworkInput[]
+  updateMany?: Prisma.DmcaNoticeUpdateManyWithWhereWithoutArtworkInput | Prisma.DmcaNoticeUpdateManyWithWhereWithoutArtworkInput[]
+  deleteMany?: Prisma.DmcaNoticeScalarWhereInput | Prisma.DmcaNoticeScalarWhereInput[]
+}
+
+export type DmcaNoticeUncheckedUpdateManyWithoutArtworkNestedInput = {
+  create?: Prisma.XOR<Prisma.DmcaNoticeCreateWithoutArtworkInput, Prisma.DmcaNoticeUncheckedCreateWithoutArtworkInput> | Prisma.DmcaNoticeCreateWithoutArtworkInput[] | Prisma.DmcaNoticeUncheckedCreateWithoutArtworkInput[]
+  connectOrCreate?: Prisma.DmcaNoticeCreateOrConnectWithoutArtworkInput | Prisma.DmcaNoticeCreateOrConnectWithoutArtworkInput[]
+  upsert?: Prisma.DmcaNoticeUpsertWithWhereUniqueWithoutArtworkInput | Prisma.DmcaNoticeUpsertWithWhereUniqueWithoutArtworkInput[]
+  createMany?: Prisma.DmcaNoticeCreateManyArtworkInputEnvelope
+  set?: Prisma.DmcaNoticeWhereUniqueInput | Prisma.DmcaNoticeWhereUniqueInput[]
+  disconnect?: Prisma.DmcaNoticeWhereUniqueInput | Prisma.DmcaNoticeWhereUniqueInput[]
+  delete?: Prisma.DmcaNoticeWhereUniqueInput | Prisma.DmcaNoticeWhereUniqueInput[]
+  connect?: Prisma.DmcaNoticeWhereUniqueInput | Prisma.DmcaNoticeWhereUniqueInput[]
+  update?: Prisma.DmcaNoticeUpdateWithWhereUniqueWithoutArtworkInput | Prisma.DmcaNoticeUpdateWithWhereUniqueWithoutArtworkInput[]
+  updateMany?: Prisma.DmcaNoticeUpdateManyWithWhereWithoutArtworkInput | Prisma.DmcaNoticeUpdateManyWithWhereWithoutArtworkInput[]
   deleteMany?: Prisma.DmcaNoticeScalarWhereInput | Prisma.DmcaNoticeScalarWhereInput[]
 }
 
@@ -476,17 +558,21 @@ export type EnumDmcaStatusFieldUpdateOperationsInput = {
 export type DmcaNoticeCreateWithoutUserInput = {
   id?: string
   status?: $Enums.DmcaStatus
+  payload?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   body?: string | null
   submittedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   dmcaPlatform: Prisma.DmcaPlatformCreateNestedOneWithoutDmcaNoticesInput
+  artwork?: Prisma.ArtworkCreateNestedOneWithoutDmcaNoticesInput
 }
 
 export type DmcaNoticeUncheckedCreateWithoutUserInput = {
   id?: string
-  dmcaPlatformCode: $Enums.DmcaPlatformCode
+  dmcaPlatformSlug: string
+  artworkId?: string | null
   status?: $Enums.DmcaStatus
+  payload?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   body?: string | null
   submittedAt?: Date | string | null
   createdAt?: Date | string
@@ -525,28 +611,84 @@ export type DmcaNoticeScalarWhereInput = {
   NOT?: Prisma.DmcaNoticeScalarWhereInput | Prisma.DmcaNoticeScalarWhereInput[]
   id?: Prisma.StringFilter<"DmcaNotice"> | string
   userId?: Prisma.StringNullableFilter<"DmcaNotice"> | string | null
-  dmcaPlatformCode?: Prisma.EnumDmcaPlatformCodeFilter<"DmcaNotice"> | $Enums.DmcaPlatformCode
+  dmcaPlatformSlug?: Prisma.StringFilter<"DmcaNotice"> | string
+  artworkId?: Prisma.StringNullableFilter<"DmcaNotice"> | string | null
   status?: Prisma.EnumDmcaStatusFilter<"DmcaNotice"> | $Enums.DmcaStatus
+  payload?: Prisma.JsonNullableFilter<"DmcaNotice">
   body?: Prisma.StringNullableFilter<"DmcaNotice"> | string | null
   submittedAt?: Prisma.DateTimeNullableFilter<"DmcaNotice"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"DmcaNotice"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"DmcaNotice"> | Date | string
 }
 
-export type DmcaNoticeCreateWithoutDmcaPlatformInput = {
+export type DmcaNoticeCreateWithoutArtworkInput = {
   id?: string
   status?: $Enums.DmcaStatus
+  payload?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   body?: string | null
   submittedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   user?: Prisma.UserCreateNestedOneWithoutDmcaNoticesInput
+  dmcaPlatform: Prisma.DmcaPlatformCreateNestedOneWithoutDmcaNoticesInput
+}
+
+export type DmcaNoticeUncheckedCreateWithoutArtworkInput = {
+  id?: string
+  userId?: string | null
+  dmcaPlatformSlug: string
+  status?: $Enums.DmcaStatus
+  payload?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  body?: string | null
+  submittedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type DmcaNoticeCreateOrConnectWithoutArtworkInput = {
+  where: Prisma.DmcaNoticeWhereUniqueInput
+  create: Prisma.XOR<Prisma.DmcaNoticeCreateWithoutArtworkInput, Prisma.DmcaNoticeUncheckedCreateWithoutArtworkInput>
+}
+
+export type DmcaNoticeCreateManyArtworkInputEnvelope = {
+  data: Prisma.DmcaNoticeCreateManyArtworkInput | Prisma.DmcaNoticeCreateManyArtworkInput[]
+  skipDuplicates?: boolean
+}
+
+export type DmcaNoticeUpsertWithWhereUniqueWithoutArtworkInput = {
+  where: Prisma.DmcaNoticeWhereUniqueInput
+  update: Prisma.XOR<Prisma.DmcaNoticeUpdateWithoutArtworkInput, Prisma.DmcaNoticeUncheckedUpdateWithoutArtworkInput>
+  create: Prisma.XOR<Prisma.DmcaNoticeCreateWithoutArtworkInput, Prisma.DmcaNoticeUncheckedCreateWithoutArtworkInput>
+}
+
+export type DmcaNoticeUpdateWithWhereUniqueWithoutArtworkInput = {
+  where: Prisma.DmcaNoticeWhereUniqueInput
+  data: Prisma.XOR<Prisma.DmcaNoticeUpdateWithoutArtworkInput, Prisma.DmcaNoticeUncheckedUpdateWithoutArtworkInput>
+}
+
+export type DmcaNoticeUpdateManyWithWhereWithoutArtworkInput = {
+  where: Prisma.DmcaNoticeScalarWhereInput
+  data: Prisma.XOR<Prisma.DmcaNoticeUpdateManyMutationInput, Prisma.DmcaNoticeUncheckedUpdateManyWithoutArtworkInput>
+}
+
+export type DmcaNoticeCreateWithoutDmcaPlatformInput = {
+  id?: string
+  status?: $Enums.DmcaStatus
+  payload?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  body?: string | null
+  submittedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  user?: Prisma.UserCreateNestedOneWithoutDmcaNoticesInput
+  artwork?: Prisma.ArtworkCreateNestedOneWithoutDmcaNoticesInput
 }
 
 export type DmcaNoticeUncheckedCreateWithoutDmcaPlatformInput = {
   id?: string
   userId?: string | null
+  artworkId?: string | null
   status?: $Enums.DmcaStatus
+  payload?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   body?: string | null
   submittedAt?: Date | string | null
   createdAt?: Date | string
@@ -581,8 +723,10 @@ export type DmcaNoticeUpdateManyWithWhereWithoutDmcaPlatformInput = {
 
 export type DmcaNoticeCreateManyUserInput = {
   id?: string
-  dmcaPlatformCode: $Enums.DmcaPlatformCode
+  dmcaPlatformSlug: string
+  artworkId?: string | null
   status?: $Enums.DmcaStatus
+  payload?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   body?: string | null
   submittedAt?: Date | string | null
   createdAt?: Date | string
@@ -592,17 +736,21 @@ export type DmcaNoticeCreateManyUserInput = {
 export type DmcaNoticeUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumDmcaStatusFieldUpdateOperationsInput | $Enums.DmcaStatus
+  payload?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   body?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   dmcaPlatform?: Prisma.DmcaPlatformUpdateOneRequiredWithoutDmcaNoticesNestedInput
+  artwork?: Prisma.ArtworkUpdateOneWithoutDmcaNoticesNestedInput
 }
 
 export type DmcaNoticeUncheckedUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  dmcaPlatformCode?: Prisma.EnumDmcaPlatformCodeFieldUpdateOperationsInput | $Enums.DmcaPlatformCode
+  dmcaPlatformSlug?: Prisma.StringFieldUpdateOperationsInput | string
+  artworkId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumDmcaStatusFieldUpdateOperationsInput | $Enums.DmcaStatus
+  payload?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   body?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -611,8 +759,58 @@ export type DmcaNoticeUncheckedUpdateWithoutUserInput = {
 
 export type DmcaNoticeUncheckedUpdateManyWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  dmcaPlatformCode?: Prisma.EnumDmcaPlatformCodeFieldUpdateOperationsInput | $Enums.DmcaPlatformCode
+  dmcaPlatformSlug?: Prisma.StringFieldUpdateOperationsInput | string
+  artworkId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumDmcaStatusFieldUpdateOperationsInput | $Enums.DmcaStatus
+  payload?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  body?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type DmcaNoticeCreateManyArtworkInput = {
+  id?: string
+  userId?: string | null
+  dmcaPlatformSlug: string
+  status?: $Enums.DmcaStatus
+  payload?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  body?: string | null
+  submittedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type DmcaNoticeUpdateWithoutArtworkInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumDmcaStatusFieldUpdateOperationsInput | $Enums.DmcaStatus
+  payload?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  body?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  user?: Prisma.UserUpdateOneWithoutDmcaNoticesNestedInput
+  dmcaPlatform?: Prisma.DmcaPlatformUpdateOneRequiredWithoutDmcaNoticesNestedInput
+}
+
+export type DmcaNoticeUncheckedUpdateWithoutArtworkInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dmcaPlatformSlug?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumDmcaStatusFieldUpdateOperationsInput | $Enums.DmcaStatus
+  payload?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  body?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type DmcaNoticeUncheckedUpdateManyWithoutArtworkInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dmcaPlatformSlug?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumDmcaStatusFieldUpdateOperationsInput | $Enums.DmcaStatus
+  payload?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   body?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -622,7 +820,9 @@ export type DmcaNoticeUncheckedUpdateManyWithoutUserInput = {
 export type DmcaNoticeCreateManyDmcaPlatformInput = {
   id?: string
   userId?: string | null
+  artworkId?: string | null
   status?: $Enums.DmcaStatus
+  payload?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   body?: string | null
   submittedAt?: Date | string | null
   createdAt?: Date | string
@@ -632,17 +832,21 @@ export type DmcaNoticeCreateManyDmcaPlatformInput = {
 export type DmcaNoticeUpdateWithoutDmcaPlatformInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumDmcaStatusFieldUpdateOperationsInput | $Enums.DmcaStatus
+  payload?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   body?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneWithoutDmcaNoticesNestedInput
+  artwork?: Prisma.ArtworkUpdateOneWithoutDmcaNoticesNestedInput
 }
 
 export type DmcaNoticeUncheckedUpdateWithoutDmcaPlatformInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artworkId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumDmcaStatusFieldUpdateOperationsInput | $Enums.DmcaStatus
+  payload?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   body?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -652,7 +856,9 @@ export type DmcaNoticeUncheckedUpdateWithoutDmcaPlatformInput = {
 export type DmcaNoticeUncheckedUpdateManyWithoutDmcaPlatformInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artworkId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumDmcaStatusFieldUpdateOperationsInput | $Enums.DmcaStatus
+  payload?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   body?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -664,65 +870,79 @@ export type DmcaNoticeUncheckedUpdateManyWithoutDmcaPlatformInput = {
 export type DmcaNoticeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   userId?: boolean
-  dmcaPlatformCode?: boolean
+  dmcaPlatformSlug?: boolean
+  artworkId?: boolean
   status?: boolean
+  payload?: boolean
   body?: boolean
   submittedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.DmcaNotice$userArgs<ExtArgs>
   dmcaPlatform?: boolean | Prisma.DmcaPlatformDefaultArgs<ExtArgs>
+  artwork?: boolean | Prisma.DmcaNotice$artworkArgs<ExtArgs>
 }, ExtArgs["result"]["dmcaNotice"]>
 
 export type DmcaNoticeSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   userId?: boolean
-  dmcaPlatformCode?: boolean
+  dmcaPlatformSlug?: boolean
+  artworkId?: boolean
   status?: boolean
+  payload?: boolean
   body?: boolean
   submittedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.DmcaNotice$userArgs<ExtArgs>
   dmcaPlatform?: boolean | Prisma.DmcaPlatformDefaultArgs<ExtArgs>
+  artwork?: boolean | Prisma.DmcaNotice$artworkArgs<ExtArgs>
 }, ExtArgs["result"]["dmcaNotice"]>
 
 export type DmcaNoticeSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   userId?: boolean
-  dmcaPlatformCode?: boolean
+  dmcaPlatformSlug?: boolean
+  artworkId?: boolean
   status?: boolean
+  payload?: boolean
   body?: boolean
   submittedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.DmcaNotice$userArgs<ExtArgs>
   dmcaPlatform?: boolean | Prisma.DmcaPlatformDefaultArgs<ExtArgs>
+  artwork?: boolean | Prisma.DmcaNotice$artworkArgs<ExtArgs>
 }, ExtArgs["result"]["dmcaNotice"]>
 
 export type DmcaNoticeSelectScalar = {
   id?: boolean
   userId?: boolean
-  dmcaPlatformCode?: boolean
+  dmcaPlatformSlug?: boolean
+  artworkId?: boolean
   status?: boolean
+  payload?: boolean
   body?: boolean
   submittedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type DmcaNoticeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "dmcaPlatformCode" | "status" | "body" | "submittedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["dmcaNotice"]>
+export type DmcaNoticeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "dmcaPlatformSlug" | "artworkId" | "status" | "payload" | "body" | "submittedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["dmcaNotice"]>
 export type DmcaNoticeInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.DmcaNotice$userArgs<ExtArgs>
   dmcaPlatform?: boolean | Prisma.DmcaPlatformDefaultArgs<ExtArgs>
+  artwork?: boolean | Prisma.DmcaNotice$artworkArgs<ExtArgs>
 }
 export type DmcaNoticeIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.DmcaNotice$userArgs<ExtArgs>
   dmcaPlatform?: boolean | Prisma.DmcaPlatformDefaultArgs<ExtArgs>
+  artwork?: boolean | Prisma.DmcaNotice$artworkArgs<ExtArgs>
 }
 export type DmcaNoticeIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.DmcaNotice$userArgs<ExtArgs>
   dmcaPlatform?: boolean | Prisma.DmcaPlatformDefaultArgs<ExtArgs>
+  artwork?: boolean | Prisma.DmcaNotice$artworkArgs<ExtArgs>
 }
 
 export type $DmcaNoticePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -730,12 +950,15 @@ export type $DmcaNoticePayload<ExtArgs extends runtime.Types.Extensions.Internal
   objects: {
     user: Prisma.$UserPayload<ExtArgs> | null
     dmcaPlatform: Prisma.$DmcaPlatformPayload<ExtArgs>
+    artwork: Prisma.$ArtworkPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     userId: string | null
-    dmcaPlatformCode: $Enums.DmcaPlatformCode
+    dmcaPlatformSlug: string
+    artworkId: string | null
     status: $Enums.DmcaStatus
+    payload: runtime.JsonValue | null
     body: string | null
     submittedAt: Date | null
     createdAt: Date
@@ -1136,6 +1359,7 @@ export interface Prisma__DmcaNoticeClient<T, Null = never, ExtArgs extends runti
   readonly [Symbol.toStringTag]: "PrismaPromise"
   user<T extends Prisma.DmcaNotice$userArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.DmcaNotice$userArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   dmcaPlatform<T extends Prisma.DmcaPlatformDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.DmcaPlatformDefaultArgs<ExtArgs>>): Prisma.Prisma__DmcaPlatformClient<runtime.Types.Result.GetResult<Prisma.$DmcaPlatformPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  artwork<T extends Prisma.DmcaNotice$artworkArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.DmcaNotice$artworkArgs<ExtArgs>>): Prisma.Prisma__ArtworkClient<runtime.Types.Result.GetResult<Prisma.$ArtworkPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1167,8 +1391,10 @@ export interface Prisma__DmcaNoticeClient<T, Null = never, ExtArgs extends runti
 export interface DmcaNoticeFieldRefs {
   readonly id: Prisma.FieldRef<"DmcaNotice", 'String'>
   readonly userId: Prisma.FieldRef<"DmcaNotice", 'String'>
-  readonly dmcaPlatformCode: Prisma.FieldRef<"DmcaNotice", 'DmcaPlatformCode'>
+  readonly dmcaPlatformSlug: Prisma.FieldRef<"DmcaNotice", 'String'>
+  readonly artworkId: Prisma.FieldRef<"DmcaNotice", 'String'>
   readonly status: Prisma.FieldRef<"DmcaNotice", 'DmcaStatus'>
+  readonly payload: Prisma.FieldRef<"DmcaNotice", 'Json'>
   readonly body: Prisma.FieldRef<"DmcaNotice", 'String'>
   readonly submittedAt: Prisma.FieldRef<"DmcaNotice", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"DmcaNotice", 'DateTime'>
@@ -1585,6 +1811,25 @@ export type DmcaNotice$userArgs<ExtArgs extends runtime.Types.Extensions.Interna
    */
   include?: Prisma.UserInclude<ExtArgs> | null
   where?: Prisma.UserWhereInput
+}
+
+/**
+ * DmcaNotice.artwork
+ */
+export type DmcaNotice$artworkArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Artwork
+   */
+  select?: Prisma.ArtworkSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Artwork
+   */
+  omit?: Prisma.ArtworkOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ArtworkInclude<ExtArgs> | null
+  where?: Prisma.ArtworkWhereInput
 }
 
 /**

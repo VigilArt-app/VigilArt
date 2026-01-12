@@ -5,6 +5,6 @@ import {
     DmcaPlatformUpdateSchema
 } from "../../../schemas/Dmca/Platform";
 
-export type DmcaPlatformGetType = z.infer<typeof DmcaPlatformGetSchema>;
-export type DmcaPlatformCreateType = z.infer<typeof DmcaPlatformCreateSchema>;
-export type DmcaPlatformUpdateType = z.infer<typeof DmcaPlatformUpdateSchema>;
+export type DmcaPlatformGet = z.infer<typeof DmcaPlatformGetSchema>;
+export type DmcaPlatformCreate = z.infer<typeof DmcaPlatformCreateSchema>;
+export type DmcaPlatformUpdate = z.infer<typeof DmcaPlatformUpdateSchema>;

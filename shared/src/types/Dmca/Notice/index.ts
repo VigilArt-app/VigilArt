@@ -5,6 +5,6 @@ import {
     DmcaNoticeUpdateSchema
 } from "../../../schemas/Dmca/Notice";
 
-export type DmcaNoticeGetType = z.infer<typeof DmcaNoticeGetSchema>;
-export type DmcaNoticeCreateType = z.infer<typeof DmcaNoticeCreateSchema>;
-export type DmcaNoticeUpdateType = z.infer<typeof DmcaNoticeUpdateSchema>;
+export type DmcaNoticeGet = z.infer<typeof DmcaNoticeGetSchema>;
+export type DmcaNoticeCreate = z.infer<typeof DmcaNoticeCreateSchema>;
+export type DmcaNoticeUpdate = z.infer<typeof DmcaNoticeUpdateSchema>;

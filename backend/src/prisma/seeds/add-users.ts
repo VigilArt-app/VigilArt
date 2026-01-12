@@ -69,7 +69,7 @@ export const initialUsers = [
   },
 ];
 
-export const seedDb = async (prisma: PrismaClient): Promise<void> => {
+export const addUsers = async (prisma: PrismaClient): Promise<void> => {
   await prisma.user.createMany({
     data: initialUsers,
     skipDuplicates: true,

@@ -26,30 +26,34 @@ export type AggregateDmcaPlatform = {
 
 export type DmcaPlatformMinAggregateOutputType = {
   id: string | null
-  code: $Enums.DmcaPlatformCode | null
+  slug: string | null
   displayName: string | null
   domain: string | null
   dmcaUrl: string | null
+  websiteCategory: $Enums.WebsiteCategory | null
   createdAt: Date | null
   updatedAt: Date | null
 }
 
 export type DmcaPlatformMaxAggregateOutputType = {
   id: string | null
-  code: $Enums.DmcaPlatformCode | null
+  slug: string | null
   displayName: string | null
   domain: string | null
   dmcaUrl: string | null
+  websiteCategory: $Enums.WebsiteCategory | null
   createdAt: Date | null
   updatedAt: Date | null
 }
 
 export type DmcaPlatformCountAggregateOutputType = {
   id: number
-  code: number
+  slug: number
   displayName: number
   domain: number
   dmcaUrl: number
+  websiteCategory: number
+  formSchema: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -58,30 +62,34 @@ export type DmcaPlatformCountAggregateOutputType = {
 
 export type DmcaPlatformMinAggregateInputType = {
   id?: true
-  code?: true
+  slug?: true
   displayName?: true
   domain?: true
   dmcaUrl?: true
+  websiteCategory?: true
   createdAt?: true
   updatedAt?: true
 }
 
 export type DmcaPlatformMaxAggregateInputType = {
   id?: true
-  code?: true
+  slug?: true
   displayName?: true
   domain?: true
   dmcaUrl?: true
+  websiteCategory?: true
   createdAt?: true
   updatedAt?: true
 }
 
 export type DmcaPlatformCountAggregateInputType = {
   id?: true
-  code?: true
+  slug?: true
   displayName?: true
   domain?: true
   dmcaUrl?: true
+  websiteCategory?: true
+  formSchema?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -161,10 +169,12 @@ export type DmcaPlatformGroupByArgs<ExtArgs extends runtime.Types.Extensions.Int
 
 export type DmcaPlatformGroupByOutputType = {
   id: string
-  code: $Enums.DmcaPlatformCode
+  slug: string
   displayName: string
   domain: string
   dmcaUrl: string
+  websiteCategory: $Enums.WebsiteCategory
+  formSchema: runtime.JsonValue
   createdAt: Date
   updatedAt: Date
   _count: DmcaPlatformCountAggregateOutputType | null
@@ -192,10 +202,12 @@ export type DmcaPlatformWhereInput = {
   OR?: Prisma.DmcaPlatformWhereInput[]
   NOT?: Prisma.DmcaPlatformWhereInput | Prisma.DmcaPlatformWhereInput[]
   id?: Prisma.StringFilter<"DmcaPlatform"> | string
-  code?: Prisma.EnumDmcaPlatformCodeFilter<"DmcaPlatform"> | $Enums.DmcaPlatformCode
+  slug?: Prisma.StringFilter<"DmcaPlatform"> | string
   displayName?: Prisma.StringFilter<"DmcaPlatform"> | string
   domain?: Prisma.StringFilter<"DmcaPlatform"> | string
   dmcaUrl?: Prisma.StringFilter<"DmcaPlatform"> | string
+  websiteCategory?: Prisma.EnumWebsiteCategoryFilter<"DmcaPlatform"> | $Enums.WebsiteCategory
+  formSchema?: Prisma.JsonFilter<"DmcaPlatform">
   createdAt?: Prisma.DateTimeFilter<"DmcaPlatform"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"DmcaPlatform"> | Date | string
   dmcaNotices?: Prisma.DmcaNoticeListRelationFilter
@@ -203,10 +215,12 @@ export type DmcaPlatformWhereInput = {
 
 export type DmcaPlatformOrderByWithRelationInput = {
   id?: Prisma.SortOrder
-  code?: Prisma.SortOrder
+  slug?: Prisma.SortOrder
   displayName?: Prisma.SortOrder
   domain?: Prisma.SortOrder
   dmcaUrl?: Prisma.SortOrder
+  websiteCategory?: Prisma.SortOrder
+  formSchema?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   dmcaNotices?: Prisma.DmcaNoticeOrderByRelationAggregateInput
@@ -214,24 +228,28 @@ export type DmcaPlatformOrderByWithRelationInput = {
 
 export type DmcaPlatformWhereUniqueInput = Prisma.AtLeast<{
   id?: string
-  code?: $Enums.DmcaPlatformCode
+  slug?: string
   domain?: string
   AND?: Prisma.DmcaPlatformWhereInput | Prisma.DmcaPlatformWhereInput[]
   OR?: Prisma.DmcaPlatformWhereInput[]
   NOT?: Prisma.DmcaPlatformWhereInput | Prisma.DmcaPlatformWhereInput[]
   displayName?: Prisma.StringFilter<"DmcaPlatform"> | string
   dmcaUrl?: Prisma.StringFilter<"DmcaPlatform"> | string
+  websiteCategory?: Prisma.EnumWebsiteCategoryFilter<"DmcaPlatform"> | $Enums.WebsiteCategory
+  formSchema?: Prisma.JsonFilter<"DmcaPlatform">
   createdAt?: Prisma.DateTimeFilter<"DmcaPlatform"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"DmcaPlatform"> | Date | string
   dmcaNotices?: Prisma.DmcaNoticeListRelationFilter
-}, "id" | "code" | "domain">
+}, "id" | "slug" | "domain">
 
 export type DmcaPlatformOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
-  code?: Prisma.SortOrder
+  slug?: Prisma.SortOrder
   displayName?: Prisma.SortOrder
   domain?: Prisma.SortOrder
   dmcaUrl?: Prisma.SortOrder
+  websiteCategory?: Prisma.SortOrder
+  formSchema?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.DmcaPlatformCountOrderByAggregateInput
@@ -244,20 +262,24 @@ export type DmcaPlatformScalarWhereWithAggregatesInput = {
   OR?: Prisma.DmcaPlatformScalarWhereWithAggregatesInput[]
   NOT?: Prisma.DmcaPlatformScalarWhereWithAggregatesInput | Prisma.DmcaPlatformScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"DmcaPlatform"> | string
-  code?: Prisma.EnumDmcaPlatformCodeWithAggregatesFilter<"DmcaPlatform"> | $Enums.DmcaPlatformCode
+  slug?: Prisma.StringWithAggregatesFilter<"DmcaPlatform"> | string
   displayName?: Prisma.StringWithAggregatesFilter<"DmcaPlatform"> | string
   domain?: Prisma.StringWithAggregatesFilter<"DmcaPlatform"> | string
   dmcaUrl?: Prisma.StringWithAggregatesFilter<"DmcaPlatform"> | string
+  websiteCategory?: Prisma.EnumWebsiteCategoryWithAggregatesFilter<"DmcaPlatform"> | $Enums.WebsiteCategory
+  formSchema?: Prisma.JsonWithAggregatesFilter<"DmcaPlatform">
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"DmcaPlatform"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"DmcaPlatform"> | Date | string
 }
 
 export type DmcaPlatformCreateInput = {
   id?: string
-  code: $Enums.DmcaPlatformCode
+  slug: string
   displayName: string
   domain: string
   dmcaUrl: string
+  websiteCategory: $Enums.WebsiteCategory
+  formSchema: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
   dmcaNotices?: Prisma.DmcaNoticeCreateNestedManyWithoutDmcaPlatformInput
@@ -265,10 +287,12 @@ export type DmcaPlatformCreateInput = {
 
 export type DmcaPlatformUncheckedCreateInput = {
   id?: string
-  code: $Enums.DmcaPlatformCode
+  slug: string
   displayName: string
   domain: string
   dmcaUrl: string
+  websiteCategory: $Enums.WebsiteCategory
+  formSchema: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
   dmcaNotices?: Prisma.DmcaNoticeUncheckedCreateNestedManyWithoutDmcaPlatformInput
@@ -276,10 +300,12 @@ export type DmcaPlatformUncheckedCreateInput = {
 
 export type DmcaPlatformUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  code?: Prisma.EnumDmcaPlatformCodeFieldUpdateOperationsInput | $Enums.DmcaPlatformCode
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
   displayName?: Prisma.StringFieldUpdateOperationsInput | string
   domain?: Prisma.StringFieldUpdateOperationsInput | string
   dmcaUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  websiteCategory?: Prisma.EnumWebsiteCategoryFieldUpdateOperationsInput | $Enums.WebsiteCategory
+  formSchema?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   dmcaNotices?: Prisma.DmcaNoticeUpdateManyWithoutDmcaPlatformNestedInput
@@ -287,10 +313,12 @@ export type DmcaPlatformUpdateInput = {
 
 export type DmcaPlatformUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  code?: Prisma.EnumDmcaPlatformCodeFieldUpdateOperationsInput | $Enums.DmcaPlatformCode
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
   displayName?: Prisma.StringFieldUpdateOperationsInput | string
   domain?: Prisma.StringFieldUpdateOperationsInput | string
   dmcaUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  websiteCategory?: Prisma.EnumWebsiteCategoryFieldUpdateOperationsInput | $Enums.WebsiteCategory
+  formSchema?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   dmcaNotices?: Prisma.DmcaNoticeUncheckedUpdateManyWithoutDmcaPlatformNestedInput
@@ -298,60 +326,70 @@ export type DmcaPlatformUncheckedUpdateInput = {
 
 export type DmcaPlatformCreateManyInput = {
   id?: string
-  code: $Enums.DmcaPlatformCode
+  slug: string
   displayName: string
   domain: string
   dmcaUrl: string
+  websiteCategory: $Enums.WebsiteCategory
+  formSchema: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
 }
 
 export type DmcaPlatformUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  code?: Prisma.EnumDmcaPlatformCodeFieldUpdateOperationsInput | $Enums.DmcaPlatformCode
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
   displayName?: Prisma.StringFieldUpdateOperationsInput | string
   domain?: Prisma.StringFieldUpdateOperationsInput | string
   dmcaUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  websiteCategory?: Prisma.EnumWebsiteCategoryFieldUpdateOperationsInput | $Enums.WebsiteCategory
+  formSchema?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type DmcaPlatformUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  code?: Prisma.EnumDmcaPlatformCodeFieldUpdateOperationsInput | $Enums.DmcaPlatformCode
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
   displayName?: Prisma.StringFieldUpdateOperationsInput | string
   domain?: Prisma.StringFieldUpdateOperationsInput | string
   dmcaUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  websiteCategory?: Prisma.EnumWebsiteCategoryFieldUpdateOperationsInput | $Enums.WebsiteCategory
+  formSchema?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type DmcaPlatformCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  code?: Prisma.SortOrder
+  slug?: Prisma.SortOrder
   displayName?: Prisma.SortOrder
   domain?: Prisma.SortOrder
   dmcaUrl?: Prisma.SortOrder
+  websiteCategory?: Prisma.SortOrder
+  formSchema?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
 export type DmcaPlatformMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  code?: Prisma.SortOrder
+  slug?: Prisma.SortOrder
   displayName?: Prisma.SortOrder
   domain?: Prisma.SortOrder
   dmcaUrl?: Prisma.SortOrder
+  websiteCategory?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
 export type DmcaPlatformMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  code?: Prisma.SortOrder
+  slug?: Prisma.SortOrder
   displayName?: Prisma.SortOrder
   domain?: Prisma.SortOrder
   dmcaUrl?: Prisma.SortOrder
+  websiteCategory?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -361,8 +399,8 @@ export type DmcaPlatformScalarRelationFilter = {
   isNot?: Prisma.DmcaPlatformWhereInput
 }
 
-export type EnumDmcaPlatformCodeFieldUpdateOperationsInput = {
-  set?: $Enums.DmcaPlatformCode
+export type EnumWebsiteCategoryFieldUpdateOperationsInput = {
+  set?: $Enums.WebsiteCategory
 }
 
 export type DmcaPlatformCreateNestedOneWithoutDmcaNoticesInput = {
@@ -381,20 +419,24 @@ export type DmcaPlatformUpdateOneRequiredWithoutDmcaNoticesNestedInput = {
 
 export type DmcaPlatformCreateWithoutDmcaNoticesInput = {
   id?: string
-  code: $Enums.DmcaPlatformCode
+  slug: string
   displayName: string
   domain: string
   dmcaUrl: string
+  websiteCategory: $Enums.WebsiteCategory
+  formSchema: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
 }
 
 export type DmcaPlatformUncheckedCreateWithoutDmcaNoticesInput = {
   id?: string
-  code: $Enums.DmcaPlatformCode
+  slug: string
   displayName: string
   domain: string
   dmcaUrl: string
+  websiteCategory: $Enums.WebsiteCategory
+  formSchema: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -417,20 +459,24 @@ export type DmcaPlatformUpdateToOneWithWhereWithoutDmcaNoticesInput = {
 
 export type DmcaPlatformUpdateWithoutDmcaNoticesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  code?: Prisma.EnumDmcaPlatformCodeFieldUpdateOperationsInput | $Enums.DmcaPlatformCode
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
   displayName?: Prisma.StringFieldUpdateOperationsInput | string
   domain?: Prisma.StringFieldUpdateOperationsInput | string
   dmcaUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  websiteCategory?: Prisma.EnumWebsiteCategoryFieldUpdateOperationsInput | $Enums.WebsiteCategory
+  formSchema?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type DmcaPlatformUncheckedUpdateWithoutDmcaNoticesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  code?: Prisma.EnumDmcaPlatformCodeFieldUpdateOperationsInput | $Enums.DmcaPlatformCode
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
   displayName?: Prisma.StringFieldUpdateOperationsInput | string
   domain?: Prisma.StringFieldUpdateOperationsInput | string
   dmcaUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  websiteCategory?: Prisma.EnumWebsiteCategoryFieldUpdateOperationsInput | $Enums.WebsiteCategory
+  formSchema?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -468,10 +514,12 @@ export type DmcaPlatformCountOutputTypeCountDmcaNoticesArgs<ExtArgs extends runt
 
 export type DmcaPlatformSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  code?: boolean
+  slug?: boolean
   displayName?: boolean
   domain?: boolean
   dmcaUrl?: boolean
+  websiteCategory?: boolean
+  formSchema?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   dmcaNotices?: boolean | Prisma.DmcaPlatform$dmcaNoticesArgs<ExtArgs>
@@ -480,35 +528,41 @@ export type DmcaPlatformSelect<ExtArgs extends runtime.Types.Extensions.Internal
 
 export type DmcaPlatformSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  code?: boolean
+  slug?: boolean
   displayName?: boolean
   domain?: boolean
   dmcaUrl?: boolean
+  websiteCategory?: boolean
+  formSchema?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["dmcaPlatform"]>
 
 export type DmcaPlatformSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  code?: boolean
+  slug?: boolean
   displayName?: boolean
   domain?: boolean
   dmcaUrl?: boolean
+  websiteCategory?: boolean
+  formSchema?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["dmcaPlatform"]>
 
 export type DmcaPlatformSelectScalar = {
   id?: boolean
-  code?: boolean
+  slug?: boolean
   displayName?: boolean
   domain?: boolean
   dmcaUrl?: boolean
+  websiteCategory?: boolean
+  formSchema?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type DmcaPlatformOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "code" | "displayName" | "domain" | "dmcaUrl" | "createdAt" | "updatedAt", ExtArgs["result"]["dmcaPlatform"]>
+export type DmcaPlatformOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "slug" | "displayName" | "domain" | "dmcaUrl" | "websiteCategory" | "formSchema" | "createdAt" | "updatedAt", ExtArgs["result"]["dmcaPlatform"]>
 export type DmcaPlatformInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   dmcaNotices?: boolean | Prisma.DmcaPlatform$dmcaNoticesArgs<ExtArgs>
   _count?: boolean | Prisma.DmcaPlatformCountOutputTypeDefaultArgs<ExtArgs>
@@ -523,10 +577,12 @@ export type $DmcaPlatformPayload<ExtArgs extends runtime.Types.Extensions.Intern
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
-    code: $Enums.DmcaPlatformCode
+    slug: string
     displayName: string
     domain: string
     dmcaUrl: string
+    websiteCategory: $Enums.WebsiteCategory
+    formSchema: runtime.JsonValue
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["dmcaPlatform"]>
@@ -954,10 +1010,12 @@ export interface Prisma__DmcaPlatformClient<T, Null = never, ExtArgs extends run
  */
 export interface DmcaPlatformFieldRefs {
   readonly id: Prisma.FieldRef<"DmcaPlatform", 'String'>
-  readonly code: Prisma.FieldRef<"DmcaPlatform", 'DmcaPlatformCode'>
+  readonly slug: Prisma.FieldRef<"DmcaPlatform", 'String'>
   readonly displayName: Prisma.FieldRef<"DmcaPlatform", 'String'>
   readonly domain: Prisma.FieldRef<"DmcaPlatform", 'String'>
   readonly dmcaUrl: Prisma.FieldRef<"DmcaPlatform", 'String'>
+  readonly websiteCategory: Prisma.FieldRef<"DmcaPlatform", 'WebsiteCategory'>
+  readonly formSchema: Prisma.FieldRef<"DmcaPlatform", 'Json'>
   readonly createdAt: Prisma.FieldRef<"DmcaPlatform", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"DmcaPlatform", 'DateTime'>
 }
