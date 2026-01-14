@@ -8,7 +8,6 @@
         "result": { "enabled": false }
     },
     "emit": { "objects": false, "crud": false, "variants": false },
-    "dateTimeStrategy": "coerce",
-    "optionalFieldBehavior": "optional",
-    "jsonSchemaCompatible": true
+    "optionalFieldBehavior": "nullish",
+    "dateTimeStrategy": "coerce"
 }

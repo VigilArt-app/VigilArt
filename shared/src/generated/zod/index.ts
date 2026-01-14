@@ -102,10 +102,10 @@ export const UserSchema = z.object({
   password: z.string(),
   firstName: z.string(),
   lastName: z.string(),
-  avatar: z.string().optional(),
+  avatar: z.string().nullish(),
   subscriptionTier: SubscriptionTierSchema.default("FREE"),
-  createdAt: z.string().regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/, "Invalid ISO datetime"),
-  updatedAt: z.string().regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/, "Invalid ISO datetime"),
+  createdAt: z.coerce.date(),
+  updatedAt: z.coerce.date(),
 });
 
 export type UserType = z.infer<typeof UserSchema>;
@@ -117,13 +117,13 @@ export const ArtworkSchema = z.object({
   id: z.string(),
   userId: z.string(),
   imageUri: z.string(),
-  originalFilename: z.string().optional(),
-  contentType: z.string().optional(),
-  sizeBytes: z.number().int().optional(),
-  description: z.string().optional(),
-  createdAt: z.string().regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/, "Invalid ISO datetime"),
-  updatedAt: z.string().regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/, "Invalid ISO datetime"),
-  lastScanAt: z.string().regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/, "Invalid ISO datetime").optional(),
+  originalFilename: z.string().nullish(),
+  contentType: z.string().nullish(),
+  sizeBytes: z.number().int().nullish(),
+  description: z.string().nullish(),
+  createdAt: z.coerce.date(),
+  updatedAt: z.coerce.date(),
+  lastScanAt: z.coerce.date().nullish(),
 });
 
 export type ArtworkType = z.infer<typeof ArtworkSchema>;
@@ -138,9 +138,9 @@ export const DmcaPlatformSchema = z.object({
   domain: z.string(),
   dmcaUrl: z.string(),
   websiteCategory: WebsiteCategorySchema,
-  formSchema: z.any().refine((val) => { const getDepth = (obj: unknown, depth: number = 0): number => { if (depth > 10) return depth; if (obj === null || typeof obj !== 'object') return depth; const values = Object.values(obj as Record<string, unknown>); if (values.length === 0) return depth; return Math.max(...values.map(v => getDepth(v, depth + 1))); }; return getDepth(val) <= 10; }, "JSON nesting depth exceeds maximum of 10"),
-  createdAt: z.string().regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/, "Invalid ISO datetime"),
-  updatedAt: z.string().regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/, "Invalid ISO datetime"),
+  formSchema: z.unknown().refine((val) => { const getDepth = (obj: unknown, depth: number = 0): number => { if (depth > 10) return depth; if (obj === null || typeof obj !== 'object') return depth; const values = Object.values(obj as Record<string, unknown>); if (values.length === 0) return depth; return Math.max(...values.map(v => getDepth(v, depth + 1))); }; return getDepth(val) <= 10; }, "JSON nesting depth exceeds maximum of 10"),
+  createdAt: z.coerce.date(),
+  updatedAt: z.coerce.date(),
 });
 
 export type DmcaPlatformType = z.infer<typeof DmcaPlatformSchema>;
@@ -153,15 +153,15 @@ export const DmcaProfileSchema = z.object({
   userId: z.string(),
   fullName: z.string(),
   addressLine1: z.string(),
-  addressLine2: z.string().optional(),
-  city: z.string().optional(),
-  postalCode: z.string().optional(),
+  addressLine2: z.string().nullish(),
+  city: z.string().nullish(),
+  postalCode: z.string().nullish(),
   country: z.string(),
   email: z.string(),
-  phone: z.string().optional(),
-  signature: z.string().optional(),
-  createdAt: z.string().regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/, "Invalid ISO datetime"),
-  updatedAt: z.string().regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/, "Invalid ISO datetime"),
+  phone: z.string().nullish(),
+  signature: z.string().nullish(),
+  createdAt: z.coerce.date(),
+  updatedAt: z.coerce.date(),
 });
 
 export type DmcaProfileType = z.infer<typeof DmcaProfileSchema>;
@@ -171,15 +171,15 @@ export type DmcaProfileType = z.infer<typeof DmcaProfileSchema>;
 
 export const DmcaNoticeSchema = z.object({
   id: z.string(),
-  userId: z.string().optional(),
+  userId: z.string().nullish(),
   dmcaPlatformSlug: z.string(),
-  artworkId: z.string().optional(),
+  artworkId: z.string().nullish(),
   status: DmcaStatusSchema.default("DRAFT"),
-  payload: z.any().refine((val) => { const getDepth = (obj: unknown, depth: number = 0): number => { if (depth > 10) return depth; if (obj === null || typeof obj !== 'object') return depth; const values = Object.values(obj as Record<string, unknown>); if (values.length === 0) return depth; return Math.max(...values.map(v => getDepth(v, depth + 1))); }; return getDepth(val) <= 10; }, "JSON nesting depth exceeds maximum of 10").optional(),
-  body: z.string().optional(),
-  submittedAt: z.string().regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/, "Invalid ISO datetime").optional(),
-  createdAt: z.string().regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/, "Invalid ISO datetime"),
-  updatedAt: z.string().regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/, "Invalid ISO datetime"),
+  payload: z.unknown().refine((val) => { const getDepth = (obj: unknown, depth: number = 0): number => { if (depth > 10) return depth; if (obj === null || typeof obj !== 'object') return depth; const values = Object.values(obj as Record<string, unknown>); if (values.length === 0) return depth; return Math.max(...values.map(v => getDepth(v, depth + 1))); }; return getDepth(val) <= 10; }, "JSON nesting depth exceeds maximum of 10").nullish(),
+  body: z.string().nullish(),
+  submittedAt: z.coerce.date().nullish(),
+  createdAt: z.coerce.date(),
+  updatedAt: z.coerce.date(),
 });
 
 export type DmcaNoticeType = z.infer<typeof DmcaNoticeSchema>;

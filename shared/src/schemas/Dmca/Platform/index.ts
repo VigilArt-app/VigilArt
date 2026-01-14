@@ -52,7 +52,7 @@ const fieldSchema = z.object({
 });
 
 const createItemSchema = (depth: number): z.ZodType<DmcaFormItem> => {
-    if (depth > 10) return z.never();
+    if (depth > 3) return z.never();
 
     const self: z.ZodType<DmcaFormItem> = z.lazy(() => createItemSchema(depth + 1));
 
