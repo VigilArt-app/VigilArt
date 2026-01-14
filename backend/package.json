@@ -22,7 +22,7 @@
     "zod": "^4.1.13"
   },
   "scripts": {
-    "dev": "dotenv -e ../.env -- pnpm db:push && pnpm db:generate && nest start --watch",
+    "dev": "nest start --watch",
     "build": "tsc -p tsconfig.json",
     "start": "pnpm db:migrate-prod && pnpm db:seed:prod && node dist/main.js",
     "test": "jest --config ./jest.config.json",
