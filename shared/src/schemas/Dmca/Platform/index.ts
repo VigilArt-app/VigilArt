@@ -32,6 +32,7 @@ export interface DmcaFormRepeater {
 
 export interface DmcaFormGroup {
     kind: 'group';
+    key: string;
     title: string;
     description?: string;
     items: DmcaFormItem[];
@@ -52,7 +53,7 @@ const fieldSchema = z.object({
 });
 
 const createItemSchema = (depth: number): z.ZodType<DmcaFormItem> => {
-    if (depth > 3) return z.never();
+    if (depth > 5) return z.never();
 
     const self: z.ZodType<DmcaFormItem> = z.lazy(() => createItemSchema(depth + 1));
 
@@ -60,6 +61,7 @@ const createItemSchema = (depth: number): z.ZodType<DmcaFormItem> => {
         fieldSchema,
         z.object({
             kind: z.literal('group'),
+            key: z.string().min(1),
             title: z.string().min(1),
             description: z.string().optional(),
             items: z.array(self),
