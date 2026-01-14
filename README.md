@@ -30,6 +30,10 @@ Quick steps to run the project locally.
 - pnpm (install: `npm install -g pnpm`)
 - Doppler CLI (used to inject secrets at runtime)
 
+### For Windows users
+
+See [Windows-specific setup instructions](./documentation/windows.md).
+
 ### Install dependencies
 From the repository root:
 
