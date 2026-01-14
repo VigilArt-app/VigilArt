@@ -22,5 +22,23 @@ code .
 ```
 If you have correctly installed VSCode and its WSL extension, VSCode will open in WSL mode.
 
-## 4. Follow the regular setup instructions
-From this point, follow the regular setup instructions in the README.md as you would on Linux or macOS.
+## 4. Install npm on WSL
+
+If you don't have npm installed in your WSL distribution, you can install it by following these steps:
+1. Update your package list:
+   ```bash
+   sudo apt update
+   ```
+2. Install nvm (Node Version Manager):
+   ```bash
+   curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
+   ```
+3. Close and reopen your terminal, then install Node.js and pnpm:
+   ```bash
+    nvm install --lts
+    nvm install node
+    npm install -g pnpm
+   ```
+
+## 5. Follow the regular setup instructions
+From this point, follow the regular setup instructions in the [README.md](../README.md) as you would on Linux or macOS.
