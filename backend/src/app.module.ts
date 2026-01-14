@@ -14,6 +14,7 @@ import { VisionModule } from "./vision/vision.module";
 import { ArtworksModule } from "./artworks/artworks.module";
 import { ReportsModule } from "./reports/reports.module";
 import { PrismaModule } from "./prisma/prisma.module";
+import { DmcaPlatformModule } from "./dmca/platform/platform.module";
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { PrismaModule } from "./prisma/prisma.module";
     ArtworksModule,
     ReportsModule,
     PrismaModule,
+    DmcaPlatformModule,
   ],
   controllers: [AppController],
   providers: [
