@@ -6,7 +6,7 @@ import "dotenv/config";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
-    bodyParser: true,
+    bodyParser: false,
     rawBody: false,
   });
   
