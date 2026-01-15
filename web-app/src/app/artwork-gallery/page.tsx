@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
-import { Artwork, FilterStatus } from "./components/types";
+import type { Artwork } from "@vigilart/shared/types";
+import { FilterStatus } from "./components/types";
 import { fetchArtworks, deleteArtwork } from "./components/api";
 import { SearchAndFilters } from "./components/SearchAndFilters";
 import { ArtworkCard } from "./components/ArtworkCard";
@@ -27,7 +28,6 @@ export default function ArtworkGalleryPage() {
         const data = await fetchArtworks();
         setArtworks(data);
         setFilteredArtworks(data);
-      } catch (error) {
       } finally {
         setIsLoading(false);
       }
@@ -80,8 +80,6 @@ export default function ArtworkGalleryPage() {
       }
       setDeleteDialogOpen(false);
       setArtworkToDelete(null);
-    } catch (error) {
-      // Error already handled in deleteArtwork
     } finally {
       setIsDeleting(false);
     }
