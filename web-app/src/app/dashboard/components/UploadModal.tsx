@@ -6,6 +6,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Input } from "../../../components/ui/input";
 import { toast } from "sonner";
 import { Cloud, X } from "lucide-react";
+import { getUserIdFromToken } from "../../artwork-gallery/components/utils";
 
 interface UploadedFile {
   file: File;
@@ -104,21 +105,6 @@ export function UploadModal({ open, onOpenChange }: UploadModalProps) {
       updated[index].description = description;
       return updated;
     });
-  };
-
-  const getUserIdFromToken = (): string | null => {
-    try {
-      const token =
-        localStorage.getItem("auth_token") ||
-        sessionStorage.getItem("auth_token");
-      if (!token) return null;
-
-      const payload = JSON.parse(atob(token.split(".")[1]));
-      return payload.sub || null;
-    } catch (error) {
-      console.error("Error decoding token:", error);
-      return null;
-    }
   };
 
   const handleUpload = async () => {
