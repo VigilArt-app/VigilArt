@@ -1,15 +1,6 @@
-export interface Artwork {
-  id: string;
-  userId: string;
-  imageUri: string;
-  originalFilename: string | null;
-  contentType: string | null;
-  sizeBytes: number | null;
-  description: string | null;
-  createdAt: string;
-  updatedAt: string;
-  lastScanAt: string | null;
-}
+import type { Artwork } from "@vigilart/shared/types";
+
+export type { Artwork };
 
 export type FilterStatus = "All" | "Scanning" | "Scanned" | "Protected";
 

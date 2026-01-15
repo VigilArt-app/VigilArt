@@ -1,5 +1,6 @@
 import { Trash2 } from "lucide-react";
-import { Artwork, getArtworkStatus } from "./types";
+import type { Artwork } from "@vigilart/shared/types";
+import { getArtworkStatus } from "./types";
 
 interface ArtworkCardProps {
   artwork: Artwork;
