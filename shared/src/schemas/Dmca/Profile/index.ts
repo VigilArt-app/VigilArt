@@ -21,5 +21,5 @@ export const DmcaProfileCreateSchema = DmcaProfileGetSchema.pick({
 });
 export class DmcaProfileCreateDTO extends createZodDto(DmcaProfileCreateSchema) {}
 
-export const DmcaProfileUpdateSchema = DmcaProfileCreateSchema;
+export const DmcaProfileUpdateSchema = DmcaProfileCreateSchema.partial();
 export class DmcaProfileUpdateDTO extends createZodDto(DmcaProfileUpdateSchema) {}
