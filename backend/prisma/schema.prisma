@@ -111,7 +111,7 @@ model DmcaProfile {
   country      String
   email        String
   phone        String?
-  signature    String? // typed name or URL/base64 of signature
+  signature    String
 
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt @default(now())
@@ -130,8 +130,7 @@ model DmcaNotice {
   artworkId String?
 
   status DmcaStatus @default(DRAFT)
-  payload Json?
-  body String?
+  payload Json      @default("{}")
   submittedAt DateTime?
 
   createdAt DateTime @default(now())

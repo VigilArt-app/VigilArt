@@ -85,7 +85,7 @@ CREATE TABLE "DmcaProfile" (
     "country" TEXT NOT NULL,
     "email" TEXT NOT NULL,
     "phone" TEXT,
-    "signature" TEXT,
+    "signature" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
@@ -99,8 +99,7 @@ CREATE TABLE "DmcaNotice" (
     "dmcaPlatformSlug" TEXT NOT NULL,
     "artworkId" TEXT,
     "status" "DmcaStatus" NOT NULL DEFAULT 'DRAFT',
-    "payload" JSONB,
-    "body" TEXT,
+    "payload" JSONB NOT NULL DEFAULT '{}',
     "submittedAt" TIMESTAMP(3),
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,

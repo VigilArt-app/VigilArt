@@ -36,7 +36,7 @@ export type DmcaProfileScalarFieldEnum = z.infer<typeof DmcaProfileScalarFieldEn
 
 // File: DmcaNoticeScalarFieldEnum.schema.ts
 
-export const DmcaNoticeScalarFieldEnumSchema = z.enum(['id', 'userId', 'dmcaPlatformSlug', 'artworkId', 'status', 'payload', 'body', 'submittedAt', 'createdAt', 'updatedAt'])
+export const DmcaNoticeScalarFieldEnumSchema = z.enum(['id', 'userId', 'dmcaPlatformSlug', 'artworkId', 'status', 'payload', 'submittedAt', 'createdAt', 'updatedAt'])
 
 export type DmcaNoticeScalarFieldEnum = z.infer<typeof DmcaNoticeScalarFieldEnumSchema>;
 
@@ -51,12 +51,6 @@ export type SortOrder = z.infer<typeof SortOrderSchema>;
 export const JsonNullValueInputSchema = z.enum(['JsonNull'])
 
 export type JsonNullValueInput = z.infer<typeof JsonNullValueInputSchema>;
-
-// File: NullableJsonNullValueInput.schema.ts
-
-export const NullableJsonNullValueInputSchema = z.enum(['DbNull', 'JsonNull'])
-
-export type NullableJsonNullValueInput = z.infer<typeof NullableJsonNullValueInputSchema>;
 
 // File: QueryMode.schema.ts
 
@@ -159,7 +153,7 @@ export const DmcaProfileSchema = z.object({
   country: z.string(),
   email: z.string(),
   phone: z.string().nullish(),
-  signature: z.string().nullish(),
+  signature: z.string(),
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),
 });
@@ -175,8 +169,7 @@ export const DmcaNoticeSchema = z.object({
   dmcaPlatformSlug: z.string(),
   artworkId: z.string().nullish(),
   status: DmcaStatusSchema.default("DRAFT"),
-  payload: z.unknown().refine((val) => { const getDepth = (obj: unknown, depth: number = 0): number => { if (depth > 10) return depth; if (obj === null || typeof obj !== 'object') return depth; const values = Object.values(obj as Record<string, unknown>); if (values.length === 0) return depth; return Math.max(...values.map(v => getDepth(v, depth + 1))); }; return getDepth(val) <= 10; }, "JSON nesting depth exceeds maximum of 10").nullish(),
-  body: z.string().nullish(),
+  payload: z.unknown().refine((val) => { const getDepth = (obj: unknown, depth: number = 0): number => { if (depth > 10) return depth; if (obj === null || typeof obj !== 'object') return depth; const values = Object.values(obj as Record<string, unknown>); if (values.length === 0) return depth; return Math.max(...values.map(v => getDepth(v, depth + 1))); }; return getDepth(val) <= 10; }, "JSON nesting depth exceeds maximum of 10").default("{}"),
   submittedAt: z.coerce.date().nullish(),
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),
