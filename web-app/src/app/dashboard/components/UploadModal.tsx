@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import imageCompression from "browser-image-compression";
 import { Button } from "../../../components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../../../components/ui/dialog";
 import { Input } from "../../../components/ui/input";
@@ -23,66 +24,29 @@ export function UploadModal({ open, onOpenChange }: UploadModalProps) {
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const [isUploading, setIsUploading] = useState(false);
 
-  const compressImage = (file: File, maxWidth = 1920, maxHeight = 1080, quality = 0.8): Promise<Blob> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const img = new Image();
-        img.onload = () => {
-          const canvas = document.createElement('canvas');
-          let width = img.width;
-          let height = img.height;
-
-          if (width > maxWidth || height > maxHeight) {
-            const aspectRatio = width / height;
-            if (width > height) {
-              width = maxWidth;
-              height = width / aspectRatio;
-            } else {
-              height = maxHeight;
-              width = height * aspectRatio;
-            }
-          }
-
-          canvas.width = width;
-          canvas.height = height;
-          const ctx = canvas.getContext('2d');
-          ctx?.drawImage(img, 0, 0, width, height);
-
-          canvas.toBlob((blob) => {
-            if (blob) {
-              resolve(blob);
-            } else {
-              reject(new Error('Failed to compress image'));
-            }
-          }, file.type, quality);
-        };
-        img.onerror = reject;
-        img.src = e.target?.result as string;
-      };
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    });
-  };
-
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     
     for (const file of files) {
       try {
-        const compressedBlob = await compressImage(file);
-        const compressedFile = new File([compressedBlob], file.name, { type: file.type });
+        const options = {
+          maxSizeMB: 1,
+          maxWidthOrHeight: 1920,
+          useWebWorker: true,
+        };
+        
+        const compressedFile = await imageCompression(file, options);
         
         const newFile = {
-          file: compressedFile,
-          preview: URL.createObjectURL(compressedBlob),
+          file: compressedFile as File,
+          preview: URL.createObjectURL(compressedFile),
           description: "",
         };
         
         setUploadedFiles((prev) => [...prev, newFile]);
         
-        const savings = ((1 - compressedBlob.size / file.size) * 100).toFixed(0);
-        console.log(`Compressed ${file.name}: ${(file.size / 1024).toFixed(0)}KB → ${(compressedBlob.size / 1024).toFixed(0)}KB (${savings}% reduction)`);
+        const savings = ((1 - compressedFile.size / file.size) * 100).toFixed(0);
+        console.log(`Compressed ${file.name}: ${(file.size / 1024).toFixed(0)}KB → ${(compressedFile.size / 1024).toFixed(0)}KB (${savings}% reduction)`);
       } catch (error) {
         console.error('Error compressing image:', error);
         toast.error(`Failed to process ${file.name}`);
