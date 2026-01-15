@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import imageCompression from "browser-image-compression";
 import { Button } from "../../../components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../../../components/ui/dialog";
@@ -24,6 +24,28 @@ interface UploadModalProps {
 export function UploadModal({ open, onOpenChange }: UploadModalProps) {
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const [isUploading, setIsUploading] = useState(false);
+  const [uploadResult, setUploadResult] = useState<{ uploadedCount: number; failedCount: number; uploadedNames: string[] } | null>(null);
+
+  useEffect(() => {
+    if (!open && uploadResult) {
+      const { uploadedCount, failedCount, uploadedNames } = uploadResult;
+      
+      if (failedCount === 0) {
+        const namesDisplay = uploadedNames.length <= 3 
+          ? uploadedNames.map(name => `'${name}'`).join(', ')
+          : `${uploadedNames.length} artworks`;
+        
+        toast.success(
+          `${namesDisplay} ${uploadedNames.length > 1 ? 'have' : 'has'} been uploaded, you can see ${uploadedNames.length > 1 ? 'them' : 'it'} in your artwork gallery`, 
+          { duration: 5000 }
+        );
+      } else if (uploadedCount > 0) {
+        toast.warning(`Uploaded ${uploadedCount}, failed ${failedCount}`, { duration: 5000 });
+      }
+      
+      setUploadResult(null);
+    }
+  }, [open, uploadResult]);
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
@@ -155,23 +177,8 @@ export function UploadModal({ open, onOpenChange }: UploadModalProps) {
       
       if (uploadedCount > 0) {
         setUploadedFiles([]);
+        setUploadResult({ uploadedCount, failedCount, uploadedNames });
         onOpenChange(false);
-        
-        // Show success message after modal closes
-        setTimeout(() => {
-          if (failedCount === 0) {
-            const namesDisplay = uploadedNames.length <= 3 
-              ? uploadedNames.map(name => `'${name}'`).join(', ')
-              : `${uploadedNames.length} artworks`;
-            
-            toast.success(
-              `${namesDisplay} ${uploadedNames.length > 1 ? 'have' : 'has'} been uploaded, you can see ${uploadedNames.length > 1 ? 'them' : 'it'} in your artwork gallery`, 
-              { duration: 5000 }
-            );
-          } else if (uploadedCount > 0) {
-            toast.warning(`Uploaded ${uploadedCount}, failed ${failedCount}`, { duration: 5000 });
-          }
-        }, 300);
       } else if (failedCount > 0) {
         toast.error(`Failed to upload ${failedCount} image${failedCount > 1 ? 's' : ''}`);
       }
