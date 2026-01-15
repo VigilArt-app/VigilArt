@@ -10,6 +10,7 @@ import {
   Post,
 } from "@nestjs/common";
 import { ArtworksService } from "./artworks.service";
+import { StorageService } from "../storage/storage.service";
 import {
   Artwork,
   ArtworkCreateDTO,
@@ -21,7 +22,10 @@ import { ApiBody, ApiParam } from "@nestjs/swagger";
 
 @Controller("artworks")
 export class ArtworksController {
-  constructor(private readonly artworksService: ArtworksService) {}
+  constructor(
+    private readonly artworksService: ArtworksService,
+    private readonly storageService: StorageService
+  ) {}
 
   @Post()
   @ApiEndpoint({
@@ -111,6 +115,16 @@ export class ArtworksController {
   })
   @ApiParam({ name: "id", type: String })
   async remove(@Param("id", ParseUUIDPipe) id: string): Promise<void> {
-    return this.artworksService.remove(id);
+    const artwork = await this.artworksService.findOne(id);
+
+    this.storageService.deleteImage(artwork.originalFilename);
+    this.artworksService.remove(id);
   }
+
+  // Faire route pour supprimer plusieurs artworks
+  // Update le e2e test pour DELETE /artworks/:id voir localstack community image
+  // Faire unit tests pour storage service  et e2e test pour la route "supprimer plusieurs artworks"
+  // Update la seed database et update le module Artworks + les e2e tests
+  // vu que imageUri a été retiré du model prisma
+  // Retourner presigned urls dans les GET artworks
 }

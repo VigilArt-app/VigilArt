@@ -41,7 +41,7 @@ pnpm install
 *See Doppler's [readme file](./documentation/doppler.md) for more details.*
 
 
-#### Development Mode
+### Development Mode
 
 - Uses `docker-compose.dev.yml` to easily start the database and Prisma Studio for local development.
 - Loads environment variables from a local `.env` file at the root of the repository (see [.env.example](.env.example)).
