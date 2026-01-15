@@ -8,6 +8,7 @@ import { Input } from "../../../components/ui/input";
 import { toast } from "sonner";
 import { Cloud, X } from "lucide-react";
 import { getUserIdFromToken } from "../../artwork-gallery/components/utils";
+import type { ArtworkCreateDTO, Artwork, ApiCreated } from "@vigilart/shared";
 
 interface UploadedFile {
   file: File;
@@ -103,7 +104,7 @@ export function UploadModal({ open, onOpenChange }: UploadModalProps) {
             reader.readAsDataURL(file);
           });
 
-          const requestBody = {
+          const requestBody: ArtworkCreateDTO = {
             userId,
             imageUri: base64Data,
             originalFilename: file.name,
