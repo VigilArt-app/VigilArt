@@ -16,6 +16,7 @@ import { ReportsModule } from "./reports/reports.module";
 import { PrismaModule } from "./prisma/prisma.module";
 import { DmcaPlatformModule } from "./dmca/platform/platform.module";
 import { DmcaProfileModule } from "./dmca/profile/profile.module";
+import { DmcaNoticeModule } from "./dmca/notice/notice.module";
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { DmcaProfileModule } from "./dmca/profile/profile.module";
     PrismaModule,
     DmcaPlatformModule,
     DmcaProfileModule,
+    DmcaNoticeModule,
   ],
   controllers: [AppController],
   providers: [
