@@ -1,14 +1,34 @@
 import { z } from "zod";
 import { createZodDto } from "nestjs-zod";
 
-export const PresignedUrlsSchema = z.object({
-  signedUrls: z.record(z.string(), z.string()),
+export const UploadUrlGetSchema = z.object({
+  storageKey: z.string(),
+  presignedUrl: z.string(),
 });
 
-export class PresignedUrlsDTO extends createZodDto(PresignedUrlsSchema) {}
+export class UploadUrlGetDTO extends createZodDto(
+  UploadUrlGetSchema,
+) {}
 
-export const FilenamesSchema = z.object({
+export const UploadUrlsGetSchema = z.record(
+  z.string(),
+  UploadUrlGetSchema,
+);
+
+export class UploadUrlsGetDTO extends createZodDto(
+  UploadUrlsGetSchema,
+) {}
+
+export const DownloadUrlsGetSchema = z.record(z.string(), z.string());
+
+export class DownloadUrlsGetDTO extends createZodDto(
+  DownloadUrlsGetSchema,
+) {}
+
+export const PresignedUrlsRequestSchema = z.object({
   filenames: z.array(z.string()),
 });
 
-export class FilenamesDTO extends createZodDto(FilenamesSchema) {}
+export class PresignedUrlsRequestDTO extends createZodDto(
+  PresignedUrlsRequestSchema,
+) {}

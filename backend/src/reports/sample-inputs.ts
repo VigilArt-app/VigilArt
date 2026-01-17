@@ -44,12 +44,14 @@ export const mockedSearchImageReturnValue = {
 export const mockedArtwork: Artwork = {
   id: "1",
   userId: "0",
-  imageUri: "imageUri",
   createdAt: new Date(),
   updatedAt: new Date(),
-  originalFilename: null,
-  contentType: null,
-  sizeBytes: null,
+  originalFilename: "file.jpg",
+  contentType: "image/jpeg",
+  storageKey: "key",
+  width: 920,
+  height: 820,
+  sizeBytes: 503852,
   description: null,
   lastScanAt: null,
 };
@@ -85,7 +87,7 @@ export const mockedFilteredArtworksReportEntries: ArtworksReportEntry[] = [
     },
     matchingPages: mockedSearchImageReturnValue.matchingPages.slice(
       0,
-      DEFAULT_PAGINATION_LIMIT
+      DEFAULT_PAGINATION_LIMIT,
     ),
   },
   {
@@ -95,7 +97,7 @@ export const mockedFilteredArtworksReportEntries: ArtworksReportEntry[] = [
     },
     matchingPages: mockedSearchImageReturnValue.matchingPages.slice(
       0,
-      DEFAULT_PAGINATION_LIMIT
+      DEFAULT_PAGINATION_LIMIT,
     ),
   },
   {
@@ -105,7 +107,7 @@ export const mockedFilteredArtworksReportEntries: ArtworksReportEntry[] = [
     },
     matchingPages: mockedSearchImageReturnValue.matchingPages.slice(
       0,
-      DEFAULT_PAGINATION_LIMIT
+      DEFAULT_PAGINATION_LIMIT,
     ),
   },
 ];

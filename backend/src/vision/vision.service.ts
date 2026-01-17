@@ -108,6 +108,11 @@ export class VisionService implements OnModuleDestroy {
   async webDetection(
     imageUri: string
   ): Promise<WebDetection | null | undefined> {
+    await this.client.webDetection({
+      image: {
+        content: imageBuffer
+      }
+    })
     const [result] = await this.client.webDetection(imageUri);
     const webDetection = result.webDetection;
 

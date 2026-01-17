@@ -10,9 +10,9 @@ import { StorageService } from "./storage.service";
 import { ApiEndpoint } from "../common/decorators/api-endpoint.decorator";
 import { ApiBody, ApiParam } from "@nestjs/swagger";
 import {
-  FilenamesDTO,
-  PresignedUrls,
-  PresignedUrlsDTO,
+  DownloadUrlsGetDTO,
+  PresignedUrlsRequestDTO,
+  UploadUrlsGetDTO,
 } from "@vigilart/shared";
 
 @Controller("storage/artworks")
@@ -24,24 +24,15 @@ export class StorageController {
     summary: "Generate a list of pre-signed URLs to upload multiple artworks",
     success: {
       status: HttpStatus.OK,
-      type: PresignedUrlsDTO,
+      type: UploadUrlsGetDTO,
     },
     protected: true,
   })
-  @ApiBody({ type: FilenamesDTO })
+  @ApiBody({ type: PresignedUrlsRequestDTO })
   async getUploadUrls(
-    @Body() { filenames }: FilenamesDTO
-  ): Promise<PresignedUrls> {
-    const uploadUrls = await Promise.all(
-      filenames.map(async (filename: string) => {
-        const uniqueKey = `${crypto.randomUUID()}-${filename}`;
-        const presignedUrl = await this.storageService.getUploadUrl(uniqueKey);
-
-        return [filename, presignedUrl];
-      })
-    );
-    const uploadUrlsDict = Object.fromEntries(uploadUrls);
-    return uploadUrlsDict;
+    @Body() { filenames }: PresignedUrlsRequestDTO,
+  ): Promise<UploadUrlsGetDTO> {
+    return this.storageService.getUploadUrls(filenames);
   }
 
   @Post("download-urls")
@@ -49,22 +40,14 @@ export class StorageController {
     summary: "Generate a list of pre-signed URLs to download multiple artworks",
     success: {
       status: HttpStatus.OK,
-      type: PresignedUrlsDTO,
+      type: DownloadUrlsGetDTO,
     },
     protected: true,
   })
-  @ApiBody({ type: FilenamesDTO })
+  @ApiBody({ type: PresignedUrlsRequestDTO })
   async getDownloadUrls(
-    @Body() { filenames }: FilenamesDTO
-  ): Promise<PresignedUrls> {
-    const downloadUrls = await Promise.all(
-      filenames.map(async (filename: string) => {
-        const presignedUrl = await this.storageService.getDownloadUrl(filename);
-
-        return [filename, presignedUrl];
-      })
-    );
-    const downloadUrlsDict = Object.fromEntries(downloadUrls);
-    return downloadUrlsDict;
+    @Body() { filenames }: PresignedUrlsRequestDTO,
+  ): Promise<DownloadUrlsGetDTO> {
+    return this.storageService.getDownloadUrls(filenames);
   }
 }

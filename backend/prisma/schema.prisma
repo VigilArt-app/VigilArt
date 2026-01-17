@@ -50,8 +50,11 @@ model Artwork {
   user              User              @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   originalFilename  String
+  storageKey        String
   contentType       String
   sizeBytes         Int
+  width             Int
+  height            Int
   description       String?
   createdAt         DateTime          @default(now())
   updatedAt         DateTime          @updatedAt

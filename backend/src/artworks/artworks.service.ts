@@ -5,7 +5,13 @@ import {
   NotFoundException,
 } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
-import { Artwork, ArtworkCreateDTO, ArtworkUpdateDTO } from "@vigilart/shared";
+import {
+  Artwork,
+  ArtworkCreateDTO,
+  ArtworkCreateManyDTO,
+  ArtworkUpdateDTO,
+  BatchPayload,
+} from "@vigilart/shared";
 
 @Injectable()
 export class ArtworksService {
@@ -15,25 +21,29 @@ export class ArtworksService {
 
   async create({
     userId,
-    imageUri,
     originalFilename,
-    contentType,
-    sizeBytes,
-    description,
+    ...artworkData
   }: ArtworkCreateDTO): Promise<Artwork> {
-    const artworkData = {
-      userId,
-      imageUri,
-      originalFilename,
-      contentType,
-      sizeBytes,
-      description,
-    };
-
-    this.logger.log(`Creating new artwork ${imageUri} of user ${userId}`);
+    this.logger.log(
+      `Creating new artwork ${originalFilename} of user ${userId}`,
+    );
     try {
       return await this.prisma.artwork.create({
-        data: artworkData,
+        data: { userId, originalFilename, ...artworkData },
+      });
+    } catch (e: any) {
+      if (e.code === "P2003") {
+        throw new NotFoundException("User does not exist");
+      }
+      throw e;
+    }
+  }
+
+  async createMany(artworksData: ArtworkCreateManyDTO): Promise<BatchPayload> {
+    this.logger.log("Creating new artworks");
+    try {
+      return await this.prisma.artwork.createMany({
+        data: artworksData,
       });
     } catch (e: any) {
       if (e.code === "P2003") {
@@ -73,9 +83,20 @@ export class ArtworksService {
     }
   }
 
+  async findMany(ids: string[]): Promise<Artwork[]> {
+    this.logger.log(`Finding artworks ${ids.join(",")}`);
+    return await this.prisma.artwork.findMany({
+      where: {
+        id: {
+          in: ids,
+        },
+      },
+    });
+  }
+
   async update(
     id: string,
-    updateArtworkDto: ArtworkUpdateDTO
+    updateArtworkDto: ArtworkUpdateDTO,
   ): Promise<Artwork> {
     this.logger.log(`Updating artwork ${id}`);
     try {
@@ -107,5 +128,16 @@ export class ArtworksService {
       }
       throw e;
     }
+  }
+
+  async removeMany(ids: string[]): Promise<void> {
+    this.logger.log(`Removing artworks ${ids.join(",")}`);
+    await this.prisma.artwork.deleteMany({
+      where: {
+        id: {
+          in: ids,
+        },
+      },
+    });
   }
 }

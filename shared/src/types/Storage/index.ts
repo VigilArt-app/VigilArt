@@ -1,5 +1,6 @@
 import { z } from "zod";
-import { PresignedUrlsSchema } from "../../schemas/Storage";
+import { UploadUrlGetSchema, UploadUrlsGetSchema } from "../../schemas/Storage";
 
-export type PresignedUrls = z.infer<typeof PresignedUrlsSchema>;
+export type UploadUrlGet = z.infer<typeof UploadUrlGetSchema>;
 
+export type UploadUrlsGet = z.infer<typeof UploadUrlsGetSchema>;
