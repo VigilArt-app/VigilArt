@@ -14,11 +14,13 @@ import { AggregatedVisualSearchResults } from "@vigilart/shared";
 import { ArtworksReportEntry } from "@vigilart/shared";
 import { NotFoundException } from "@nestjs/common";
 import { WebsiteCategory } from "@vigilart/shared/server";
+import { StorageService } from "../storage/storage.service";
 
 describe("ReportsService", () => {
   let service: ReportsService;
   let visionService: VisionService;
   let artworksService: ArtworksService;
+  let storageService: StorageService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -37,12 +39,23 @@ describe("ReportsService", () => {
             findOne: jest.fn(),
           },
         },
+        {
+          provide: StorageService,
+          useValue: {
+            getImage: jest.fn(),
+          },
+        },
       ],
     }).compile();
 
     service = module.get<ReportsService>(ReportsService);
     visionService = module.get<VisionService>(VisionService);
     artworksService = module.get<ArtworksService>(ArtworksService);
+    storageService = module.get<StorageService>(StorageService);
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
   });
 
   it("Should be defined", () => {
@@ -55,10 +68,10 @@ describe("ReportsService", () => {
         .spyOn(visionService, "searchImage")
         .mockResolvedValue(mockedSearchImageReturnValue);
       const res: AggregatedVisualSearchResults =
-        await service.aggregateVisualSearchResults("imageUri");
+        await service.aggregateVisualSearchResults(Buffer.from(""));
 
       expect(res.matchingPages).toEqual(
-        mockedSearchImageReturnValue.matchingPages
+        mockedSearchImageReturnValue.matchingPages,
       );
       expect(res.statistics).toEqual({
         totalMatches: 4,
@@ -70,9 +83,9 @@ describe("ReportsService", () => {
         .spyOn(visionService, "searchImage")
         .mockResolvedValue(null);
 
-      const res = await service.aggregateVisualSearchResults("imageUri");
+      const res = await service.aggregateVisualSearchResults(Buffer.from(""));
 
-      expect(spy).toHaveBeenCalledWith("imageUri");
+      expect(spy).toHaveBeenCalledWith(Buffer.from(""));
       expect(res.matchingPages).toEqual([]);
       expect(res.statistics.totalMatches).toBe(0);
     });
@@ -80,31 +93,31 @@ describe("ReportsService", () => {
 
   describe("getArtworksReportEntry", () => {
     beforeEach(() => {
+      jest.spyOn(storageService, "getImage").mockResolvedValue(Buffer.from(""));
       jest
         .spyOn(service, "aggregateVisualSearchResults")
         .mockResolvedValue(mockedAggregatedResults);
     });
 
     it("Should return full artworks report entry without limit", async () => {
-      const res: ArtworksReportEntry = await service.getArtworksReportEntry(
-        mockedArtwork
-      );
+      const res: ArtworksReportEntry =
+        await service.getArtworksReportEntry(mockedArtwork);
       expect(res.artworkId).toEqual("1");
       expect(res.statistics).toEqual({ totalMatches: 4 });
       expect(res.matchingPages).toEqual(
-        mockedSearchImageReturnValue.matchingPages
+        mockedSearchImageReturnValue.matchingPages,
       );
     });
 
     it("Should limit matching pages when limit is specified", async () => {
       const res: ArtworksReportEntry = await service.getArtworksReportEntry(
         mockedArtwork,
-        2
+        2,
       );
       expect(res.artworkId).toEqual("1");
       expect(res.statistics).toEqual({ totalMatches: 4 });
       expect(res.matchingPages).toEqual(
-        mockedSearchImageReturnValue.matchingPages.slice(0, 2)
+        mockedSearchImageReturnValue.matchingPages.slice(0, 2),
       );
     });
 
@@ -255,7 +268,7 @@ describe("ReportsService", () => {
 
     it("Should return global statistics about all artworks", () => {
       const res = service.getArtworksReportStatistics(
-        mockedFilteredArtworksReportEntries
+        mockedFilteredArtworksReportEntries,
       );
 
       expect(res).toEqual({
@@ -299,6 +312,10 @@ describe("ReportsService", () => {
   });
 
   describe("getArtworkMatches", () => {
+    beforeEach(() => {
+      jest.spyOn(storageService, "getImage").mockResolvedValue(Buffer.from(""));
+    });
+
     it("Should return all matching pages of an artwork without filter", async () => {
       jest.spyOn(artworksService, "findOne").mockResolvedValue(mockedArtwork);
       jest
@@ -313,7 +330,7 @@ describe("ReportsService", () => {
       const f = service.getArtworkMatches(mockedArtwork.id, {});
 
       await expect(f).rejects.toThrow(
-        new NotFoundException("Artwork not found")
+        new NotFoundException("Artwork not found"),
       );
     });
 
@@ -332,7 +349,7 @@ describe("ReportsService", () => {
           pageTitle: "Ebay art sold",
           category: WebsiteCategory.ART_PLATFORMS,
           websiteName: "artstation.com",
-          imageUrl: "imageUri",
+          imageUrl: "imageUrl",
         },
       ]);
     });

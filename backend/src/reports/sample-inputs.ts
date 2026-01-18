@@ -29,14 +29,14 @@ export const mockedSearchImageReturnValue = {
       pageTitle: "Ebay art sold",
       category: WebsiteCategory.MARKETPLACES,
       websiteName: "ebay.com",
-      imageUrl: "imageUri",
+      imageUrl: "imageUrl",
     },
     {
       url: "artstation.com/artist",
       pageTitle: "Ebay art sold",
       category: WebsiteCategory.ART_PLATFORMS,
       websiteName: "artstation.com",
-      imageUrl: "imageUri",
+      imageUrl: "imageUrl",
     },
   ],
 };

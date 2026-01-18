@@ -6,6 +6,7 @@ import { z } from "zod";
 const LIMIT_DELETION = 10;
 
 export const ArtworkSchema = base.extend({
+  userId: z.uuid(),
   createdAt: dateTimeStringToDate,
   updatedAt: dateTimeStringToDate,
   lastScanAt: dateTimeStringToDate,
@@ -18,13 +19,17 @@ export const ArtworkCreateSchema = ArtworkSchema.pick({
   contentType: true,
   sizeBytes: true,
   description: true,
+  width: true,
+  height: true,
+  storageKey: true,
+  lastScanAt: true,
 })
   .partial({
     lastScanAt: true,
     description: true,
   })
   .extend({
-    userId: z.string({
+    userId: z.uuid({
       error: (e) =>
         e.input === undefined ? "User id is required." : undefined,
     }),
@@ -45,13 +50,11 @@ export const ArtworkCreateSchema = ArtworkSchema.pick({
         e.input === undefined ? "Storage key is required." : undefined,
     }),
     width: z.int({
-      error: (e) =>
-        e.input === undefined ? "Width is required." : undefined,
+      error: (e) => (e.input === undefined ? "Width is required." : undefined),
     }),
     height: z.int({
-      error: (e) =>
-        e.input === undefined ? "Height is required." : undefined,
-    })
+      error: (e) => (e.input === undefined ? "Height is required." : undefined),
+    }),
   });
 
 export class ArtworkCreateDTO extends createZodDto(ArtworkCreateSchema) {}
@@ -71,10 +74,26 @@ export const ArtworkUpdateSchema = ArtworkSchema.pick({
 export class ArtworkUpdateDTO extends createZodDto(ArtworkUpdateSchema) {}
 
 export const ArtworkRemoveManySchema = z.object({
-  ids: z.array(z.string()).max(LIMIT_DELETION),
+  ids: z
+    .array(z.uuid())
+    .max(LIMIT_DELETION, `Can only select up to ${LIMIT_DELETION}`),
 });
 
 export class ArtworkRemoveManyDTO extends createZodDto(
   ArtworkRemoveManySchema,
 ) {}
 
+export const ArtworkCreateManyResponseSchema = z.object({
+  count: z.number(),
+  artworks: z.array(
+    ArtworkSchema.pick({
+      id: true,
+      userId: true,
+      originalFilename: true,
+    }),
+  ),
+});
+
+export class ArtworkCreateManyResponseDTO extends createZodDto(
+  ArtworkCreateManyResponseSchema,
+) {}

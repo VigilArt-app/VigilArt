@@ -11,8 +11,9 @@ import { ApiEndpoint } from "../common/decorators/api-endpoint.decorator";
 import { ApiBody, ApiParam } from "@nestjs/swagger";
 import {
   DownloadUrlsGetDTO,
-  PresignedUrlsRequestDTO,
+  UploadUrlsRequestDTO,
   UploadUrlsGetDTO,
+  DownloadUrlsRequestDTO,
 } from "@vigilart/shared";
 
 @Controller("storage/artworks")
@@ -28,9 +29,9 @@ export class StorageController {
     },
     protected: true,
   })
-  @ApiBody({ type: PresignedUrlsRequestDTO })
+  @ApiBody({ type: UploadUrlsRequestDTO })
   async getUploadUrls(
-    @Body() { filenames }: PresignedUrlsRequestDTO,
+    @Body() { filenames }: UploadUrlsRequestDTO,
   ): Promise<UploadUrlsGetDTO> {
     return this.storageService.getUploadUrls(filenames);
   }
@@ -44,10 +45,10 @@ export class StorageController {
     },
     protected: true,
   })
-  @ApiBody({ type: PresignedUrlsRequestDTO })
+  @ApiBody({ type: DownloadUrlsRequestDTO })
   async getDownloadUrls(
-    @Body() { filenames }: PresignedUrlsRequestDTO,
+    @Body() { storageKeys }: DownloadUrlsRequestDTO,
   ): Promise<DownloadUrlsGetDTO> {
-    return this.storageService.getDownloadUrls(filenames);
+    return this.storageService.getDownloadUrls(storageKeys);
   }
 }

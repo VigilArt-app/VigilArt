@@ -17,15 +17,18 @@ export const setupApp = (app: INestApplication) => {
   app.setGlobalPrefix(apiPrefix);
   app.useGlobalFilters(
     new HttpExceptionFilter(httpAdapter),
-    new PrismaClientExceptionFilter(httpAdapter)
+    new PrismaClientExceptionFilter(httpAdapter),
   );
   app.useGlobalInterceptors(new ResponseWrapperInterceptor());
 
-  if (process.env.NODE_ENV !== "production") {
+  if (
+    process.env.NODE_ENV !== "production" &&
+    process.env.NODE_ENV !== "test"
+  ) {
     const swaggerConfig = new DocumentBuilder()
       .setTitle("VigilArt API")
       .setDescription(
-        "Official API documentation for the VigilArt application."
+        "Official API documentation for the VigilArt application.",
       )
       .setVersion("0.0.1")
       .addBearerAuth()

@@ -18,7 +18,9 @@ import {
   ArtworkDTO,
   ArtworkRemoveManyDTO,
   ArtworkUpdateDTO,
-  BatchPayload,
+  ArtworkCreateManyResponseDTO,
+  ApiBatchPayload,
+  ApiBatchPayloadDTO,
 } from "@vigilart/shared";
 import { ApiEndpoint } from "../common/decorators/api-endpoint.decorator";
 import { ApiBody, ApiParam } from "@nestjs/swagger";
@@ -55,10 +57,10 @@ export class ArtworksController {
     errors: [HttpStatus.BAD_REQUEST, HttpStatus.NOT_FOUND],
     protected: true,
   })
-  @ApiBody({ type: ArtworkCreateDTO })
+  @ApiBody({ type: ArtworkCreateManyDTO })
   async createMany(
     @Body() createArtworksDto: ArtworkCreateManyDTO,
-  ): Promise<BatchPayload> {
+  ): Promise<ArtworkCreateManyResponseDTO> {
     return await this.artworksService.createMany(createArtworksDto);
   }
 
@@ -137,33 +139,29 @@ export class ArtworksController {
   async remove(@Param("id", ParseUUIDPipe) id: string): Promise<void> {
     const artwork = await this.artworksService.findOne(id);
 
-    this.storageService.deleteImage(artwork.storageKey);
-    this.artworksService.remove(id);
+    await this.storageService.deleteImage(artwork.storageKey);
+    return this.artworksService.remove(id);
   }
 
-  @Delete("batch")
+  @Post("delete/batch")
   @ApiEndpoint({
     summary: "Delete artworks by ID",
     success: {
-      status: HttpStatus.NO_CONTENT,
+      status: HttpStatus.OK,
+      type: [ApiBatchPayloadDTO],
     },
     protected: true,
   })
   @ApiBody({ type: ArtworkRemoveManyDTO })
-  async removeMany(@Body() { ids }: ArtworkRemoveManyDTO): Promise<void> {
+  async removeMany(
+    @Body() { ids }: ArtworkRemoveManyDTO,
+  ): Promise<ApiBatchPayload> {
     const artworks = await this.artworksService.findMany(ids);
     const storageKeys = artworks.map((artwork) => artwork.storageKey);
 
-    this.artworksService.removeMany(ids);
-    this.storageService.deleteImages(storageKeys);
+    await this.storageService.deleteImages(storageKeys);
+    return this.artworksService.removeMany(ids);
   }
 
-  // faire E2E tests pour createMany et deleteMany routes
-  // Check les e2e tests pour DELETE /artworks/:id 
-  // et POST /artworks
-  // mock Cloudflare pour DELETE /artworks/:id et deleteMany
-  
   // Faire unit tests pour storage service ?
-  // Update les e2e tests Artworks et reports.service.ts, 
-  // vu que imageUri a été retiré du model prisma
 }

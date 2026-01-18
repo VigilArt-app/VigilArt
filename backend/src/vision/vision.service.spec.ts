@@ -17,10 +17,9 @@ jest.mock("@google-cloud/vision", () => {
 
 describe("VisionService", () => {
   let service: VisionService;
-  let module: TestingModule;
 
   beforeEach(async () => {
-    module = await Test.createTestingModule({
+    const module = await Test.createTestingModule({
       imports: [
         ConfigModule.forRoot({
           isGlobal: true,
@@ -33,8 +32,8 @@ describe("VisionService", () => {
     service = module.get<VisionService>(VisionService);
   });
 
-  afterAll(async () => {
-    await module.close();
+  afterEach(() => {
+    jest.clearAllMocks();
   });
 
   describe("getArtworkReportMetadata", () => {
@@ -305,10 +304,10 @@ describe("VisionService", () => {
   describe("searchImage", () => {
     it("Should return null when webDetection returns null/undefined", async () => {
       jest.spyOn(service, "webDetection").mockResolvedValue(null);
-      expect(await service.searchImage("test.jpg")).toBeNull();
+      expect(await service.searchImage(Buffer.from(""))).toBeNull();
 
       jest.spyOn(service, "webDetection").mockResolvedValue(undefined);
-      expect(await service.searchImage("test.jpg")).toBeNull();
+      expect(await service.searchImage(Buffer.from(""))).toBeNull();
     });
 
     it("Should return null when pagesWithMatchingImages is null/undefined", async () => {
@@ -316,12 +315,12 @@ describe("VisionService", () => {
         bestGuessLabels: [{ label: "Art" }],
         pagesWithMatchingImages: null,
       });
-      expect(await service.searchImage("test.jpg")).toBeNull();
+      expect(await service.searchImage(Buffer.from(""))).toBeNull();
 
       jest.spyOn(service, "webDetection").mockResolvedValue({
         bestGuessLabels: [{ label: "Art" }],
       });
-      expect(await service.searchImage("test.jpg")).toBeNull();
+      expect(await service.searchImage(Buffer.from(""))).toBeNull();
     });
 
     it("Should process valid response correctly", async () => {
@@ -362,7 +361,7 @@ describe("VisionService", () => {
           },
         ],
       });
-      const result = await service.searchImage("test.jpg");
+      const result = await service.searchImage(Buffer.from(""));
 
       expect(result).toEqual({
         metadata: {

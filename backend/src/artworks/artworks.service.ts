@@ -10,7 +10,8 @@ import {
   ArtworkCreateDTO,
   ArtworkCreateManyDTO,
   ArtworkUpdateDTO,
-  BatchPayload,
+  ArtworkCreateManyResponseDTO,
+  ApiBatchPayload,
 } from "@vigilart/shared";
 
 @Injectable()
@@ -39,12 +40,22 @@ export class ArtworksService {
     }
   }
 
-  async createMany(artworksData: ArtworkCreateManyDTO): Promise<BatchPayload> {
+  async createMany(
+    artworksData: ArtworkCreateManyDTO,
+  ): Promise<ArtworkCreateManyResponseDTO> {
     this.logger.log("Creating new artworks");
     try {
-      return await this.prisma.artwork.createMany({
+      const res = await this.prisma.artwork.createManyAndReturn({
         data: artworksData,
       });
+      return {
+        count: res.length,
+        artworks: res.map((artwork) => ({
+          id: artwork.id,
+          userId: artwork.userId,
+          originalFilename: artwork.originalFilename,
+        })),
+      };
     } catch (e: any) {
       if (e.code === "P2003") {
         throw new NotFoundException("User does not exist");
@@ -130,9 +141,9 @@ export class ArtworksService {
     }
   }
 
-  async removeMany(ids: string[]): Promise<void> {
+  async removeMany(ids: string[]): Promise<ApiBatchPayload> {
     this.logger.log(`Removing artworks ${ids.join(",")}`);
-    await this.prisma.artwork.deleteMany({
+    return await this.prisma.artwork.deleteMany({
       where: {
         id: {
           in: ids,

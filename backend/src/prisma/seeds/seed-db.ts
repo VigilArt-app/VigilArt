@@ -30,7 +30,7 @@ export const initialArtworks = [
     id: "4600d119-0196-4bb0-a315-89f537a6b3f0",
     userId: "2a5685a1-f4d0-428d-9c12-88a136777bdf",
     storageKey:
-      "artworks/2a5685a1-f4d0-428d-9c12-88a136777bdf/woman_flower_bouquet.jpge8ea902a-e81b-47c2-8d5a-9317286d609b.jpg",
+      "artworks/2a5685a1-f4d0-428d-9c12-88a136777bdf/woman_flower_bouquete8ea902a-e81b-47c2-8d5a-9317286d609b.jpg",
     originalFilename: "woman_flower_bouquet.jpg",
     contentType: "image/jpeg",
     sizeBytes: 81686,

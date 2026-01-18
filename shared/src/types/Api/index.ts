@@ -10,7 +10,7 @@ import {
   NotFoundApiErrorSchema,
   ConflictApiErrorSchema,
   InternalServerApiErrorSchema,
-  BatchPayloadSchema,
+  ApiBatchPayloadSchema,
 } from "../../schemas/Api";
 import { z } from "zod";
 
@@ -46,4 +46,4 @@ export type ApiResponseData<T = undefined> =
 
 export type ApiResponseAsync<T = undefined> = Promise<ApiResponseData<T>>;
 
-export type BatchPayload = z.infer<typeof BatchPayloadSchema>;
+export type ApiBatchPayload = z.infer<typeof ApiBatchPayloadSchema>;

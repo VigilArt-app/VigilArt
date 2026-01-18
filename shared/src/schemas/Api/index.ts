@@ -77,7 +77,7 @@ export class InternalServerErrorDTO extends createZodDto(
   InternalServerApiErrorSchema,
 ) {}
 
-export const BatchPayloadSchema = z.object({
-  count: z.number(),
+export const ApiBatchPayloadSchema = z.object({
+  count: z.int(),
 });
-export class BatchPayloadDTO extends createZodDto(BatchPayloadSchema) {}
+export class ApiBatchPayloadDTO extends createZodDto(ApiBatchPayloadSchema) {}

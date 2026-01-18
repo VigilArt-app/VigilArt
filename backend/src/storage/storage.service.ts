@@ -76,7 +76,13 @@ export class StorageService {
 
     const uploadUrlMap: Record<string, UploadUrlGet> = uploadUrls.reduce(
       (accumulator, { fileKey, storageKey, presignedUrl }) => {
-        accumulator[fileKey] = {
+        const fileExt = path.extname(fileKey);
+        const cleanFileKey = fileKey
+          .replace(fileExt, "")
+          .toLowerCase()
+          .split(" ")
+          .join("-") + fileExt;
+        accumulator[cleanFileKey] = {
           storageKey,
           presignedUrl,
         };

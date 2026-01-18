@@ -16,12 +16,11 @@ jest.mock("@google-cloud/vision", () => {
 
 describe("VisionService", () => {
   let service: VisionService;
-  let module: TestingModule;
   const inputFolder = "./src/vision/sample-inputs";
   const outputFolder = "./src/vision/expected-outputs";
 
   beforeEach(async () => {
-    module = await Test.createTestingModule({
+    const module = await Test.createTestingModule({
       imports: [
         ConfigModule.forRoot({
           isGlobal: true,
@@ -36,10 +35,6 @@ describe("VisionService", () => {
 
   afterEach(() => {
     jest.clearAllMocks();
-  });
-
-  afterAll(async () => {
-    await module.close();
   });
 
   const testArtworkProcessing = async (fileName: string) => {

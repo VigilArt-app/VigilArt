@@ -34,7 +34,7 @@ export class ReportsController {
   })
   @ApiParam({ name: "id", type: String })
   async getArtworksReport(
-    @Param("id", ParseUUIDPipe) userId: string
+    @Param("id", ParseUUIDPipe) userId: string,
   ): Promise<ArtworksReport> {
     return await this.reportsService.getArtworksReport(userId);
   }
@@ -52,11 +52,11 @@ export class ReportsController {
   @ApiQuery({ type: GetArtworksMatchesDTO })
   async getArtworksMatches(
     @Param("id", ParseUUIDPipe) userId: string,
-    @Query() getArtworksMatchesDto: GetArtworksMatchesDTO
+    @Query() getArtworksMatchesDto: GetArtworksMatchesDTO,
   ): Promise<MatchingPage[]> {
     return await this.reportsService.getAllArtworksMatches(
       userId,
-      getArtworksMatchesDto
+      getArtworksMatchesDto,
     );
   }
 
@@ -74,11 +74,11 @@ export class ReportsController {
   @ApiQuery({ type: GetArtworksMatchesDTO })
   async getArtworkMatches(
     @Param("id", ParseUUIDPipe) artworkId: string,
-    @Query() getArtworksMatchesDto: GetArtworksMatchesDTO
+    @Query() getArtworksMatchesDto: GetArtworksMatchesDTO,
   ): Promise<MatchingPage[]> {
     return await this.reportsService.getArtworkMatches(
       artworkId,
-      getArtworksMatchesDto
+      getArtworksMatchesDto,
     );
   }
 }

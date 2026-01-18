@@ -26,7 +26,7 @@ export class VisionService implements OnModuleDestroy {
 
   getArtworkReportMetadata(
     bestGuessLabels: WebLabel[] | null | undefined,
-    webEntities: WebEntity[] | null | undefined
+    webEntities: WebEntity[] | null | undefined,
   ): ArtworkMetadata | null {
     let bestGuessLabelsResult: ArtworkMetadataLabel[] = [];
     let webEntitiesResult: ArtworkWebEntity[] = [];
@@ -46,7 +46,7 @@ export class VisionService implements OnModuleDestroy {
           }
           return acc;
         },
-        []
+        [],
       );
     }
     if (webEntities) {
@@ -61,7 +61,7 @@ export class VisionService implements OnModuleDestroy {
           }
           return acc;
         },
-        []
+        [],
       );
     }
     return {
@@ -71,7 +71,7 @@ export class VisionService implements OnModuleDestroy {
   }
 
   getArtworkReportMatchingPages(
-    pagesWithMatchingImages: WebPage[] | null | undefined
+    pagesWithMatchingImages: WebPage[] | null | undefined,
   ): MatchingPage[] {
     if (!pagesWithMatchingImages) {
       return [];
@@ -100,37 +100,32 @@ export class VisionService implements OnModuleDestroy {
         }
         return acc;
       },
-      []
+      [],
     );
     return matchingPages;
   }
 
   async webDetection(
-    imageUri: string
+    imageBuffer: Buffer,
   ): Promise<WebDetection | null | undefined> {
-    await this.client.webDetection({
-      image: {
-        content: imageBuffer
-      }
-    })
-    const [result] = await this.client.webDetection(imageUri);
+    const [result] = await this.client.webDetection(imageBuffer);
     const webDetection = result.webDetection;
 
     return webDetection;
   }
 
-  async searchImage(imageUri: string): Promise<VisualSearchResult | null> {
-    const webDetection = await this.webDetection(imageUri);
+  async searchImage(imageBuffer: Buffer): Promise<VisualSearchResult | null> {
+    const webDetection = await this.webDetection(imageBuffer);
 
     if (!webDetection || !webDetection.pagesWithMatchingImages) {
       return null;
     }
     const metadata = this.getArtworkReportMetadata(
       webDetection?.bestGuessLabels,
-      webDetection?.webEntities
+      webDetection?.webEntities,
     );
     const matchingPages = this.getArtworkReportMatchingPages(
-      webDetection.pagesWithMatchingImages
+      webDetection.pagesWithMatchingImages,
     );
 
     return {

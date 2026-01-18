@@ -6,29 +6,28 @@ export const UploadUrlGetSchema = z.object({
   presignedUrl: z.string(),
 });
 
-export class UploadUrlGetDTO extends createZodDto(
-  UploadUrlGetSchema,
-) {}
+export class UploadUrlGetDTO extends createZodDto(UploadUrlGetSchema) {}
 
-export const UploadUrlsGetSchema = z.record(
-  z.string(),
-  UploadUrlGetSchema,
-);
+export const UploadUrlsGetSchema = z.record(z.string(), UploadUrlGetSchema);
 
-export class UploadUrlsGetDTO extends createZodDto(
-  UploadUrlsGetSchema,
-) {}
+export class UploadUrlsGetDTO extends createZodDto(UploadUrlsGetSchema) {}
 
 export const DownloadUrlsGetSchema = z.record(z.string(), z.string());
 
-export class DownloadUrlsGetDTO extends createZodDto(
-  DownloadUrlsGetSchema,
-) {}
+export class DownloadUrlsGetDTO extends createZodDto(DownloadUrlsGetSchema) {}
 
-export const PresignedUrlsRequestSchema = z.object({
+export const UploadUrlsRequestSchema = z.object({
   filenames: z.array(z.string()),
 });
 
-export class PresignedUrlsRequestDTO extends createZodDto(
-  PresignedUrlsRequestSchema,
+export class UploadUrlsRequestDTO extends createZodDto(
+  UploadUrlsRequestSchema,
+) {}
+
+export const DownloadUrlsRequestSchema = z.object({
+  storageKeys: z.array(z.string()),
+});
+
+export class DownloadUrlsRequestDTO extends createZodDto(
+  DownloadUrlsRequestSchema,
 ) {}
