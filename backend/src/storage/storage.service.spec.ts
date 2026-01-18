@@ -88,7 +88,7 @@ describe("StorageService", () => {
       ]);
 
       expect(res).toEqual({
-        "grey-haired-woman.jpg": {
+        "grey haired woman.jpg": {
           storageKey: expect.any(String),
           presignedUrl: "presignedUrl",
         },
