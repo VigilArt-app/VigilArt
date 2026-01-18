@@ -30,16 +30,16 @@ Quick steps to run the project locally.
 - pnpm (install: `npm install -g pnpm`)
 - Doppler CLI (used to inject secrets at runtime)
 
+### For Windows users
+
+See [Windows-specific setup instructions](./documentation/windows.md).
+
 ### Install dependencies
 From the repository root:
 
 ```bash
 pnpm install
 ```
-
-### Doppler CLI — install & setup
-*See Doppler's [readme file](./documentation/doppler.md) for more details.*
-
 
 ### Development Mode
 
@@ -74,11 +74,13 @@ pnpm dev:frontend # Starts only the frontend
 
 This allows you to use hot-reloading and other dev features outside of Docker for the app code, while still using Docker for the database and Prisma Studio.
 
-#### Production Mode
+### Production Mode
 
 - Uses `docker-compose.prod.yml`
 - Loads secrets and environment variables via Doppler CLI (secure secret management)
 - Suitable for deployment and production-like environments
+
+*For more details on how to use Doppler, see [Doppler's readme file](./documentation/doppler.md).*
 
 **Start the stack in production mode:**
 
@@ -95,7 +97,7 @@ doppler run -- docker compose -f docker-compose.prod.yml up backend
 
 > **Note:** Doppler injects secrets at runtime. Ensure you have Doppler CLI installed and configured with access to your project’s secrets.
 
-#### Key Differences
+### Key Differences
 
 - **Environment Variables:**
 	- Dev: Uses `.env` files for local configuration.
