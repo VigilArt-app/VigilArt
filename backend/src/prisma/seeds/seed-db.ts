@@ -1,4 +1,4 @@
-import { Artwork, SubscriptionTier } from "@vigilart/shared";
+import { SubscriptionTier } from "@vigilart/shared";
 import { PrismaClient } from "@vigilart/shared/server";
 
 export const initialArtworks = [

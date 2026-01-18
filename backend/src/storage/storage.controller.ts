@@ -3,12 +3,10 @@ import {
   HttpStatus,
   Post,
   Body,
-  Delete,
-  Param,
 } from "@nestjs/common";
 import { StorageService } from "./storage.service";
 import { ApiEndpoint } from "../common/decorators/api-endpoint.decorator";
-import { ApiBody, ApiParam } from "@nestjs/swagger";
+import { ApiBody } from "@nestjs/swagger";
 import {
   DownloadUrlsGetDTO,
   UploadUrlsRequestDTO,
