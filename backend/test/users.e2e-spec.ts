@@ -214,7 +214,7 @@ describe("Users E2E", () => {
       expect(res.body).toEqual({
         success: false,
         statusCode: HttpStatus.NOT_FOUND,
-        message: "User not found",
+        message: "An operation failed because it depends on one or more records that were required but not found. No record was found for a query.",
         error: "Not Found",
       });
     });
@@ -277,7 +277,56 @@ describe("Users E2E", () => {
       expect(res.body).toEqual({
         success: false,
         statusCode: HttpStatus.NOT_FOUND,
-        message: "User not found",
+        message: "An operation failed because it depends on one or more records that were required but not found. No record was found for an update.",
+        error: "Not Found",
+      });
+    });
+
+    it("Should expect an UUID", async () => {
+      const res = await api
+        .patch("/users/1")
+        .send({
+          avatar: "new_url"
+        })
+        .expect(HttpStatus.BAD_REQUEST);
+
+      expect(res.body).toEqual({
+        success: false,
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: "Validation failed (uuid is expected)",
+        error: "Bad Request",
+      });
+    });
+  });
+
+  describe("DELETE /users/:id", () => {
+    it("Should remove specific user with ID", async () => {
+      const user = await prismaService.user.create({
+        data: {
+          email: "amanda.rawles@mail.com",
+          password: "Hashed_P4ssword_",
+          firstName: "Amanda",
+          lastName: "Rawles",
+          subscriptionTier: SubscriptionTier.FREE,
+        },
+      });
+      const res = await api
+        .delete(`/users/${user.id}`)
+        .expect(HttpStatus.NO_CONTENT);
+      expect(res.body).toEqual({});
+    });
+    it("Shouldn't update specific user with non-existent ID", async () => {
+      const res = await api
+        .patch("/users/123e4567-e89b-12d3-a456-426614174000")
+        .send({
+          avatar: "new_url",
+        })
+        .expect(HttpStatus.NOT_FOUND);
+
+      expect(res.body).toEqual({
+        success: false,
+        statusCode: HttpStatus.NOT_FOUND,
+        message: "An operation failed because it depends on one or more records that were required but not found. No record was found for an update.",
         error: "Not Found",
       });
     });
@@ -324,7 +373,32 @@ describe("Users E2E", () => {
       expect(res.body).toEqual({
         success: false,
         statusCode: HttpStatus.NOT_FOUND,
-        message: "User not found",
+        message: "An operation failed because it depends on one or more records that were required but not found. No record was found for a delete.",
+        error: "Not Found",
+      });
+    });
+
+    it("Should expect an UUID", async () => {
+      const res = await api
+        .delete("/users/1")
+        .expect(HttpStatus.BAD_REQUEST);
+
+      expect(res.body).toEqual({
+        success: false,
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: "Validation failed (uuid is expected)",
+        error: "Bad Request",
+      });
+    });
+    it("Shouldn't remove user with non-existent ID", async () => {
+      const res = await api
+        .delete("/users/123e4567-e89b-12d3-a456-426614174000")
+        .expect(HttpStatus.NOT_FOUND);
+
+      expect(res.body).toEqual({
+        success: false,
+        statusCode: HttpStatus.NOT_FOUND,
+        message: "An operation failed because it depends on one or more records that were required but not found. No record was found for a delete.",
         error: "Not Found",
       });
     });

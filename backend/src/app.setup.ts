@@ -37,4 +37,4 @@ export const setupApp = (app: INestApplication) => {
     SwaggerModule.setup(API_DOCS_PATH, app, cleanupOpenApiDoc(documentFactory));
   }
   return app;
-};
+}

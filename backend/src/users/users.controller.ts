@@ -12,8 +12,13 @@ import {
 import { UsersService } from "./users.service";
 import { ApiEndpoint } from "../common/decorators/api-endpoint.decorator";
 import { ApiBody, ApiParam } from "@nestjs/swagger";
-import { UserCreateDTO, UserUpdateDTO, UserGetDTO, UserDTO } from "@vigilart/shared/schemas";
-import type { UserGet, User } from "@vigilart/shared/types";
+import {
+  UserCreateDTO,
+  UserUpdateDTO,
+  UserGetDTO,
+  UserDTO,
+} from "@vigilart/shared/schemas";
+import type { UserGet } from "@vigilart/shared/types";
 
 @Controller("users")
 export class UsersController {
@@ -67,8 +72,7 @@ export class UsersController {
     summary: "Retrieve a user by email",
     success: {
       status: HttpStatus.OK,
-      type: UserDTO,
-      nullable: true
+      type: UserDTO
     },
     errors: [HttpStatus.NOT_FOUND],
     protected: true,

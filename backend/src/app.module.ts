@@ -5,10 +5,10 @@ import { AppService } from "./app.service";
 import { AppController } from "./app.controller";
 
 import { ZodValidationPipe } from "nestjs-zod";
+import { ResponseWrapperInterceptor } from "./common/interceptors/response-wrapper.interceptor";
 import { APP_PIPE, APP_INTERCEPTOR } from "@nestjs/core";
 
 import { UsersModule } from "./users/users.module";
-import { ResponseWrapperInterceptor } from "./common/interceptors/response-wrapper.interceptor";
 import { ConfigModule } from "@nestjs/config";
 import { AuthModule } from "./auth/auth.module";
 import { VisionModule } from "./vision/vision.module";
