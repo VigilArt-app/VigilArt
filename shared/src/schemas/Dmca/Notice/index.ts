@@ -24,3 +24,18 @@ export const DmcaNoticeUpdateSchema = DmcaNoticeGetSchema.pick({
     payload: true
 }).partial();
 export class DmcaNoticeUpdateDTO extends createZodDto(DmcaNoticeUpdateSchema) {}
+
+export const DmcaNoticeEmailResponseSchema = z.object({
+  to: z.string(),
+  subject: z.string(),
+  body: z.string(),
+});
+export class DmcaNoticeEmailResponseDTO extends createZodDto(DmcaNoticeEmailResponseSchema) {}
+
+export const DmcaNoticeFileResponseSchema = z.object({
+  url: z.url(),
+  filename: z.string(),
+  mimeType: z.string(),
+  size: z.number().int().nonnegative()
+});
+export class DmcaNoticeFileResponseDTO extends createZodDto(DmcaNoticeFileResponseSchema) {}

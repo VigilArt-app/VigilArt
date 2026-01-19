@@ -1,8 +1,24 @@
-import { Body, Controller, Delete, Get, HttpStatus, Param, Patch, Post, HttpCode } from "@nestjs/common";
+import {
+    Body,
+    Controller,
+    Delete,
+    Get,
+    HttpStatus,
+    Param,
+    Patch,
+    Post,
+    HttpCode
+} from "@nestjs/common";
 import { ApiParam, ApiBody } from "@nestjs/swagger";
 import { ApiEndpoint } from "../../common/decorators/api-endpoint.decorator";
 import { DmcaNoticeService } from "./notice.service";
-import { DmcaNoticeGetDTO, DmcaNoticeCreateDTO, DmcaNoticeUpdateDTO } from "@vigilart/shared/schemas";
+import {
+    DmcaNoticeGetDTO,
+    DmcaNoticeCreateDTO,
+    DmcaNoticeUpdateDTO,
+    DmcaNoticeEmailResponseDTO,
+    DmcaNoticeFileResponseDTO
+} from "@vigilart/shared/schemas";
 import type { DmcaNoticeGet } from "@vigilart/shared/types";
 import { DmcaStatus } from "@vigilart/shared";
 
@@ -126,27 +142,29 @@ export class DmcaNoticeController {
     @ApiEndpoint({
         summary: "Generate a PDF for a DMCA notice",
         success: {
-            status: HttpStatus.OK
+            status: HttpStatus.OK,
+            type: DmcaNoticeFileResponseDTO
         },
         errors: [HttpStatus.NOT_FOUND],
         protected: true
     })
     @ApiParam({ name: "id", type: String })
-    async generateNoticePdf(@Param("id") id: string): Promise<Buffer> {
+    async generateNoticePdf(@Param("id") id: string): Promise<DmcaNoticeFileResponseDTO> {
         return this.noticeService.generatePdf(id);
     }
 
-    @Post("/:id/send")
+    @Post("/:id/email")
     @ApiEndpoint({
-        summary: "Send a DMCA notice via email",
+        summary: "Get DMCA notice email content",
         success: {
-            status: HttpStatus.OK
+            status: HttpStatus.OK,
+            type: DmcaNoticeEmailResponseDTO
         },
         errors: [HttpStatus.NOT_FOUND],
         protected: true
     })
     @ApiParam({ name: "id", type: String })
-    async sendNotice(@Param("id") id: string): Promise<void> {
-        return this.noticeService.sendNotice(id);
+    async getNoticeEmail(@Param("id") id: string): Promise<DmcaNoticeEmailResponseDTO> {
+        return this.noticeService.getNoticeEmail(id);
     }
 }
