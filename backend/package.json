@@ -17,6 +17,7 @@
     "cross-env": "^10.1.0",
     "dotenv": "^17.2.3",
     "nestjs-zod": "^5.1.1",
+    "pdfkit": "^0.17.2",
     "pg": "^8.16.3",
     "supertest": "^7.1.4",
     "zod": "^4.1.13"
@@ -48,6 +49,7 @@
     "@types/express": "^5.0.6",
     "@types/jest": "^30.0.0",
     "@types/mocha": "^10.0.10",
+    "@types/pdfkit": "^0.17.4",
     "@types/pg": "^8.15.6",
     "@types/supertest": "^6.0.3",
     "dotenv-cli": "^11.0.0",
