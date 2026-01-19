@@ -47,7 +47,7 @@ export const DeviantArtDmcaFormJSON = {
         },
         {
             kind: "group",
-            key: "your_information",
+            key: "contact_information",
             title: "Your Information",
             items: [
                 {
@@ -116,7 +116,7 @@ export const DeviantArtDmcaFormJSON = {
         },
         {
             kind: "group",
-            key: "legal_information",
+            key: "legal_declarations",
             title: "Legal Information and Signature",
             items: [
                 {

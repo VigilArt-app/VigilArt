@@ -109,6 +109,33 @@ export const DmcaPlatformUpdateSchema = DmcaPlatformGetSchema.pick({
 });
 export class DmcaPlatformUpdateDTO extends createZodDto(DmcaPlatformUpdateSchema) {}
 
+export interface StandardDmcaPayload {
+    contact_information?: {
+        full_name: string;
+        email: string;
+        street_address?: string;
+        city?: string;
+        country?: string;
+        original_work_url?: string;
+        [key: string]: any;
+    };
+    infringing_content?: {
+        infringements: Array<{
+            infringing_url: string;
+            original_work_title?: string;
+            original_work_url?: string;
+            [key: string]: any;
+        }>;
+        original_work_url?: string;
+        [key: string]: any;
+    };
+    legal_declarations?: {
+        signature: string;
+        [key: string]: any;
+    };
+    [key: string]: any;
+}
+
 export const mapPlatformItemToZod = (item: DmcaFormItem): z.ZodTypeAny => {
     switch (item.kind) {
         case "field": {
@@ -164,7 +191,7 @@ export const mapPlatformItemToZod = (item: DmcaFormItem): z.ZodTypeAny => {
     }
 };
 
-export const createPayloadSchemaFromPlatform = (formSchema: DmcaFormSchema) => {
+export const createPayloadSchemaFromPlatform = (formSchema: DmcaFormSchema): z.ZodType<StandardDmcaPayload> => {
     const shape: Record<string, z.ZodTypeAny> = {};
 
     formSchema.forEach((item) => {

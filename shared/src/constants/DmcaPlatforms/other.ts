@@ -36,7 +36,7 @@ export const OtherDmcaFormJSON = {
         },
         {
             kind: "group",
-            key: "your_information",
+            key: "contact_information",
             title: "Your contact information",
             description: "This information will be included in the legal notice sent to the platform.",
             items: [
@@ -107,27 +107,20 @@ export const OtherDmcaFormJSON = {
                     maxItems: 10,
                     itemSchema: [
                         {
-                            kind: 'group',
-                            key: 'infringing_item',
-                            title: 'Infringing item',
-                            items: [
-                                {
-                                    kind: 'field',
-                                    key: 'url',
-                                    type: 'url',
-                                    title: 'Infringing URL',
-                                    placeholder: 'https://bad-site.com/stolen-image',
-                                    required: true
-                                },
-                                {
-                                    kind: 'field',
-                                    key: 'description',
-                                    type: 'textarea',
-                                    title: 'Specific details',
-                                    description: 'e.g. "They are selling my art as a print."',
-                                    required: false
-                                }
-                            ]
+                            kind: 'field',
+                            key: 'infringing_url',
+                            type: 'url',
+                            title: 'Infringing URL',
+                            placeholder: 'https://bad-site.com/stolen-image',
+                            required: true
+                        },
+                        {
+                            kind: 'field',
+                            key: 'description',
+                            type: 'textarea',
+                            title: 'Specific details',
+                            description: 'e.g. "They are selling my art as a print."',
+                            required: false
                         }
                     ]
                 }
@@ -135,7 +128,7 @@ export const OtherDmcaFormJSON = {
         },
         {
             kind: "group",
-            key: "declaration_statement",
+            key: "legal_declarations",
             title: "Declaration & signature",
             description: "By signing, you affirm that the information in this notice is accurate and that you have a good faith belief that the use of the material is not authorized.",
             items: [

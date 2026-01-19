@@ -10,7 +10,7 @@ export const InstagramDmcaFormJSON = {
     formSchema: [
         {
             kind: "group",
-            key: "your_information",
+            key: "contact_information",
             title: "Your contact information",
             items: [
                 {
@@ -19,6 +19,14 @@ export const InstagramDmcaFormJSON = {
                     type: "text",
                     title: "Full Name",
                     placeholder: "Your full name",
+                    required: true
+                },
+                {
+                    kind: "field",
+                    key: "email",
+                    type: "email",
+                    title: "Email Address",
+                    placeholder: "your@email.com",
                     required: true
                 },
                 {
@@ -108,7 +116,7 @@ export const InstagramDmcaFormJSON = {
         },
         {
             kind: "group",
-            key: "declaration_statement",
+            key: "legal_declarations",
             title: "Declaration Statement",
             description: "By submitting this notice, you state that you have a good faith belief that the reported use described above, in the manner you have complained of, is not authorized by the intellectual property rights owner, its agent, or the law; that the information contained in this notice is accurate; and, under penalty of perjury, that you are authorized to act on behalf of the owner of the intellectual property rights at issue.",
             items: [
