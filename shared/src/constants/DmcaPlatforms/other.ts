@@ -4,6 +4,7 @@ export const OtherDmcaFormJSON = {
     slug: "OTHER",
     displayName: "Other / Custom",
     dmcaUrl: "",
+    email: "",
     domain: "",
     websiteCategory: "OTHER",
     formSchema: [

@@ -4,6 +4,7 @@ export const EtsyDmcaFormJSON = {
     slug: "ETSY",
     displayName: "Etsy",
     dmcaUrl: "https://www.etsy.com/ipreporting",
+    email: "legal@etsy.com",
     domain: "https://www.etsy.com/",
     websiteCategory: "MARKETPLACES",
     formSchema: []

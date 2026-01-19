@@ -24,7 +24,7 @@ export type ArtworkScalarFieldEnum = z.infer<typeof ArtworkScalarFieldEnumSchema
 
 // File: DmcaPlatformScalarFieldEnum.schema.ts
 
-export const DmcaPlatformScalarFieldEnumSchema = z.enum(['id', 'slug', 'displayName', 'domain', 'dmcaUrl', 'websiteCategory', 'formSchema', 'createdAt', 'updatedAt'])
+export const DmcaPlatformScalarFieldEnumSchema = z.enum(['id', 'slug', 'displayName', 'domain', 'dmcaUrl', 'email', 'websiteCategory', 'formSchema', 'createdAt', 'updatedAt'])
 
 export type DmcaPlatformScalarFieldEnum = z.infer<typeof DmcaPlatformScalarFieldEnumSchema>;
 
@@ -131,6 +131,7 @@ export const DmcaPlatformSchema = z.object({
   displayName: z.string(),
   domain: z.string(),
   dmcaUrl: z.string(),
+  email: z.string(),
   websiteCategory: WebsiteCategorySchema,
   formSchema: z.unknown().refine((val) => { const getDepth = (obj: unknown, depth: number = 0): number => { if (depth > 10) return depth; if (obj === null || typeof obj !== 'object') return depth; const values = Object.values(obj as Record<string, unknown>); if (values.length === 0) return depth; return Math.max(...values.map(v => getDepth(v, depth + 1))); }; return getDepth(val) <= 10; }, "JSON nesting depth exceeds maximum of 10"),
   createdAt: z.coerce.date(),

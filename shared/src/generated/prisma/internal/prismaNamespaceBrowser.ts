@@ -111,6 +111,7 @@ export const DmcaPlatformScalarFieldEnum = {
   displayName: 'displayName',
   domain: 'domain',
   dmcaUrl: 'dmcaUrl',
+  email: 'email',
   websiteCategory: 'websiteCategory',
   formSchema: 'formSchema',
   createdAt: 'createdAt',

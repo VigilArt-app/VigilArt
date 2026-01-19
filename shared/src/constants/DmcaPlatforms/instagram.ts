@@ -4,6 +4,7 @@ export const InstagramDmcaFormJSON = {
     slug: "INSTAGRAM",
     displayName: "Instagram",
     dmcaUrl: "https://www.instagram.com/help/ipreporting/report/copyright/",
+    email: "ip@instagram.com",
     domain: "https://www.instagram.com/",
     websiteCategory: "SOCIAL",
     formSchema: [

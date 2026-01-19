@@ -81,6 +81,7 @@ const createItemSchema = (depth: number): z.ZodType<DmcaFormItem> => {
 const DmcaFormSchemaValidator: z.ZodType<DmcaFormSchema> = z.array(createItemSchema(0));
 
 export const DmcaPlatformGetSchema = DmcaPlatformSchema.extend({
+    email: z.email(),
     formSchema: DmcaFormSchemaValidator,
     createdAt: dateTimeStringToDate,
     updatedAt: dateTimeStringToDate
@@ -93,6 +94,7 @@ export const DmcaPlatformCreateSchema = DmcaPlatformGetSchema.pick({
     displayName: true,
     domain: true,
     dmcaUrl: true,
+    email: true,
     formSchema: true
 });
 export class DmcaPlatformCreateDTO extends createZodDto(DmcaPlatformCreateSchema) {}
@@ -101,6 +103,7 @@ export const DmcaPlatformUpdateSchema = DmcaPlatformGetSchema.pick({
     displayName: true,
     domain: true,
     dmcaUrl: true,
+    email: true,
     formSchema: true,
     websiteCategory: true
 });

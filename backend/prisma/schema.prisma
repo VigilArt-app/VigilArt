@@ -37,7 +37,7 @@ model User {
 
   dmcaProfile      DmcaProfile?
   dmcaNotices      DmcaNotice[]
-  artworks Artwork[]
+  artworks         Artwork[]
 }
 
 enum SubscriptionTier {
@@ -89,6 +89,7 @@ model DmcaPlatform {
   displayName   String
   domain        String            @unique
   dmcaUrl       String
+  email         String
   websiteCategory WebsiteCategory
   formSchema    Json
 

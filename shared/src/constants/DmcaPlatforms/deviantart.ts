@@ -4,6 +4,7 @@ export const DeviantArtDmcaFormJSON = {
     slug: "DEVIANTART",
     displayName: "DeviantArt",
     dmcaUrl: "https://www.deviantart.com/contact-us?menuId=copyright_dmca_holder#issue-response",
+    email: "violations@deviantart.com",
     domain: "https://www.deviantart.com/",
     websiteCategory: "ART_PLATFORMS",
     formSchema: [
