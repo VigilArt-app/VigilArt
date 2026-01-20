@@ -13,10 +13,34 @@ import type {
 } from "@vigilart/shared/types";
 import {
     DmcaStatus,
-    createPayloadSchemaFromPlatform,
-    StandardDmcaPayload
+    createPayloadSchemaFromPlatform
 } from "@vigilart/shared";
 import PDFDocument from "pdfkit";
+
+interface NecessaryProperties {
+    platform: {
+        name: string,
+        link: string,
+        email: string
+    },
+    artist: {
+        full_name: string,
+        original_work_description: string,
+        original_work_url: string,
+        infringing_urls: string[],
+        address: {
+            street: string,
+            aptSuite?: string,
+            city: string,
+            postalCode: string,
+            region?: string,
+            country: string
+        },
+        email: string,
+        phone: string,
+        signature: string
+    }
+}
 
 @Injectable()
 export class DmcaNoticeService {
@@ -124,15 +148,99 @@ export class DmcaNoticeService {
         });
     }
 
+    private loopThroughObject(payload: InputJsonValue, necessaryProperties: NecessaryProperties) {
+        if (typeof payload !== "object")
+            return;
+        for (const [property, value] of Object.entries(payload)) {
+            if (Array.isArray(value)) {
+                value.forEach(item => {
+                    if (item && typeof item === "object" && !Array.isArray(item))
+                        this.loopThroughObject(item, necessaryProperties);
+                });
+                continue;
+            }
+            if (value && typeof value === "object") {
+                this.loopThroughObject(value, necessaryProperties);
+                continue;
+            }
+            if (typeof value !== "string")
+                continue;
+            if (property.includes("full_name"))
+                necessaryProperties.artist.full_name = value;
+            else if (property === "original_work_description")
+                necessaryProperties.artist.original_work_description = value;
+            else if (property === "original_work_url")
+                necessaryProperties.artist.original_work_url = value;
+            else if (property === "infringing_url")
+                necessaryProperties.artist.infringing_urls.push(value);
+            else if (property === "street")
+                necessaryProperties.artist.address.street = value;
+            else if (property === "apt")
+                necessaryProperties.artist.address.aptSuite = value;
+            else if (property === "city")
+                necessaryProperties.artist.address.city = value;
+            else if (property === "region")
+                necessaryProperties.artist.address.region = value;
+            else if (property === "email")
+                necessaryProperties.artist.email = value;
+            else if (property === "phone_number")
+                necessaryProperties.artist.phone = value;
+            else if (property === "signature")
+                necessaryProperties.artist.signature = value;
+        }
+    }
+
+    private getPdfProperties(payload: JsonObject, platform: Omit<DmcaPlatformGet, "formSchema">, profile: DmcaProfileGet | null | undefined) {
+        const necessaryProperties: NecessaryProperties = {
+            platform: {
+                name: platform.displayName ?? "[insert company name]",
+                link: platform.domain ?? "[insert company domain]",
+                email: platform.email ?? "[insert company DMCA email]"
+            },
+            artist: {
+                full_name: profile?.fullName ?? "[insert full name]",
+                original_work_description: "[insert artwork details]",
+                original_work_url: "[insert original artwork URL]",
+                infringing_urls: ["[insert list of infringing URLs]"],
+                address: {
+                    street: profile?.street ?? "[insert street name]",
+                    aptSuite: profile?.aptSuite ?? undefined,
+                    city: profile?.city ?? "[insert city name]",
+                    postalCode: profile?.postalCode ?? "[insert postal code]",
+                    country: profile?.country ?? "[insert country name]",
+                },
+                email: profile?.email ?? "[insert your email]",
+                phone: profile?.phone ?? "[insert your phone number]",
+                signature: profile?.signature ?? "[insert your signature]"
+            }
+        };
+
+        this.loopThroughObject(payload, necessaryProperties);
+        return necessaryProperties;
+    }
+
     async generatePdf(id: string): Promise<DmcaNoticeFileResponse> {
         this.logger.log(`Generating PDF for DMCA notice: ${id}`);
         const notice = await this.prisma.dmcaNotice.findUniqueOrThrow({
             where: { id },
             include: {
-                dmcaPlatform: true
+                dmcaPlatform: {
+                    omit: {
+                        formSchema: true
+                    }
+                },
+                user: {
+                    select: {
+                        dmcaProfile: true
+                    }
+                }
             }
         });
 
+        if (!notice.payload || typeof notice.payload !== "object" || Array.isArray(notice.payload))
+            throw new BadRequestException("Invalid payload");
+
+        const properties = this.getPdfProperties(notice.payload, notice.dmcaPlatform, notice.user?.dmcaProfile)
         const doc = new PDFDocument();
         const buffers: Buffer[] = [];
 
@@ -141,7 +249,7 @@ export class DmcaNoticeService {
         doc.fontSize(20).text("DMCA Takedown Notice", { align: "center" });
         doc.moveDown();
 
-        doc.fontSize(12).text(`To: ${notice.dmcaPlatform.displayName} (${notice.dmcaPlatform.email})`);
+        doc.fontSize(12).text(`To: ${properties.platform.name} (${properties.platform.email})`);
         doc.text(`Date: ${new Date().toLocaleDateString()}`);
         doc.moveDown();
 
@@ -150,49 +258,40 @@ export class DmcaNoticeService {
         doc.text("I am writing to report copyright infringement found on your platform. I have a good faith belief that the use of the material currently appearing on your service is not authorized by the copyright owner, its agent, or the law.");
         doc.moveDown();
 
-        if (!notice.payload || typeof notice.payload !== "object" || Array.isArray(notice.payload))
-            throw new BadRequestException("Invalid payload");
-        const payload = notice.payload as StandardDmcaPayload;
-        if (payload.infringing_content && payload.infringing_content.infringements) {
-            doc.text("Infringing Content:", { underline: true });
-            doc.moveDown(0.5);
-            payload.infringing_content.infringements.forEach((item, index: number) => {
-                let infringingUrl = item.infringing_url;
-                let originalWorkTitle = item.original_work_title || "N/A";
-                let originalWorkUrl = item.original_work_url;
+        doc.text("Infringing Content:", { underline: true });
+        doc.moveDown(0.5);
+        doc.text(`Original Work: ${properties.artist.original_work_description}`);
+        doc.text(`Original URL: ${properties.artist.original_work_url}`);
+        doc.moveDown(0.5);
 
-                if (!originalWorkUrl && payload.infringing_content?.original_work_url)
-                    originalWorkUrl = payload.infringing_content.original_work_url;
-                if (notice.dmcaPlatformSlug === "INSTAGRAM" && payload.contact_information?.original_work_url)
-                    originalWorkUrl = payload.contact_information.original_work_url;
-                doc.text(`${index + 1}. Infringing URL: ${infringingUrl}`);
-                doc.text(`   Original Work: ${originalWorkTitle} (${originalWorkUrl || "See above/below"})`);
-                doc.moveDown(0.5);
-            });
-        }
+        properties.artist.infringing_urls.forEach((url, index: number) => {
+            doc.text(`${index + 1}. Infringing URL: ${url}`);
+        });
         doc.moveDown();
 
-        if (payload.contact_information) {
-            const info = payload.contact_information;
-            doc.text("Sender Information:", { underline: true });
-            doc.text(`Name: ${info.full_name}`);
-            doc.text(`Email: ${info.email}`);
-            if (info.street_address)
-                doc.text(`Address: ${info.street_address}${info.city || info.country ? ", " : ""}${info.city + " " || ""}${info.country || ""}`);
-            else if (info.city && info.country)
-                doc.text(`Address: ${info.city + " " + info.country}`);
-            else if (info.country)
-                doc.text(`Country: ${info.country}`);
-        }
+        doc.text("Sender Information:", { underline: true });
+        doc.text(`Name: ${properties.artist.full_name}`);
+        doc.text(`Email: ${properties.artist.email}`);
+        if (properties.artist.phone)
+            doc.text(`Phone: ${properties.artist.phone}`);
+
+        const addressParts = [
+            properties.artist.address.street,
+            properties.artist.address.aptSuite,
+            properties.artist.address.city,
+            properties.artist.address.region,
+            properties.artist.address.postalCode,
+            properties.artist.address.country
+        ].filter(part => part);
+
+        if (addressParts.length > 0)
+            doc.text(`Address: ${addressParts.join(", ")}`);
         doc.moveDown();
 
         doc.text("I declare under penalty of perjury that the information in this notification is accurate and that I am the owner (or authorized to act on behalf of the owner) of the exclusive right that is allegedly infringed.");
         doc.moveDown();
 
-        if (payload.legal_declarations && payload.legal_declarations.signature)
-            doc.text(`Signature: ${payload.legal_declarations.signature}`);
-        else
-            doc.text(`Signature: ______________________`);
+        doc.text(`Signature: ${properties.artist.signature}`);
 
         doc.end();
 
