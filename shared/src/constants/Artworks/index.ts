@@ -1,1 +1,2 @@
-export const LIMIT_DELETION = 10;
+export const DELETE_BATCH_LIMIT = 10;
+export const CREATE_BATCH_LIMIT = 20;
