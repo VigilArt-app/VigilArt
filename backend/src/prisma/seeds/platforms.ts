@@ -31,5 +31,4 @@ export const seedPlatforms = async (prisma: PrismaClient) => {
             create: (platform as any)
         }))
     );
-    console.log("Seeding completed successfully !");
 }

@@ -70,11 +70,13 @@ export const initialUsers = [
 ];
 
 export const addUsers = async (prisma: PrismaClient): Promise<void> => {
+  console.log(`Seeding ${initialUsers.length} users...`);
   await prisma.user.createMany({
     data: initialUsers,
     skipDuplicates: true,
   });
 
+  console.log(`Seeding ${initialArtworks.length} artworks...`);
   await prisma.artwork.createMany({
     data: initialArtworks,
     skipDuplicates: true,

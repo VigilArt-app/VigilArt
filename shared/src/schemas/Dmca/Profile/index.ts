@@ -10,8 +10,8 @@ export class DmcaProfileGetDTO extends createZodDto(DmcaProfileGetSchema) {}
 
 export const DmcaProfileCreateSchema = DmcaProfileGetSchema.pick({
     fullName: true,
-    addressLine1: true,
-    addressLine2: true,
+    street: true,
+    aptSuite: true,
     city: true,
     postalCode: true,
     country: true,
