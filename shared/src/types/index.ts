@@ -13,3 +13,5 @@ export * from "./Dmca/Platform";
 export * from "./Dmca/Profile";
 
 export * from "./Dmca/Platform/JSON-types";
+
+export * from "./Prisma";

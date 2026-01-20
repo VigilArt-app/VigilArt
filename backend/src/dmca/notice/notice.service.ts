@@ -5,7 +5,11 @@ import type {
     DmcaNoticeCreate,
     DmcaNoticeUpdate,
     DmcaNoticeEmailResponse,
-    DmcaNoticeFileResponse
+    DmcaNoticeFileResponse,
+    DmcaPlatformGet,
+    DmcaProfileGet,
+    InputJsonValue,
+    JsonObject
 } from "@vigilart/shared/types";
 import {
     DmcaStatus,
@@ -39,18 +43,18 @@ export class DmcaNoticeService {
         });
     }
 
-    private async validatePayload(platformSlug: string, payload: StandardDmcaPayload): Promise<StandardDmcaPayload> {
+    private async validatePayload(platformSlug: string, payload: unknown) {
         const platform = await this.prisma.dmcaPlatform.findUniqueOrThrow({
             where: { slug: platformSlug }
-        });
-        const Validator = createPayloadSchemaFromPlatform(platform.formSchema as any);
+        }) as unknown as DmcaPlatformGet;
+        const Validator = createPayloadSchemaFromPlatform(platform.formSchema);
 
-        return Validator.parse(payload);
+        return Validator.parse(payload) as InputJsonValue;
     }
 
     async create(data: DmcaNoticeCreate): Promise<DmcaNoticeGet> {
         const safePayload = await this.validatePayload(data.dmcaPlatformSlug, data.payload);
-        const status: DmcaStatus = DmcaStatus.DRAFT;
+        const status = DmcaStatus.DRAFT;
 
         this.logger.log(`Creating DMCA notice for user: ${data.userId}`);
         return this.prisma.dmcaNotice.create({
