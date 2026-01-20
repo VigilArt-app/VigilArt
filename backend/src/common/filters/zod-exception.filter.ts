@@ -9,17 +9,22 @@ import { Response } from "express";
 import { ApiErrorData } from "@vigilart/shared/types";
 import { errorLabels } from "@vigilart/shared/constants";
 import { ZodValidationException } from "nestjs-zod";
+import { ZodError } from "zod";
 
-@Catch(ZodValidationException)
+@Catch(ZodValidationException, ZodError)
 export class ZodExceptionFilter implements ExceptionFilter {
     private readonly logger = new Logger(ZodExceptionFilter.name);
 
-    catch(exception: ZodValidationException, host: ArgumentsHost) {
+    catch(exception: ZodValidationException | ZodError, host: ArgumentsHost) {
         const ctx = host.switchToHttp();
         const response = ctx.getResponse<Response>();
-        const validationResponse = exception.getResponse() as any;
-        const errors = validationResponse.errors || [];
-        const messages = errors.map((err: any) => {
+        let errors: ZodError;
+        if (exception instanceof ZodError)
+            errors = exception;
+        else
+            errors = exception.getZodError() as ZodError;
+
+        const messages = errors.issues.map((err) => {
             const path = err.path && err.path.length > 0 ? `${err.path.join(".")}: ` : "";
             return `${path}${err.message}`;
         });

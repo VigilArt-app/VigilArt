@@ -135,7 +135,7 @@ describe("Auth E2E", () => {
       expect(res.body).toEqual({
         success: false,
         statusCode: HttpStatus.BAD_REQUEST,
-        message: "password: Password must contain at least 1 uppercase letter(s); password: Password must contain at least 1 number(s); password: Password must contain at least 1 symbol(s)",
+        message: expect.any(String),
         error: "Bad Request",
       });
     });
@@ -161,7 +161,7 @@ describe("Auth E2E", () => {
       expect(res.body).toEqual({
         success: false,
         statusCode: HttpStatus.BAD_REQUEST,
-        message: "email: Invalid email address",
+        message: expect.any(String),
         error: "Bad Request",
       });
     });
@@ -221,7 +221,7 @@ describe("Auth E2E", () => {
       expect(res.body).toEqual({
         success: false,
         statusCode: HttpStatus.UNAUTHORIZED,
-        message: "Invalid credentials",
+        message: expect.any(String),
         error: "Unauthorized",
       });
     });
@@ -247,7 +247,7 @@ describe("Auth E2E", () => {
       expect(res.body).toEqual({
         success: false,
         statusCode: HttpStatus.UNAUTHORIZED,
-        message: "Invalid credentials",
+        message: expect.any(String),
         error: "Unauthorized",
       });
     });

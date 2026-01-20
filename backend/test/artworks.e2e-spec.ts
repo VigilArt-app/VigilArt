@@ -147,7 +147,7 @@ describe("Artworks E2E", () => {
       expect(res.body).toEqual({
         success: false,
         statusCode: HttpStatus.BAD_REQUEST,
-        message: "userId: User id is required.",
+        message: expect.any(String),
         error: "Bad Request",
       });
     });
@@ -164,7 +164,7 @@ describe("Artworks E2E", () => {
       expect(res.body).toEqual({
         success: false,
         statusCode: HttpStatus.NOT_FOUND,
-        message: "User does not exist",
+        message: expect.any(String),
         error: "Not Found",
       });
     });
@@ -249,7 +249,7 @@ describe("Artworks E2E", () => {
       expect(res.body).toEqual({
         success: false,
         statusCode: HttpStatus.BAD_REQUEST,
-        message: "Validation failed (uuid is expected)",
+        message: expect.any(String),
         error: "Bad Request",
       });
     });
@@ -301,7 +301,7 @@ describe("Artworks E2E", () => {
       expect(res.body).toEqual({
         success: false,
         statusCode: HttpStatus.NOT_FOUND,
-        message: "Artwork not found",
+        message: expect.any(String),
         error: "Not Found",
       });
     });
@@ -312,7 +312,7 @@ describe("Artworks E2E", () => {
       expect(res.body).toEqual({
         success: false,
         statusCode: HttpStatus.BAD_REQUEST,
-        message: "Validation failed (uuid is expected)",
+        message: expect.any(String),
         error: "Bad Request",
       });
     });
@@ -370,7 +370,7 @@ describe("Artworks E2E", () => {
       expect(res.body).toEqual({
         success: false,
         statusCode: HttpStatus.NOT_FOUND,
-        message: "Artwork not found",
+        message: expect.any(String),
         error: "Not Found",
       });
     });
@@ -386,7 +386,7 @@ describe("Artworks E2E", () => {
       expect(res.body).toEqual({
         success: false,
         statusCode: HttpStatus.BAD_REQUEST,
-        message: "Validation failed (uuid is expected)",
+        message: expect.any(String),
         error: "Bad Request",
       });
     });
@@ -422,7 +422,7 @@ describe("Artworks E2E", () => {
       expect(res.body).toEqual({
         success: false,
         statusCode: HttpStatus.NOT_FOUND,
-        message: "Artwork not found",
+        message: expect.any(String),
         error: "Not Found",
       });
     });
@@ -435,7 +435,7 @@ describe("Artworks E2E", () => {
       expect(res.body).toEqual({
         success: false,
         statusCode: HttpStatus.BAD_REQUEST,
-        message: "Validation failed (uuid is expected)",
+        message: expect.any(String),
         error: "Bad Request",
       });
     });

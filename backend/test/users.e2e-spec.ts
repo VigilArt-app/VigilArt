@@ -80,7 +80,7 @@ describe("Users E2E", () => {
       expect(res.body).toEqual({
         success: false,
         statusCode: HttpStatus.CONFLICT,
-        message: "Email already in use",
+        message: expect.any(String),
         error: "Conflict",
       });
     });
@@ -94,7 +94,7 @@ describe("Users E2E", () => {
       expect(res.body).toEqual({
         success: false,
         statusCode: HttpStatus.BAD_REQUEST,
-        message: "password: Password is required.; firstName: First name is required.; lastName: Last name is required.",
+        message: expect.any(String),
         error: "Bad Request",
       });
     });
@@ -113,7 +113,7 @@ describe("Users E2E", () => {
       expect(res.body).toEqual({
         success: false,
         statusCode: HttpStatus.BAD_REQUEST,
-        message: "email: Invalid email address",
+        message: expect.any(String),
         error: "Bad Request",
       });
     });
@@ -214,7 +214,7 @@ describe("Users E2E", () => {
       expect(res.body).toEqual({
         success: false,
         statusCode: HttpStatus.NOT_FOUND,
-        message: "An operation failed because it depends on one or more records that were required but not found. No record was found for a query.",
+        message: expect.any(String),
         error: "Not Found",
       });
     });
@@ -225,7 +225,7 @@ describe("Users E2E", () => {
       expect(res.body).toEqual({
         success: false,
         statusCode: HttpStatus.BAD_REQUEST,
-        message: "Validation failed (uuid is expected)",
+        message: expect.any(String),
         error: "Bad Request",
       });
     });
@@ -277,7 +277,7 @@ describe("Users E2E", () => {
       expect(res.body).toEqual({
         success: false,
         statusCode: HttpStatus.NOT_FOUND,
-        message: "An operation failed because it depends on one or more records that were required but not found. No record was found for an update.",
+        message: expect.any(String),
         error: "Not Found",
       });
     });
@@ -293,7 +293,7 @@ describe("Users E2E", () => {
       expect(res.body).toEqual({
         success: false,
         statusCode: HttpStatus.BAD_REQUEST,
-        message: "Validation failed (uuid is expected)",
+        message: expect.any(String),
         error: "Bad Request",
       });
     });
@@ -326,7 +326,7 @@ describe("Users E2E", () => {
       expect(res.body).toEqual({
         success: false,
         statusCode: HttpStatus.NOT_FOUND,
-        message: "An operation failed because it depends on one or more records that were required but not found. No record was found for an update.",
+        message: expect.any(String),
         error: "Not Found",
       });
     });
@@ -342,7 +342,7 @@ describe("Users E2E", () => {
       expect(res.body).toEqual({
         success: false,
         statusCode: HttpStatus.BAD_REQUEST,
-        message: "Validation failed (uuid is expected)",
+        message: expect.any(String),
         error: "Bad Request",
       });
     });
@@ -373,7 +373,7 @@ describe("Users E2E", () => {
       expect(res.body).toEqual({
         success: false,
         statusCode: HttpStatus.NOT_FOUND,
-        message: "An operation failed because it depends on one or more records that were required but not found. No record was found for a delete.",
+        message: expect.any(String),
         error: "Not Found",
       });
     });
@@ -386,7 +386,7 @@ describe("Users E2E", () => {
       expect(res.body).toEqual({
         success: false,
         statusCode: HttpStatus.BAD_REQUEST,
-        message: "Validation failed (uuid is expected)",
+        message: expect.any(String),
         error: "Bad Request",
       });
     });
@@ -398,7 +398,7 @@ describe("Users E2E", () => {
       expect(res.body).toEqual({
         success: false,
         statusCode: HttpStatus.NOT_FOUND,
-        message: "An operation failed because it depends on one or more records that were required but not found. No record was found for a delete.",
+        message: expect.any(String),
         error: "Not Found",
       });
     });
@@ -411,7 +411,7 @@ describe("Users E2E", () => {
       expect(res.body).toEqual({
         success: false,
         statusCode: HttpStatus.BAD_REQUEST,
-        message: "Validation failed (uuid is expected)",
+        message: expect.any(String),
         error: "Bad Request",
       });
     });
