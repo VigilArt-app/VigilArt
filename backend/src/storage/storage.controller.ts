@@ -1,9 +1,4 @@
-import {
-  Controller,
-  HttpStatus,
-  Post,
-  Body,
-} from "@nestjs/common";
+import { Controller, HttpStatus, Post, Body } from "@nestjs/common";
 import { StorageService } from "./storage.service";
 import { ApiEndpoint } from "../common/decorators/api-endpoint.decorator";
 import { ApiBody } from "@nestjs/swagger";
@@ -11,7 +6,7 @@ import {
   DownloadUrlsGetDTO,
   UploadUrlsRequestDTO,
   UploadUrlsGetDTO,
-  DownloadUrlsRequestDTO,
+  DownloadUrlsRequestDTO
 } from "@vigilart/shared";
 
 @Controller("storage/artworks")
@@ -23,15 +18,15 @@ export class StorageController {
     summary: "Generate a list of pre-signed URLs to upload multiple artworks",
     success: {
       status: HttpStatus.OK,
-      type: UploadUrlsGetDTO,
+      type: UploadUrlsGetDTO
     },
-    protected: true,
+    protected: true
   })
   @ApiBody({ type: UploadUrlsRequestDTO })
   async getUploadUrls(
-    @Body() { filenames }: UploadUrlsRequestDTO,
+    @Body() { filenames, prefix }: UploadUrlsRequestDTO
   ): Promise<UploadUrlsGetDTO> {
-    return this.storageService.getUploadUrls(filenames);
+    return this.storageService.getUploadUrls(filenames, prefix);
   }
 
   @Post("download-urls")
@@ -39,13 +34,13 @@ export class StorageController {
     summary: "Generate a list of pre-signed URLs to download multiple artworks",
     success: {
       status: HttpStatus.OK,
-      type: DownloadUrlsGetDTO,
+      type: DownloadUrlsGetDTO
     },
-    protected: true,
+    protected: true
   })
   @ApiBody({ type: DownloadUrlsRequestDTO })
   async getDownloadUrls(
-    @Body() { storageKeys }: DownloadUrlsRequestDTO,
+    @Body() { storageKeys }: DownloadUrlsRequestDTO
   ): Promise<DownloadUrlsGetDTO> {
     return this.storageService.getDownloadUrls(storageKeys);
   }

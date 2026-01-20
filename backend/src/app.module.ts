@@ -20,7 +20,7 @@ import { StorageModule } from "./storage/storage.module";
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: "../.env",
+      envFilePath: "../.env"
     }),
     UsersModule,
     AuthModule,
@@ -28,19 +28,19 @@ import { StorageModule } from "./storage/storage.module";
     ArtworksModule,
     ReportsModule,
     PrismaModule,
-    StorageModule,
+    StorageModule
   ],
   controllers: [AppController],
   providers: [
     AppService,
     {
       provide: APP_INTERCEPTOR,
-      useClass: ZodSerializerInterceptor,
+      useClass: ZodSerializerInterceptor
     },
     {
       provide: APP_PIPE,
-      useClass: ZodValidationPipe,
-    },
-  ],
+      useClass: ZodValidationPipe
+    }
+  ]
 })
 export class AppModule {}

@@ -17,7 +17,7 @@ export const setupApp = (app: INestApplication) => {
   app.setGlobalPrefix(apiPrefix);
   app.useGlobalFilters(
     new HttpExceptionFilter(httpAdapter),
-    new PrismaClientExceptionFilter(httpAdapter),
+    new PrismaClientExceptionFilter(httpAdapter)
   );
   app.useGlobalInterceptors(new ResponseWrapperInterceptor());
 
@@ -28,13 +28,13 @@ export const setupApp = (app: INestApplication) => {
     const swaggerConfig = new DocumentBuilder()
       .setTitle("VigilArt API")
       .setDescription(
-        "Official API documentation for the VigilArt application.",
+        "Official API documentation for the VigilArt application."
       )
       .setVersion("0.0.1")
       .addBearerAuth()
       .addGlobalResponse({
         status: 500,
-        type: InternalServerErrorDTO,
+        type: InternalServerErrorDTO
       })
       .build();
     const documentFactory = SwaggerModule.createDocument(app, swaggerConfig);

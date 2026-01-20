@@ -2,7 +2,7 @@ import {
   BadRequestException,
   Injectable,
   Logger,
-  NotFoundException,
+  NotFoundException
 } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import {
@@ -11,7 +11,7 @@ import {
   ArtworkCreateManyDTO,
   ArtworkUpdateDTO,
   ArtworkCreateManyResponseDTO,
-  ApiBatchPayload,
+  ApiBatchPayload
 } from "@vigilart/shared";
 
 @Injectable()
@@ -20,17 +20,13 @@ export class ArtworksService {
 
   private readonly logger = new Logger(ArtworksService.name);
 
-  async create({
-    userId,
-    originalFilename,
-    ...artworkData
-  }: ArtworkCreateDTO): Promise<Artwork> {
+  async create(artworkData: ArtworkCreateDTO): Promise<Artwork> {
     this.logger.log(
-      `Creating new artwork ${originalFilename} of user ${userId}`,
+      `Creating new artwork ${artworkData.originalFilename} of user ${artworkData.userId}`
     );
     try {
       return await this.prisma.artwork.create({
-        data: { userId, originalFilename, ...artworkData },
+        data: artworkData
       });
     } catch (e: any) {
       if (e.code === "P2003") {
@@ -41,20 +37,20 @@ export class ArtworksService {
   }
 
   async createMany(
-    artworksData: ArtworkCreateManyDTO,
+    artworksData: ArtworkCreateManyDTO
   ): Promise<ArtworkCreateManyResponseDTO> {
     this.logger.log("Creating new artworks");
     try {
       const res = await this.prisma.artwork.createManyAndReturn({
-        data: artworksData,
+        data: artworksData
       });
       return {
         count: res.length,
         artworks: res.map((artwork) => ({
           id: artwork.id,
           userId: artwork.userId,
-          originalFilename: artwork.originalFilename,
-        })),
+          originalFilename: artwork.originalFilename
+        }))
       };
     } catch (e: any) {
       if (e.code === "P2003") {
@@ -73,8 +69,8 @@ export class ArtworksService {
     this.logger.log(`Finding all artworks for user ${userId}`);
     return this.prisma.artwork.findMany({
       where: {
-        userId,
-      },
+        userId
+      }
     });
   }
 
@@ -83,8 +79,8 @@ export class ArtworksService {
       this.logger.log(`Finding artwork ${id}`);
       return await this.prisma.artwork.findUniqueOrThrow({
         where: {
-          id,
-        },
+          id
+        }
       });
     } catch (e: any) {
       if (e.code == "P2025") {
@@ -96,26 +92,26 @@ export class ArtworksService {
 
   async findMany(ids: string[]): Promise<Artwork[]> {
     this.logger.log(`Finding artworks ${ids.join(",")}`);
-    return await this.prisma.artwork.findMany({
+    return this.prisma.artwork.findMany({
       where: {
         id: {
-          in: ids,
-        },
-      },
+          in: ids
+        }
+      }
     });
   }
 
   async update(
     id: string,
-    updateArtworkDto: ArtworkUpdateDTO,
+    updateArtworkDto: ArtworkUpdateDTO
   ): Promise<Artwork> {
     this.logger.log(`Updating artwork ${id}`);
     try {
       return await this.prisma.artwork.update({
         where: {
-          id,
+          id
         },
-        data: updateArtworkDto,
+        data: updateArtworkDto
       });
     } catch (e: any) {
       if (e.code == "P2025") {
@@ -130,8 +126,8 @@ export class ArtworksService {
     try {
       await this.prisma.artwork.delete({
         where: {
-          id,
-        },
+          id
+        }
       });
     } catch (e: any) {
       if (e.code == "P2025") {
@@ -146,9 +142,9 @@ export class ArtworksService {
     return await this.prisma.artwork.deleteMany({
       where: {
         id: {
-          in: ids,
-        },
-      },
+          in: ids
+        }
+      }
     });
   }
 }

@@ -10,7 +10,7 @@ import {
   NotFoundApiErrorSchema,
   ConflictApiErrorSchema,
   InternalServerApiErrorSchema,
-  ApiBatchPayloadSchema,
+  ApiBatchPayloadSchema
 } from "../../schemas/Api";
 import { z } from "zod";
 

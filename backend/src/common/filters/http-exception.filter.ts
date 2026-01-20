@@ -3,7 +3,7 @@ import {
   ArgumentsHost,
   HttpException,
   HttpStatus,
-  Logger,
+  Logger
 } from "@nestjs/common";
 import { BaseExceptionFilter } from "@nestjs/core";
 import { Response } from "express";
@@ -20,7 +20,7 @@ export class HttpExceptionFilter extends BaseExceptionFilter {
       success: false,
       statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
       message: null,
-      error: "Internal Server Error",
+      error: "Internal Server Error"
     };
     const errorLabels: Record<number, string> = {
       400: "Bad Request",
@@ -28,7 +28,7 @@ export class HttpExceptionFilter extends BaseExceptionFilter {
       403: "Forbidden",
       404: "Not Found",
       409: "Conflict",
-      500: "Internal Server Error",
+      500: "Internal Server Error"
     } as const;
     if (exception instanceof HttpException) {
       errorBody.statusCode = exception.getStatus();

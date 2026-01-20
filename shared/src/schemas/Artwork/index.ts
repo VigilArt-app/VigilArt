@@ -1,15 +1,14 @@
-import { dateTimeStringToDate } from "../../constants";
+import { dateTimeStringToDate, LIMIT_DELETION } from "../../constants";
 import { ArtworkSchema as base } from "../../generated/zod";
 import { createZodDto } from "nestjs-zod/dto";
 import { z } from "zod";
-
-const LIMIT_DELETION = 10;
 
 export const ArtworkSchema = base.extend({
   userId: z.uuid(),
   createdAt: dateTimeStringToDate,
   updatedAt: dateTimeStringToDate,
-  lastScanAt: dateTimeStringToDate,
+  description: z.optional(z.string()),
+  lastScanAt: z.optional(dateTimeStringToDate)
 });
 export class ArtworkDTO extends createZodDto(ArtworkSchema) {}
 
@@ -22,39 +21,34 @@ export const ArtworkCreateSchema = ArtworkSchema.pick({
   width: true,
   height: true,
   storageKey: true,
-  lastScanAt: true,
+  lastScanAt: true
 })
-  .partial({
-    lastScanAt: true,
-    description: true,
-  })
   .extend({
     userId: z.uuid({
-      error: (e) =>
-        e.input === undefined ? "User id is required." : undefined,
+      error: (e) => (e.input === undefined ? "User id is required." : undefined)
     }),
     originalFilename: z.string({
       error: (e) =>
-        e.input === undefined ? "Original filename is required." : undefined,
+        e.input === undefined ? "Original filename is required." : undefined
     }),
     contentType: z.string({
       error: (e) =>
-        e.input === undefined ? "Content type is required." : undefined,
+        e.input === undefined ? "Content type is required." : undefined
     }),
     sizeBytes: z.int({
       error: (e) =>
-        e.input === undefined ? "Size bytes is required." : undefined,
+        e.input === undefined ? "Size bytes is required." : undefined
     }),
     storageKey: z.string({
       error: (e) =>
-        e.input === undefined ? "Storage key is required." : undefined,
+        e.input === undefined ? "Storage key is required." : undefined
     }),
     width: z.int({
-      error: (e) => (e.input === undefined ? "Width is required." : undefined),
+      error: (e) => (e.input === undefined ? "Width is required." : undefined)
     }),
     height: z.int({
-      error: (e) => (e.input === undefined ? "Height is required." : undefined),
-    }),
+      error: (e) => (e.input === undefined ? "Height is required." : undefined)
+    })
   });
 
 export class ArtworkCreateDTO extends createZodDto(ArtworkCreateSchema) {}
@@ -62,13 +56,13 @@ export class ArtworkCreateDTO extends createZodDto(ArtworkCreateSchema) {}
 export const ArtworkCreateManySchema = z.array(ArtworkCreateSchema);
 
 export class ArtworkCreateManyDTO extends createZodDto(
-  ArtworkCreateManySchema,
+  ArtworkCreateManySchema
 ) {}
 
 export const ArtworkUpdateSchema = ArtworkSchema.pick({
-  description: true,
+  description: true
 }).partial({
-  description: true,
+  description: true
 });
 
 export class ArtworkUpdateDTO extends createZodDto(ArtworkUpdateSchema) {}
@@ -76,11 +70,11 @@ export class ArtworkUpdateDTO extends createZodDto(ArtworkUpdateSchema) {}
 export const ArtworkRemoveManySchema = z.object({
   ids: z
     .array(z.uuid())
-    .max(LIMIT_DELETION, `Can only select up to ${LIMIT_DELETION}`),
+    .max(LIMIT_DELETION, `Can only select up to ${LIMIT_DELETION}`)
 });
 
 export class ArtworkRemoveManyDTO extends createZodDto(
-  ArtworkRemoveManySchema,
+  ArtworkRemoveManySchema
 ) {}
 
 export const ArtworkCreateManyResponseSchema = z.object({
@@ -89,11 +83,11 @@ export const ArtworkCreateManyResponseSchema = z.object({
     ArtworkSchema.pick({
       id: true,
       userId: true,
-      originalFilename: true,
-    }),
-  ),
+      originalFilename: true
+    })
+  )
 });
 
 export class ArtworkCreateManyResponseDTO extends createZodDto(
-  ArtworkCreateManyResponseSchema,
+  ArtworkCreateManyResponseSchema
 ) {}

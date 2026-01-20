@@ -11,13 +11,13 @@ jest.mock("@aws-sdk/client-s3", () => {
     S3Client: jest.fn().mockImplementation(() => {
       return {
         close: jest.fn().mockResolvedValue(undefined),
-        send: jest.fn().mockResolvedValue(undefined),
+        send: jest.fn().mockResolvedValue(undefined)
       };
     }),
     GetObjectCommand: jest.fn(),
     PutObjectCommand: jest.fn(),
     DeleteObjectCommand: jest.fn(),
-    DeleteObjectsCommand: jest.fn(),
+    DeleteObjectsCommand: jest.fn()
   };
 });
 
@@ -28,7 +28,7 @@ describe("Artworks E2E", () => {
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
-      imports: [AppModule],
+      imports: [AppModule]
     }).compile();
 
     app = moduleRef.createNestApplication();
@@ -46,8 +46,8 @@ describe("Artworks E2E", () => {
         password: "Hashed_P4ssword",
         firstName: "Emma",
         lastName: "Dao",
-        subscriptionTier: SubscriptionTier.FREE,
-      },
+        subscriptionTier: SubscriptionTier.FREE
+      }
     });
     const user2 = await prismaService.user.create({
       data: {
@@ -55,8 +55,8 @@ describe("Artworks E2E", () => {
         password: "Hashed_P4ssword",
         firstName: "Amanda",
         lastName: "Rawles",
-        subscriptionTier: SubscriptionTier.FREE,
-      },
+        subscriptionTier: SubscriptionTier.FREE
+      }
     });
     await prismaService.artwork.createMany({
       data: [
@@ -68,7 +68,7 @@ describe("Artworks E2E", () => {
           width: 900,
           height: 800,
           contentType: "image/jpeg",
-          description: "Woman with grey hair",
+          description: "Woman with grey hair"
         },
         {
           userId: user2.id,
@@ -77,9 +77,9 @@ describe("Artworks E2E", () => {
           width: 900,
           height: 800,
           contentType: "image/jpeg",
-          storageKey: `artworks/${user2.id}/woman_smiling_flower3fdc9208-3634-4804-8df7-d19cd426ca30.jpg`,
-        },
-      ],
+          storageKey: `artworks/${user2.id}/woman_smiling_flower3fdc9208-3634-4804-8df7-d19cd426ca30.jpg`
+        }
+      ]
     });
   });
 
@@ -92,8 +92,8 @@ describe("Artworks E2E", () => {
     it("Should create an artwork - required fields only", async () => {
       const user = await prismaService.user.findUniqueOrThrow({
         where: {
-          email: "emma.dao@mail.com",
-        },
+          email: "emma.dao@mail.com"
+        }
       });
 
       const res = await api
@@ -105,7 +105,7 @@ describe("Artworks E2E", () => {
           contentType: "image/jpeg",
           sizeBytes: 81686,
           width: 900,
-          height: 800,
+          height: 800
         })
         .expect(HttpStatus.CREATED);
 
@@ -125,16 +125,16 @@ describe("Artworks E2E", () => {
           lastScanAt: null,
           description: null,
           createdAt: expect.any(String),
-          updatedAt: expect.any(String),
-        },
+          updatedAt: expect.any(String)
+        }
       });
     });
 
     it("Should create an artwork - with optional fields", async () => {
       const user = await prismaService.user.findUniqueOrThrow({
         where: {
-          email: "emma.dao@mail.com",
-        },
+          email: "emma.dao@mail.com"
+        }
       });
 
       const res = await api
@@ -147,7 +147,7 @@ describe("Artworks E2E", () => {
           sizeBytes: 81686,
           width: 900,
           height: 800,
-          description: "Woman holding a flower bouquet",
+          description: "Woman holding a flower bouquet"
         })
         .expect(HttpStatus.CREATED);
 
@@ -167,8 +167,8 @@ describe("Artworks E2E", () => {
           description: "Woman holding a flower bouquet",
           createdAt: expect.any(String),
           updatedAt: expect.any(String),
-          lastScanAt: null,
-        },
+          lastScanAt: null
+        }
       });
     });
 
@@ -183,14 +183,14 @@ describe("Artworks E2E", () => {
           sizeBytes: 81686,
           width: 900,
           height: 800,
-          description: "Woman holding a flower bouquet",
+          description: "Woman holding a flower bouquet"
         })
         .expect(HttpStatus.BAD_REQUEST);
       expect(res.body).toEqual({
         success: false,
         statusCode: HttpStatus.BAD_REQUEST,
         message: "Validation failed",
-        error: "User id is required.",
+        error: "User id is required."
       });
     });
 
@@ -206,7 +206,7 @@ describe("Artworks E2E", () => {
           sizeBytes: 81686,
           width: 900,
           height: 800,
-          description: "Woman holding a flower bouquet",
+          description: "Woman holding a flower bouquet"
         })
         .expect(HttpStatus.NOT_FOUND);
 
@@ -214,7 +214,7 @@ describe("Artworks E2E", () => {
         success: false,
         statusCode: HttpStatus.NOT_FOUND,
         message: "User does not exist",
-        error: "Not Found",
+        error: "Not Found"
       });
     });
   });
@@ -223,8 +223,8 @@ describe("Artworks E2E", () => {
     it("Should create multiple artworks - required fields only", async () => {
       const user = await prismaService.user.findUniqueOrThrow({
         where: {
-          email: "emma.dao@mail.com",
-        },
+          email: "emma.dao@mail.com"
+        }
       });
 
       const res = await api
@@ -237,7 +237,7 @@ describe("Artworks E2E", () => {
             contentType: "image/jpeg",
             sizeBytes: 81686,
             width: 900,
-            height: 800,
+            height: 800
           },
           {
             userId: user.id,
@@ -246,8 +246,8 @@ describe("Artworks E2E", () => {
             contentType: "image/jpeg",
             sizeBytes: 10381,
             width: 1000,
-            height: 900,
-          },
+            height: 900
+          }
         ])
         .expect(HttpStatus.CREATED);
 
@@ -261,25 +261,25 @@ describe("Artworks E2E", () => {
             {
               id: expect.any(String),
               userId: user.id,
-              originalFilename: "woman_flower_bouquet.jpg",
+              originalFilename: "woman_flower_bouquet.jpg"
             },
             {
               id: expect.any(String),
               userId: user.id,
-              originalFilename: "watercolor.jpg",
-            },
-          ],
-        },
+              originalFilename: "watercolor.jpg"
+            }
+          ]
+        }
       });
       const artwork1 = await prismaService.artwork.findUnique({
         where: {
-          id: res.body.data.artworks[0].id,
-        },
+          id: res.body.data.artworks[0].id
+        }
       });
       const artwork2 = await prismaService.artwork.findUnique({
         where: {
-          id: res.body.data.artworks[1].id,
-        },
+          id: res.body.data.artworks[1].id
+        }
       });
       expect(artwork1).toEqual({
         id: expect.any(String),
@@ -293,7 +293,7 @@ describe("Artworks E2E", () => {
         createdAt: expect.any(Date),
         updatedAt: expect.any(Date),
         lastScanAt: null,
-        description: null,
+        description: null
       });
       expect(artwork2).toEqual({
         id: expect.any(String),
@@ -307,15 +307,15 @@ describe("Artworks E2E", () => {
         createdAt: expect.any(Date),
         updatedAt: expect.any(Date),
         lastScanAt: null,
-        description: null,
+        description: null
       });
     });
 
     it("Should create multiple artworks - with optional fields", async () => {
       const user = await prismaService.user.findUniqueOrThrow({
         where: {
-          email: "emma.dao@mail.com",
-        },
+          email: "emma.dao@mail.com"
+        }
       });
 
       const res = await api
@@ -329,7 +329,7 @@ describe("Artworks E2E", () => {
             sizeBytes: 81686,
             width: 900,
             height: 800,
-            description: "Woman holding a flower bouquet",
+            description: "Woman holding a flower bouquet"
           },
           {
             userId: user.id,
@@ -339,8 +339,8 @@ describe("Artworks E2E", () => {
             sizeBytes: 10381,
             width: 1000,
             height: 900,
-            description: "Watercolor",
-          },
+            description: "Watercolor"
+          }
         ])
         .expect(HttpStatus.CREATED);
 
@@ -354,25 +354,25 @@ describe("Artworks E2E", () => {
             {
               id: expect.any(String),
               userId: user.id,
-              originalFilename: "woman_flower_bouquet.jpg",
+              originalFilename: "woman_flower_bouquet.jpg"
             },
             {
               id: expect.any(String),
               userId: user.id,
-              originalFilename: "watercolor.jpg",
-            },
-          ],
-        },
+              originalFilename: "watercolor.jpg"
+            }
+          ]
+        }
       });
       const artwork1 = await prismaService.artwork.findUnique({
         where: {
-          id: res.body.data.artworks[0].id,
-        },
+          id: res.body.data.artworks[0].id
+        }
       });
       const artwork2 = await prismaService.artwork.findUnique({
         where: {
-          id: res.body.data.artworks[1].id,
-        },
+          id: res.body.data.artworks[1].id
+        }
       });
       expect(artwork1).toEqual({
         id: expect.any(String),
@@ -386,7 +386,7 @@ describe("Artworks E2E", () => {
         description: "Woman holding a flower bouquet",
         lastScanAt: null,
         createdAt: expect.any(Date),
-        updatedAt: expect.any(Date),
+        updatedAt: expect.any(Date)
       });
       expect(artwork2).toEqual({
         id: expect.any(String),
@@ -400,15 +400,15 @@ describe("Artworks E2E", () => {
         description: "Watercolor",
         lastScanAt: null,
         createdAt: expect.any(Date),
-        updatedAt: expect.any(Date),
+        updatedAt: expect.any(Date)
       });
     });
 
     it("Shouldn't create batch when required fields of an artwork are missing", async () => {
       const user = await prismaService.user.findUniqueOrThrow({
         where: {
-          email: "emma.dao@mail.com",
-        },
+          email: "emma.dao@mail.com"
+        }
       });
 
       const res = await api
@@ -422,7 +422,7 @@ describe("Artworks E2E", () => {
             sizeBytes: 81686,
             width: 900,
             height: 800,
-            description: "Woman holding a flower bouquet",
+            description: "Woman holding a flower bouquet"
           },
           {
             userId: user.id,
@@ -432,23 +432,23 @@ describe("Artworks E2E", () => {
             sizeBytes: 10381,
             width: 1000,
             height: 900,
-            description: "Watercolor",
-          },
+            description: "Watercolor"
+          }
         ])
         .expect(HttpStatus.BAD_REQUEST);
       expect(res.body).toEqual({
         success: false,
         statusCode: HttpStatus.BAD_REQUEST,
         message: "Validation failed",
-        error: "User id is required.",
+        error: "User id is required."
       });
     });
 
     it("Shouldn't create batch if non-existent user id used", async () => {
       const user = await prismaService.user.findUniqueOrThrow({
         where: {
-          email: "emma.dao@mail.com",
-        },
+          email: "emma.dao@mail.com"
+        }
       });
 
       const res = await api
@@ -463,7 +463,7 @@ describe("Artworks E2E", () => {
             sizeBytes: 81686,
             width: 900,
             height: 800,
-            description: "Woman holding a flower bouquet",
+            description: "Woman holding a flower bouquet"
           },
           {
             userId: user.id,
@@ -473,8 +473,8 @@ describe("Artworks E2E", () => {
             sizeBytes: 10381,
             width: 1000,
             height: 900,
-            description: "Watercolor",
-          },
+            description: "Watercolor"
+          }
         ])
         .expect(HttpStatus.NOT_FOUND);
 
@@ -482,7 +482,7 @@ describe("Artworks E2E", () => {
         success: false,
         statusCode: HttpStatus.NOT_FOUND,
         message: "User does not exist",
-        error: "Not Found",
+        error: "Not Found"
       });
     });
   });
@@ -503,7 +503,7 @@ describe("Artworks E2E", () => {
           description: "Woman with grey hair",
           createdAt: expect.any(String),
           updatedAt: expect.any(String),
-          lastScanAt: null,
+          lastScanAt: null
         },
         {
           id: expect.any(String),
@@ -517,15 +517,15 @@ describe("Artworks E2E", () => {
           createdAt: expect.any(String),
           updatedAt: expect.any(String),
           lastScanAt: null,
-          description: null,
-        },
+          description: null
+        }
       ];
 
       expect(res.body).toEqual({
         success: true,
         statusCode: HttpStatus.OK,
         message: "Request successful.",
-        data: expectedArtworks,
+        data: expectedArtworks
       });
     });
   });
@@ -534,8 +534,8 @@ describe("Artworks E2E", () => {
     it("Should get all artworks for user with specific ID", async () => {
       const user = await prismaService.user.findUniqueOrThrow({
         where: {
-          email: "emma.dao@mail.com",
-        },
+          email: "emma.dao@mail.com"
+        }
       });
       const res = await api
         .get(`/artworks/user/${user.id}`)
@@ -558,9 +558,9 @@ describe("Artworks E2E", () => {
             description: "Woman with grey hair",
             createdAt: expect.any(String),
             updatedAt: expect.any(String),
-            lastScanAt: null,
-          },
-        ],
+            lastScanAt: null
+          }
+        ]
       });
     });
 
@@ -573,7 +573,7 @@ describe("Artworks E2E", () => {
         success: false,
         statusCode: HttpStatus.BAD_REQUEST,
         message: "Validation failed (uuid is expected)",
-        error: "Bad Request",
+        error: "Bad Request"
       });
     });
   });
@@ -582,8 +582,8 @@ describe("Artworks E2E", () => {
     it("Should get specific artwork with ID", async () => {
       const user = await prismaService.user.findUniqueOrThrow({
         where: {
-          email: "emma.dao@mail.com",
-        },
+          email: "emma.dao@mail.com"
+        }
       });
 
       const artwork = await prismaService.artwork.create({
@@ -595,8 +595,8 @@ describe("Artworks E2E", () => {
           sizeBytes: 81686,
           width: 900,
           height: 800,
-          description: "Woman holding a flower bouquet",
-        },
+          description: "Woman holding a flower bouquet"
+        }
       });
       const res = await api
         .get(`/artworks/${artwork.id}`)
@@ -618,8 +618,8 @@ describe("Artworks E2E", () => {
           description: "Woman holding a flower bouquet",
           createdAt: expect.any(String),
           updatedAt: expect.any(String),
-          lastScanAt: null,
-        },
+          lastScanAt: null
+        }
       });
     });
 
@@ -632,7 +632,7 @@ describe("Artworks E2E", () => {
         success: false,
         statusCode: HttpStatus.NOT_FOUND,
         message: "Artwork not found",
-        error: "Not Found",
+        error: "Not Found"
       });
     });
 
@@ -643,7 +643,7 @@ describe("Artworks E2E", () => {
         success: false,
         statusCode: HttpStatus.BAD_REQUEST,
         message: "Validation failed (uuid is expected)",
-        error: "Bad Request",
+        error: "Bad Request"
       });
     });
   });
@@ -652,8 +652,8 @@ describe("Artworks E2E", () => {
     it("Should update specific artwork with ID", async () => {
       const user = await prismaService.user.findUniqueOrThrow({
         where: {
-          email: "emma.dao@mail.com",
-        },
+          email: "emma.dao@mail.com"
+        }
       });
 
       const artwork = await prismaService.artwork.create({
@@ -665,13 +665,13 @@ describe("Artworks E2E", () => {
           sizeBytes: 81686,
           width: 900,
           height: 800,
-          description: "Woman holding a flower bouquet",
-        },
+          description: "Woman holding a flower bouquet"
+        }
       });
       const res = await api
         .patch(`/artworks/${artwork.id}`)
         .send({
-          description: "Black and white version",
+          description: "Black and white version"
         })
         .expect(HttpStatus.OK);
 
@@ -691,8 +691,8 @@ describe("Artworks E2E", () => {
           description: "Black and white version",
           createdAt: expect.any(String),
           updatedAt: expect.any(String),
-          lastScanAt: null,
-        },
+          lastScanAt: null
+        }
       });
     });
 
@@ -700,7 +700,7 @@ describe("Artworks E2E", () => {
       const res = await api
         .patch("/artworks/123e4567-e89b-12d3-a456-426614174000")
         .send({
-          description: "New description",
+          description: "New description"
         })
         .expect(HttpStatus.NOT_FOUND);
 
@@ -708,7 +708,7 @@ describe("Artworks E2E", () => {
         success: false,
         statusCode: HttpStatus.NOT_FOUND,
         message: "Artwork not found",
-        error: "Not Found",
+        error: "Not Found"
       });
     });
 
@@ -716,7 +716,7 @@ describe("Artworks E2E", () => {
       const res = await api
         .patch("/artworks/1")
         .send({
-          description: "Black and white version",
+          description: "Black and white version"
         })
         .expect(HttpStatus.BAD_REQUEST);
 
@@ -724,7 +724,7 @@ describe("Artworks E2E", () => {
         success: false,
         statusCode: HttpStatus.BAD_REQUEST,
         message: "Validation failed (uuid is expected)",
-        error: "Bad Request",
+        error: "Bad Request"
       });
     });
   });
@@ -733,8 +733,8 @@ describe("Artworks E2E", () => {
     it("Should remove specific artwork with ID", async () => {
       const user = await prismaService.user.findUniqueOrThrow({
         where: {
-          email: "emma.dao@mail.com",
-        },
+          email: "emma.dao@mail.com"
+        }
       });
 
       const artwork = await prismaService.artwork.create({
@@ -746,8 +746,8 @@ describe("Artworks E2E", () => {
           sizeBytes: 81686,
           width: 900,
           height: 800,
-          description: "Woman holding a flower bouquet",
-        },
+          description: "Woman holding a flower bouquet"
+        }
       });
       const res = await api
         .delete(`/artworks/${artwork.id}`)
@@ -765,7 +765,7 @@ describe("Artworks E2E", () => {
         success: false,
         statusCode: HttpStatus.NOT_FOUND,
         message: "Artwork not found",
-        error: "Not Found",
+        error: "Not Found"
       });
     });
 
@@ -778,7 +778,7 @@ describe("Artworks E2E", () => {
         success: false,
         statusCode: HttpStatus.BAD_REQUEST,
         message: "Validation failed (uuid is expected)",
-        error: "Bad Request",
+        error: "Bad Request"
       });
     });
   });
@@ -787,8 +787,8 @@ describe("Artworks E2E", () => {
     it("Should remove artworks using their IDs", async () => {
       const user = await prismaService.user.findUniqueOrThrow({
         where: {
-          email: "emma.dao@mail.com",
-        },
+          email: "emma.dao@mail.com"
+        }
       });
 
       const artworks = await prismaService.artwork.createManyAndReturn({
@@ -801,7 +801,7 @@ describe("Artworks E2E", () => {
             sizeBytes: 81686,
             width: 900,
             height: 800,
-            description: "New artwork",
+            description: "New artwork"
           },
           {
             userId: user.id,
@@ -811,14 +811,14 @@ describe("Artworks E2E", () => {
             sizeBytes: 81686,
             width: 900,
             height: 800,
-            description: "New artwork 2",
-          },
-        ],
+            description: "New artwork 2"
+          }
+        ]
       });
       const res = await api
         .post("/artworks/delete/batch")
         .send({
-          ids: artworks.map((artwork) => artwork.id),
+          ids: artworks.map((artwork) => artwork.id)
         })
         .expect(HttpStatus.OK);
 
@@ -827,16 +827,16 @@ describe("Artworks E2E", () => {
         statusCode: HttpStatus.OK,
         message: "Request successful.",
         data: {
-          count: 2,
-        },
+          count: 2
+        }
       });
     });
 
     it("Shouldn't remove batch if a non-existent artwork ID is specified", async () => {
       const user = await prismaService.user.findUniqueOrThrow({
         where: {
-          email: "emma.dao@mail.com",
-        },
+          email: "emma.dao@mail.com"
+        }
       });
 
       const artwork = await prismaService.artwork.create({
@@ -848,13 +848,13 @@ describe("Artworks E2E", () => {
           sizeBytes: 81686,
           width: 900,
           height: 800,
-          description: "New artwork",
-        },
+          description: "New artwork"
+        }
       });
       const res = await api
         .post("/artworks/delete/batch")
         .send({
-          ids: [artwork.id, "17e225bf-eaa6-4f31-9956-9892f93a0d23"],
+          ids: [artwork.id, "17e225bf-eaa6-4f31-9956-9892f93a0d23"]
         })
         .expect(HttpStatus.OK);
 
@@ -863,8 +863,8 @@ describe("Artworks E2E", () => {
         statusCode: HttpStatus.OK,
         message: "Request successful.",
         data: {
-          count: 1,
-        },
+          count: 1
+        }
       });
     });
 
@@ -878,7 +878,7 @@ describe("Artworks E2E", () => {
         success: false,
         statusCode: HttpStatus.BAD_REQUEST,
         error: "Invalid UUID",
-        message: "Validation failed",
+        message: "Validation failed"
       });
     });
   });

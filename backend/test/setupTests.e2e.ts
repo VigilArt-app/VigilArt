@@ -1,6 +1,6 @@
 import {
   PostgreSqlContainer,
-  StartedPostgreSqlContainer,
+  StartedPostgreSqlContainer
 } from "@testcontainers/postgresql";
 import { execSync } from "child_process";
 
@@ -16,7 +16,7 @@ beforeAll(async () => {
 
   execSync("pnpm exec prisma migrate deploy", {
     env: { ...process.env, DATABASE_URL: dbUrl },
-    stdio: "inherit",
+    stdio: "inherit"
   });
 
   console.log(`Connected to test DB: ${dbUrl}`);

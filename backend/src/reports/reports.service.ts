@@ -7,7 +7,7 @@ import {
   ArtworksReportEntryStatistics,
   ArtworksReportEntry,
   ArtworksReportStatistics,
-  ArtworksReport,
+  ArtworksReport
 } from "@vigilart/shared";
 import { ArtworksService } from "../artworks/artworks.service";
 import { Artwork } from "@vigilart/shared";
@@ -20,14 +20,14 @@ export class ReportsService {
   constructor(
     private readonly visionService: VisionService,
     private readonly artworksService: ArtworksService,
-    private readonly storageService: StorageService,
+    private readonly storageService: StorageService
   ) {}
 
   async aggregateVisualSearchResults(
-    imageBuffer: Buffer,
+    imageBuffer: Buffer
   ): Promise<AggregatedVisualSearchResults> {
     const visualSearchResults = await Promise.all([
-      this.visionService.searchImage(imageBuffer),
+      this.visionService.searchImage(imageBuffer)
     ]);
     const matchingPages = visualSearchResults.reduce<MatchingPage[]>(
       (acc: MatchingPage[], value: VisualSearchResult | null) => {
@@ -36,21 +36,21 @@ export class ReportsService {
         }
         return acc;
       },
-      [],
+      []
     );
     const statistics: ArtworksReportEntryStatistics = {
-      totalMatches: matchingPages.length,
+      totalMatches: matchingPages.length
     };
 
     return {
       statistics,
-      matchingPages,
+      matchingPages
     };
   }
 
   async getArtworksReportEntry(
     artwork: Artwork,
-    limit?: number,
+    limit?: number
   ): Promise<ArtworksReportEntry> {
     const imageBuffer = await this.storageService.getImage(artwork.storageKey);
     const aggregatedVisualSearchResults =
@@ -61,41 +61,41 @@ export class ReportsService {
     return {
       artworkId: artwork.id,
       statistics,
-      matchingPages: matchingPages.slice(0, limit ?? matchingPages.length),
+      matchingPages: matchingPages.slice(0, limit ?? matchingPages.length)
     };
   }
 
   async getArtworksReportEntries(
     userId: string,
-    limit?: number,
+    limit?: number
   ): Promise<ArtworksReportEntry[]> {
     const artworks = await this.artworksService.findAllPerUser(userId);
     const entries: ArtworksReportEntry[] = await Promise.all(
       artworks.map(async (artwork: Artwork) => {
         return this.getArtworksReportEntry(artwork, limit);
-      }),
+      })
     );
     return entries;
   }
 
   getArtworksReportStatistics(
-    entries: ArtworksReportEntry[],
+    entries: ArtworksReportEntry[]
   ): ArtworksReportStatistics {
     const totalMatches = entries.reduce(
       (acc: number, entry: ArtworksReportEntry) =>
         acc + entry.statistics.totalMatches,
-      0,
+      0
     );
 
     return {
-      totalMatches,
+      totalMatches
     };
   }
 
   async getArtworksReport(userId: string): Promise<ArtworksReport> {
     const entries: ArtworksReportEntry[] = await this.getArtworksReportEntries(
       userId,
-      DEFAULT_PAGINATION_LIMIT,
+      DEFAULT_PAGINATION_LIMIT
     );
     const statistics: ArtworksReportStatistics =
       this.getArtworksReportStatistics(entries);
@@ -103,13 +103,13 @@ export class ReportsService {
     return {
       detectionDate: new Date(),
       statistics,
-      entries,
+      entries
     };
   }
 
   async getAllArtworksMatches(
     userId: string,
-    { websiteCategory }: GetArtworksMatchesDTO,
+    { websiteCategory }: GetArtworksMatchesDTO
   ): Promise<MatchingPage[]> {
     const entries: ArtworksReportEntry[] =
       await this.getArtworksReportEntries(userId);
@@ -118,11 +118,11 @@ export class ReportsService {
         acc.push(...value.matchingPages);
         return acc;
       },
-      [],
+      []
     );
     if (websiteCategory) {
       const filteredMatchingPages = matchingPages.filter(
-        (page: MatchingPage) => page.category == websiteCategory,
+        (page: MatchingPage) => page.category == websiteCategory
       );
       return filteredMatchingPages;
     }
@@ -131,7 +131,7 @@ export class ReportsService {
 
   async getArtworkMatches(
     artworkId: string,
-    { websiteCategory }: GetArtworksMatchesDTO,
+    { websiteCategory }: GetArtworksMatchesDTO
   ): Promise<MatchingPage[]> {
     const artwork = await this.artworksService.findOne(artworkId);
 
@@ -144,7 +144,7 @@ export class ReportsService {
     const matchingPages = aggregatedVisualSearchResults.matchingPages;
     if (websiteCategory) {
       const filteredMatchingPages = matchingPages.filter(
-        (page: MatchingPage) => page.category == websiteCategory,
+        (page: MatchingPage) => page.category == websiteCategory
       );
       return filteredMatchingPages;
     }

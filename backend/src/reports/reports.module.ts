@@ -8,6 +8,6 @@ import { StorageModule } from "../storage/storage.module";
 @Module({
   imports: [VisionModule, ArtworksModule, StorageModule],
   controllers: [ReportsController],
-  providers: [ReportsService],
+  providers: [ReportsService]
 })
 export class ReportsModule {}

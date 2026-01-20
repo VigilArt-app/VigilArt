@@ -5,7 +5,7 @@ import {
   ArtworkMetadata,
   ArtworkMetadataLabel,
   ArtworkWebEntity,
-  MatchingPage,
+  MatchingPage
 } from "@vigilart/shared";
 import { WebDetection, WebEntity, WebLabel, WebPage } from "./types";
 import { classifyWebsite, extractRootDomain, getImageUrl } from "./utils";
@@ -26,7 +26,7 @@ export class VisionService implements OnModuleDestroy {
 
   getArtworkReportMetadata(
     bestGuessLabels: WebLabel[] | null | undefined,
-    webEntities: WebEntity[] | null | undefined,
+    webEntities: WebEntity[] | null | undefined
   ): ArtworkMetadata | null {
     let bestGuessLabelsResult: ArtworkMetadataLabel[] = [];
     let webEntitiesResult: ArtworkWebEntity[] = [];
@@ -40,13 +40,13 @@ export class VisionService implements OnModuleDestroy {
           if (value.label) {
             const validItem: ArtworkMetadataLabel = {
               label: value.label,
-              languageCode: value.languageCode ?? undefined,
+              languageCode: value.languageCode ?? undefined
             };
             acc.push(validItem);
           }
           return acc;
         },
-        [],
+        []
       );
     }
     if (webEntities) {
@@ -55,23 +55,23 @@ export class VisionService implements OnModuleDestroy {
           if (value.score && value.description) {
             const validItem: ArtworkWebEntity = {
               score: value.score,
-              description: value.description,
+              description: value.description
             };
             acc.push(validItem);
           }
           return acc;
         },
-        [],
+        []
       );
     }
     return {
       bestGuessLabels: bestGuessLabelsResult,
-      webEntities: webEntitiesResult,
+      webEntities: webEntitiesResult
     };
   }
 
   getArtworkReportMatchingPages(
-    pagesWithMatchingImages: WebPage[] | null | undefined,
+    pagesWithMatchingImages: WebPage[] | null | undefined
   ): MatchingPage[] {
     if (!pagesWithMatchingImages) {
       return [];
@@ -94,19 +94,19 @@ export class VisionService implements OnModuleDestroy {
             category: classifyWebsite(page.url),
             websiteName: extractRootDomain(page.url),
             imageUrl: imageUrl ?? undefined,
-            pageTitle: page.pageTitle ?? undefined,
+            pageTitle: page.pageTitle ?? undefined
           };
           acc.push(validItem);
         }
         return acc;
       },
-      [],
+      []
     );
     return matchingPages;
   }
 
   async webDetection(
-    imageBuffer: Buffer,
+    imageBuffer: Buffer
   ): Promise<WebDetection | null | undefined> {
     const [result] = await this.client.webDetection(imageBuffer);
     const webDetection = result.webDetection;
@@ -122,15 +122,15 @@ export class VisionService implements OnModuleDestroy {
     }
     const metadata = this.getArtworkReportMetadata(
       webDetection?.bestGuessLabels,
-      webDetection?.webEntities,
+      webDetection?.webEntities
     );
     const matchingPages = this.getArtworkReportMatchingPages(
-      webDetection.pagesWithMatchingImages,
+      webDetection.pagesWithMatchingImages
     );
 
     return {
       metadata,
-      matchingPages,
+      matchingPages
     };
   }
 }

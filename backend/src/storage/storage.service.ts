@@ -1,7 +1,7 @@
 import {
   BadRequestException,
   Injectable,
-  InternalServerErrorException,
+  InternalServerErrorException
 } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import {
@@ -9,7 +9,7 @@ import {
   PutObjectCommand,
   GetObjectCommand,
   DeleteObjectCommand,
-  DeleteObjectsCommand,
+  DeleteObjectsCommand
 } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import * as path from "path";
@@ -18,12 +18,13 @@ import {
   DownloadUrlsGetDTO,
   UploadUrlGet,
   UploadUrlsGet,
+  StoragePrefix
 } from "@vigilart/shared";
 
 @Injectable()
 export class StorageService {
   private readonly s3: S3Client;
-  private readonly bucketName;
+  private readonly bucketName: string;
 
   constructor(private readonly config: ConfigService) {
     this.bucketName = this.config.getOrThrow("CLOUDFLARE_BUCKET_NAME");
@@ -31,16 +32,16 @@ export class StorageService {
       endpoint: this.config.getOrThrow("CLOUDFLARE_R2_ENDPOINT"),
       credentials: {
         accessKeyId: this.config.getOrThrow("CLOUDFLARE_R2_ACCESS_KEY"),
-        secretAccessKey: this.config.getOrThrow("CLOUDFLARE_R2_SECRET_KEY"),
+        secretAccessKey: this.config.getOrThrow("CLOUDFLARE_R2_SECRET_KEY")
       },
-      region: "auto",
+      region: "auto"
     });
   }
 
-  async getUploadUrl(fileKey: string): Promise<UploadUrlGet> {
+  async getUploadUrl(fileKey: string, prefix: StoragePrefix): Promise<UploadUrlGet> {
     const fileExt = path.extname(fileKey);
     const fileName =
-      "artworks/" +
+      `${prefix}/` +
       fileKey.replace(fileExt, "").toLowerCase().split(" ").join("-") +
       crypto.randomUUID() +
       fileExt;
@@ -54,35 +55,35 @@ export class StorageService {
       Bucket: this.bucketName,
       Key: fileName,
       ContentType: contentType,
-      CacheControl: "private, max-age=31536000",
+      CacheControl: "private, max-age=31536000"
     });
 
     const signedUrl = await getSignedUrl(this.s3, command, { expiresIn: 3600 });
 
     return {
       storageKey: fileName,
-      presignedUrl: signedUrl,
+      presignedUrl: signedUrl
     };
   }
 
-  async getUploadUrls(filesKeys: string[]): Promise<UploadUrlsGet> {
+  async getUploadUrls(filesKeys: string[], prefix: StoragePrefix): Promise<UploadUrlsGet> {
     const uploadUrls = await Promise.all(
       filesKeys.map(async (fileKey: string) => {
-        const uploadUrlGet = await this.getUploadUrl(fileKey);
+        const uploadUrlGet = await this.getUploadUrl(fileKey, prefix);
 
         return { fileKey, ...uploadUrlGet };
-      }),
+      })
     );
 
     const uploadUrlMap: Record<string, UploadUrlGet> = uploadUrls.reduce(
       (accumulator, { fileKey, storageKey, presignedUrl }) => {
         accumulator[fileKey] = {
           storageKey,
-          presignedUrl,
+          presignedUrl
         };
         return accumulator;
       },
-      {} as Record<string, UploadUrlGet>,
+      {} as Record<string, UploadUrlGet>
     );
 
     return uploadUrlMap;
@@ -91,7 +92,7 @@ export class StorageService {
   async getDownloadUrl(fileKey: string): Promise<string> {
     const command = new GetObjectCommand({
       Bucket: this.bucketName,
-      Key: fileKey,
+      Key: fileKey
     });
 
     return await getSignedUrl(this.s3, command, { expiresIn: 3600 });
@@ -103,7 +104,7 @@ export class StorageService {
         const presignedUrl = await this.getDownloadUrl(fileKey);
 
         return { fileKey: fileKey, presignedUrl: presignedUrl };
-      }),
+      })
     );
 
     const downloadUrlMap: Record<string, string> = downloadUrls.reduce(
@@ -111,7 +112,7 @@ export class StorageService {
         accumulator[fileKey] = presignedUrl;
         return accumulator;
       },
-      {} as Record<string, string>,
+      {} as Record<string, string>
     );
 
     return downloadUrlMap;
@@ -121,8 +122,8 @@ export class StorageService {
     await this.s3.send(
       new DeleteObjectCommand({
         Bucket: this.bucketName,
-        Key: fileKey,
-      }),
+        Key: fileKey
+      })
     );
   }
 
@@ -131,9 +132,9 @@ export class StorageService {
       new DeleteObjectsCommand({
         Bucket: this.bucketName,
         Delete: {
-          Objects: fileKeys.map((fileKey) => ({ Key: fileKey })),
-        },
-      }),
+          Objects: fileKeys.map((fileKey) => ({ Key: fileKey }))
+        }
+      })
     );
   }
 
@@ -141,8 +142,8 @@ export class StorageService {
     const res = await this.s3.send(
       new GetObjectCommand({
         Bucket: this.bucketName,
-        Key: fileKey,
-      }),
+        Key: fileKey
+      })
     );
 
     if (!res.Body) {

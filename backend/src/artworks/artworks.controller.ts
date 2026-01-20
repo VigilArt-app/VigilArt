@@ -7,7 +7,7 @@ import {
   Param,
   ParseUUIDPipe,
   Patch,
-  Post,
+  Post
 } from "@nestjs/common";
 import { ArtworksService } from "./artworks.service";
 import { StorageService } from "../storage/storage.service";
@@ -20,7 +20,7 @@ import {
   ArtworkUpdateDTO,
   ArtworkCreateManyResponseDTO,
   ApiBatchPayload,
-  ApiBatchPayloadDTO,
+  ApiBatchPayloadDTO
 } from "@vigilart/shared";
 import { ApiEndpoint } from "../common/decorators/api-endpoint.decorator";
 import { ApiBody, ApiParam } from "@nestjs/swagger";
@@ -29,7 +29,7 @@ import { ApiBody, ApiParam } from "@nestjs/swagger";
 export class ArtworksController {
   constructor(
     private readonly artworksService: ArtworksService,
-    private readonly storageService: StorageService,
+    private readonly storageService: StorageService
   ) {}
 
   @Post()
@@ -37,10 +37,10 @@ export class ArtworksController {
     summary: "Create a new artwork",
     success: {
       status: HttpStatus.CREATED,
-      type: ArtworkDTO,
+      type: ArtworkDTO
     },
     errors: [HttpStatus.BAD_REQUEST, HttpStatus.NOT_FOUND],
-    protected: true,
+    protected: true
   })
   @ApiBody({ type: ArtworkCreateDTO })
   async create(@Body() createArtworkDto: ArtworkCreateDTO): Promise<Artwork> {
@@ -52,14 +52,14 @@ export class ArtworksController {
     summary: "Create a batch of new artworks",
     success: {
       status: HttpStatus.CREATED,
-      type: [ArtworkDTO],
+      type: [ArtworkDTO]
     },
     errors: [HttpStatus.BAD_REQUEST, HttpStatus.NOT_FOUND],
-    protected: true,
+    protected: true
   })
   @ApiBody({ type: ArtworkCreateManyDTO })
   async createMany(
-    @Body() createArtworksDto: ArtworkCreateManyDTO,
+    @Body() createArtworksDto: ArtworkCreateManyDTO
   ): Promise<ArtworkCreateManyResponseDTO> {
     return await this.artworksService.createMany(createArtworksDto);
   }
@@ -69,9 +69,9 @@ export class ArtworksController {
     summary: "Retrieve all artworks",
     success: {
       status: HttpStatus.OK,
-      type: [ArtworkDTO],
+      type: [ArtworkDTO]
     },
-    protected: true,
+    protected: true
   })
   async findAll(): Promise<Artwork[]> {
     return this.artworksService.findAll();
@@ -82,13 +82,13 @@ export class ArtworksController {
     summary: "Retrieve all artworks by user ID",
     success: {
       status: HttpStatus.OK,
-      type: [ArtworkDTO],
+      type: [ArtworkDTO]
     },
-    protected: true,
+    protected: true
   })
   @ApiParam({ name: "id", type: String })
   async findAllPerUser(
-    @Param("id", ParseUUIDPipe) id: string,
+    @Param("id", ParseUUIDPipe) id: string
   ): Promise<Artwork[]> {
     return this.artworksService.findAllPerUser(id);
   }
@@ -98,10 +98,10 @@ export class ArtworksController {
     summary: "Retrieve an artwork by ID",
     success: {
       status: HttpStatus.OK,
-      type: [ArtworkDTO],
+      type: [ArtworkDTO]
     },
     errors: [HttpStatus.NOT_FOUND],
-    protected: true,
+    protected: true
   })
   @ApiParam({ name: "id", type: String })
   async findOne(@Param("id", ParseUUIDPipe) id: string): Promise<Artwork> {
@@ -113,15 +113,15 @@ export class ArtworksController {
     summary: "Update an artwork by ID",
     success: {
       status: HttpStatus.OK,
-      type: [ArtworkDTO],
+      type: [ArtworkDTO]
     },
     errors: [HttpStatus.BAD_REQUEST, HttpStatus.NOT_FOUND],
-    protected: true,
+    protected: true
   })
   @ApiBody({ type: ArtworkUpdateDTO })
   async update(
     @Param("id", ParseUUIDPipe) id: string,
-    @Body() updateArtworkDto: ArtworkUpdateDTO,
+    @Body() updateArtworkDto: ArtworkUpdateDTO
   ): Promise<Artwork> {
     return this.artworksService.update(id, updateArtworkDto);
   }
@@ -130,10 +130,10 @@ export class ArtworksController {
   @ApiEndpoint({
     summary: "Delete an artwork by ID",
     success: {
-      status: HttpStatus.NO_CONTENT,
+      status: HttpStatus.NO_CONTENT
     },
     errors: [HttpStatus.NOT_FOUND],
-    protected: true,
+    protected: true
   })
   @ApiParam({ name: "id", type: String })
   async remove(@Param("id", ParseUUIDPipe) id: string): Promise<void> {
@@ -148,13 +148,13 @@ export class ArtworksController {
     summary: "Delete artworks by ID",
     success: {
       status: HttpStatus.OK,
-      type: [ApiBatchPayloadDTO],
+      type: [ApiBatchPayloadDTO]
     },
-    protected: true,
+    protected: true
   })
   @ApiBody({ type: ArtworkRemoveManyDTO })
   async removeMany(
-    @Body() { ids }: ArtworkRemoveManyDTO,
+    @Body() { ids }: ArtworkRemoveManyDTO
   ): Promise<ApiBatchPayload> {
     const artworks = await this.artworksService.findMany(ids);
     const storageKeys = artworks.map((artwork) => artwork.storageKey);

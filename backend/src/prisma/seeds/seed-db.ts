@@ -12,7 +12,7 @@ export const initialArtworks = [
     sizeBytes: 81686,
     width: 900,
     height: 800,
-    description: "Grey-haired woman holding a flower",
+    description: "Grey-haired woman holding a flower"
   },
   {
     id: "7570d89a-2dc4-440f-bdbb-c1747f4e779d",
@@ -24,7 +24,7 @@ export const initialArtworks = [
     sizeBytes: 171878,
     width: 900,
     height: 800,
-    description: "Woman smiling, holding a flower",
+    description: "Woman smiling, holding a flower"
   },
   {
     id: "4600d119-0196-4bb0-a315-89f537a6b3f0",
@@ -36,7 +36,7 @@ export const initialArtworks = [
     sizeBytes: 81686,
     width: 900,
     height: 800,
-    description: "Woman holding a flower bouquet",
+    description: "Woman holding a flower bouquet"
   },
   {
     id: "10b72f1d-d01c-4f5f-be2b-f801412a769f",
@@ -48,8 +48,8 @@ export const initialArtworks = [
     sizeBytes: 39189,
     width: 900,
     height: 800,
-    description: "Woman holding a flower with a green background",
-  },
+    description: "Woman holding a flower with a green background"
+  }
 ];
 
 export const initialUsers = [
@@ -60,7 +60,7 @@ export const initialUsers = [
     firstName: "Ayaka",
     lastName: "Suda",
     avatar: null,
-    subscriptionTier: SubscriptionTier.FREE,
+    subscriptionTier: SubscriptionTier.FREE
   },
   {
     id: "49cb44a3-e6f9-4cd0-a7f8-292d5b3e5231",
@@ -69,18 +69,18 @@ export const initialUsers = [
     firstName: "Amanda",
     lastName: "Rowles",
     avatar: null,
-    subscriptionTier: SubscriptionTier.FREE,
-  },
+    subscriptionTier: SubscriptionTier.FREE
+  }
 ];
 
 export const seedDb = async (prisma: PrismaClient): Promise<void> => {
   await prisma.user.createMany({
     data: initialUsers,
-    skipDuplicates: true,
+    skipDuplicates: true
   });
 
   await prisma.artwork.createMany({
     data: initialArtworks,
-    skipDuplicates: true,
+    skipDuplicates: true
   });
 };

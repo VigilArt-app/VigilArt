@@ -5,14 +5,14 @@ import {
   HttpStatus,
   Param,
   ParseUUIDPipe,
-  Query,
+  Query
 } from "@nestjs/common";
 import { ReportsService } from "./reports.service";
 import {
   ArtworksReport,
   ArtworksReportDTO,
   MatchingPage,
-  MatchingPageDTO,
+  MatchingPageDTO
 } from "@vigilart/shared";
 import { GetArtworksMatchesDTO } from "@vigilart/shared";
 import { ApiEndpoint } from "../common/decorators/api-endpoint.decorator";
@@ -28,13 +28,13 @@ export class ReportsController {
       "Returns a report listing detected matches for each artwork owned by a user",
     success: {
       status: HttpStatus.OK,
-      type: ArtworksReportDTO,
+      type: ArtworksReportDTO
     },
-    protected: true,
+    protected: true
   })
   @ApiParam({ name: "id", type: String })
   async getArtworksReport(
-    @Param("id", ParseUUIDPipe) userId: string,
+    @Param("id", ParseUUIDPipe) userId: string
   ): Promise<ArtworksReport> {
     return await this.reportsService.getArtworksReport(userId);
   }
@@ -44,19 +44,19 @@ export class ReportsController {
     summary: "Returns all detected matches for artworks owned by a user.",
     success: {
       status: HttpStatus.OK,
-      type: [MatchingPageDTO],
+      type: [MatchingPageDTO]
     },
-    protected: true,
+    protected: true
   })
   @ApiParam({ name: "id", type: String })
   @ApiQuery({ type: GetArtworksMatchesDTO })
   async getArtworksMatches(
     @Param("id", ParseUUIDPipe) userId: string,
-    @Query() getArtworksMatchesDto: GetArtworksMatchesDTO,
+    @Query() getArtworksMatchesDto: GetArtworksMatchesDTO
   ): Promise<MatchingPage[]> {
     return await this.reportsService.getAllArtworksMatches(
       userId,
-      getArtworksMatchesDto,
+      getArtworksMatchesDto
     );
   }
 
@@ -65,20 +65,20 @@ export class ReportsController {
     summary: "Returns all detected matches by artwork ID",
     success: {
       status: HttpStatus.OK,
-      type: [MatchingPageDTO],
+      type: [MatchingPageDTO]
     },
     errors: [HttpStatus.INTERNAL_SERVER_ERROR],
-    protected: true,
+    protected: true
   })
   @ApiParam({ name: "id", type: String })
   @ApiQuery({ type: GetArtworksMatchesDTO })
   async getArtworkMatches(
     @Param("id", ParseUUIDPipe) artworkId: string,
-    @Query() getArtworksMatchesDto: GetArtworksMatchesDTO,
+    @Query() getArtworksMatchesDto: GetArtworksMatchesDTO
   ): Promise<MatchingPage[]> {
     return await this.reportsService.getArtworkMatches(
       artworkId,
-      getArtworksMatchesDto,
+      getArtworksMatchesDto
     );
   }
 }
