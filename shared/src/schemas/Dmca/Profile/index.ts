@@ -1,6 +1,6 @@
 import { createZodDto } from "nestjs-zod";
 import { DmcaProfileSchema } from "../../../generated/zod";
-import { dateTimeStringToDate } from "../../../constants";
+import { dateTimeStringToDate } from "../../../functions";
 
 export const DmcaProfileGetSchema = DmcaProfileSchema.extend({
     createdAt: dateTimeStringToDate,

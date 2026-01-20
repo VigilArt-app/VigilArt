@@ -14,6 +14,20 @@ export const DeviantArtDmcaFormJSON = {
             title: "Content to be removed",
             items: [
                 {
+                    kind: "field",
+                    key: "original_work_description",
+                    type: "text",
+                    title: "Original Work Title",
+                    required: true
+                },
+                {
+                    kind: "field",
+                    key: "original_work_url",
+                    type: "url",
+                    title: "Original Work URL",
+                    required: true
+                },
+                {
                     kind: "array",
                     key: "infringements",
                     title: "URL of allegedly infringing content",
@@ -25,20 +39,6 @@ export const DeviantArtDmcaFormJSON = {
                             key: "infringing_url",
                             type: "url",
                             title: "Infringing Content URL",
-                            required: true
-                        },
-                        {
-                            kind: "field",
-                            key: "original_work_title",
-                            type: "text",
-                            title: "Original Work Title",
-                            required: true
-                        },
-                        {
-                            kind: "field",
-                            key: "original_work_url",
-                            type: "url",
-                            title: "Original Work URL",
                             required: true
                         }
                     ]
@@ -78,7 +78,7 @@ export const DeviantArtDmcaFormJSON = {
                 },
                 {
                     kind: "field",
-                    key: "street_address",
+                    key: "street",
                     type: "text",
                     title: "Street Address"
                 },
@@ -96,7 +96,7 @@ export const DeviantArtDmcaFormJSON = {
                 },
                 {
                     kind: "field",
-                    key: "state_province",
+                    key: "region",
                     type: "text",
                     title: "State/Province"
                 },

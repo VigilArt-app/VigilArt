@@ -30,7 +30,7 @@ export type DmcaPlatformScalarFieldEnum = z.infer<typeof DmcaPlatformScalarField
 
 // File: DmcaProfileScalarFieldEnum.schema.ts
 
-export const DmcaProfileScalarFieldEnumSchema = z.enum(['id', 'userId', 'fullName', 'addressLine1', 'addressLine2', 'city', 'postalCode', 'country', 'email', 'phone', 'signature', 'createdAt', 'updatedAt'])
+export const DmcaProfileScalarFieldEnumSchema = z.enum(['id', 'userId', 'fullName', 'street', 'aptSuite', 'city', 'postalCode', 'country', 'email', 'phone', 'signature', 'createdAt', 'updatedAt'])
 
 export type DmcaProfileScalarFieldEnum = z.infer<typeof DmcaProfileScalarFieldEnumSchema>;
 

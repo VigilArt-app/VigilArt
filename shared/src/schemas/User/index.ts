@@ -1,5 +1,5 @@
 import { UserSchema as base } from "../../generated/zod";
-import { dateTimeStringToDate } from "../../constants/DateTimeStringToDate";
+import { dateTimeStringToDate } from "../../functions";
 import { createZodDto } from "nestjs-zod/dto";
 import { z } from "zod";
 import {

@@ -64,7 +64,7 @@ export const InstagramDmcaFormJSON = {
                 },
                 {
                     kind: "field",
-                    key: "work_description",
+                    key: "original_work_description",
                     type: "textarea",
                     title: "Describe your copyrighted work in the link you provided above.",
                     placeholder: "Describe your copyrighted work in the link you provided above.",

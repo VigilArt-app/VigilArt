@@ -1,4 +1,4 @@
-import { dateTimeStringToDate } from "../../constants";
+import { dateTimeStringToDate } from "../../functions";
 import { ArtworkSchema as base } from "../../generated/zod";
 import { createZodDto } from "nestjs-zod/dto";
 import { z } from "zod";

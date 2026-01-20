@@ -56,7 +56,7 @@ export const OtherDmcaFormJSON = {
                 },
                 {
                     kind: "field",
-                    key: "street_address",
+                    key: "street",
                     type: "text",
                     title: "Street address",
                     required: true
