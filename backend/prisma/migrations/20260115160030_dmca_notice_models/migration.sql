@@ -24,7 +24,6 @@ CREATE TABLE "DmcaPlatform" (
     "domain" TEXT NOT NULL,
     "dmcaUrl" TEXT NOT NULL,
     "email" TEXT NOT NULL,
-    "websiteCategory" "WebsiteCategory" NOT NULL,
     "formSchema" JSONB NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,

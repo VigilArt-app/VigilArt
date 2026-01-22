@@ -89,7 +89,7 @@ export class DmcaNoticeService {
                 payload: safePayload,
                 status,
                 dmcaNoticeData: {
-                    create: true
+                    create: { }
                 }
             }
         });
