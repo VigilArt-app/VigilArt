@@ -242,40 +242,79 @@ export class DmcaNoticeService {
         if (!notice.payload || typeof notice.payload !== "object" || Array.isArray(notice.payload))
             throw new BadRequestException("Invalid payload");
 
-        const properties = this.getPdfProperties(notice.payload, notice.dmcaPlatform, notice.user?.dmcaProfile)
+        const properties = this.getPdfProperties(notice.payload, notice.dmcaPlatform, notice.user?.dmcaProfile);
         const doc = new PDFDocument();
         const buffers: Buffer[] = [];
 
         doc.on("data", buffers.push.bind(buffers));
 
-        doc.fontSize(20).text("DMCA Takedown Notice", { align: "center" });
+        doc.font("Helvetica-Bold")
+            .fontSize(20)
+            .text("DMCA Takedown Notice", {
+                align: "center",
+                underline: true
+            });
         doc.moveDown();
 
-        doc.fontSize(12).text(`To: ${properties.platform.name} (${properties.platform.email})`);
-        doc.text(`Date: ${new Date().toLocaleDateString()}`);
+        doc.lineGap(3).fontSize(12)
+            .font("Helvetica")
+            .text(`Date: ${new Date().toLocaleDateString()}`, {
+                align: "center"
+            });
+        doc.font("Helvetica-Bold")
+            .text("Via Email:", {
+                underline: true
+            });
+        doc.font("Helvetica")
+            .text(`${properties.platform.name} ${properties.platform.link}`);
+        doc.text("c/o Registered DMCA Agent");
+        doc.text(properties.platform.email);
         doc.moveDown();
 
-        doc.text("Dear Copyright Agent,");
-        doc.moveDown();
-        doc.text("I am writing to report copyright infringement found on your platform. I have a good faith belief that the use of the material currently appearing on your service is not authorized by the copyright owner, its agent, or the law.");
+        doc.font("Helvetica-Bold")
+            .text("Re: Notice of Copyright Violation (DMCA Takedown Notice) - Request to Remove Offending Content.", {
+                align: "center"
+            });
         doc.moveDown();
 
-        doc.text("Infringing Content:", { underline: true });
-        doc.moveDown(0.5);
-        doc.text(`Original Work: ${properties.artist.original_work_description}`);
-        doc.text(`Original URL: ${properties.artist.original_work_url}`);
-        doc.moveDown(0.5);
+        doc.font("Helvetica")
+            .text(`To Registered DMCA Agent for ${properties.platform.name}:`);
+        doc.moveDown();
 
-        properties.artist.infringing_urls.forEach((url, index: number) => {
-            doc.text(`${index + 1}. Infringing URL: ${url}`);
+        doc.text(`My name is ${properties.artist.full_name}, and I am the owner or an agent authorized to act on behalf of the owner of an exclusive right that is allegedly infringed. This email is official notification under Section 512(c) of the Digital Millennium Copyright Act ("DMCA") seeking the immediate removal of infringing material.`);
+        doc.moveDown();
+
+        doc.list(["Identification of the copyrighted work claimed to have been infringed:"], {
+            bulletRadius: 2,
+            indent: 15
+        });
+        doc.moveDown();
+        doc.text(properties.artist.original_work_description, {
+            indent: 30
         });
         doc.moveDown();
 
-        doc.text("Sender Information:", { underline: true });
-        doc.text(`Name: ${properties.artist.full_name}`);
-        doc.text(`Email: ${properties.artist.email}`);
-        if (properties.artist.phone)
-            doc.text(`Phone: ${properties.artist.phone}`);
+        doc.list(["The original material is located at the following URL(s):"], {
+            bulletRadius: 2,
+            indent: 15
+        });
+        doc.moveDown();
+        doc.text(properties.artist.original_work_url, {
+            indent: 30
+        });
+        doc.moveDown();
+
+        doc.list(["The infringing material is located at the following URL(s):"], {
+            bulletRadius: 2,
+            indent: 15
+        });
+        doc.moveDown();
+        doc.list(properties.artist.infringing_urls.slice(1), {
+            listType: "numbered",
+            indentAllLines: true,
+            indent: 30
+        });
+        doc.moveDown();
 
         const addressParts = [
             properties.artist.address.street,
@@ -286,24 +325,43 @@ export class DmcaNoticeService {
             properties.artist.address.country
         ].filter(part => part);
 
-        if (addressParts.length > 0)
-            doc.text(`Address: ${addressParts.join(", ")}`);
+        doc.text("My contact information is:");
+        doc.text(properties.artist.full_name);
+        doc.text(addressParts.join(", "));
+        doc.text(properties.artist.phone);
+        doc.text(properties.artist.email);
         doc.moveDown();
 
-        doc.text("I declare under penalty of perjury that the information in this notification is accurate and that I am the owner (or authorized to act on behalf of the owner) of the exclusive right that is allegedly infringed.");
+        doc.text("I have a good faith belief that use of the material in the manner complained of is not authorized by the copyright owner, its agent, or the law.");
         doc.moveDown();
+        doc.text("The information in this notification is accurate, and under penalty of perjury, I certify that I am the owner (or am authorized to act on behalf of the owner) of an exclusive right that is allegedly infringed.");
+        doc.moveDown();
+
+        doc.text("Thank you,");
+        doc.moveDown(2);
 
         doc.text(`Signature: ${properties.artist.signature}`);
+        doc.text(properties.artist.full_name);
 
         doc.end();
 
         return new Promise((resolve) => {
-            doc.on("end", () => {
+            doc.on("end", async () => {
                 const buffer = Buffer.concat(buffers);
                 // MOCK: In production, upload buffer to Cloudflare R2 here
                 // const fileUrl = await this.uploadToR2(buffer, `dmca-notices/${id}.pdf`);
                 const fileUrl = `https://storage.vigilart.app/dmca-notices/${id}.pdf`;
 
+                await this.prisma.dmcaNoticeData.update({
+                    where: {
+                        dmcaNoticeId: id
+                    },
+                    data: {
+                        generatedPdfs: {
+                            increment: 1
+                        }
+                    }
+                });
                 resolve({
                     url: fileUrl,
                     filename: `${notice.dmcaPlatformSlug}-${id}.pdf`,
