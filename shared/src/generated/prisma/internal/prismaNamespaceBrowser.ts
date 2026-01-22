@@ -159,8 +159,7 @@ export type DmcaNoticeScalarFieldEnum = (typeof DmcaNoticeScalarFieldEnum)[keyof
 export const DmcaNoticeDataScalarFieldEnum = {
   id: 'id',
   dmcaNoticeId: 'dmcaNoticeId',
-  generatedPdfs: 'generatedPdfs',
-  generatedMails: 'generatedMails'
+  generated: 'generated'
 } as const
 
 export type DmcaNoticeDataScalarFieldEnum = (typeof DmcaNoticeDataScalarFieldEnum)[keyof typeof DmcaNoticeDataScalarFieldEnum]

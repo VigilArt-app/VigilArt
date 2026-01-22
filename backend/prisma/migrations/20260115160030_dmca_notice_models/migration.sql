@@ -70,8 +70,7 @@ CREATE TABLE "DmcaNotice" (
 CREATE TABLE "DmcaNoticeData" (
     "id" TEXT NOT NULL,
     "dmcaNoticeId" TEXT NOT NULL,
-    "generatedPdfs" INTEGER NOT NULL DEFAULT 0,
-    "generatedMails" INTEGER NOT NULL DEFAULT 0,
+    "generated" INTEGER NOT NULL DEFAULT 0,
 
     CONSTRAINT "DmcaNoticeData_pkey" PRIMARY KEY ("id")
 );

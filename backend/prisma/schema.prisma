@@ -144,6 +144,5 @@ model DmcaNoticeData {
   dmcaNotice DmcaNotice @relation(fields: [dmcaNoticeId], references: [id], onDelete: Cascade)
   dmcaNoticeId String @unique
 
-  generatedPdfs   Int @default(0)
-  generatedMails  Int @default(0)
+  generated   Int @default(0)
 }

@@ -364,7 +364,7 @@ export class DmcaNoticeService {
                 });
                 resolve({
                     url: fileUrl,
-                    filename: `${notice.dmcaPlatformSlug}-${id}.pdf`,
+                    filename: `${properties.platform.slug}-notice.pdf`,
                     mimeType: "application/pdf",
                     size: buffer.length
                 });

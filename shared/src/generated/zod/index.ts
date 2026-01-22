@@ -42,7 +42,7 @@ export type DmcaNoticeScalarFieldEnum = z.infer<typeof DmcaNoticeScalarFieldEnum
 
 // File: DmcaNoticeDataScalarFieldEnum.schema.ts
 
-export const DmcaNoticeDataScalarFieldEnumSchema = z.enum(['id', 'dmcaNoticeId', 'generatedPdfs', 'generatedMails'])
+export const DmcaNoticeDataScalarFieldEnumSchema = z.enum(['id', 'dmcaNoticeId', 'generated'])
 
 export type DmcaNoticeDataScalarFieldEnum = z.infer<typeof DmcaNoticeDataScalarFieldEnumSchema>;
 
@@ -190,8 +190,7 @@ export type DmcaNoticeType = z.infer<typeof DmcaNoticeSchema>;
 export const DmcaNoticeDataSchema = z.object({
   id: z.string(),
   dmcaNoticeId: z.string(),
-  generatedPdfs: z.number().int(),
-  generatedMails: z.number().int(),
+  generated: z.number().int(),
 });
 
 export type DmcaNoticeDataType = z.infer<typeof DmcaNoticeDataSchema>;

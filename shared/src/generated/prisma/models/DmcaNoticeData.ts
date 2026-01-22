@@ -27,67 +27,57 @@ export type AggregateDmcaNoticeData = {
 }
 
 export type DmcaNoticeDataAvgAggregateOutputType = {
-  generatedPdfs: number | null
-  generatedMails: number | null
+  generated: number | null
 }
 
 export type DmcaNoticeDataSumAggregateOutputType = {
-  generatedPdfs: number | null
-  generatedMails: number | null
+  generated: number | null
 }
 
 export type DmcaNoticeDataMinAggregateOutputType = {
   id: string | null
   dmcaNoticeId: string | null
-  generatedPdfs: number | null
-  generatedMails: number | null
+  generated: number | null
 }
 
 export type DmcaNoticeDataMaxAggregateOutputType = {
   id: string | null
   dmcaNoticeId: string | null
-  generatedPdfs: number | null
-  generatedMails: number | null
+  generated: number | null
 }
 
 export type DmcaNoticeDataCountAggregateOutputType = {
   id: number
   dmcaNoticeId: number
-  generatedPdfs: number
-  generatedMails: number
+  generated: number
   _all: number
 }
 
 
 export type DmcaNoticeDataAvgAggregateInputType = {
-  generatedPdfs?: true
-  generatedMails?: true
+  generated?: true
 }
 
 export type DmcaNoticeDataSumAggregateInputType = {
-  generatedPdfs?: true
-  generatedMails?: true
+  generated?: true
 }
 
 export type DmcaNoticeDataMinAggregateInputType = {
   id?: true
   dmcaNoticeId?: true
-  generatedPdfs?: true
-  generatedMails?: true
+  generated?: true
 }
 
 export type DmcaNoticeDataMaxAggregateInputType = {
   id?: true
   dmcaNoticeId?: true
-  generatedPdfs?: true
-  generatedMails?: true
+  generated?: true
 }
 
 export type DmcaNoticeDataCountAggregateInputType = {
   id?: true
   dmcaNoticeId?: true
-  generatedPdfs?: true
-  generatedMails?: true
+  generated?: true
   _all?: true
 }
 
@@ -180,8 +170,7 @@ export type DmcaNoticeDataGroupByArgs<ExtArgs extends runtime.Types.Extensions.I
 export type DmcaNoticeDataGroupByOutputType = {
   id: string
   dmcaNoticeId: string
-  generatedPdfs: number
-  generatedMails: number
+  generated: number
   _count: DmcaNoticeDataCountAggregateOutputType | null
   _avg: DmcaNoticeDataAvgAggregateOutputType | null
   _sum: DmcaNoticeDataSumAggregateOutputType | null
@@ -210,16 +199,14 @@ export type DmcaNoticeDataWhereInput = {
   NOT?: Prisma.DmcaNoticeDataWhereInput | Prisma.DmcaNoticeDataWhereInput[]
   id?: Prisma.StringFilter<"DmcaNoticeData"> | string
   dmcaNoticeId?: Prisma.StringFilter<"DmcaNoticeData"> | string
-  generatedPdfs?: Prisma.IntFilter<"DmcaNoticeData"> | number
-  generatedMails?: Prisma.IntFilter<"DmcaNoticeData"> | number
+  generated?: Prisma.IntFilter<"DmcaNoticeData"> | number
   dmcaNotice?: Prisma.XOR<Prisma.DmcaNoticeScalarRelationFilter, Prisma.DmcaNoticeWhereInput>
 }
 
 export type DmcaNoticeDataOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   dmcaNoticeId?: Prisma.SortOrder
-  generatedPdfs?: Prisma.SortOrder
-  generatedMails?: Prisma.SortOrder
+  generated?: Prisma.SortOrder
   dmcaNotice?: Prisma.DmcaNoticeOrderByWithRelationInput
 }
 
@@ -229,16 +216,14 @@ export type DmcaNoticeDataWhereUniqueInput = Prisma.AtLeast<{
   AND?: Prisma.DmcaNoticeDataWhereInput | Prisma.DmcaNoticeDataWhereInput[]
   OR?: Prisma.DmcaNoticeDataWhereInput[]
   NOT?: Prisma.DmcaNoticeDataWhereInput | Prisma.DmcaNoticeDataWhereInput[]
-  generatedPdfs?: Prisma.IntFilter<"DmcaNoticeData"> | number
-  generatedMails?: Prisma.IntFilter<"DmcaNoticeData"> | number
+  generated?: Prisma.IntFilter<"DmcaNoticeData"> | number
   dmcaNotice?: Prisma.XOR<Prisma.DmcaNoticeScalarRelationFilter, Prisma.DmcaNoticeWhereInput>
 }, "id" | "dmcaNoticeId">
 
 export type DmcaNoticeDataOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   dmcaNoticeId?: Prisma.SortOrder
-  generatedPdfs?: Prisma.SortOrder
-  generatedMails?: Prisma.SortOrder
+  generated?: Prisma.SortOrder
   _count?: Prisma.DmcaNoticeDataCountOrderByAggregateInput
   _avg?: Prisma.DmcaNoticeDataAvgOrderByAggregateInput
   _max?: Prisma.DmcaNoticeDataMaxOrderByAggregateInput
@@ -252,56 +237,48 @@ export type DmcaNoticeDataScalarWhereWithAggregatesInput = {
   NOT?: Prisma.DmcaNoticeDataScalarWhereWithAggregatesInput | Prisma.DmcaNoticeDataScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"DmcaNoticeData"> | string
   dmcaNoticeId?: Prisma.StringWithAggregatesFilter<"DmcaNoticeData"> | string
-  generatedPdfs?: Prisma.IntWithAggregatesFilter<"DmcaNoticeData"> | number
-  generatedMails?: Prisma.IntWithAggregatesFilter<"DmcaNoticeData"> | number
+  generated?: Prisma.IntWithAggregatesFilter<"DmcaNoticeData"> | number
 }
 
 export type DmcaNoticeDataCreateInput = {
   id?: string
-  generatedPdfs?: number
-  generatedMails?: number
+  generated?: number
   dmcaNotice: Prisma.DmcaNoticeCreateNestedOneWithoutDmcaNoticeDataInput
 }
 
 export type DmcaNoticeDataUncheckedCreateInput = {
   id?: string
   dmcaNoticeId: string
-  generatedPdfs?: number
-  generatedMails?: number
+  generated?: number
 }
 
 export type DmcaNoticeDataUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  generatedPdfs?: Prisma.IntFieldUpdateOperationsInput | number
-  generatedMails?: Prisma.IntFieldUpdateOperationsInput | number
+  generated?: Prisma.IntFieldUpdateOperationsInput | number
   dmcaNotice?: Prisma.DmcaNoticeUpdateOneRequiredWithoutDmcaNoticeDataNestedInput
 }
 
 export type DmcaNoticeDataUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   dmcaNoticeId?: Prisma.StringFieldUpdateOperationsInput | string
-  generatedPdfs?: Prisma.IntFieldUpdateOperationsInput | number
-  generatedMails?: Prisma.IntFieldUpdateOperationsInput | number
+  generated?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type DmcaNoticeDataCreateManyInput = {
   id?: string
   dmcaNoticeId: string
-  generatedPdfs?: number
-  generatedMails?: number
+  generated?: number
 }
 
 export type DmcaNoticeDataUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  generatedPdfs?: Prisma.IntFieldUpdateOperationsInput | number
-  generatedMails?: Prisma.IntFieldUpdateOperationsInput | number
+  generated?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type DmcaNoticeDataUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   dmcaNoticeId?: Prisma.StringFieldUpdateOperationsInput | string
-  generatedPdfs?: Prisma.IntFieldUpdateOperationsInput | number
-  generatedMails?: Prisma.IntFieldUpdateOperationsInput | number
+  generated?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type DmcaNoticeDataNullableScalarRelationFilter = {
@@ -312,32 +289,27 @@ export type DmcaNoticeDataNullableScalarRelationFilter = {
 export type DmcaNoticeDataCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   dmcaNoticeId?: Prisma.SortOrder
-  generatedPdfs?: Prisma.SortOrder
-  generatedMails?: Prisma.SortOrder
+  generated?: Prisma.SortOrder
 }
 
 export type DmcaNoticeDataAvgOrderByAggregateInput = {
-  generatedPdfs?: Prisma.SortOrder
-  generatedMails?: Prisma.SortOrder
+  generated?: Prisma.SortOrder
 }
 
 export type DmcaNoticeDataMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   dmcaNoticeId?: Prisma.SortOrder
-  generatedPdfs?: Prisma.SortOrder
-  generatedMails?: Prisma.SortOrder
+  generated?: Prisma.SortOrder
 }
 
 export type DmcaNoticeDataMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   dmcaNoticeId?: Prisma.SortOrder
-  generatedPdfs?: Prisma.SortOrder
-  generatedMails?: Prisma.SortOrder
+  generated?: Prisma.SortOrder
 }
 
 export type DmcaNoticeDataSumOrderByAggregateInput = {
-  generatedPdfs?: Prisma.SortOrder
-  generatedMails?: Prisma.SortOrder
+  generated?: Prisma.SortOrder
 }
 
 export type DmcaNoticeDataCreateNestedOneWithoutDmcaNoticeInput = {
@@ -382,14 +354,12 @@ export type IntFieldUpdateOperationsInput = {
 
 export type DmcaNoticeDataCreateWithoutDmcaNoticeInput = {
   id?: string
-  generatedPdfs?: number
-  generatedMails?: number
+  generated?: number
 }
 
 export type DmcaNoticeDataUncheckedCreateWithoutDmcaNoticeInput = {
   id?: string
-  generatedPdfs?: number
-  generatedMails?: number
+  generated?: number
 }
 
 export type DmcaNoticeDataCreateOrConnectWithoutDmcaNoticeInput = {
@@ -410,14 +380,12 @@ export type DmcaNoticeDataUpdateToOneWithWhereWithoutDmcaNoticeInput = {
 
 export type DmcaNoticeDataUpdateWithoutDmcaNoticeInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  generatedPdfs?: Prisma.IntFieldUpdateOperationsInput | number
-  generatedMails?: Prisma.IntFieldUpdateOperationsInput | number
+  generated?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type DmcaNoticeDataUncheckedUpdateWithoutDmcaNoticeInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  generatedPdfs?: Prisma.IntFieldUpdateOperationsInput | number
-  generatedMails?: Prisma.IntFieldUpdateOperationsInput | number
+  generated?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 
@@ -425,35 +393,31 @@ export type DmcaNoticeDataUncheckedUpdateWithoutDmcaNoticeInput = {
 export type DmcaNoticeDataSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   dmcaNoticeId?: boolean
-  generatedPdfs?: boolean
-  generatedMails?: boolean
+  generated?: boolean
   dmcaNotice?: boolean | Prisma.DmcaNoticeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["dmcaNoticeData"]>
 
 export type DmcaNoticeDataSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   dmcaNoticeId?: boolean
-  generatedPdfs?: boolean
-  generatedMails?: boolean
+  generated?: boolean
   dmcaNotice?: boolean | Prisma.DmcaNoticeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["dmcaNoticeData"]>
 
 export type DmcaNoticeDataSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   dmcaNoticeId?: boolean
-  generatedPdfs?: boolean
-  generatedMails?: boolean
+  generated?: boolean
   dmcaNotice?: boolean | Prisma.DmcaNoticeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["dmcaNoticeData"]>
 
 export type DmcaNoticeDataSelectScalar = {
   id?: boolean
   dmcaNoticeId?: boolean
-  generatedPdfs?: boolean
-  generatedMails?: boolean
+  generated?: boolean
 }
 
-export type DmcaNoticeDataOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "dmcaNoticeId" | "generatedPdfs" | "generatedMails", ExtArgs["result"]["dmcaNoticeData"]>
+export type DmcaNoticeDataOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "dmcaNoticeId" | "generated", ExtArgs["result"]["dmcaNoticeData"]>
 export type DmcaNoticeDataInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   dmcaNotice?: boolean | Prisma.DmcaNoticeDefaultArgs<ExtArgs>
 }
@@ -472,8 +436,7 @@ export type $DmcaNoticeDataPayload<ExtArgs extends runtime.Types.Extensions.Inte
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     dmcaNoticeId: string
-    generatedPdfs: number
-    generatedMails: number
+    generated: number
   }, ExtArgs["result"]["dmcaNoticeData"]>
   composites: {}
 }
@@ -900,8 +863,7 @@ export interface Prisma__DmcaNoticeDataClient<T, Null = never, ExtArgs extends r
 export interface DmcaNoticeDataFieldRefs {
   readonly id: Prisma.FieldRef<"DmcaNoticeData", 'String'>
   readonly dmcaNoticeId: Prisma.FieldRef<"DmcaNoticeData", 'String'>
-  readonly generatedPdfs: Prisma.FieldRef<"DmcaNoticeData", 'Int'>
-  readonly generatedMails: Prisma.FieldRef<"DmcaNoticeData", 'Int'>
+  readonly generated: Prisma.FieldRef<"DmcaNoticeData", 'Int'>
 }
     
 
