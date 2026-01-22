@@ -2,22 +2,22 @@ import { applyDecorators, HttpCode, HttpStatus, Type } from "@nestjs/common";
 import { ApiOperation, ApiResponse, ApiBearerAuth } from "@nestjs/swagger";
 import { ApiResponseGeneric } from "./api-ok-response-generic.decorator";
 import {
-    BadRequestErrorDTO,
-    UnauthorizedErrorDTO,
-    ForbiddenErrorDTO,
-    NotFoundErrorDTO,
-    ConflictErrorDTO,
-    InternalServerErrorDTO,
-    ApiErrorDTO
+  BadRequestErrorDTO,
+  UnauthorizedErrorDTO,
+  ForbiddenErrorDTO,
+  NotFoundErrorDTO,
+  ConflictErrorDTO,
+  InternalServerErrorDTO,
+  ApiErrorDTO
 } from "@vigilart/shared/schemas";
 
 const ERROR_MAP: Record<number, Type<ApiErrorDTO>> = {
-    [HttpStatus.BAD_REQUEST]: BadRequestErrorDTO,
-    [HttpStatus.UNAUTHORIZED]: UnauthorizedErrorDTO,
-    [HttpStatus.FORBIDDEN]: ForbiddenErrorDTO,
-    [HttpStatus.NOT_FOUND]: NotFoundErrorDTO,
-    [HttpStatus.CONFLICT]: ConflictErrorDTO,
-    [HttpStatus.INTERNAL_SERVER_ERROR]: InternalServerErrorDTO,
+  [HttpStatus.BAD_REQUEST]: BadRequestErrorDTO,
+  [HttpStatus.UNAUTHORIZED]: UnauthorizedErrorDTO,
+  [HttpStatus.FORBIDDEN]: ForbiddenErrorDTO,
+  [HttpStatus.NOT_FOUND]: NotFoundErrorDTO,
+  [HttpStatus.CONFLICT]: ConflictErrorDTO,
+  [HttpStatus.INTERNAL_SERVER_ERROR]: InternalServerErrorDTO
 };
 
 interface ApiEndpointOptions200 {
@@ -53,10 +53,13 @@ interface ApiEndpointOptions204 {
     protected?: boolean;
 }
 
-type ApiEndpointOptions = ApiEndpointOptions200 | ApiEndpointOptions201 | ApiEndpointOptions204;
+type ApiEndpointOptions =
+  | ApiEndpointOptions200
+  | ApiEndpointOptions201
+  | ApiEndpointOptions204;
 
 export function ApiEndpoint(options: ApiEndpointOptions) {
-    const decorators: any[] = [];
+  const decorators: any[] = [];
 
     decorators.push(ApiOperation({ summary: options.summary }));
     decorators.push(HttpCode(options.success.status));
@@ -68,17 +71,23 @@ export function ApiEndpoint(options: ApiEndpointOptions) {
         options.errors.forEach((status) => {
             const ErrorClass = ERROR_MAP[status];
 
-            if (ErrorClass)
-                decorators.push(ApiResponse({ status, type: ErrorClass }));
-            else
-                decorators.push(ApiResponse({ status }));
-        });
-    }
-    if (options.protected) {
-        decorators.push(ApiResponse({ status: HttpStatus.UNAUTHORIZED, type: UnauthorizedErrorDTO }));
-        decorators.push(ApiResponse({ status: HttpStatus.FORBIDDEN, type: ForbiddenErrorDTO }));
-        decorators.push(ApiBearerAuth());
-    }
+      if (ErrorClass)
+        decorators.push(ApiResponse({ status, type: ErrorClass }));
+      else decorators.push(ApiResponse({ status }));
+    });
+  }
+  if (options.protected) {
+    decorators.push(
+      ApiResponse({
+        status: HttpStatus.UNAUTHORIZED,
+        type: UnauthorizedErrorDTO
+      })
+    );
+    decorators.push(
+      ApiResponse({ status: HttpStatus.FORBIDDEN, type: ForbiddenErrorDTO })
+    );
+    decorators.push(ApiBearerAuth());
+  }
 
-    return applyDecorators(...decorators);
+  return applyDecorators(...decorators);
 }

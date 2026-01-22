@@ -15,6 +15,7 @@ import { VisionModule } from "./vision/vision.module";
 import { ArtworksModule } from "./artworks/artworks.module";
 import { ReportsModule } from "./reports/reports.module";
 import { PrismaModule } from "./prisma/prisma.module";
+import { StorageModule } from "./storage/storage.module";
 import { DmcaPlatformModule } from "./dmca/platform/platform.module";
 import { DmcaProfileModule } from "./dmca/profile/profile.module";
 import { DmcaNoticeModule } from "./dmca/notice/notice.module";
@@ -23,7 +24,7 @@ import { DmcaNoticeModule } from "./dmca/notice/notice.module";
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: "../.env",
+      envFilePath: "../.env"
     }),
     UsersModule,
     AuthModule,
@@ -31,6 +32,7 @@ import { DmcaNoticeModule } from "./dmca/notice/notice.module";
     ArtworksModule,
     ReportsModule,
     PrismaModule,
+    StorageModule,
     DmcaPlatformModule,
     DmcaProfileModule,
     DmcaNoticeModule,

@@ -12,7 +12,7 @@ export class PrismaService
     const databaseUrl = config.get<string>("DATABASE_URL");
 
     const adapter = new PrismaPg({
-      connectionString: databaseUrl,
+      connectionString: databaseUrl
     });
     super({ adapter });
   }

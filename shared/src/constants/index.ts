@@ -9,3 +9,5 @@ export * from "./Reports";
 export * from "./DmcaPlatforms";
 
 export * from "./Api";
+
+export * from "./Artworks";

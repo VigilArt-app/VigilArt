@@ -28,19 +28,25 @@ export type AggregateArtwork = {
 
 export type ArtworkAvgAggregateOutputType = {
   sizeBytes: number | null
+  width: number | null
+  height: number | null
 }
 
 export type ArtworkSumAggregateOutputType = {
   sizeBytes: number | null
+  width: number | null
+  height: number | null
 }
 
 export type ArtworkMinAggregateOutputType = {
   id: string | null
   userId: string | null
-  imageUri: string | null
   originalFilename: string | null
+  storageKey: string | null
   contentType: string | null
   sizeBytes: number | null
+  width: number | null
+  height: number | null
   description: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -50,10 +56,12 @@ export type ArtworkMinAggregateOutputType = {
 export type ArtworkMaxAggregateOutputType = {
   id: string | null
   userId: string | null
-  imageUri: string | null
   originalFilename: string | null
+  storageKey: string | null
   contentType: string | null
   sizeBytes: number | null
+  width: number | null
+  height: number | null
   description: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -63,10 +71,12 @@ export type ArtworkMaxAggregateOutputType = {
 export type ArtworkCountAggregateOutputType = {
   id: number
   userId: number
-  imageUri: number
   originalFilename: number
+  storageKey: number
   contentType: number
   sizeBytes: number
+  width: number
+  height: number
   description: number
   createdAt: number
   updatedAt: number
@@ -77,19 +87,25 @@ export type ArtworkCountAggregateOutputType = {
 
 export type ArtworkAvgAggregateInputType = {
   sizeBytes?: true
+  width?: true
+  height?: true
 }
 
 export type ArtworkSumAggregateInputType = {
   sizeBytes?: true
+  width?: true
+  height?: true
 }
 
 export type ArtworkMinAggregateInputType = {
   id?: true
   userId?: true
-  imageUri?: true
   originalFilename?: true
+  storageKey?: true
   contentType?: true
   sizeBytes?: true
+  width?: true
+  height?: true
   description?: true
   createdAt?: true
   updatedAt?: true
@@ -99,10 +115,12 @@ export type ArtworkMinAggregateInputType = {
 export type ArtworkMaxAggregateInputType = {
   id?: true
   userId?: true
-  imageUri?: true
   originalFilename?: true
+  storageKey?: true
   contentType?: true
   sizeBytes?: true
+  width?: true
+  height?: true
   description?: true
   createdAt?: true
   updatedAt?: true
@@ -112,10 +130,12 @@ export type ArtworkMaxAggregateInputType = {
 export type ArtworkCountAggregateInputType = {
   id?: true
   userId?: true
-  imageUri?: true
   originalFilename?: true
+  storageKey?: true
   contentType?: true
   sizeBytes?: true
+  width?: true
+  height?: true
   description?: true
   createdAt?: true
   updatedAt?: true
@@ -212,10 +232,12 @@ export type ArtworkGroupByArgs<ExtArgs extends runtime.Types.Extensions.Internal
 export type ArtworkGroupByOutputType = {
   id: string
   userId: string
-  imageUri: string
-  originalFilename: string | null
-  contentType: string | null
-  sizeBytes: number | null
+  originalFilename: string
+  storageKey: string
+  contentType: string
+  sizeBytes: number
+  width: number
+  height: number
   description: string | null
   createdAt: Date
   updatedAt: Date
@@ -248,10 +270,12 @@ export type ArtworkWhereInput = {
   NOT?: Prisma.ArtworkWhereInput | Prisma.ArtworkWhereInput[]
   id?: Prisma.StringFilter<"Artwork"> | string
   userId?: Prisma.StringFilter<"Artwork"> | string
-  imageUri?: Prisma.StringFilter<"Artwork"> | string
-  originalFilename?: Prisma.StringNullableFilter<"Artwork"> | string | null
-  contentType?: Prisma.StringNullableFilter<"Artwork"> | string | null
-  sizeBytes?: Prisma.IntNullableFilter<"Artwork"> | number | null
+  originalFilename?: Prisma.StringFilter<"Artwork"> | string
+  storageKey?: Prisma.StringFilter<"Artwork"> | string
+  contentType?: Prisma.StringFilter<"Artwork"> | string
+  sizeBytes?: Prisma.IntFilter<"Artwork"> | number
+  width?: Prisma.IntFilter<"Artwork"> | number
+  height?: Prisma.IntFilter<"Artwork"> | number
   description?: Prisma.StringNullableFilter<"Artwork"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Artwork"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Artwork"> | Date | string
@@ -263,10 +287,12 @@ export type ArtworkWhereInput = {
 export type ArtworkOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
-  imageUri?: Prisma.SortOrder
-  originalFilename?: Prisma.SortOrderInput | Prisma.SortOrder
-  contentType?: Prisma.SortOrderInput | Prisma.SortOrder
-  sizeBytes?: Prisma.SortOrderInput | Prisma.SortOrder
+  originalFilename?: Prisma.SortOrder
+  storageKey?: Prisma.SortOrder
+  contentType?: Prisma.SortOrder
+  sizeBytes?: Prisma.SortOrder
+  width?: Prisma.SortOrder
+  height?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -281,10 +307,12 @@ export type ArtworkWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.ArtworkWhereInput[]
   NOT?: Prisma.ArtworkWhereInput | Prisma.ArtworkWhereInput[]
   userId?: Prisma.StringFilter<"Artwork"> | string
-  imageUri?: Prisma.StringFilter<"Artwork"> | string
-  originalFilename?: Prisma.StringNullableFilter<"Artwork"> | string | null
-  contentType?: Prisma.StringNullableFilter<"Artwork"> | string | null
-  sizeBytes?: Prisma.IntNullableFilter<"Artwork"> | number | null
+  originalFilename?: Prisma.StringFilter<"Artwork"> | string
+  storageKey?: Prisma.StringFilter<"Artwork"> | string
+  contentType?: Prisma.StringFilter<"Artwork"> | string
+  sizeBytes?: Prisma.IntFilter<"Artwork"> | number
+  width?: Prisma.IntFilter<"Artwork"> | number
+  height?: Prisma.IntFilter<"Artwork"> | number
   description?: Prisma.StringNullableFilter<"Artwork"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Artwork"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Artwork"> | Date | string
@@ -296,10 +324,12 @@ export type ArtworkWhereUniqueInput = Prisma.AtLeast<{
 export type ArtworkOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
-  imageUri?: Prisma.SortOrder
-  originalFilename?: Prisma.SortOrderInput | Prisma.SortOrder
-  contentType?: Prisma.SortOrderInput | Prisma.SortOrder
-  sizeBytes?: Prisma.SortOrderInput | Prisma.SortOrder
+  originalFilename?: Prisma.SortOrder
+  storageKey?: Prisma.SortOrder
+  contentType?: Prisma.SortOrder
+  sizeBytes?: Prisma.SortOrder
+  width?: Prisma.SortOrder
+  height?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -317,10 +347,12 @@ export type ArtworkScalarWhereWithAggregatesInput = {
   NOT?: Prisma.ArtworkScalarWhereWithAggregatesInput | Prisma.ArtworkScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"Artwork"> | string
   userId?: Prisma.StringWithAggregatesFilter<"Artwork"> | string
-  imageUri?: Prisma.StringWithAggregatesFilter<"Artwork"> | string
-  originalFilename?: Prisma.StringNullableWithAggregatesFilter<"Artwork"> | string | null
-  contentType?: Prisma.StringNullableWithAggregatesFilter<"Artwork"> | string | null
-  sizeBytes?: Prisma.IntNullableWithAggregatesFilter<"Artwork"> | number | null
+  originalFilename?: Prisma.StringWithAggregatesFilter<"Artwork"> | string
+  storageKey?: Prisma.StringWithAggregatesFilter<"Artwork"> | string
+  contentType?: Prisma.StringWithAggregatesFilter<"Artwork"> | string
+  sizeBytes?: Prisma.IntWithAggregatesFilter<"Artwork"> | number
+  width?: Prisma.IntWithAggregatesFilter<"Artwork"> | number
+  height?: Prisma.IntWithAggregatesFilter<"Artwork"> | number
   description?: Prisma.StringNullableWithAggregatesFilter<"Artwork"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Artwork"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Artwork"> | Date | string
@@ -329,10 +361,12 @@ export type ArtworkScalarWhereWithAggregatesInput = {
 
 export type ArtworkCreateInput = {
   id?: string
-  imageUri: string
-  originalFilename?: string | null
-  contentType?: string | null
-  sizeBytes?: number | null
+  originalFilename: string
+  storageKey: string
+  contentType: string
+  sizeBytes: number
+  width: number
+  height: number
   description?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -344,10 +378,12 @@ export type ArtworkCreateInput = {
 export type ArtworkUncheckedCreateInput = {
   id?: string
   userId: string
-  imageUri: string
-  originalFilename?: string | null
-  contentType?: string | null
-  sizeBytes?: number | null
+  originalFilename: string
+  storageKey: string
+  contentType: string
+  sizeBytes: number
+  width: number
+  height: number
   description?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -357,10 +393,12 @@ export type ArtworkUncheckedCreateInput = {
 
 export type ArtworkUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  imageUri?: Prisma.StringFieldUpdateOperationsInput | string
-  originalFilename?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  contentType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  originalFilename?: Prisma.StringFieldUpdateOperationsInput | string
+  storageKey?: Prisma.StringFieldUpdateOperationsInput | string
+  contentType?: Prisma.StringFieldUpdateOperationsInput | string
+  sizeBytes?: Prisma.IntFieldUpdateOperationsInput | number
+  width?: Prisma.IntFieldUpdateOperationsInput | number
+  height?: Prisma.IntFieldUpdateOperationsInput | number
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -372,10 +410,12 @@ export type ArtworkUpdateInput = {
 export type ArtworkUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
-  imageUri?: Prisma.StringFieldUpdateOperationsInput | string
-  originalFilename?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  contentType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  originalFilename?: Prisma.StringFieldUpdateOperationsInput | string
+  storageKey?: Prisma.StringFieldUpdateOperationsInput | string
+  contentType?: Prisma.StringFieldUpdateOperationsInput | string
+  sizeBytes?: Prisma.IntFieldUpdateOperationsInput | number
+  width?: Prisma.IntFieldUpdateOperationsInput | number
+  height?: Prisma.IntFieldUpdateOperationsInput | number
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -386,10 +426,12 @@ export type ArtworkUncheckedUpdateInput = {
 export type ArtworkCreateManyInput = {
   id?: string
   userId: string
-  imageUri: string
-  originalFilename?: string | null
-  contentType?: string | null
-  sizeBytes?: number | null
+  originalFilename: string
+  storageKey: string
+  contentType: string
+  sizeBytes: number
+  width: number
+  height: number
   description?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -398,10 +440,12 @@ export type ArtworkCreateManyInput = {
 
 export type ArtworkUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  imageUri?: Prisma.StringFieldUpdateOperationsInput | string
-  originalFilename?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  contentType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  originalFilename?: Prisma.StringFieldUpdateOperationsInput | string
+  storageKey?: Prisma.StringFieldUpdateOperationsInput | string
+  contentType?: Prisma.StringFieldUpdateOperationsInput | string
+  sizeBytes?: Prisma.IntFieldUpdateOperationsInput | number
+  width?: Prisma.IntFieldUpdateOperationsInput | number
+  height?: Prisma.IntFieldUpdateOperationsInput | number
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -411,10 +455,12 @@ export type ArtworkUpdateManyMutationInput = {
 export type ArtworkUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
-  imageUri?: Prisma.StringFieldUpdateOperationsInput | string
-  originalFilename?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  contentType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  originalFilename?: Prisma.StringFieldUpdateOperationsInput | string
+  storageKey?: Prisma.StringFieldUpdateOperationsInput | string
+  contentType?: Prisma.StringFieldUpdateOperationsInput | string
+  sizeBytes?: Prisma.IntFieldUpdateOperationsInput | number
+  width?: Prisma.IntFieldUpdateOperationsInput | number
+  height?: Prisma.IntFieldUpdateOperationsInput | number
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -434,10 +480,12 @@ export type ArtworkOrderByRelationAggregateInput = {
 export type ArtworkCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
-  imageUri?: Prisma.SortOrder
   originalFilename?: Prisma.SortOrder
+  storageKey?: Prisma.SortOrder
   contentType?: Prisma.SortOrder
   sizeBytes?: Prisma.SortOrder
+  width?: Prisma.SortOrder
+  height?: Prisma.SortOrder
   description?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -446,15 +494,19 @@ export type ArtworkCountOrderByAggregateInput = {
 
 export type ArtworkAvgOrderByAggregateInput = {
   sizeBytes?: Prisma.SortOrder
+  width?: Prisma.SortOrder
+  height?: Prisma.SortOrder
 }
 
 export type ArtworkMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
-  imageUri?: Prisma.SortOrder
   originalFilename?: Prisma.SortOrder
+  storageKey?: Prisma.SortOrder
   contentType?: Prisma.SortOrder
   sizeBytes?: Prisma.SortOrder
+  width?: Prisma.SortOrder
+  height?: Prisma.SortOrder
   description?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -464,10 +516,12 @@ export type ArtworkMaxOrderByAggregateInput = {
 export type ArtworkMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
-  imageUri?: Prisma.SortOrder
   originalFilename?: Prisma.SortOrder
+  storageKey?: Prisma.SortOrder
   contentType?: Prisma.SortOrder
   sizeBytes?: Prisma.SortOrder
+  width?: Prisma.SortOrder
+  height?: Prisma.SortOrder
   description?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -476,6 +530,8 @@ export type ArtworkMinOrderByAggregateInput = {
 
 export type ArtworkSumOrderByAggregateInput = {
   sizeBytes?: Prisma.SortOrder
+  width?: Prisma.SortOrder
+  height?: Prisma.SortOrder
 }
 
 export type ArtworkNullableScalarRelationFilter = {
@@ -525,8 +581,8 @@ export type ArtworkUncheckedUpdateManyWithoutUserNestedInput = {
   deleteMany?: Prisma.ArtworkScalarWhereInput | Prisma.ArtworkScalarWhereInput[]
 }
 
-export type NullableIntFieldUpdateOperationsInput = {
-  set?: number | null
+export type IntFieldUpdateOperationsInput = {
+  set?: number
   increment?: number
   decrement?: number
   multiply?: number
@@ -555,10 +611,12 @@ export type ArtworkUpdateOneWithoutDmcaNoticesNestedInput = {
 
 export type ArtworkCreateWithoutUserInput = {
   id?: string
-  imageUri: string
-  originalFilename?: string | null
-  contentType?: string | null
-  sizeBytes?: number | null
+  originalFilename: string
+  storageKey: string
+  contentType: string
+  sizeBytes: number
+  width: number
+  height: number
   description?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -568,10 +626,12 @@ export type ArtworkCreateWithoutUserInput = {
 
 export type ArtworkUncheckedCreateWithoutUserInput = {
   id?: string
-  imageUri: string
-  originalFilename?: string | null
-  contentType?: string | null
-  sizeBytes?: number | null
+  originalFilename: string
+  storageKey: string
+  contentType: string
+  sizeBytes: number
+  width: number
+  height: number
   description?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -611,10 +671,12 @@ export type ArtworkScalarWhereInput = {
   NOT?: Prisma.ArtworkScalarWhereInput | Prisma.ArtworkScalarWhereInput[]
   id?: Prisma.StringFilter<"Artwork"> | string
   userId?: Prisma.StringFilter<"Artwork"> | string
-  imageUri?: Prisma.StringFilter<"Artwork"> | string
-  originalFilename?: Prisma.StringNullableFilter<"Artwork"> | string | null
-  contentType?: Prisma.StringNullableFilter<"Artwork"> | string | null
-  sizeBytes?: Prisma.IntNullableFilter<"Artwork"> | number | null
+  originalFilename?: Prisma.StringFilter<"Artwork"> | string
+  storageKey?: Prisma.StringFilter<"Artwork"> | string
+  contentType?: Prisma.StringFilter<"Artwork"> | string
+  sizeBytes?: Prisma.IntFilter<"Artwork"> | number
+  width?: Prisma.IntFilter<"Artwork"> | number
+  height?: Prisma.IntFilter<"Artwork"> | number
   description?: Prisma.StringNullableFilter<"Artwork"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Artwork"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Artwork"> | Date | string
@@ -691,10 +753,12 @@ export type ArtworkUncheckedUpdateWithoutDmcaNoticesInput = {
 
 export type ArtworkCreateManyUserInput = {
   id?: string
-  imageUri: string
-  originalFilename?: string | null
-  contentType?: string | null
-  sizeBytes?: number | null
+  originalFilename: string
+  storageKey: string
+  contentType: string
+  sizeBytes: number
+  width: number
+  height: number
   description?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -703,10 +767,12 @@ export type ArtworkCreateManyUserInput = {
 
 export type ArtworkUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  imageUri?: Prisma.StringFieldUpdateOperationsInput | string
-  originalFilename?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  contentType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  originalFilename?: Prisma.StringFieldUpdateOperationsInput | string
+  storageKey?: Prisma.StringFieldUpdateOperationsInput | string
+  contentType?: Prisma.StringFieldUpdateOperationsInput | string
+  sizeBytes?: Prisma.IntFieldUpdateOperationsInput | number
+  width?: Prisma.IntFieldUpdateOperationsInput | number
+  height?: Prisma.IntFieldUpdateOperationsInput | number
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -716,10 +782,12 @@ export type ArtworkUpdateWithoutUserInput = {
 
 export type ArtworkUncheckedUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  imageUri?: Prisma.StringFieldUpdateOperationsInput | string
-  originalFilename?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  contentType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  originalFilename?: Prisma.StringFieldUpdateOperationsInput | string
+  storageKey?: Prisma.StringFieldUpdateOperationsInput | string
+  contentType?: Prisma.StringFieldUpdateOperationsInput | string
+  sizeBytes?: Prisma.IntFieldUpdateOperationsInput | number
+  width?: Prisma.IntFieldUpdateOperationsInput | number
+  height?: Prisma.IntFieldUpdateOperationsInput | number
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -729,10 +797,12 @@ export type ArtworkUncheckedUpdateWithoutUserInput = {
 
 export type ArtworkUncheckedUpdateManyWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  imageUri?: Prisma.StringFieldUpdateOperationsInput | string
-  originalFilename?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  contentType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  originalFilename?: Prisma.StringFieldUpdateOperationsInput | string
+  storageKey?: Prisma.StringFieldUpdateOperationsInput | string
+  contentType?: Prisma.StringFieldUpdateOperationsInput | string
+  sizeBytes?: Prisma.IntFieldUpdateOperationsInput | number
+  width?: Prisma.IntFieldUpdateOperationsInput | number
+  height?: Prisma.IntFieldUpdateOperationsInput | number
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -773,10 +843,12 @@ export type ArtworkCountOutputTypeCountDmcaNoticesArgs<ExtArgs extends runtime.T
 export type ArtworkSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   userId?: boolean
-  imageUri?: boolean
   originalFilename?: boolean
+  storageKey?: boolean
   contentType?: boolean
   sizeBytes?: boolean
+  width?: boolean
+  height?: boolean
   description?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -789,10 +861,12 @@ export type ArtworkSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
 export type ArtworkSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   userId?: boolean
-  imageUri?: boolean
   originalFilename?: boolean
+  storageKey?: boolean
   contentType?: boolean
   sizeBytes?: boolean
+  width?: boolean
+  height?: boolean
   description?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -803,10 +877,12 @@ export type ArtworkSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
 export type ArtworkSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   userId?: boolean
-  imageUri?: boolean
   originalFilename?: boolean
+  storageKey?: boolean
   contentType?: boolean
   sizeBytes?: boolean
+  width?: boolean
+  height?: boolean
   description?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -817,17 +893,19 @@ export type ArtworkSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
 export type ArtworkSelectScalar = {
   id?: boolean
   userId?: boolean
-  imageUri?: boolean
   originalFilename?: boolean
+  storageKey?: boolean
   contentType?: boolean
   sizeBytes?: boolean
+  width?: boolean
+  height?: boolean
   description?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   lastScanAt?: boolean
 }
 
-export type ArtworkOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "imageUri" | "originalFilename" | "contentType" | "sizeBytes" | "description" | "createdAt" | "updatedAt" | "lastScanAt", ExtArgs["result"]["artwork"]>
+export type ArtworkOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "originalFilename" | "storageKey" | "contentType" | "sizeBytes" | "width" | "height" | "description" | "createdAt" | "updatedAt" | "lastScanAt", ExtArgs["result"]["artwork"]>
 export type ArtworkInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   dmcaNotices?: boolean | Prisma.Artwork$dmcaNoticesArgs<ExtArgs>
@@ -849,10 +927,12 @@ export type $ArtworkPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     userId: string
-    imageUri: string
-    originalFilename: string | null
-    contentType: string | null
-    sizeBytes: number | null
+    originalFilename: string
+    storageKey: string
+    contentType: string
+    sizeBytes: number
+    width: number
+    height: number
     description: string | null
     createdAt: Date
     updatedAt: Date
@@ -1284,10 +1364,12 @@ export interface Prisma__ArtworkClient<T, Null = never, ExtArgs extends runtime.
 export interface ArtworkFieldRefs {
   readonly id: Prisma.FieldRef<"Artwork", 'String'>
   readonly userId: Prisma.FieldRef<"Artwork", 'String'>
-  readonly imageUri: Prisma.FieldRef<"Artwork", 'String'>
   readonly originalFilename: Prisma.FieldRef<"Artwork", 'String'>
+  readonly storageKey: Prisma.FieldRef<"Artwork", 'String'>
   readonly contentType: Prisma.FieldRef<"Artwork", 'String'>
   readonly sizeBytes: Prisma.FieldRef<"Artwork", 'Int'>
+  readonly width: Prisma.FieldRef<"Artwork", 'Int'>
+  readonly height: Prisma.FieldRef<"Artwork", 'Int'>
   readonly description: Prisma.FieldRef<"Artwork", 'String'>
   readonly createdAt: Prisma.FieldRef<"Artwork", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Artwork", 'DateTime'>

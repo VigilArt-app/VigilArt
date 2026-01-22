@@ -5,7 +5,7 @@ import {
   ArtworkMetadata,
   ArtworkMetadataLabel,
   ArtworkWebEntity,
-  MatchingPage,
+  MatchingPage
 } from "@vigilart/shared";
 import { WebDetection, WebEntity, WebLabel, WebPage } from "./types";
 import { classifyWebsite, extractRootDomain, getImageUrl } from "./utils";
@@ -40,7 +40,7 @@ export class VisionService implements OnModuleDestroy {
           if (value.label) {
             const validItem: ArtworkMetadataLabel = {
               label: value.label,
-              languageCode: value.languageCode ?? undefined,
+              languageCode: value.languageCode ?? undefined
             };
             acc.push(validItem);
           }
@@ -55,7 +55,7 @@ export class VisionService implements OnModuleDestroy {
           if (value.score && value.description) {
             const validItem: ArtworkWebEntity = {
               score: value.score,
-              description: value.description,
+              description: value.description
             };
             acc.push(validItem);
           }
@@ -66,7 +66,7 @@ export class VisionService implements OnModuleDestroy {
     }
     return {
       bestGuessLabels: bestGuessLabelsResult,
-      webEntities: webEntitiesResult,
+      webEntities: webEntitiesResult
     };
   }
 
@@ -94,7 +94,7 @@ export class VisionService implements OnModuleDestroy {
             category: classifyWebsite(page.url),
             websiteName: extractRootDomain(page.url),
             imageUrl: imageUrl ?? undefined,
-            pageTitle: page.pageTitle ?? undefined,
+            pageTitle: page.pageTitle ?? undefined
           };
           acc.push(validItem);
         }
@@ -106,16 +106,16 @@ export class VisionService implements OnModuleDestroy {
   }
 
   async webDetection(
-    imageUri: string
+    imageBuffer: Buffer
   ): Promise<WebDetection | null | undefined> {
-    const [result] = await this.client.webDetection(imageUri);
+    const [result] = await this.client.webDetection(imageBuffer);
     const webDetection = result.webDetection;
 
     return webDetection;
   }
 
-  async searchImage(imageUri: string): Promise<VisualSearchResult | null> {
-    const webDetection = await this.webDetection(imageUri);
+  async searchImage(imageBuffer: Buffer): Promise<VisualSearchResult | null> {
+    const webDetection = await this.webDetection(imageBuffer);
 
     if (!webDetection || !webDetection.pagesWithMatchingImages) {
       return null;
@@ -130,7 +130,7 @@ export class VisionService implements OnModuleDestroy {
 
     return {
       metadata,
-      matchingPages,
+      matchingPages
     };
   }
 }

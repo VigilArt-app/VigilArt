@@ -47,20 +47,23 @@ enum SubscriptionTier {
 }
 
 model Artwork {
-  id String @id @default(uuid())
-  userId String
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id                String            @id @default(uuid())
 
-  imageUri String
-  originalFilename String?
-  contentType String?  // "image/png", "image/jpeg"
-  sizeBytes Int?
-  description String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  lastScanAt DateTime?
+  userId            String
+  user              User              @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  dmcaNotices DmcaNotice[]
+  originalFilename  String
+  storageKey        String
+  contentType       String
+  sizeBytes         Int
+  width             Int
+  height            Int
+  description       String?
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  lastScanAt        DateTime?
+
+  dmcaNotices       DmcaNotice[]
 }
 
 enum WebsiteCategory {

@@ -18,7 +18,7 @@ export type UserScalarFieldEnum = z.infer<typeof UserScalarFieldEnumSchema>;
 
 // File: ArtworkScalarFieldEnum.schema.ts
 
-export const ArtworkScalarFieldEnumSchema = z.enum(['id', 'userId', 'imageUri', 'originalFilename', 'contentType', 'sizeBytes', 'description', 'createdAt', 'updatedAt', 'lastScanAt'])
+export const ArtworkScalarFieldEnumSchema = z.enum(['id', 'userId', 'originalFilename', 'storageKey', 'contentType', 'sizeBytes', 'width', 'height', 'description', 'createdAt', 'updatedAt', 'lastScanAt'])
 
 export type ArtworkScalarFieldEnum = z.infer<typeof ArtworkScalarFieldEnumSchema>;
 
@@ -116,10 +116,12 @@ export type UserType = z.infer<typeof UserSchema>;
 export const ArtworkSchema = z.object({
   id: z.string(),
   userId: z.string(),
-  imageUri: z.string(),
-  originalFilename: z.string().nullable(),
-  contentType: z.string().nullable(),
-  sizeBytes: z.number().int().nullable(),
+  originalFilename: z.string(),
+  storageKey: z.string(),
+  contentType: z.string(),
+  sizeBytes: z.number().int(),
+  width: z.number().int(),
+  height: z.number().int(),
   description: z.string().nullable(),
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),

@@ -1,7 +1,7 @@
 import {
   ConflictException,
   Injectable,
-  UnauthorizedException,
+  UnauthorizedException
 } from "@nestjs/common";
 import type { Login, SignUp, AuthResponse } from "@vigilart/shared/types";
 import { UsersService } from "../users/users.service";
@@ -27,7 +27,7 @@ export class AuthService {
 
     const accessToken = await this.jwtService.signAsync({
       sub: user.id,
-      email: user.email,
+      email: user.email
     });
     const { password: hashedPassword, ...userProfile } = user;
 
@@ -35,7 +35,7 @@ export class AuthService {
       user: userProfile,
       accessToken,
       refreshToken: "", // TODO
-      expiresIn: "", // TODO
+      expiresIn: "" // TODO
     };
   }
 
@@ -43,7 +43,7 @@ export class AuthService {
     email,
     password,
     firstName,
-    lastName,
+    lastName
   }: SignUp): Promise<AuthResponse> {
     const userExists = await this.usersService.findByEmail(email);
     if (userExists) throw new ConflictException("Email already in use");
@@ -54,18 +54,18 @@ export class AuthService {
       email,
       password: hashedPassword,
       firstName,
-      lastName,
+      lastName
     });
     const accessToken = await this.jwtService.signAsync({
       sub: user.id,
-      email: user.email,
+      email: user.email
     });
 
     return {
       user,
       accessToken,
       refreshToken: "", // TODO
-      expiresIn: "", // TODO
+      expiresIn: "" // TODO
     };
   }
 }

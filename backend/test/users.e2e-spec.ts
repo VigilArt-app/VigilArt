@@ -13,7 +13,7 @@ describe("Users E2E", () => {
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
-      imports: [AppModule],
+      imports: [AppModule]
     }).compile();
 
     app = moduleRef.createNestApplication();
@@ -36,7 +36,7 @@ describe("Users E2E", () => {
           email: "yuki.endo@mail.com",
           password: "Secure_P4ssword",
           firstName: "Yuki",
-          lastName: "Endo",
+          lastName: "Endo"
         })
         .expect(HttpStatus.CREATED);
 
@@ -52,7 +52,7 @@ describe("Users E2E", () => {
           avatar: null,
           subscriptionTier: expect.any(String),
           createdAt: expect.any(String),
-          updatedAt: expect.any(String),
+          updatedAt: expect.any(String)
         },
       });
     });
@@ -64,8 +64,8 @@ describe("Users E2E", () => {
           password: "Hashed_P4ssword2",
           firstName: "Anna",
           lastName: "Raimon",
-          subscriptionTier: SubscriptionTier.FREE,
-        },
+          subscriptionTier: SubscriptionTier.FREE
+        }
       });
       const res = await api
         .post("/users")
@@ -73,7 +73,7 @@ describe("Users E2E", () => {
           email: "anna@raimon.com",
           password: "Secure_P4ssword_",
           firstName: "Anna",
-          lastName: "Willows",
+          lastName: "Willows"
         })
         .expect(HttpStatus.CONFLICT);
 
@@ -81,7 +81,7 @@ describe("Users E2E", () => {
         success: false,
         statusCode: HttpStatus.CONFLICT,
         message: expect.any(String),
-        error: "Conflict",
+        error: "Conflict"
       });
     });
 
@@ -95,7 +95,7 @@ describe("Users E2E", () => {
         success: false,
         statusCode: HttpStatus.BAD_REQUEST,
         message: expect.any(String),
-        error: "Bad Request",
+        error: "Bad Request"
       });
     });
 
@@ -106,7 +106,7 @@ describe("Users E2E", () => {
           email: "amanda",
           password: "Secure_P4ssword",
           firstName: "Amanda",
-          lastName: "Rowles",
+          lastName: "Rowles"
         })
         .expect(HttpStatus.BAD_REQUEST);
 
@@ -114,7 +114,7 @@ describe("Users E2E", () => {
         success: false,
         statusCode: HttpStatus.BAD_REQUEST,
         message: expect.any(String),
-        error: "Bad Request",
+        error: "Bad Request"
       });
     });
   });
@@ -128,16 +128,16 @@ describe("Users E2E", () => {
             password: "Hashed_P4ssword",
             firstName: "Emma",
             lastName: "Dao",
-            subscriptionTier: SubscriptionTier.FREE,
+            subscriptionTier: SubscriptionTier.FREE
           },
           {
             email: "anna@raimon.com",
             password: "Hashed_P4ssword2",
             firstName: "Anna",
             lastName: "Raimon",
-            subscriptionTier: SubscriptionTier.FREE,
-          },
-        ],
+            subscriptionTier: SubscriptionTier.FREE
+          }
+        ]
       });
       const res = await api.get("/users").expect(HttpStatus.OK);
       const expectedUsers = [
@@ -149,7 +149,7 @@ describe("Users E2E", () => {
           subscriptionTier: SubscriptionTier.FREE,
           avatar: null,
           createdAt: expect.any(String),
-          updatedAt: expect.any(String),
+          updatedAt: expect.any(String)
         },
         {
           id: expect.any(String),
@@ -159,15 +159,15 @@ describe("Users E2E", () => {
           avatar: null,
           subscriptionTier: SubscriptionTier.FREE,
           createdAt: expect.any(String),
-          updatedAt: expect.any(String),
-        },
+          updatedAt: expect.any(String)
+        }
       ];
 
       expect(res.body).toEqual({
         success: true,
         statusCode: HttpStatus.OK,
         message: "OK",
-        data: expectedUsers,
+        data: expectedUsers
       });
     });
   });
@@ -180,13 +180,13 @@ describe("Users E2E", () => {
           password: "Hashed_P4ssword",
           firstName: "Emma",
           lastName: "Dao",
-          subscriptionTier: SubscriptionTier.FREE,
-        },
+          subscriptionTier: SubscriptionTier.FREE
+        }
       });
       const user = await prismaService.user.findUniqueOrThrow({
         where: {
-          email: "emma.dao@mail.com",
-        },
+          email: "emma.dao@mail.com"
+        }
       });
       const res = await api.get(`/users/${user.id}`).expect(HttpStatus.OK);
       expect(res.body).toEqual({
@@ -201,7 +201,7 @@ describe("Users E2E", () => {
           avatar: null,
           subscriptionTier: SubscriptionTier.FREE,
           createdAt: expect.any(String),
-          updatedAt: expect.any(String),
+          updatedAt: expect.any(String)
         },
       });
     });
@@ -215,7 +215,7 @@ describe("Users E2E", () => {
         success: false,
         statusCode: HttpStatus.NOT_FOUND,
         message: expect.any(String),
-        error: "Not Found",
+        error: "Not Found"
       });
     });
 
@@ -226,7 +226,7 @@ describe("Users E2E", () => {
         success: false,
         statusCode: HttpStatus.BAD_REQUEST,
         message: expect.any(String),
-        error: "Bad Request",
+        error: "Bad Request"
       });
     });
   });
@@ -239,13 +239,13 @@ describe("Users E2E", () => {
           password: "Hashed_P4ssword_",
           firstName: "Amanda",
           lastName: "Rawles",
-          subscriptionTier: SubscriptionTier.FREE,
-        },
+          subscriptionTier: SubscriptionTier.FREE
+        }
       });
       const res = await api
         .patch(`/users/${user.id}`)
         .send({
-          avatar: "new_url",
+          avatar: "new_url"
         })
         .expect(HttpStatus.OK);
 
@@ -261,7 +261,7 @@ describe("Users E2E", () => {
           avatar: "new_url",
           subscriptionTier: SubscriptionTier.FREE,
           createdAt: expect.any(String),
-          updatedAt: expect.any(String),
+          updatedAt: expect.any(String)
         },
       });
     });
@@ -270,7 +270,7 @@ describe("Users E2E", () => {
       const res = await api
         .patch("/users/123e4567-e89b-12d3-a456-426614174000")
         .send({
-          avatar: "new_url",
+          avatar: "new_url"
         })
         .expect(HttpStatus.NOT_FOUND);
 
@@ -278,7 +278,7 @@ describe("Users E2E", () => {
         success: false,
         statusCode: HttpStatus.NOT_FOUND,
         message: expect.any(String),
-        error: "Not Found",
+        error: "Not Found"
       });
     });
 
@@ -294,7 +294,7 @@ describe("Users E2E", () => {
         success: false,
         statusCode: HttpStatus.BAD_REQUEST,
         message: expect.any(String),
-        error: "Bad Request",
+        error: "Bad Request"
       });
     });
   });
@@ -307,7 +307,7 @@ describe("Users E2E", () => {
           password: "Hashed_P4ssword_",
           firstName: "Amanda",
           lastName: "Rawles",
-          subscriptionTier: SubscriptionTier.FREE,
+          subscriptionTier: SubscriptionTier.FREE
         },
       });
       const res = await api
@@ -327,7 +327,7 @@ describe("Users E2E", () => {
         success: false,
         statusCode: HttpStatus.NOT_FOUND,
         message: expect.any(String),
-        error: "Not Found",
+        error: "Not Found"
       });
     });
 
@@ -343,7 +343,7 @@ describe("Users E2E", () => {
         success: false,
         statusCode: HttpStatus.BAD_REQUEST,
         message: expect.any(String),
-        error: "Bad Request",
+        error: "Bad Request"
       });
     });
   });
@@ -356,8 +356,8 @@ describe("Users E2E", () => {
           password: "Hashed_P4ssword_",
           firstName: "Amanda",
           lastName: "Rawles",
-          subscriptionTier: SubscriptionTier.FREE,
-        },
+          subscriptionTier: SubscriptionTier.FREE
+        }
       });
       const res = await api
         .delete(`/users/${user.id}`)
@@ -374,7 +374,7 @@ describe("Users E2E", () => {
         success: false,
         statusCode: HttpStatus.NOT_FOUND,
         message: expect.any(String),
-        error: "Not Found",
+        error: "Not Found"
       });
     });
 
@@ -387,7 +387,7 @@ describe("Users E2E", () => {
         success: false,
         statusCode: HttpStatus.BAD_REQUEST,
         message: expect.any(String),
-        error: "Bad Request",
+        error: "Bad Request"
       });
     });
     it("Shouldn't remove user with non-existent ID", async () => {
@@ -399,20 +399,18 @@ describe("Users E2E", () => {
         success: false,
         statusCode: HttpStatus.NOT_FOUND,
         message: expect.any(String),
-        error: "Not Found",
+        error: "Not Found"
       });
     });
 
     it("Should expect an UUID", async () => {
-      const res = await api
-        .delete("/users/1")
-        .expect(HttpStatus.BAD_REQUEST);
+      const res = await api.delete("/users/1").expect(HttpStatus.BAD_REQUEST);
 
       expect(res.body).toEqual({
         success: false,
         statusCode: HttpStatus.BAD_REQUEST,
         message: expect.any(String),
-        error: "Bad Request",
+        error: "Bad Request"
       });
     });
   });

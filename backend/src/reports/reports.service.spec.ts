@@ -8,16 +8,18 @@ import {
   mockedArtworks,
   mockedArtworksReportEntries,
   mockedFilteredArtworksReportEntries,
-  mockedSearchImageReturnValue,
+  mockedSearchImageReturnValue
 } from "./sample-inputs";
 import { AggregatedVisualSearchResults } from "@vigilart/shared";
 import { ArtworksReportEntry, WebsiteCategory } from "@vigilart/shared";
 import { NotFoundException } from "@nestjs/common";
+import { StorageService } from "../storage/storage.service";
 
 describe("ReportsService", () => {
   let service: ReportsService;
   let visionService: VisionService;
   let artworksService: ArtworksService;
+  let storageService: StorageService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -26,22 +28,33 @@ describe("ReportsService", () => {
         {
           provide: VisionService,
           useValue: {
-            searchImage: jest.fn(),
-          },
+            searchImage: jest.fn()
+          }
         },
         {
           provide: ArtworksService,
           useValue: {
             findAllPerUser: jest.fn(),
-            findOne: jest.fn(),
-          },
+            findOne: jest.fn()
+          }
         },
-      ],
+        {
+          provide: StorageService,
+          useValue: {
+            getImage: jest.fn()
+          }
+        }
+      ]
     }).compile();
 
     service = module.get<ReportsService>(ReportsService);
     visionService = module.get<VisionService>(VisionService);
     artworksService = module.get<ArtworksService>(ArtworksService);
+    storageService = module.get<StorageService>(StorageService);
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
   });
 
   it("Should be defined", () => {
@@ -54,13 +67,13 @@ describe("ReportsService", () => {
         .spyOn(visionService, "searchImage")
         .mockResolvedValue(mockedSearchImageReturnValue);
       const res: AggregatedVisualSearchResults =
-        await service.aggregateVisualSearchResults("imageUri");
+        await service.aggregateVisualSearchResults(Buffer.from(""));
 
       expect(res.matchingPages).toEqual(
         mockedSearchImageReturnValue.matchingPages
       );
       expect(res.statistics).toEqual({
-        totalMatches: 4,
+        totalMatches: 4
       });
     });
 
@@ -69,9 +82,9 @@ describe("ReportsService", () => {
         .spyOn(visionService, "searchImage")
         .mockResolvedValue(null);
 
-      const res = await service.aggregateVisualSearchResults("imageUri");
+      const res = await service.aggregateVisualSearchResults(Buffer.from(""));
 
-      expect(spy).toHaveBeenCalledWith("imageUri");
+      expect(spy).toHaveBeenCalledWith(Buffer.from(""));
       expect(res.matchingPages).toEqual([]);
       expect(res.statistics.totalMatches).toBe(0);
     });
@@ -79,15 +92,15 @@ describe("ReportsService", () => {
 
   describe("getArtworksReportEntry", () => {
     beforeEach(() => {
+      jest.spyOn(storageService, "getImage").mockResolvedValue(Buffer.from(""));
       jest
         .spyOn(service, "aggregateVisualSearchResults")
         .mockResolvedValue(mockedAggregatedResults);
     });
 
     it("Should return full artworks report entry without limit", async () => {
-      const res: ArtworksReportEntry = await service.getArtworksReportEntry(
-        mockedArtwork
-      );
+      const res: ArtworksReportEntry =
+        await service.getArtworksReportEntry(mockedArtwork);
       expect(res.artworkId).toEqual("1");
       expect(res.statistics).toEqual({ totalMatches: 4 });
       expect(res.matchingPages).toEqual(
@@ -137,26 +150,26 @@ describe("ReportsService", () => {
       const res = await service.getArtworksReportEntries("0");
       const expectedEntry = {
         statistics: { totalMatches: 4 },
-        matchingPages: mockedSearchImageReturnValue.matchingPages,
+        matchingPages: mockedSearchImageReturnValue.matchingPages
       };
 
       expect(res).toEqual([
         {
           artworkId: "1",
-          ...expectedEntry,
+          ...expectedEntry
         },
         {
           artworkId: "2",
-          ...expectedEntry,
+          ...expectedEntry
         },
         {
           artworkId: "3",
-          ...expectedEntry,
+          ...expectedEntry
         },
         {
           artworkId: "4",
-          ...expectedEntry,
-        },
+          ...expectedEntry
+        }
       ]);
     });
 
@@ -164,26 +177,26 @@ describe("ReportsService", () => {
       const res = await service.getArtworksReportEntries("0", 2);
       const expectedEntry = {
         statistics: { totalMatches: 4 },
-        matchingPages: mockedSearchImageReturnValue.matchingPages.slice(0, 2),
+        matchingPages: mockedSearchImageReturnValue.matchingPages.slice(0, 2)
       };
 
       expect(res).toEqual([
         {
           artworkId: "1",
-          ...expectedEntry,
+          ...expectedEntry
         },
         {
           artworkId: "2",
-          ...expectedEntry,
+          ...expectedEntry
         },
         {
           artworkId: "3",
-          ...expectedEntry,
+          ...expectedEntry
         },
         {
           artworkId: "4",
-          ...expectedEntry,
-        },
+          ...expectedEntry
+        }
       ]);
     });
 
@@ -191,26 +204,26 @@ describe("ReportsService", () => {
       const res = await service.getArtworksReportEntries("0", 100);
       const expectedEntry = {
         statistics: { totalMatches: 4 },
-        matchingPages: mockedSearchImageReturnValue.matchingPages.slice(0, 100),
+        matchingPages: mockedSearchImageReturnValue.matchingPages.slice(0, 100)
       };
 
       expect(res).toEqual([
         {
           artworkId: "1",
-          ...expectedEntry,
+          ...expectedEntry
         },
         {
           artworkId: "2",
-          ...expectedEntry,
+          ...expectedEntry
         },
         {
           artworkId: "3",
-          ...expectedEntry,
+          ...expectedEntry
         },
         {
           artworkId: "4",
-          ...expectedEntry,
-        },
+          ...expectedEntry
+        }
       ]);
     });
 
@@ -218,26 +231,26 @@ describe("ReportsService", () => {
       const res = await service.getArtworksReportEntries("0", 0);
       const expectedEntry = {
         statistics: { totalMatches: 4 },
-        matchingPages: mockedSearchImageReturnValue.matchingPages.slice(0, 0),
+        matchingPages: mockedSearchImageReturnValue.matchingPages.slice(0, 0)
       };
 
       expect(res).toEqual([
         {
           artworkId: "1",
-          ...expectedEntry,
+          ...expectedEntry
         },
         {
           artworkId: "2",
-          ...expectedEntry,
+          ...expectedEntry
         },
         {
           artworkId: "3",
-          ...expectedEntry,
+          ...expectedEntry
         },
         {
           artworkId: "4",
-          ...expectedEntry,
-        },
+          ...expectedEntry
+        }
       ]);
     });
 
@@ -258,7 +271,7 @@ describe("ReportsService", () => {
       );
 
       expect(res).toEqual({
-        totalMatches: 12,
+        totalMatches: 12
       });
     });
 
@@ -266,7 +279,7 @@ describe("ReportsService", () => {
       const res = service.getArtworksReportStatistics([]);
 
       expect(res).toEqual({
-        totalMatches: 0,
+        totalMatches: 0
       });
     });
   });
@@ -281,7 +294,7 @@ describe("ReportsService", () => {
       expect(res).toEqual({
         detectionDate: expect.any(Date),
         statistics: { totalMatches: 12 },
-        entries: mockedFilteredArtworksReportEntries,
+        entries: mockedFilteredArtworksReportEntries
       });
     });
 
@@ -292,12 +305,16 @@ describe("ReportsService", () => {
       expect(res).toEqual({
         detectionDate: expect.any(Date),
         statistics: { totalMatches: 0 },
-        entries: [],
+        entries: []
       });
     });
   });
 
   describe("getArtworkMatches", () => {
+    beforeEach(() => {
+      jest.spyOn(storageService, "getImage").mockResolvedValue(Buffer.from(""));
+    });
+
     it("Should return all matching pages of an artwork without filter", async () => {
       jest.spyOn(artworksService, "findOne").mockResolvedValue(mockedArtwork);
       jest
@@ -322,7 +339,7 @@ describe("ReportsService", () => {
         .spyOn(service, "aggregateVisualSearchResults")
         .mockResolvedValue(mockedAggregatedResults);
       const res = await service.getArtworkMatches(mockedArtwork.id, {
-        websiteCategory: WebsiteCategory.ART_PLATFORMS,
+        websiteCategory: WebsiteCategory.ART_PLATFORMS
       });
 
       expect(res).toEqual([
@@ -331,8 +348,8 @@ describe("ReportsService", () => {
           pageTitle: "Ebay art sold",
           category: WebsiteCategory.ART_PLATFORMS,
           websiteName: "artstation.com",
-          imageUrl: "imageUri",
-        },
+          imageUrl: "imageUrl"
+        }
       ]);
     });
   });
@@ -346,7 +363,7 @@ describe("ReportsService", () => {
       const expectedRes = [
         ...mockedSearchImageReturnValue.matchingPages,
         ...mockedSearchImageReturnValue.matchingPages,
-        ...mockedSearchImageReturnValue.matchingPages,
+        ...mockedSearchImageReturnValue.matchingPages
       ];
 
       expect(res).toEqual(expectedRes);
@@ -357,7 +374,7 @@ describe("ReportsService", () => {
         .spyOn(service, "getArtworksReportEntries")
         .mockResolvedValue(mockedArtworksReportEntries);
       const res = await service.getAllArtworksMatches(mockedArtwork.id, {
-        websiteCategory: WebsiteCategory.SOCIAL,
+        websiteCategory: WebsiteCategory.SOCIAL
       });
       const expectedArtworkMatches = [
         {
@@ -367,7 +384,7 @@ describe("ReportsService", () => {
           category: WebsiteCategory.SOCIAL,
           websiteName: "pinterest.com",
           imageUrl:
-            "https://i.pinimg.com/236x/b0/42/f7/b042f7f4d3583298407291b0a8882fef.jpg",
+            "https://i.pinimg.com/236x/b0/42/f7/b042f7f4d3583298407291b0a8882fef.jpg"
         },
         {
           url: "https://emblask.tumblr.com/post/650058868223819776",
@@ -375,13 +392,13 @@ describe("ReportsService", () => {
           category: WebsiteCategory.SOCIAL,
           websiteName: "tumblr.com",
           imageUrl:
-            "https://64.media.tumblr.com/853eb47c8fe24d2dbb2f742e906b9378/2bfc4b18c0150b65-5d/s640x960/6e3b30d3cd28d4eda06032af3f6b503b0450ba66.jpg",
-        },
+            "https://64.media.tumblr.com/853eb47c8fe24d2dbb2f742e906b9378/2bfc4b18c0150b65-5d/s640x960/6e3b30d3cd28d4eda06032af3f6b503b0450ba66.jpg"
+        }
       ];
       const expectedRes = [
         ...expectedArtworkMatches,
         ...expectedArtworkMatches,
-        ...expectedArtworkMatches,
+        ...expectedArtworkMatches
       ];
 
       expect(res).toEqual(expectedRes);
@@ -397,7 +414,7 @@ describe("ReportsService", () => {
     it("Should handle no entries without filter", async () => {
       jest.spyOn(service, "getArtworksReportEntries").mockResolvedValue([]);
       const res = await service.getAllArtworksMatches(mockedArtwork.id, {
-        websiteCategory: WebsiteCategory.ART_PLATFORMS,
+        websiteCategory: WebsiteCategory.ART_PLATFORMS
       });
 
       expect(res).toEqual([]);
