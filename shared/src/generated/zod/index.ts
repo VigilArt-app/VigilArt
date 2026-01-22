@@ -40,6 +40,12 @@ export const DmcaNoticeScalarFieldEnumSchema = z.enum(['id', 'userId', 'dmcaPlat
 
 export type DmcaNoticeScalarFieldEnum = z.infer<typeof DmcaNoticeScalarFieldEnumSchema>;
 
+// File: DmcaNoticeDataScalarFieldEnum.schema.ts
+
+export const DmcaNoticeDataScalarFieldEnumSchema = z.enum(['id', 'dmcaNoticeId', 'generatedPdfs', 'generatedMails'])
+
+export type DmcaNoticeDataScalarFieldEnum = z.infer<typeof DmcaNoticeDataScalarFieldEnumSchema>;
+
 // File: SortOrder.schema.ts
 
 export const SortOrderSchema = z.enum(['asc', 'desc'])
@@ -84,7 +90,7 @@ export type WebsiteCategory = z.infer<typeof WebsiteCategorySchema>;
 
 // File: DmcaStatus.schema.ts
 
-export const DmcaStatusSchema = z.enum(['DRAFT', 'GENERATED', 'EXPORTED', 'SUBMITTED'])
+export const DmcaStatusSchema = z.enum(['DRAFT', 'SUBMITTED'])
 
 export type DmcaStatus = z.infer<typeof DmcaStatusSchema>;
 
@@ -149,11 +155,11 @@ export const DmcaProfileSchema = z.object({
   fullName: z.string(),
   street: z.string(),
   aptSuite: z.string().nullable(),
-  city: z.string().nullable(),
-  postalCode: z.string().nullable(),
+  city: z.string(),
+  postalCode: z.string(),
   country: z.string(),
   email: z.string(),
-  phone: z.string().nullable(),
+  phone: z.string(),
   signature: z.string(),
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),
@@ -177,4 +183,16 @@ export const DmcaNoticeSchema = z.object({
 });
 
 export type DmcaNoticeType = z.infer<typeof DmcaNoticeSchema>;
+
+
+// File: DmcaNoticeData.schema.ts
+
+export const DmcaNoticeDataSchema = z.object({
+  id: z.string(),
+  dmcaNoticeId: z.string(),
+  generatedPdfs: z.number().int(),
+  generatedMails: z.number().int(),
+});
+
+export type DmcaNoticeDataType = z.infer<typeof DmcaNoticeDataSchema>;
 

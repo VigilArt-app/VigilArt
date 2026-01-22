@@ -39,3 +39,5 @@ export const DmcaNoticeFileResponseSchema = z.object({
   size: z.number().int().nonnegative()
 });
 export class DmcaNoticeFileResponseDTO extends createZodDto(DmcaNoticeFileResponseSchema) {}
+
+export * from "./data";

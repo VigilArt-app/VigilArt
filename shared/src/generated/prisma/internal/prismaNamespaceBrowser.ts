@@ -55,7 +55,8 @@ export const ModelName = {
   Artwork: 'Artwork',
   DmcaPlatform: 'DmcaPlatform',
   DmcaProfile: 'DmcaProfile',
-  DmcaNotice: 'DmcaNotice'
+  DmcaNotice: 'DmcaNotice',
+  DmcaNoticeData: 'DmcaNoticeData'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -153,6 +154,16 @@ export const DmcaNoticeScalarFieldEnum = {
 } as const
 
 export type DmcaNoticeScalarFieldEnum = (typeof DmcaNoticeScalarFieldEnum)[keyof typeof DmcaNoticeScalarFieldEnum]
+
+
+export const DmcaNoticeDataScalarFieldEnum = {
+  id: 'id',
+  dmcaNoticeId: 'dmcaNoticeId',
+  generatedPdfs: 'generatedPdfs',
+  generatedMails: 'generatedMails'
+} as const
+
+export type DmcaNoticeDataScalarFieldEnum = (typeof DmcaNoticeDataScalarFieldEnum)[keyof typeof DmcaNoticeDataScalarFieldEnum]
 
 
 export const SortOrder = {

@@ -1,4 +1,4 @@
-import { Injectable, Logger, BadRequestException } from "@nestjs/common";
+import { Injectable, Logger, BadRequestException, ConflictException } from "@nestjs/common";
 import { PrismaService } from "../../prisma/prisma.service";
 import type {
     DmcaNoticeGet,
@@ -85,7 +85,10 @@ export class DmcaNoticeService {
             data: {
                 ...data,
                 payload: safePayload,
-                status
+                status,
+                dmcaNoticeData: {
+                    create: true
+                }
             }
         });
     }
@@ -95,7 +98,7 @@ export class DmcaNoticeService {
             where: { id }
         });
         if (oldData.status === DmcaStatus.SUBMITTED)
-            throw new BadRequestException("Cannot update a submitted notice");
+            throw new ConflictException("Cannot update a submitted notice");
 
         const hasChanges =
             (data.payload && JSON.stringify(data.payload) !== JSON.stringify(oldData.payload)) ||
@@ -113,8 +116,7 @@ export class DmcaNoticeService {
             where: { id },
             data: {
                 payload: safePayload,
-                dmcaPlatformSlug: data.dmcaPlatformSlug,
-                status: oldData.status === DmcaStatus.EXPORTED || oldData.status === DmcaStatus.GENERATED ? DmcaStatus.DRAFT : oldData.status
+                dmcaPlatformSlug: data.dmcaPlatformSlug
             }
         });
     }
@@ -124,7 +126,7 @@ export class DmcaNoticeService {
             where: { id }
         });
         if (notice.status === DmcaStatus.SUBMITTED)
-            throw new BadRequestException("Cannot change status of a submitted notice");
+            throw new ConflictException("Cannot change status of a submitted notice");
         if (notice.status === status)
             return notice;
 
@@ -140,7 +142,7 @@ export class DmcaNoticeService {
             where: { id }
         });
         if (notice.status === DmcaStatus.SUBMITTED)
-            throw new BadRequestException("Cannot delete a submitted notice");
+            throw new ConflictException("Cannot delete a submitted notice");
 
         this.logger.log(`Deleting DMCA notice: ${id}`);
         await this.prisma.dmcaNotice.delete({

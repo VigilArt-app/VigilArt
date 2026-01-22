@@ -62,3 +62,8 @@ export type DmcaProfile = Prisma.DmcaProfileModel
  * 
  */
 export type DmcaNotice = Prisma.DmcaNoticeModel
+/**
+ * Model DmcaNoticeData
+ * 
+ */
+export type DmcaNoticeData = Prisma.DmcaNoticeDataModel

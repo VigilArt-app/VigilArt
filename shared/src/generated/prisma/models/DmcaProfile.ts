@@ -201,11 +201,11 @@ export type DmcaProfileGroupByOutputType = {
   fullName: string
   street: string
   aptSuite: string | null
-  city: string | null
-  postalCode: string | null
+  city: string
+  postalCode: string
   country: string
   email: string
-  phone: string | null
+  phone: string
   signature: string
   createdAt: Date
   updatedAt: Date
@@ -238,11 +238,11 @@ export type DmcaProfileWhereInput = {
   fullName?: Prisma.StringFilter<"DmcaProfile"> | string
   street?: Prisma.StringFilter<"DmcaProfile"> | string
   aptSuite?: Prisma.StringNullableFilter<"DmcaProfile"> | string | null
-  city?: Prisma.StringNullableFilter<"DmcaProfile"> | string | null
-  postalCode?: Prisma.StringNullableFilter<"DmcaProfile"> | string | null
+  city?: Prisma.StringFilter<"DmcaProfile"> | string
+  postalCode?: Prisma.StringFilter<"DmcaProfile"> | string
   country?: Prisma.StringFilter<"DmcaProfile"> | string
   email?: Prisma.StringFilter<"DmcaProfile"> | string
-  phone?: Prisma.StringNullableFilter<"DmcaProfile"> | string | null
+  phone?: Prisma.StringFilter<"DmcaProfile"> | string
   signature?: Prisma.StringFilter<"DmcaProfile"> | string
   createdAt?: Prisma.DateTimeFilter<"DmcaProfile"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"DmcaProfile"> | Date | string
@@ -255,11 +255,11 @@ export type DmcaProfileOrderByWithRelationInput = {
   fullName?: Prisma.SortOrder
   street?: Prisma.SortOrder
   aptSuite?: Prisma.SortOrderInput | Prisma.SortOrder
-  city?: Prisma.SortOrderInput | Prisma.SortOrder
-  postalCode?: Prisma.SortOrderInput | Prisma.SortOrder
+  city?: Prisma.SortOrder
+  postalCode?: Prisma.SortOrder
   country?: Prisma.SortOrder
   email?: Prisma.SortOrder
-  phone?: Prisma.SortOrderInput | Prisma.SortOrder
+  phone?: Prisma.SortOrder
   signature?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -275,11 +275,11 @@ export type DmcaProfileWhereUniqueInput = Prisma.AtLeast<{
   fullName?: Prisma.StringFilter<"DmcaProfile"> | string
   street?: Prisma.StringFilter<"DmcaProfile"> | string
   aptSuite?: Prisma.StringNullableFilter<"DmcaProfile"> | string | null
-  city?: Prisma.StringNullableFilter<"DmcaProfile"> | string | null
-  postalCode?: Prisma.StringNullableFilter<"DmcaProfile"> | string | null
+  city?: Prisma.StringFilter<"DmcaProfile"> | string
+  postalCode?: Prisma.StringFilter<"DmcaProfile"> | string
   country?: Prisma.StringFilter<"DmcaProfile"> | string
   email?: Prisma.StringFilter<"DmcaProfile"> | string
-  phone?: Prisma.StringNullableFilter<"DmcaProfile"> | string | null
+  phone?: Prisma.StringFilter<"DmcaProfile"> | string
   signature?: Prisma.StringFilter<"DmcaProfile"> | string
   createdAt?: Prisma.DateTimeFilter<"DmcaProfile"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"DmcaProfile"> | Date | string
@@ -292,11 +292,11 @@ export type DmcaProfileOrderByWithAggregationInput = {
   fullName?: Prisma.SortOrder
   street?: Prisma.SortOrder
   aptSuite?: Prisma.SortOrderInput | Prisma.SortOrder
-  city?: Prisma.SortOrderInput | Prisma.SortOrder
-  postalCode?: Prisma.SortOrderInput | Prisma.SortOrder
+  city?: Prisma.SortOrder
+  postalCode?: Prisma.SortOrder
   country?: Prisma.SortOrder
   email?: Prisma.SortOrder
-  phone?: Prisma.SortOrderInput | Prisma.SortOrder
+  phone?: Prisma.SortOrder
   signature?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -314,11 +314,11 @@ export type DmcaProfileScalarWhereWithAggregatesInput = {
   fullName?: Prisma.StringWithAggregatesFilter<"DmcaProfile"> | string
   street?: Prisma.StringWithAggregatesFilter<"DmcaProfile"> | string
   aptSuite?: Prisma.StringNullableWithAggregatesFilter<"DmcaProfile"> | string | null
-  city?: Prisma.StringNullableWithAggregatesFilter<"DmcaProfile"> | string | null
-  postalCode?: Prisma.StringNullableWithAggregatesFilter<"DmcaProfile"> | string | null
+  city?: Prisma.StringWithAggregatesFilter<"DmcaProfile"> | string
+  postalCode?: Prisma.StringWithAggregatesFilter<"DmcaProfile"> | string
   country?: Prisma.StringWithAggregatesFilter<"DmcaProfile"> | string
   email?: Prisma.StringWithAggregatesFilter<"DmcaProfile"> | string
-  phone?: Prisma.StringNullableWithAggregatesFilter<"DmcaProfile"> | string | null
+  phone?: Prisma.StringWithAggregatesFilter<"DmcaProfile"> | string
   signature?: Prisma.StringWithAggregatesFilter<"DmcaProfile"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"DmcaProfile"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"DmcaProfile"> | Date | string
@@ -329,11 +329,11 @@ export type DmcaProfileCreateInput = {
   fullName: string
   street: string
   aptSuite?: string | null
-  city?: string | null
-  postalCode?: string | null
+  city: string
+  postalCode: string
   country: string
   email: string
-  phone?: string | null
+  phone: string
   signature: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -346,11 +346,11 @@ export type DmcaProfileUncheckedCreateInput = {
   fullName: string
   street: string
   aptSuite?: string | null
-  city?: string | null
-  postalCode?: string | null
+  city: string
+  postalCode: string
   country: string
   email: string
-  phone?: string | null
+  phone: string
   signature: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -361,11 +361,11 @@ export type DmcaProfileUpdateInput = {
   fullName?: Prisma.StringFieldUpdateOperationsInput | string
   street?: Prisma.StringFieldUpdateOperationsInput | string
   aptSuite?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  postalCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  city?: Prisma.StringFieldUpdateOperationsInput | string
+  postalCode?: Prisma.StringFieldUpdateOperationsInput | string
   country?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
-  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.StringFieldUpdateOperationsInput | string
   signature?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -378,11 +378,11 @@ export type DmcaProfileUncheckedUpdateInput = {
   fullName?: Prisma.StringFieldUpdateOperationsInput | string
   street?: Prisma.StringFieldUpdateOperationsInput | string
   aptSuite?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  postalCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  city?: Prisma.StringFieldUpdateOperationsInput | string
+  postalCode?: Prisma.StringFieldUpdateOperationsInput | string
   country?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
-  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.StringFieldUpdateOperationsInput | string
   signature?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -394,11 +394,11 @@ export type DmcaProfileCreateManyInput = {
   fullName: string
   street: string
   aptSuite?: string | null
-  city?: string | null
-  postalCode?: string | null
+  city: string
+  postalCode: string
   country: string
   email: string
-  phone?: string | null
+  phone: string
   signature: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -409,11 +409,11 @@ export type DmcaProfileUpdateManyMutationInput = {
   fullName?: Prisma.StringFieldUpdateOperationsInput | string
   street?: Prisma.StringFieldUpdateOperationsInput | string
   aptSuite?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  postalCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  city?: Prisma.StringFieldUpdateOperationsInput | string
+  postalCode?: Prisma.StringFieldUpdateOperationsInput | string
   country?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
-  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.StringFieldUpdateOperationsInput | string
   signature?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -425,11 +425,11 @@ export type DmcaProfileUncheckedUpdateManyInput = {
   fullName?: Prisma.StringFieldUpdateOperationsInput | string
   street?: Prisma.StringFieldUpdateOperationsInput | string
   aptSuite?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  postalCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  city?: Prisma.StringFieldUpdateOperationsInput | string
+  postalCode?: Prisma.StringFieldUpdateOperationsInput | string
   country?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
-  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.StringFieldUpdateOperationsInput | string
   signature?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -525,11 +525,11 @@ export type DmcaProfileCreateWithoutUserInput = {
   fullName: string
   street: string
   aptSuite?: string | null
-  city?: string | null
-  postalCode?: string | null
+  city: string
+  postalCode: string
   country: string
   email: string
-  phone?: string | null
+  phone: string
   signature: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -540,11 +540,11 @@ export type DmcaProfileUncheckedCreateWithoutUserInput = {
   fullName: string
   street: string
   aptSuite?: string | null
-  city?: string | null
-  postalCode?: string | null
+  city: string
+  postalCode: string
   country: string
   email: string
-  phone?: string | null
+  phone: string
   signature: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -571,11 +571,11 @@ export type DmcaProfileUpdateWithoutUserInput = {
   fullName?: Prisma.StringFieldUpdateOperationsInput | string
   street?: Prisma.StringFieldUpdateOperationsInput | string
   aptSuite?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  postalCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  city?: Prisma.StringFieldUpdateOperationsInput | string
+  postalCode?: Prisma.StringFieldUpdateOperationsInput | string
   country?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
-  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.StringFieldUpdateOperationsInput | string
   signature?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -586,11 +586,11 @@ export type DmcaProfileUncheckedUpdateWithoutUserInput = {
   fullName?: Prisma.StringFieldUpdateOperationsInput | string
   street?: Prisma.StringFieldUpdateOperationsInput | string
   aptSuite?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  postalCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  city?: Prisma.StringFieldUpdateOperationsInput | string
+  postalCode?: Prisma.StringFieldUpdateOperationsInput | string
   country?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
-  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.StringFieldUpdateOperationsInput | string
   signature?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -687,11 +687,11 @@ export type $DmcaProfilePayload<ExtArgs extends runtime.Types.Extensions.Interna
     fullName: string
     street: string
     aptSuite: string | null
-    city: string | null
-    postalCode: string | null
+    city: string
+    postalCode: string
     country: string
     email: string
-    phone: string | null
+    phone: string
     signature: string
     createdAt: Date
     updatedAt: Date

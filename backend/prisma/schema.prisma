@@ -77,8 +77,6 @@ enum WebsiteCategory {
 
 enum DmcaStatus {
   DRAFT
-  GENERATED
-  EXPORTED
   SUBMITTED
 }
 
@@ -107,11 +105,11 @@ model DmcaProfile {
   fullName     String
   street       String
   aptSuite     String?
-  city         String?
-  postalCode   String?
+  city         String
+  postalCode   String
   country      String
   email        String
-  phone        String?
+  phone        String
   signature    String
 
   createdAt    DateTime @default(now())
@@ -130,10 +128,22 @@ model DmcaNotice {
   artwork   Artwork? @relation(fields: [artworkId], references: [id], onDelete: SetNull)
   artworkId String?
 
+  dmcaNoticeData DmcaNoticeData?
+
   status DmcaStatus @default(DRAFT)
   payload Json      @default("{}")
   submittedAt DateTime?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt @default(now())
+}
+
+model DmcaNoticeData {
+  id String @id @default(uuid())
+
+  dmcaNotice DmcaNotice @relation(fields: [dmcaNoticeId], references: [id], onDelete: Cascade)
+  dmcaNoticeId String @unique
+
+  generatedPdfs   Int @default(0)
+  generatedMails  Int @default(0)
 }

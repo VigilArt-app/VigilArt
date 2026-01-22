@@ -33,8 +33,6 @@ export type WebsiteCategory = (typeof WebsiteCategory)[keyof typeof WebsiteCateg
 
 export const DmcaStatus = {
   DRAFT: 'DRAFT',
-  GENERATED: 'GENERATED',
-  EXPORTED: 'EXPORTED',
   SUBMITTED: 'SUBMITTED'
 } as const
 

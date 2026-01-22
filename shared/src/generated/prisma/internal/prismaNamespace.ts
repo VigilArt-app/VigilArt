@@ -388,7 +388,8 @@ export const ModelName = {
   Artwork: 'Artwork',
   DmcaPlatform: 'DmcaPlatform',
   DmcaProfile: 'DmcaProfile',
-  DmcaNotice: 'DmcaNotice'
+  DmcaNotice: 'DmcaNotice',
+  DmcaNoticeData: 'DmcaNoticeData'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -404,7 +405,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "artwork" | "dmcaPlatform" | "dmcaProfile" | "dmcaNotice"
+    modelProps: "user" | "artwork" | "dmcaPlatform" | "dmcaProfile" | "dmcaNotice" | "dmcaNoticeData"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -778,6 +779,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    DmcaNoticeData: {
+      payload: Prisma.$DmcaNoticeDataPayload<ExtArgs>
+      fields: Prisma.DmcaNoticeDataFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.DmcaNoticeDataFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DmcaNoticeDataPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.DmcaNoticeDataFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DmcaNoticeDataPayload>
+        }
+        findFirst: {
+          args: Prisma.DmcaNoticeDataFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DmcaNoticeDataPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.DmcaNoticeDataFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DmcaNoticeDataPayload>
+        }
+        findMany: {
+          args: Prisma.DmcaNoticeDataFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DmcaNoticeDataPayload>[]
+        }
+        create: {
+          args: Prisma.DmcaNoticeDataCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DmcaNoticeDataPayload>
+        }
+        createMany: {
+          args: Prisma.DmcaNoticeDataCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.DmcaNoticeDataCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DmcaNoticeDataPayload>[]
+        }
+        delete: {
+          args: Prisma.DmcaNoticeDataDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DmcaNoticeDataPayload>
+        }
+        update: {
+          args: Prisma.DmcaNoticeDataUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DmcaNoticeDataPayload>
+        }
+        deleteMany: {
+          args: Prisma.DmcaNoticeDataDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.DmcaNoticeDataUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.DmcaNoticeDataUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DmcaNoticeDataPayload>[]
+        }
+        upsert: {
+          args: Prisma.DmcaNoticeDataUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DmcaNoticeDataPayload>
+        }
+        aggregate: {
+          args: Prisma.DmcaNoticeDataAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateDmcaNoticeData>
+        }
+        groupBy: {
+          args: Prisma.DmcaNoticeDataGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DmcaNoticeDataGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.DmcaNoticeDataCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DmcaNoticeDataCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -896,6 +971,16 @@ export const DmcaNoticeScalarFieldEnum = {
 } as const
 
 export type DmcaNoticeScalarFieldEnum = (typeof DmcaNoticeScalarFieldEnum)[keyof typeof DmcaNoticeScalarFieldEnum]
+
+
+export const DmcaNoticeDataScalarFieldEnum = {
+  id: 'id',
+  dmcaNoticeId: 'dmcaNoticeId',
+  generatedPdfs: 'generatedPdfs',
+  generatedMails: 'generatedMails'
+} as const
+
+export type DmcaNoticeDataScalarFieldEnum = (typeof DmcaNoticeDataScalarFieldEnum)[keyof typeof DmcaNoticeDataScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -1155,6 +1240,7 @@ export type GlobalOmitConfig = {
   dmcaPlatform?: Prisma.DmcaPlatformOmit
   dmcaProfile?: Prisma.DmcaProfileOmit
   dmcaNotice?: Prisma.DmcaNoticeOmit
+  dmcaNoticeData?: Prisma.DmcaNoticeDataOmit
 }
 
 /* Types for Logging */

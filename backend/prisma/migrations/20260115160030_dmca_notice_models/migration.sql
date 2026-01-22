@@ -10,53 +10,11 @@
 
 */
 -- CreateEnum
-CREATE TYPE "WebsiteCategory" AS ENUM ('SOCIAL', 'ART_PLATFORMS', 'MARKETPLACES', 'BLOG', 'MEDIA', 'SEARCH', 'OTHER');
-
--- CreateEnum
-CREATE TYPE "DmcaStatus" AS ENUM ('DRAFT', 'GENERATED', 'EXPORTED', 'SUBMITTED');
-
--- DropForeignKey
-ALTER TABLE "ArtworkIndividualReport" DROP CONSTRAINT "ArtworkIndividualReport_artworkId_fkey";
-
--- DropForeignKey
-ALTER TABLE "ArtworkIndividualReport" DROP CONSTRAINT "ArtworkIndividualReport_metadataId_fkey";
-
--- DropForeignKey
-ALTER TABLE "ArtworkIndividualReport" DROP CONSTRAINT "ArtworkIndividualReport_statisticsId_fkey";
-
--- DropForeignKey
-ALTER TABLE "ArtworkMetadataLabel" DROP CONSTRAINT "ArtworkMetadataLabel_artworkMetadataId_fkey";
-
--- DropForeignKey
-ALTER TABLE "ArtworkWebEntity" DROP CONSTRAINT "ArtworkWebEntity_artworkMetadataId_fkey";
-
--- DropForeignKey
-ALTER TABLE "MatchingImage" DROP CONSTRAINT "MatchingImage_artworkReportId_fkey";
+CREATE TYPE "DmcaStatus" AS ENUM ('DRAFT', 'SUBMITTED');
 
 -- AlterTable
 ALTER TABLE "User" ADD COLUMN     "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 ALTER COLUMN "subscriptionTier" SET DEFAULT 'FREE';
-
--- DropTable
-DROP TABLE "ArtworkIndividualReport";
-
--- DropTable
-DROP TABLE "ArtworkMetadata";
-
--- DropTable
-DROP TABLE "ArtworkMetadataLabel";
-
--- DropTable
-DROP TABLE "ArtworkStatistics";
-
--- DropTable
-DROP TABLE "ArtworkWebEntity";
-
--- DropTable
-DROP TABLE "MatchingImage";
-
--- DropEnum
-DROP TYPE "MatchType";
 
 -- CreateTable
 CREATE TABLE "DmcaPlatform" (
@@ -81,11 +39,11 @@ CREATE TABLE "DmcaProfile" (
     "fullName" TEXT NOT NULL,
     "street" TEXT NOT NULL,
     "aptSuite" TEXT,
-    "city" TEXT,
-    "postalCode" TEXT,
+    "city" TEXT NOT NULL,
+    "postalCode" TEXT NOT NULL,
     "country" TEXT NOT NULL,
     "email" TEXT NOT NULL,
-    "phone" TEXT,
+    "phone" TEXT NOT NULL,
     "signature" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -108,6 +66,16 @@ CREATE TABLE "DmcaNotice" (
     CONSTRAINT "DmcaNotice_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateTable
+CREATE TABLE "DmcaNoticeData" (
+    "id" TEXT NOT NULL,
+    "dmcaNoticeId" TEXT NOT NULL,
+    "generatedPdfs" INTEGER NOT NULL DEFAULT 0,
+    "generatedMails" INTEGER NOT NULL DEFAULT 0,
+
+    CONSTRAINT "DmcaNoticeData_pkey" PRIMARY KEY ("id")
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "DmcaPlatform_slug_key" ON "DmcaPlatform"("slug");
 
@@ -116,6 +84,9 @@ CREATE UNIQUE INDEX "DmcaPlatform_domain_key" ON "DmcaPlatform"("domain");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "DmcaProfile_userId_key" ON "DmcaProfile"("userId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "DmcaNoticeData_dmcaNoticeId_key" ON "DmcaNoticeData"("dmcaNoticeId");
 
 -- AddForeignKey
 ALTER TABLE "DmcaProfile" ADD CONSTRAINT "DmcaProfile_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -128,3 +99,6 @@ ALTER TABLE "DmcaNotice" ADD CONSTRAINT "DmcaNotice_dmcaPlatformSlug_fkey" FOREI
 
 -- AddForeignKey
 ALTER TABLE "DmcaNotice" ADD CONSTRAINT "DmcaNotice_artworkId_fkey" FOREIGN KEY ("artworkId") REFERENCES "Artwork"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "DmcaNoticeData" ADD CONSTRAINT "DmcaNoticeData_dmcaNoticeId_fkey" FOREIGN KEY ("dmcaNoticeId") REFERENCES "DmcaNotice"("id") ON DELETE CASCADE ON UPDATE CASCADE;
