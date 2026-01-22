@@ -16,8 +16,7 @@ import {
     DmcaNoticeGetDTO,
     DmcaNoticeCreateDTO,
     DmcaNoticeUpdateDTO,
-    DmcaNoticeEmailResponseDTO,
-    DmcaNoticeFileResponseDTO
+    DmcaNoticeGeneratedContentDTO
 } from "@vigilart/shared/schemas";
 import type { DmcaNoticeGet } from "@vigilart/shared/types";
 import { DmcaStatus } from "@vigilart/shared";
@@ -140,31 +139,16 @@ export class DmcaNoticeController {
 
     @Post("/:id/generate")
     @ApiEndpoint({
-        summary: "Generate a PDF for a DMCA notice",
+        summary: "Generate an email and a pdf based on the notice content",
         success: {
             status: HttpStatus.OK,
-            type: DmcaNoticeFileResponseDTO
+            type: DmcaNoticeGeneratedContentDTO
         },
         errors: [HttpStatus.NOT_FOUND],
         protected: true
     })
     @ApiParam({ name: "id", type: String })
-    async generateNoticePdf(@Param("id") id: string): Promise<DmcaNoticeFileResponseDTO> {
-        return this.noticeService.generatePdf(id);
-    }
-
-    @Post("/:id/email")
-    @ApiEndpoint({
-        summary: "Get DMCA notice email content",
-        success: {
-            status: HttpStatus.OK,
-            type: DmcaNoticeEmailResponseDTO
-        },
-        errors: [HttpStatus.NOT_FOUND],
-        protected: true
-    })
-    @ApiParam({ name: "id", type: String })
-    async getNoticeEmail(@Param("id") id: string): Promise<DmcaNoticeEmailResponseDTO> {
-        return this.noticeService.getNoticeEmail(id);
+    async generate(@Param("id") id: string): Promise<DmcaNoticeGeneratedContentDTO> {
+        return this.noticeService.generate(id);
     }
 }

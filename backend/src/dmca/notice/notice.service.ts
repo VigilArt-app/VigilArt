@@ -6,6 +6,7 @@ import type {
     DmcaNoticeUpdate,
     DmcaNoticeEmailResponse,
     DmcaNoticeFileResponse,
+    DmcaNoticeGeneratedContent,
     DmcaPlatformGet,
     DmcaProfileGet,
     InputJsonValue,
@@ -20,6 +21,7 @@ import PDFDocument from "pdfkit";
 interface NecessaryProperties {
     platform: {
         name: string,
+        slug: string,
         link: string,
         email: string
     },
@@ -196,8 +198,9 @@ export class DmcaNoticeService {
         const necessaryProperties: NecessaryProperties = {
             platform: {
                 name: platform.displayName ?? "[insert company name]",
-                link: platform.domain ?? "[insert company domain]",
-                email: platform.email ?? "[insert company DMCA email]"
+                link: platform.domain || "[insert company domain]",
+                email: platform.email || "[insert company DMCA email]",
+                slug: platform.slug
             },
             artist: {
                 full_name: profile?.fullName ?? "[insert full name]",
@@ -221,28 +224,7 @@ export class DmcaNoticeService {
         return necessaryProperties;
     }
 
-    async generatePdf(id: string): Promise<DmcaNoticeFileResponse> {
-        this.logger.log(`Generating PDF for DMCA notice: ${id}`);
-        const notice = await this.prisma.dmcaNotice.findUniqueOrThrow({
-            where: { id },
-            include: {
-                dmcaPlatform: {
-                    omit: {
-                        formSchema: true
-                    }
-                },
-                user: {
-                    select: {
-                        dmcaProfile: true
-                    }
-                }
-            }
-        });
-
-        if (!notice.payload || typeof notice.payload !== "object" || Array.isArray(notice.payload))
-            throw new BadRequestException("Invalid payload");
-
-        const properties = this.getPdfProperties(notice.payload, notice.dmcaPlatform, notice.user?.dmcaProfile);
+    private async generatePdf(properties: NecessaryProperties, id: string): Promise<DmcaNoticeFileResponse> {
         const doc = new PDFDocument();
         const buffers: Buffer[] = [];
 
@@ -357,7 +339,7 @@ export class DmcaNoticeService {
                         dmcaNoticeId: id
                     },
                     data: {
-                        generatedPdfs: {
+                        generated: {
                             increment: 1
                         }
                     }
@@ -372,56 +354,57 @@ export class DmcaNoticeService {
         });
     }
 
-    async getNoticeEmail(id: string): Promise<DmcaNoticeEmailResponse> {
-        this.logger.log(`Generating email for DMCA notice: ${id}`);
+    private async getNoticeEmail(properties: NecessaryProperties): Promise<DmcaNoticeEmailResponse> {
+        const subject = `DMCA Takedown Notice - Copyright Infringement - ${properties.artist.full_name}`;
+        const body =
+            `To the Registered DMCA Agent for ${properties.platform.name},\n\n`
+            + `I am writing to provide official notification of copyright infringement. I have attached a formal DMCA Takedown Notice regarding the unauthorized use of my copyrighted work on ${properties.platform.name}.\n\n`
+            + `Summary of Infringement:\n\n`
+            + ` - Original Work Title/Description:\n\n`
+            + `     ${properties.artist.original_work_description}\n\n`
+            + ` - Original URL:\n\n`
+            + `     ${properties.artist.original_work_url}\n\n`
+            + ` - Infringing URL(s):\n\n`
+            + `     ${properties.artist.infringing_urls.slice(1).map((url, index) => `${index + 1}. ${url}`)}\n\n`
+            + `The attached PDF contains the full formal notification, including the required statements of good faith and the certification under penalty of perjury as required by 17 U.S.C. § 512(c)(3).\n\n`
+            + `Please expeditiously remove or disable access to this material to maintain your safe harbor status.\n\n`
+            + `Thank you,\n\n`
+            + `${properties.artist.full_name}`;
+
+        return {
+            to: properties.platform.email,
+            subject,
+            body
+        };
+    }
+
+    async generate(id: string): Promise<DmcaNoticeGeneratedContent> {
         const notice = await this.prisma.dmcaNotice.findUniqueOrThrow({
             where: { id },
             include: {
-                dmcaPlatform: true
+                dmcaPlatform: {
+                    omit: {
+                        formSchema: true
+                    }
+                },
+                user: {
+                    select: {
+                        dmcaProfile: true
+                    }
+                }
             }
         });
-        const platform = notice.dmcaPlatform;
-        const payload = notice.payload as StandardDmcaPayload;
 
-        const subject = `DMCA Takedown Notice - ${platform.displayName}`;
-        let body = `To: ${platform.displayName} Copyright Agent\n\n`;
+        if (!notice.payload || typeof notice.payload !== "object" || Array.isArray(notice.payload))
+            throw new BadRequestException("Invalid payload");
 
-        body += `I am writing to report copyright infringement found on your platform. I have a good faith belief that the use of the material currently appearing on your service is not authorized by the copyright owner, its agent, or the law.\n\n`;
-        body += `Infringing Content:\n`;
-        if (payload.infringing_content && payload.infringing_content.infringements) {
-            payload.infringing_content.infringements.forEach((item, index: number) => {
-                let infringingUrl = item.infringing_url;
-                let originalWorkTitle = item.original_work_title || "N/A";
-                let originalWorkUrl = item.original_work_url;
+        const properties = this.getPdfProperties(notice.payload, notice.dmcaPlatform, notice.user?.dmcaProfile);
+        const email = await this.getNoticeEmail(properties);
+        const pdf = await this.generatePdf(properties, id);
 
-                if (!originalWorkUrl && payload.infringing_content?.original_work_url)
-                    originalWorkUrl = payload.infringing_content.original_work_url;
-                if (notice.dmcaPlatformSlug === "INSTAGRAM" && payload.contact_information?.original_work_url)
-                    originalWorkUrl = payload.contact_information.original_work_url;
-                body += `${index + 1}. Infringing URL: ${infringingUrl}\n`;
-                body += `   Original Work: ${originalWorkTitle} (${originalWorkUrl || "See global link"})\n\n`;
-            });
-        }
-        if (payload.contact_information) {
-            const info = payload.contact_information;
-
-            body += `Sender Information:\n`;
-            body += `Name: ${info.full_name}\n`;
-            body += `Email: ${info.email}\n`;
-            if (info.street_address)
-                body += `Address: ${info.street_address}${info.city || info.country ? ", " : ""}${info.city + " " || ""}${info.country || ""}\n\n`;
-            else if (info.city && info.country)
-                body += `Address: ${info.city + " " + info.country}\n\n`;
-            else if (info.country)
-                body += `Country: ${info.country}\n\n`;
-        }
-        body += `I declare under penalty of perjury that the information in this notification is accurate and that I am the owner (or authorized to act on behalf of the owner) of the exclusive right that is allegedly infringed.\n\n`;
-        if (payload.legal_declarations && payload.legal_declarations.signature)
-            body += `Signature: ${payload.legal_declarations.signature}`;
         return {
-            to: platform.email,
-            subject,
-            body
+            email,
+            pdf
         };
     }
 }

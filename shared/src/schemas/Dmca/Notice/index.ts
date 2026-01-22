@@ -40,4 +40,10 @@ export const DmcaNoticeFileResponseSchema = z.object({
 });
 export class DmcaNoticeFileResponseDTO extends createZodDto(DmcaNoticeFileResponseSchema) {}
 
+export const DmcaNoticeGeneratedContentSchema = z.object({
+  email: DmcaNoticeEmailResponseSchema,
+  pdf: DmcaNoticeFileResponseSchema
+});
+export class DmcaNoticeGeneratedContentDTO extends createZodDto(DmcaNoticeGeneratedContentSchema) {}
+
 export * from "./data";
