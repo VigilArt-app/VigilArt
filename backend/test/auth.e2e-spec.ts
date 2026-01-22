@@ -13,7 +13,7 @@ describe("Auth E2E", () => {
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
-      imports: [AppModule],
+      imports: [AppModule]
     }).compile();
 
     app = moduleRef.createNestApplication();
@@ -35,7 +35,7 @@ describe("Auth E2E", () => {
           email: "emma.dao@mail.com",
           password: "Secure_P4ssword",
           firstName: "Emma",
-          lastName: "Dao",
+          lastName: "Dao"
         })
         .expect(HttpStatus.CREATED);
 
@@ -54,9 +54,9 @@ describe("Auth E2E", () => {
             lastName: "Dao",
             createdAt: expect.any(String),
             avatar: null,
-            subscriptionTier: SubscriptionTier.FREE,
-          },
-        },
+            subscriptionTier: SubscriptionTier.FREE
+          }
+        }
       });
     });
 
@@ -67,7 +67,7 @@ describe("Auth E2E", () => {
           email: "EMMA.dao@mail.com",
           password: "Secure_P4ssword",
           firstName: "Emma",
-          lastName: "Dao",
+          lastName: "Dao"
         })
         .expect(HttpStatus.CREATED);
 
@@ -86,9 +86,9 @@ describe("Auth E2E", () => {
             lastName: "Dao",
             createdAt: expect.any(String),
             avatar: null,
-            subscriptionTier: SubscriptionTier.FREE,
-          },
-        },
+            subscriptionTier: SubscriptionTier.FREE
+          }
+        }
       });
     });
 
@@ -99,7 +99,7 @@ describe("Auth E2E", () => {
           email: "amanda.rowles@mail.com",
           password: "Secure_P4ssword",
           firstName: "Amanda",
-          lastName: "Rowles",
+          lastName: "Rowles"
         })
         .expect(HttpStatus.CREATED);
       const res = await api
@@ -108,7 +108,7 @@ describe("Auth E2E", () => {
           email: "amanda.rowles@mail.com",
           password: "Secure_P4ssword",
           firstName: "Amanda",
-          lastName: "Rowles",
+          lastName: "Rowles"
         })
         .expect(HttpStatus.CONFLICT);
 
@@ -116,7 +116,7 @@ describe("Auth E2E", () => {
         success: false,
         statusCode: HttpStatus.CONFLICT,
         message: "Email already in use",
-        error: "Conflict",
+        error: "Conflict"
       });
     });
 
@@ -127,14 +127,14 @@ describe("Auth E2E", () => {
           email: "amanda.rowles@mail.com",
           password: "notsecure",
           firstName: "Amanda",
-          lastName: "Rowles",
+          lastName: "Rowles"
         })
         .expect(HttpStatus.BAD_REQUEST);
       expect(res.body).toEqual({
         success: false,
         statusCode: HttpStatus.BAD_REQUEST,
         message: "Validation failed",
-        error: expect.any(String),
+        error: expect.any(String)
       });
     });
 
@@ -153,14 +153,14 @@ describe("Auth E2E", () => {
           email: "amanda",
           password: "Secure_P4ssword",
           firstName: "Amanda",
-          lastName: "Rowles",
+          lastName: "Rowles"
         })
         .expect(HttpStatus.BAD_REQUEST);
       expect(res.body).toEqual({
         success: false,
         statusCode: HttpStatus.BAD_REQUEST,
         message: "Validation failed",
-        error: "Invalid email address",
+        error: "Invalid email address"
       });
     });
   });
@@ -173,7 +173,7 @@ describe("Auth E2E", () => {
           email: "emma.dao@mail.com",
           password: "Secure_P4ssword",
           firstName: "Emma",
-          lastName: "Dao",
+          lastName: "Dao"
         })
         .expect(HttpStatus.CREATED);
 
@@ -181,7 +181,7 @@ describe("Auth E2E", () => {
         .post("/auth/login")
         .send({
           email: "emma.dao@mail.com",
-          password: "Secure_P4ssword",
+          password: "Secure_P4ssword"
         })
         .expect(HttpStatus.OK);
 
@@ -200,9 +200,9 @@ describe("Auth E2E", () => {
             lastName: "Dao",
             createdAt: expect.any(String),
             subscriptionTier: SubscriptionTier.FREE,
-            avatar: null,
-          },
-        },
+            avatar: null
+          }
+        }
       });
     });
 
@@ -211,7 +211,7 @@ describe("Auth E2E", () => {
         .post("/auth/login")
         .send({
           email: "emma.dao@mail.com",
-          password: "Secure_P4ssword",
+          password: "Secure_P4ssword"
         })
         .expect(HttpStatus.UNAUTHORIZED);
 
@@ -219,7 +219,7 @@ describe("Auth E2E", () => {
         success: false,
         statusCode: HttpStatus.UNAUTHORIZED,
         message: "Invalid credentials",
-        error: "Unauthorized",
+        error: "Unauthorized"
       });
     });
 
@@ -230,14 +230,14 @@ describe("Auth E2E", () => {
           email: "emma.dao@mail.com",
           password: "Secure_P4ssword",
           firstName: "Emma",
-          lastName: "Dao",
+          lastName: "Dao"
         })
         .expect(HttpStatus.CREATED);
       const res = await api
         .post("/auth/login")
         .send({
           email: "emma.dao@mail.com",
-          password: "Wrong_password",
+          password: "Wrong_password"
         })
         .expect(HttpStatus.UNAUTHORIZED);
 
@@ -245,7 +245,7 @@ describe("Auth E2E", () => {
         success: false,
         statusCode: HttpStatus.UNAUTHORIZED,
         message: "Invalid credentials",
-        error: "Unauthorized",
+        error: "Unauthorized"
       });
     });
   });

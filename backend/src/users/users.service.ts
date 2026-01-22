@@ -2,14 +2,14 @@ import {
   ConflictException,
   Injectable,
   Logger,
-  NotFoundException,
+  NotFoundException
 } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import type {
   UserCreate,
   UserUpdate,
   UserGet,
-  User,
+  User
 } from "@vigilart/shared/types";
 import { SubscriptionTier } from "@vigilart/shared";
 
@@ -24,11 +24,11 @@ export class UsersService {
       return await this.prisma.user.create({
         data: {
           ...user,
-          subscriptionTier: SubscriptionTier.FREE,
+          subscriptionTier: SubscriptionTier.FREE
         },
         omit: {
-          password: true,
-        },
+          password: true
+        }
       });
     } catch (e: any) {
       if (e.code === "P2002") {
@@ -42,8 +42,8 @@ export class UsersService {
     this.logger.log("Finding all users");
     return this.prisma.user.findMany({
       omit: {
-        password: true,
-      },
+        password: true
+      }
     });
   }
 
@@ -52,8 +52,8 @@ export class UsersService {
       this.logger.log(`Finding user ${id}`);
       return await this.prisma.user.findUniqueOrThrow({
         where: {
-          id,
-        },
+          id
+        }
       });
     } catch (e: any) {
       if (e.code == "P2025") {
@@ -67,8 +67,8 @@ export class UsersService {
     this.logger.log(`Finding user with ${email}`);
     return this.prisma.user.findUnique({
       where: {
-        email,
-      },
+        email
+      }
     });
   }
 
@@ -77,11 +77,11 @@ export class UsersService {
       this.logger.log(`Finding user ${id}`);
       return await this.prisma.user.findUniqueOrThrow({
         where: {
-          id,
+          id
         },
         omit: {
-          password: true,
-        },
+          password: true
+        }
       });
     } catch (e: any) {
       if (e.code == "P2025") {
@@ -95,11 +95,11 @@ export class UsersService {
     this.logger.log(`Finding user with ${email}`);
     return this.prisma.user.findUniqueOrThrow({
       where: {
-        email,
+        email
       },
       omit: {
-        password: true,
-      },
+        password: true
+      }
     });
   }
   async update(id: string, updateUserDto: UserUpdate): Promise<UserGet> {
@@ -107,12 +107,12 @@ export class UsersService {
       this.logger.log(`Updating user ${id}`);
       return await this.prisma.user.update({
         where: {
-          id,
+          id
         },
         data: updateUserDto,
         omit: {
-          password: true,
-        },
+          password: true
+        }
       });
     } catch (e: any) {
       if (e.code == "P2025") {
@@ -127,8 +127,8 @@ export class UsersService {
       this.logger.log(`Removing user ${id}`);
       await this.prisma.user.delete({
         where: {
-          id,
-        },
+          id
+        }
       });
     } catch (e: any) {
       if (e.code == "P2025") {

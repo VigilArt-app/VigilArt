@@ -1,6 +1,6 @@
 import {
   WebsiteCategory,
-  type WebsiteCategory as WebsiteCategoryType,
+  type WebsiteCategory as WebsiteCategoryType
 } from "@vigilart/shared/enums";
 import { WebImage } from "./types";
 
@@ -16,7 +16,7 @@ const DOMAIN_PATTERNS: Record<WebsiteCategoryType, RegExp[]> = {
     /(?:^|\.)pinterest\.com$/i,
     /(?:^|\.)threads\.net$/i,
     /(?:^|\.)linkedin\.com$/i,
-    /(?:^|\.)wattpad\.com$/i,
+    /(?:^|\.)wattpad\.com$/i
   ],
   ART_PLATFORMS: [
     /(?:^|\.)deviantart\.com$/i,
@@ -27,7 +27,7 @@ const DOMAIN_PATTERNS: Record<WebsiteCategoryType, RegExp[]> = {
     /(?:^|\.)patreon\.com$/i,
     /(?:^|\.)dribbble\.com$/i,
     /(?:^|\.)sketchfab\.com$/i,
-    /(?:^|\.)zerochan\.net$/i,
+    /(?:^|\.)zerochan\.net$/i
   ],
   MARKETPLACES: [
     /(?:^|\.)etsy\.com$/i,
@@ -39,7 +39,7 @@ const DOMAIN_PATTERNS: Record<WebsiteCategoryType, RegExp[]> = {
     /(?:^|\.)amazon\.[a-z]+$/i,
     /(?:^|\.)ebay\.[a-z]+$/i,
     /(?:^|\.)aliexpress\.com$/i,
-    /(?:^|\.)walmart\.com$/i,
+    /(?:^|\.)walmart\.com$/i
   ],
   BLOG: [
     /(?:^|\.)wordpress\.com$/i,
@@ -48,23 +48,23 @@ const DOMAIN_PATTERNS: Record<WebsiteCategoryType, RegExp[]> = {
     /(?:^|\.)wixsite\.com$/i,
     /(?:^|\.)wix\.com$/i,
     /(?:^|\.)weebly\.com$/i,
-    /(?:^|\.)ghost\.io$/i,
+    /(?:^|\.)ghost\.io$/i
   ],
   MEDIA: [
     /(?:^|\.)buzzfeed\.com$/i,
     /(?:^|\.)vice\.com$/i,
     /(?:^|\.)bbc\.co\.uk$/i,
     /(?:^|\.)forbes\.com$/i,
-    /(?:^|\.)cnn\.com$/i,
+    /(?:^|\.)cnn\.com$/i
   ],
   SEARCH: [
     /(?:^|\.)google\.[a-z]+$/i,
     /(?:^|\.)bing\.com$/i,
     /(?:^|\.)yandex\.com$/i,
     /(?:^|\.)duckduckgo\.com$/i,
-    /(?:^|\.)baidu\.com$/i,
+    /(?:^|\.)baidu\.com$/i
   ],
-  OTHER: [],
+  OTHER: []
 };
 
 export const classifyWebsite = (rawUrl: string): WebsiteCategoryType | null => {

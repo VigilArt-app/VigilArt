@@ -7,7 +7,7 @@ import {
   Param,
   ParseUUIDPipe,
   Patch,
-  Post,
+  Post
 } from "@nestjs/common";
 import { UsersService } from "./users.service";
 import { ApiEndpoint } from "../common/decorators/api-endpoint.decorator";
@@ -16,7 +16,7 @@ import {
   UserCreateDTO,
   UserUpdateDTO,
   UserGetDTO,
-  UserDTO,
+  UserDTO
 } from "@vigilart/shared/schemas";
 import type { UserCreate, UserUpdate, UserGet } from "@vigilart/shared/types";
 
@@ -29,10 +29,10 @@ export class UsersController {
     summary: "Create a new user",
     success: {
       status: HttpStatus.CREATED,
-      type: UserGetDTO,
+      type: UserGetDTO
     },
     errors: [HttpStatus.BAD_REQUEST, HttpStatus.CONFLICT],
-    protected: true,
+    protected: true
   })
   @ApiBody({ type: UserCreateDTO })
   async create(@Body() createUserDto: UserCreateDTO): Promise<UserGet> {
@@ -44,9 +44,9 @@ export class UsersController {
     summary: "Retrieve all users",
     success: {
       status: HttpStatus.OK,
-      type: [UserGetDTO],
+      type: [UserGetDTO]
     },
-    protected: true,
+    protected: true
   })
   async findAll(): Promise<UserGet[]> {
     return this.usersService.findAll();
@@ -57,10 +57,10 @@ export class UsersController {
     summary: "Retrieve a user by ID",
     success: {
       status: HttpStatus.OK,
-      type: UserDTO,
+      type: UserDTO
     },
     errors: [HttpStatus.NOT_FOUND],
-    protected: true,
+    protected: true
   })
   @ApiParam({ name: "id", type: String })
   async findOne(@Param("id", ParseUUIDPipe) id: string): Promise<UserGet> {
@@ -72,10 +72,10 @@ export class UsersController {
     summary: "Retrieve a user by email",
     success: {
       status: HttpStatus.OK,
-      type: UserDTO,
+      type: UserDTO
     },
     errors: [HttpStatus.NOT_FOUND],
-    protected: true,
+    protected: true
   })
   @ApiParam({ name: "email", type: String })
   async findByEmail(@Param("email") email: string): Promise<UserGet> {
@@ -87,10 +87,10 @@ export class UsersController {
     summary: "Update a user by ID",
     success: {
       status: HttpStatus.OK,
-      type: UserGetDTO,
+      type: UserGetDTO
     },
     errors: [HttpStatus.BAD_REQUEST, HttpStatus.NOT_FOUND],
-    protected: true,
+    protected: true
   })
   @ApiParam({ name: "id", type: String })
   @ApiBody({ type: UserUpdateDTO })
@@ -105,10 +105,10 @@ export class UsersController {
   @ApiEndpoint({
     summary: "Delete a user by ID",
     success: {
-      status: HttpStatus.NO_CONTENT,
+      status: HttpStatus.NO_CONTENT
     },
     errors: [HttpStatus.NOT_FOUND],
-    protected: true,
+    protected: true
   })
   @ApiParam({ name: "id", type: String })
   async remove(@Param("id", ParseUUIDPipe) id: string): Promise<void> {

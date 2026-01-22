@@ -8,27 +8,26 @@ jest.mock("@google-cloud/vision", () => {
     ImageAnnotatorClient: jest.fn().mockImplementation(() => {
       return {
         close: jest.fn().mockResolvedValue(undefined),
-        webDetection: jest.fn(),
+        webDetection: jest.fn()
       };
-    }),
+    })
   };
 });
 
 describe("VisionService", () => {
   let service: VisionService;
-  let module: TestingModule;
   const inputFolder = "./src/vision/sample-inputs";
   const outputFolder = "./src/vision/expected-outputs";
 
   beforeEach(async () => {
-    module = await Test.createTestingModule({
+    const module = await Test.createTestingModule({
       imports: [
         ConfigModule.forRoot({
           isGlobal: true,
-          cache: false,
-        }),
+          cache: false
+        })
       ],
-      providers: [VisionService],
+      providers: [VisionService]
     }).compile();
 
     service = module.get<VisionService>(VisionService);
@@ -36,10 +35,6 @@ describe("VisionService", () => {
 
   afterEach(() => {
     jest.clearAllMocks();
-  });
-
-  afterAll(async () => {
-    await module.close();
   });
 
   const testArtworkProcessing = async (fileName: string) => {
@@ -61,9 +56,8 @@ describe("VisionService", () => {
 
   describe("Real API Response Processing", () => {
     it("Should correctly process artwork by ayaka-suda", async () => {
-      const { result, expectedOutput } = await testArtworkProcessing(
-        "artwork_ayaka-suda"
-      );
+      const { result, expectedOutput } =
+        await testArtworkProcessing("artwork_ayaka-suda");
 
       expect(result).toBeDefined();
       expect(result).toHaveProperty("metadata");
@@ -99,9 +93,9 @@ describe("VisionService", () => {
   describe("Integration Edge Cases", () => {
     it("Should return null when webDetection returns no pagesWithMatchingImages field", async () => {
       jest.spyOn(service, "webDetection").mockResolvedValue({
-        fullMatchingImages: [],
+        fullMatchingImages: []
       });
-      const result = await service.searchImage("test.jpg");
+      const result = await service.searchImage(Buffer.from(""));
 
       expect(result).toBeNull();
     });
@@ -110,14 +104,14 @@ describe("VisionService", () => {
       jest.spyOn(service, "webDetection").mockResolvedValue({
         bestGuessLabels: [],
         webEntities: [],
-        pagesWithMatchingImages: [],
+        pagesWithMatchingImages: []
       });
-      const result = await service.searchImage("test.jpg");
+      const result = await service.searchImage(Buffer.from(""));
 
       expect(result).toBeDefined();
       expect(result?.metadata).toEqual({
         bestGuessLabels: [],
-        webEntities: [],
+        webEntities: []
       });
       expect(result?.matchingPages).toEqual([]);
     });

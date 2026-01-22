@@ -14,12 +14,13 @@ import { VisionModule } from "./vision/vision.module";
 import { ArtworksModule } from "./artworks/artworks.module";
 import { ReportsModule } from "./reports/reports.module";
 import { PrismaModule } from "./prisma/prisma.module";
+import { StorageModule } from "./storage/storage.module";
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: "../.env",
+      envFilePath: "../.env"
     }),
     UsersModule,
     AuthModule,
@@ -27,18 +28,19 @@ import { PrismaModule } from "./prisma/prisma.module";
     ArtworksModule,
     ReportsModule,
     PrismaModule,
+    StorageModule
   ],
   controllers: [AppController],
   providers: [
     AppService,
     {
       provide: APP_INTERCEPTOR,
-      useClass: ZodSerializerInterceptor,
+      useClass: ZodSerializerInterceptor
     },
     {
       provide: APP_PIPE,
-      useClass: ZodValidationPipe,
-    },
-  ],
+      useClass: ZodValidationPipe
+    }
+  ]
 })
 export class AppModule {}
