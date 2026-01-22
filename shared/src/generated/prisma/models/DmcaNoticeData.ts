@@ -344,14 +344,6 @@ export type DmcaNoticeDataUncheckedUpdateOneWithoutDmcaNoticeNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.DmcaNoticeDataUpdateToOneWithWhereWithoutDmcaNoticeInput, Prisma.DmcaNoticeDataUpdateWithoutDmcaNoticeInput>, Prisma.DmcaNoticeDataUncheckedUpdateWithoutDmcaNoticeInput>
 }
 
-export type IntFieldUpdateOperationsInput = {
-  set?: number
-  increment?: number
-  decrement?: number
-  multiply?: number
-  divide?: number
-}
-
 export type DmcaNoticeDataCreateWithoutDmcaNoticeInput = {
   id?: string
   generated?: number

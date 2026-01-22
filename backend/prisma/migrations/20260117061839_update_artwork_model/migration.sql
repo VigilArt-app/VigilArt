@@ -16,9 +16,6 @@
   - Made the column `sizeBytes` on table `Artwork` required. This step will fail if there are existing NULL values in that column.
 
 */
--- CreateEnum
-CREATE TYPE "WebsiteCategory" AS ENUM ('SOCIAL', 'ART_PLATFORMS', 'MARKETPLACES', 'BLOG', 'MEDIA', 'SEARCH', 'OTHER');
-
 -- DropForeignKey
 ALTER TABLE "ArtworkIndividualReport" DROP CONSTRAINT "ArtworkIndividualReport_artworkId_fkey";
 

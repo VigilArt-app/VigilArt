@@ -685,10 +685,12 @@ export type ArtworkScalarWhereInput = {
 
 export type ArtworkCreateWithoutDmcaNoticesInput = {
   id?: string
-  imageUri: string
-  originalFilename?: string | null
-  contentType?: string | null
-  sizeBytes?: number | null
+  originalFilename: string
+  storageKey: string
+  contentType: string
+  sizeBytes: number
+  width: number
+  height: number
   description?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -699,10 +701,12 @@ export type ArtworkCreateWithoutDmcaNoticesInput = {
 export type ArtworkUncheckedCreateWithoutDmcaNoticesInput = {
   id?: string
   userId: string
-  imageUri: string
-  originalFilename?: string | null
-  contentType?: string | null
-  sizeBytes?: number | null
+  originalFilename: string
+  storageKey: string
+  contentType: string
+  sizeBytes: number
+  width: number
+  height: number
   description?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -727,10 +731,12 @@ export type ArtworkUpdateToOneWithWhereWithoutDmcaNoticesInput = {
 
 export type ArtworkUpdateWithoutDmcaNoticesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  imageUri?: Prisma.StringFieldUpdateOperationsInput | string
-  originalFilename?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  contentType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  originalFilename?: Prisma.StringFieldUpdateOperationsInput | string
+  storageKey?: Prisma.StringFieldUpdateOperationsInput | string
+  contentType?: Prisma.StringFieldUpdateOperationsInput | string
+  sizeBytes?: Prisma.IntFieldUpdateOperationsInput | number
+  width?: Prisma.IntFieldUpdateOperationsInput | number
+  height?: Prisma.IntFieldUpdateOperationsInput | number
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -741,10 +747,12 @@ export type ArtworkUpdateWithoutDmcaNoticesInput = {
 export type ArtworkUncheckedUpdateWithoutDmcaNoticesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
-  imageUri?: Prisma.StringFieldUpdateOperationsInput | string
-  originalFilename?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  contentType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  originalFilename?: Prisma.StringFieldUpdateOperationsInput | string
+  storageKey?: Prisma.StringFieldUpdateOperationsInput | string
+  contentType?: Prisma.StringFieldUpdateOperationsInput | string
+  sizeBytes?: Prisma.IntFieldUpdateOperationsInput | number
+  width?: Prisma.IntFieldUpdateOperationsInput | number
+  height?: Prisma.IntFieldUpdateOperationsInput | number
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string

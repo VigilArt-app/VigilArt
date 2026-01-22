@@ -12,6 +12,9 @@
 -- CreateEnum
 CREATE TYPE "DmcaStatus" AS ENUM ('DRAFT', 'SUBMITTED');
 
+-- CreateEnum
+CREATE TYPE "WebsiteCategory" AS ENUM ('SOCIAL', 'ART_PLATFORMS', 'MARKETPLACES', 'BLOG', 'MEDIA', 'SEARCH', 'OTHER');
+
 -- AlterTable
 ALTER TABLE "User" ADD COLUMN     "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 ALTER COLUMN "subscriptionTier" SET DEFAULT 'FREE';
@@ -24,6 +27,7 @@ CREATE TABLE "DmcaPlatform" (
     "domain" TEXT NOT NULL,
     "dmcaUrl" TEXT NOT NULL,
     "email" TEXT NOT NULL,
+    "websiteCategory" "WebsiteCategory" NOT NULL,
     "formSchema" JSONB NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
