@@ -59,12 +59,6 @@ importers:
       class-transformer:
         specifier: ^0.5.1
         version: 0.5.1
-      cross-env:
-        specifier: ^10.1.0
-        version: 10.1.0
-      dotenv:
-        specifier: ^17.2.3
-        version: 17.2.3
       mime-types:
         specifier: ^3.0.2
         version: 3.0.2
@@ -77,9 +71,6 @@ importers:
       rxjs:
         specifier: 7.8.2
         version: 7.8.2
-      supertest:
-        specifier: ^7.1.4
-        version: 7.1.4
       zod:
         specifier: ^4.1.13
         version: 4.1.13
@@ -123,6 +114,9 @@ importers:
       '@types/supertest':
         specifier: ^6.0.3
         version: 6.0.3
+      cross-env:
+        specifier: ^10.1.0
+        version: 10.1.0
       dotenv-cli:
         specifier: ^11.0.0
         version: 11.0.0
@@ -132,6 +126,9 @@ importers:
       prisma:
         specifier: ^7.2.0
         version: 7.2.0(@types/react@19.2.6)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(typescript@5.9.3)
+      supertest:
+        specifier: ^7.1.4
+        version: 7.1.4
       testcontainers:
         specifier: ^11.8.1
         version: 11.8.1
