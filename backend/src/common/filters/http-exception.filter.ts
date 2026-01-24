@@ -33,7 +33,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
             errorBody.message = Array.isArray(errorResponse.message)
                 ? errorResponse.message.join(", ")
                 : errorResponse.message;
-            errorBody.error = errorResponse.error || "Internal Server Error";
+            errorBody.error = errorLabels[errorBody.statusCode] || errorLabels[500];
         } else {
             errorBody.message = res;
             errorBody.error = exception.name;
