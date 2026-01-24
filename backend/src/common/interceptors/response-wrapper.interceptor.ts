@@ -21,7 +21,7 @@ export class ResponseWrapperInterceptor<T> implements NestInterceptor<T, ApiSucc
                 return {
                     success: true,
                     statusCode: statusCode,
-                    data: data ?? {},
+                    data: statusCode === 204 ? undefined : data ?? {},
                     message: successLabels[statusCode] || "OK",
                 } as ApiSuccessData<T>;
             }),
