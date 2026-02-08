@@ -281,6 +281,7 @@ export type ArtworkWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"Artwork"> | Date | string
   lastScanAt?: Prisma.DateTimeNullableFilter<"Artwork"> | Date | string | null
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  reportEntries?: Prisma.ArtworksReportEntryListRelationFilter
 }
 
 export type ArtworkOrderByWithRelationInput = {
@@ -297,6 +298,7 @@ export type ArtworkOrderByWithRelationInput = {
   updatedAt?: Prisma.SortOrder
   lastScanAt?: Prisma.SortOrderInput | Prisma.SortOrder
   user?: Prisma.UserOrderByWithRelationInput
+  reportEntries?: Prisma.ArtworksReportEntryOrderByRelationAggregateInput
 }
 
 export type ArtworkWhereUniqueInput = Prisma.AtLeast<{
@@ -316,6 +318,7 @@ export type ArtworkWhereUniqueInput = Prisma.AtLeast<{
   updatedAt?: Prisma.DateTimeFilter<"Artwork"> | Date | string
   lastScanAt?: Prisma.DateTimeNullableFilter<"Artwork"> | Date | string | null
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  reportEntries?: Prisma.ArtworksReportEntryListRelationFilter
 }, "id">
 
 export type ArtworkOrderByWithAggregationInput = {
@@ -369,6 +372,7 @@ export type ArtworkCreateInput = {
   updatedAt?: Date | string
   lastScanAt?: Date | string | null
   user: Prisma.UserCreateNestedOneWithoutArtworksInput
+  reportEntries?: Prisma.ArtworksReportEntryCreateNestedManyWithoutArtworkInput
 }
 
 export type ArtworkUncheckedCreateInput = {
@@ -384,6 +388,7 @@ export type ArtworkUncheckedCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   lastScanAt?: Date | string | null
+  reportEntries?: Prisma.ArtworksReportEntryUncheckedCreateNestedManyWithoutArtworkInput
 }
 
 export type ArtworkUpdateInput = {
@@ -399,6 +404,7 @@ export type ArtworkUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastScanAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   user?: Prisma.UserUpdateOneRequiredWithoutArtworksNestedInput
+  reportEntries?: Prisma.ArtworksReportEntryUpdateManyWithoutArtworkNestedInput
 }
 
 export type ArtworkUncheckedUpdateInput = {
@@ -414,6 +420,7 @@ export type ArtworkUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastScanAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reportEntries?: Prisma.ArtworksReportEntryUncheckedUpdateManyWithoutArtworkNestedInput
 }
 
 export type ArtworkCreateManyInput = {
@@ -527,6 +534,11 @@ export type ArtworkSumOrderByAggregateInput = {
   height?: Prisma.SortOrder
 }
 
+export type ArtworkScalarRelationFilter = {
+  is?: Prisma.ArtworkWhereInput
+  isNot?: Prisma.ArtworkWhereInput
+}
+
 export type ArtworkCreateNestedManyWithoutUserInput = {
   create?: Prisma.XOR<Prisma.ArtworkCreateWithoutUserInput, Prisma.ArtworkUncheckedCreateWithoutUserInput> | Prisma.ArtworkCreateWithoutUserInput[] | Prisma.ArtworkUncheckedCreateWithoutUserInput[]
   connectOrCreate?: Prisma.ArtworkCreateOrConnectWithoutUserInput | Prisma.ArtworkCreateOrConnectWithoutUserInput[]
@@ -581,6 +593,20 @@ export type NullableDateTimeFieldUpdateOperationsInput = {
   set?: Date | string | null
 }
 
+export type ArtworkCreateNestedOneWithoutReportEntriesInput = {
+  create?: Prisma.XOR<Prisma.ArtworkCreateWithoutReportEntriesInput, Prisma.ArtworkUncheckedCreateWithoutReportEntriesInput>
+  connectOrCreate?: Prisma.ArtworkCreateOrConnectWithoutReportEntriesInput
+  connect?: Prisma.ArtworkWhereUniqueInput
+}
+
+export type ArtworkUpdateOneRequiredWithoutReportEntriesNestedInput = {
+  create?: Prisma.XOR<Prisma.ArtworkCreateWithoutReportEntriesInput, Prisma.ArtworkUncheckedCreateWithoutReportEntriesInput>
+  connectOrCreate?: Prisma.ArtworkCreateOrConnectWithoutReportEntriesInput
+  upsert?: Prisma.ArtworkUpsertWithoutReportEntriesInput
+  connect?: Prisma.ArtworkWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ArtworkUpdateToOneWithWhereWithoutReportEntriesInput, Prisma.ArtworkUpdateWithoutReportEntriesInput>, Prisma.ArtworkUncheckedUpdateWithoutReportEntriesInput>
+}
+
 export type ArtworkCreateWithoutUserInput = {
   id?: string
   originalFilename: string
@@ -593,6 +619,7 @@ export type ArtworkCreateWithoutUserInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   lastScanAt?: Date | string | null
+  reportEntries?: Prisma.ArtworksReportEntryCreateNestedManyWithoutArtworkInput
 }
 
 export type ArtworkUncheckedCreateWithoutUserInput = {
@@ -607,6 +634,7 @@ export type ArtworkUncheckedCreateWithoutUserInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   lastScanAt?: Date | string | null
+  reportEntries?: Prisma.ArtworksReportEntryUncheckedCreateNestedManyWithoutArtworkInput
 }
 
 export type ArtworkCreateOrConnectWithoutUserInput = {
@@ -653,6 +681,82 @@ export type ArtworkScalarWhereInput = {
   lastScanAt?: Prisma.DateTimeNullableFilter<"Artwork"> | Date | string | null
 }
 
+export type ArtworkCreateWithoutReportEntriesInput = {
+  id?: string
+  originalFilename: string
+  storageKey: string
+  contentType: string
+  sizeBytes: number
+  width: number
+  height: number
+  description?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  lastScanAt?: Date | string | null
+  user: Prisma.UserCreateNestedOneWithoutArtworksInput
+}
+
+export type ArtworkUncheckedCreateWithoutReportEntriesInput = {
+  id?: string
+  userId: string
+  originalFilename: string
+  storageKey: string
+  contentType: string
+  sizeBytes: number
+  width: number
+  height: number
+  description?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  lastScanAt?: Date | string | null
+}
+
+export type ArtworkCreateOrConnectWithoutReportEntriesInput = {
+  where: Prisma.ArtworkWhereUniqueInput
+  create: Prisma.XOR<Prisma.ArtworkCreateWithoutReportEntriesInput, Prisma.ArtworkUncheckedCreateWithoutReportEntriesInput>
+}
+
+export type ArtworkUpsertWithoutReportEntriesInput = {
+  update: Prisma.XOR<Prisma.ArtworkUpdateWithoutReportEntriesInput, Prisma.ArtworkUncheckedUpdateWithoutReportEntriesInput>
+  create: Prisma.XOR<Prisma.ArtworkCreateWithoutReportEntriesInput, Prisma.ArtworkUncheckedCreateWithoutReportEntriesInput>
+  where?: Prisma.ArtworkWhereInput
+}
+
+export type ArtworkUpdateToOneWithWhereWithoutReportEntriesInput = {
+  where?: Prisma.ArtworkWhereInput
+  data: Prisma.XOR<Prisma.ArtworkUpdateWithoutReportEntriesInput, Prisma.ArtworkUncheckedUpdateWithoutReportEntriesInput>
+}
+
+export type ArtworkUpdateWithoutReportEntriesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  originalFilename?: Prisma.StringFieldUpdateOperationsInput | string
+  storageKey?: Prisma.StringFieldUpdateOperationsInput | string
+  contentType?: Prisma.StringFieldUpdateOperationsInput | string
+  sizeBytes?: Prisma.IntFieldUpdateOperationsInput | number
+  width?: Prisma.IntFieldUpdateOperationsInput | number
+  height?: Prisma.IntFieldUpdateOperationsInput | number
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lastScanAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  user?: Prisma.UserUpdateOneRequiredWithoutArtworksNestedInput
+}
+
+export type ArtworkUncheckedUpdateWithoutReportEntriesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  originalFilename?: Prisma.StringFieldUpdateOperationsInput | string
+  storageKey?: Prisma.StringFieldUpdateOperationsInput | string
+  contentType?: Prisma.StringFieldUpdateOperationsInput | string
+  sizeBytes?: Prisma.IntFieldUpdateOperationsInput | number
+  width?: Prisma.IntFieldUpdateOperationsInput | number
+  height?: Prisma.IntFieldUpdateOperationsInput | number
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lastScanAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+}
+
 export type ArtworkCreateManyUserInput = {
   id?: string
   originalFilename: string
@@ -679,6 +783,7 @@ export type ArtworkUpdateWithoutUserInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastScanAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reportEntries?: Prisma.ArtworksReportEntryUpdateManyWithoutArtworkNestedInput
 }
 
 export type ArtworkUncheckedUpdateWithoutUserInput = {
@@ -693,6 +798,7 @@ export type ArtworkUncheckedUpdateWithoutUserInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastScanAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reportEntries?: Prisma.ArtworksReportEntryUncheckedUpdateManyWithoutArtworkNestedInput
 }
 
 export type ArtworkUncheckedUpdateManyWithoutUserInput = {
@@ -710,6 +816,35 @@ export type ArtworkUncheckedUpdateManyWithoutUserInput = {
 }
 
 
+/**
+ * Count Type ArtworkCountOutputType
+ */
+
+export type ArtworkCountOutputType = {
+  reportEntries: number
+}
+
+export type ArtworkCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  reportEntries?: boolean | ArtworkCountOutputTypeCountReportEntriesArgs
+}
+
+/**
+ * ArtworkCountOutputType without action
+ */
+export type ArtworkCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ArtworkCountOutputType
+   */
+  select?: Prisma.ArtworkCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * ArtworkCountOutputType without action
+ */
+export type ArtworkCountOutputTypeCountReportEntriesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ArtworksReportEntryWhereInput
+}
+
 
 export type ArtworkSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -725,6 +860,8 @@ export type ArtworkSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   updatedAt?: boolean
   lastScanAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  reportEntries?: boolean | Prisma.Artwork$reportEntriesArgs<ExtArgs>
+  _count?: boolean | Prisma.ArtworkCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["artwork"]>
 
 export type ArtworkSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -777,6 +914,8 @@ export type ArtworkSelectScalar = {
 export type ArtworkOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "originalFilename" | "storageKey" | "contentType" | "sizeBytes" | "width" | "height" | "description" | "createdAt" | "updatedAt" | "lastScanAt", ExtArgs["result"]["artwork"]>
 export type ArtworkInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  reportEntries?: boolean | Prisma.Artwork$reportEntriesArgs<ExtArgs>
+  _count?: boolean | Prisma.ArtworkCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ArtworkIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -789,6 +928,7 @@ export type $ArtworkPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
   name: "Artwork"
   objects: {
     user: Prisma.$UserPayload<ExtArgs>
+    reportEntries: Prisma.$ArtworksReportEntryPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1198,6 +1338,7 @@ readonly fields: ArtworkFieldRefs;
 export interface Prisma__ArtworkClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   user<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  reportEntries<T extends Prisma.Artwork$reportEntriesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Artwork$reportEntriesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ArtworksReportEntryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1632,6 +1773,30 @@ export type ArtworkDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Inter
    * Limit how many Artworks to delete.
    */
   limit?: number
+}
+
+/**
+ * Artwork.reportEntries
+ */
+export type Artwork$reportEntriesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ArtworksReportEntry
+   */
+  select?: Prisma.ArtworksReportEntrySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ArtworksReportEntry
+   */
+  omit?: Prisma.ArtworksReportEntryOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ArtworksReportEntryInclude<ExtArgs> | null
+  where?: Prisma.ArtworksReportEntryWhereInput
+  orderBy?: Prisma.ArtworksReportEntryOrderByWithRelationInput | Prisma.ArtworksReportEntryOrderByWithRelationInput[]
+  cursor?: Prisma.ArtworksReportEntryWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ArtworksReportEntryScalarFieldEnum | Prisma.ArtworksReportEntryScalarFieldEnum[]
 }
 
 /**

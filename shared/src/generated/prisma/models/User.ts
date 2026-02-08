@@ -207,6 +207,7 @@ export type UserWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   subscriptionTier?: Prisma.EnumSubscriptionTierFilter<"User"> | $Enums.SubscriptionTier
   artworks?: Prisma.ArtworkListRelationFilter
+  artworksReport?: Prisma.ArtworksReportListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -219,6 +220,7 @@ export type UserOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   subscriptionTier?: Prisma.SortOrder
   artworks?: Prisma.ArtworkOrderByRelationAggregateInput
+  artworksReport?: Prisma.ArtworksReportOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -234,6 +236,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   subscriptionTier?: Prisma.EnumSubscriptionTierFilter<"User"> | $Enums.SubscriptionTier
   artworks?: Prisma.ArtworkListRelationFilter
+  artworksReport?: Prisma.ArtworksReportListRelationFilter
 }, "id" | "email">
 
 export type UserOrderByWithAggregationInput = {
@@ -274,6 +277,7 @@ export type UserCreateInput = {
   createdAt?: Date | string
   subscriptionTier: $Enums.SubscriptionTier
   artworks?: Prisma.ArtworkCreateNestedManyWithoutUserInput
+  artworksReport?: Prisma.ArtworksReportCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -286,6 +290,7 @@ export type UserUncheckedCreateInput = {
   createdAt?: Date | string
   subscriptionTier: $Enums.SubscriptionTier
   artworks?: Prisma.ArtworkUncheckedCreateNestedManyWithoutUserInput
+  artworksReport?: Prisma.ArtworksReportUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserUpdateInput = {
@@ -298,6 +303,7 @@ export type UserUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   subscriptionTier?: Prisma.EnumSubscriptionTierFieldUpdateOperationsInput | $Enums.SubscriptionTier
   artworks?: Prisma.ArtworkUpdateManyWithoutUserNestedInput
+  artworksReport?: Prisma.ArtworksReportUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -310,6 +316,7 @@ export type UserUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   subscriptionTier?: Prisma.EnumSubscriptionTierFieldUpdateOperationsInput | $Enums.SubscriptionTier
   artworks?: Prisma.ArtworkUncheckedUpdateManyWithoutUserNestedInput
+  artworksReport?: Prisma.ArtworksReportUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -413,6 +420,20 @@ export type UserUpdateOneRequiredWithoutArtworksNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutArtworksInput, Prisma.UserUpdateWithoutArtworksInput>, Prisma.UserUncheckedUpdateWithoutArtworksInput>
 }
 
+export type UserCreateNestedOneWithoutArtworksReportInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutArtworksReportInput, Prisma.UserUncheckedCreateWithoutArtworksReportInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutArtworksReportInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutArtworksReportNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutArtworksReportInput, Prisma.UserUncheckedCreateWithoutArtworksReportInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutArtworksReportInput
+  upsert?: Prisma.UserUpsertWithoutArtworksReportInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutArtworksReportInput, Prisma.UserUpdateWithoutArtworksReportInput>, Prisma.UserUncheckedUpdateWithoutArtworksReportInput>
+}
+
 export type UserCreateWithoutArtworksInput = {
   id?: string
   email: string
@@ -422,6 +443,7 @@ export type UserCreateWithoutArtworksInput = {
   avatar?: string | null
   createdAt?: Date | string
   subscriptionTier: $Enums.SubscriptionTier
+  artworksReport?: Prisma.ArtworksReportCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutArtworksInput = {
@@ -433,6 +455,7 @@ export type UserUncheckedCreateWithoutArtworksInput = {
   avatar?: string | null
   createdAt?: Date | string
   subscriptionTier: $Enums.SubscriptionTier
+  artworksReport?: Prisma.ArtworksReportUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutArtworksInput = {
@@ -460,6 +483,7 @@ export type UserUpdateWithoutArtworksInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   subscriptionTier?: Prisma.EnumSubscriptionTierFieldUpdateOperationsInput | $Enums.SubscriptionTier
+  artworksReport?: Prisma.ArtworksReportUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutArtworksInput = {
@@ -471,6 +495,71 @@ export type UserUncheckedUpdateWithoutArtworksInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   subscriptionTier?: Prisma.EnumSubscriptionTierFieldUpdateOperationsInput | $Enums.SubscriptionTier
+  artworksReport?: Prisma.ArtworksReportUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutArtworksReportInput = {
+  id?: string
+  email: string
+  password: string
+  firstName: string
+  lastName: string
+  avatar?: string | null
+  createdAt?: Date | string
+  subscriptionTier: $Enums.SubscriptionTier
+  artworks?: Prisma.ArtworkCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutArtworksReportInput = {
+  id?: string
+  email: string
+  password: string
+  firstName: string
+  lastName: string
+  avatar?: string | null
+  createdAt?: Date | string
+  subscriptionTier: $Enums.SubscriptionTier
+  artworks?: Prisma.ArtworkUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutArtworksReportInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutArtworksReportInput, Prisma.UserUncheckedCreateWithoutArtworksReportInput>
+}
+
+export type UserUpsertWithoutArtworksReportInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutArtworksReportInput, Prisma.UserUncheckedUpdateWithoutArtworksReportInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutArtworksReportInput, Prisma.UserUncheckedCreateWithoutArtworksReportInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutArtworksReportInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutArtworksReportInput, Prisma.UserUncheckedUpdateWithoutArtworksReportInput>
+}
+
+export type UserUpdateWithoutArtworksReportInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.StringFieldUpdateOperationsInput | string
+  lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  subscriptionTier?: Prisma.EnumSubscriptionTierFieldUpdateOperationsInput | $Enums.SubscriptionTier
+  artworks?: Prisma.ArtworkUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutArtworksReportInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.StringFieldUpdateOperationsInput | string
+  lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  subscriptionTier?: Prisma.EnumSubscriptionTierFieldUpdateOperationsInput | $Enums.SubscriptionTier
+  artworks?: Prisma.ArtworkUncheckedUpdateManyWithoutUserNestedInput
 }
 
 
@@ -480,10 +569,12 @@ export type UserUncheckedUpdateWithoutArtworksInput = {
 
 export type UserCountOutputType = {
   artworks: number
+  artworksReport: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   artworks?: boolean | UserCountOutputTypeCountArtworksArgs
+  artworksReport?: boolean | UserCountOutputTypeCountArtworksReportArgs
 }
 
 /**
@@ -503,6 +594,13 @@ export type UserCountOutputTypeCountArtworksArgs<ExtArgs extends runtime.Types.E
   where?: Prisma.ArtworkWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountArtworksReportArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ArtworksReportWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -514,6 +612,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   createdAt?: boolean
   subscriptionTier?: boolean
   artworks?: boolean | Prisma.User$artworksArgs<ExtArgs>
+  artworksReport?: boolean | Prisma.User$artworksReportArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -553,6 +652,7 @@ export type UserSelectScalar = {
 export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "password" | "firstName" | "lastName" | "avatar" | "createdAt" | "subscriptionTier", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   artworks?: boolean | Prisma.User$artworksArgs<ExtArgs>
+  artworksReport?: boolean | Prisma.User$artworksReportArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -562,6 +662,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   name: "User"
   objects: {
     artworks: Prisma.$ArtworkPayload<ExtArgs>[]
+    artworksReport: Prisma.$ArtworksReportPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -967,6 +1068,7 @@ readonly fields: UserFieldRefs;
 export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   artworks<T extends Prisma.User$artworksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$artworksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ArtworkPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  artworksReport<T extends Prisma.User$artworksReportArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$artworksReportArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ArtworksReportPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1413,6 +1515,30 @@ export type User$artworksArgs<ExtArgs extends runtime.Types.Extensions.InternalA
   take?: number
   skip?: number
   distinct?: Prisma.ArtworkScalarFieldEnum | Prisma.ArtworkScalarFieldEnum[]
+}
+
+/**
+ * User.artworksReport
+ */
+export type User$artworksReportArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ArtworksReport
+   */
+  select?: Prisma.ArtworksReportSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ArtworksReport
+   */
+  omit?: Prisma.ArtworksReportOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ArtworksReportInclude<ExtArgs> | null
+  where?: Prisma.ArtworksReportWhereInput
+  orderBy?: Prisma.ArtworksReportOrderByWithRelationInput | Prisma.ArtworksReportOrderByWithRelationInput[]
+  cursor?: Prisma.ArtworksReportWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ArtworksReportScalarFieldEnum | Prisma.ArtworksReportScalarFieldEnum[]
 }
 
 /**

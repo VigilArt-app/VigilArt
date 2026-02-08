@@ -1,4 +1,8 @@
-import { Artwork, WebsiteCategory } from "@vigilart/shared";
+import {
+  Artwork,
+  ArtworksReportEntryGet,
+  WebsiteCategory
+} from "@vigilart/shared";
 import {
   ArtworksReportEntry,
   AggregatedVisualSearchResults
@@ -57,9 +61,6 @@ export const mockedArtwork: Artwork = {
 };
 
 export const mockedAggregatedResults: AggregatedVisualSearchResults = {
-  statistics: {
-    totalMatches: mockedSearchImageReturnValue.matchingPages.length
-  },
   matchingPages: mockedSearchImageReturnValue.matchingPages
 };
 
@@ -79,12 +80,9 @@ export const mockedArtworks: Artwork[] = [
   }
 ];
 
-export const mockedFilteredArtworksReportEntries: ArtworksReportEntry[] = [
+export const mockedFilteredArtworksReportEntries: ArtworksReportEntryGet[] = [
   {
     artworkId: "1",
-    statistics: {
-      totalMatches: mockedSearchImageReturnValue.matchingPages.length
-    },
     matchingPages: mockedSearchImageReturnValue.matchingPages.slice(
       0,
       DEFAULT_PAGINATION_LIMIT
@@ -92,9 +90,6 @@ export const mockedFilteredArtworksReportEntries: ArtworksReportEntry[] = [
   },
   {
     artworkId: "2",
-    statistics: {
-      totalMatches: mockedSearchImageReturnValue.matchingPages.length
-    },
     matchingPages: mockedSearchImageReturnValue.matchingPages.slice(
       0,
       DEFAULT_PAGINATION_LIMIT
@@ -102,9 +97,6 @@ export const mockedFilteredArtworksReportEntries: ArtworksReportEntry[] = [
   },
   {
     artworkId: "3",
-    statistics: {
-      totalMatches: mockedSearchImageReturnValue.matchingPages.length
-    },
     matchingPages: mockedSearchImageReturnValue.matchingPages.slice(
       0,
       DEFAULT_PAGINATION_LIMIT
@@ -112,26 +104,17 @@ export const mockedFilteredArtworksReportEntries: ArtworksReportEntry[] = [
   }
 ];
 
-export const mockedArtworksReportEntries: ArtworksReportEntry[] = [
+export const mockedArtworksReportEntries: ArtworksReportEntryGet[] = [
   {
     artworkId: "1",
-    statistics: {
-      totalMatches: mockedSearchImageReturnValue.matchingPages.length
-    },
     matchingPages: mockedSearchImageReturnValue.matchingPages
   },
   {
     artworkId: "2",
-    statistics: {
-      totalMatches: mockedSearchImageReturnValue.matchingPages.length
-    },
     matchingPages: mockedSearchImageReturnValue.matchingPages
   },
   {
     artworkId: "3",
-    statistics: {
-      totalMatches: mockedSearchImageReturnValue.matchingPages.length
-    },
     matchingPages: mockedSearchImageReturnValue.matchingPages
   }
 ];

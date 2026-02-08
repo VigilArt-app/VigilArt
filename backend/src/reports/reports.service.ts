@@ -1,13 +1,12 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { VisionService } from "../vision/vision.service";
-import { AggregatedVisualSearchResults } from "@vigilart/shared";
 import {
+  AggregatedVisualSearchResults,
+  ArtworksReportEntryGet,
+  ArtworksReportGet,
   VisualSearchResult,
-  MatchingPage,
-  ArtworksReportEntryStatistics,
-  ArtworksReportEntry,
-  ArtworksReportStatistics,
-  ArtworksReport
+  MatchingPageGet,
+  ArtworksReportEntryStatistics
 } from "@vigilart/shared";
 import { ArtworksService } from "../artworks/artworks.service";
 import { Artwork } from "@vigilart/shared";
@@ -29,8 +28,8 @@ export class ReportsService {
     const visualSearchResults = await Promise.all([
       this.visionService.searchImage(imageBuffer)
     ]);
-    const matchingPages = visualSearchResults.reduce<MatchingPage[]>(
-      (acc: MatchingPage[], value: VisualSearchResult | null) => {
+    const matchingPages = visualSearchResults.reduce<MatchingPageGet[]>(
+      (acc: MatchingPageGet[], value: VisualSearchResult | null) => {
         if (value) {
           acc.push(...value.matchingPages);
         }
@@ -43,7 +42,8 @@ export class ReportsService {
     };
 
     return {
-      statistics,
+      // statistics,
+
       matchingPages
     };
   }
@@ -51,16 +51,16 @@ export class ReportsService {
   async getArtworksReportEntry(
     artwork: Artwork,
     limit?: number
-  ): Promise<ArtworksReportEntry> {
+  ): Promise<ArtworksReportEntryGet> {
     const imageBuffer = await this.storageService.getImage(artwork.storageKey);
     const aggregatedVisualSearchResults =
       await this.aggregateVisualSearchResults(imageBuffer);
     const matchingPages = aggregatedVisualSearchResults.matchingPages;
-    const statistics = aggregatedVisualSearchResults.statistics;
+    // const statistics = aggregatedVisualSearchResults.statistics;
 
     return {
       artworkId: artwork.id,
-      statistics,
+      // statistics,
       matchingPages: matchingPages.slice(0, limit ?? matchingPages.length)
     };
   }
@@ -68,9 +68,9 @@ export class ReportsService {
   async getArtworksReportEntries(
     userId: string,
     limit?: number
-  ): Promise<ArtworksReportEntry[]> {
+  ): Promise<ArtworksReportEntryGet[]> {
     const artworks = await this.artworksService.findAllPerUser(userId);
-    const entries: ArtworksReportEntry[] = await Promise.all(
+    const entries: ArtworksReportEntryGet[] = await Promise.all(
       artworks.map(async (artwork: Artwork) => {
         return this.getArtworksReportEntry(artwork, limit);
       })
@@ -78,31 +78,29 @@ export class ReportsService {
     return entries;
   }
 
-  getArtworksReportStatistics(
-    entries: ArtworksReportEntry[]
-  ): ArtworksReportStatistics {
-    const totalMatches = entries.reduce(
-      (acc: number, entry: ArtworksReportEntry) =>
-        acc + entry.statistics.totalMatches,
-      0
-    );
+  // getArtworksReportStatistics(
+  //   entries: ArtworksReportEntry[]
+  // ): ArtworksReportStatistics {
+  //   const totalMatches = entries.reduce(
+  //     (acc: number, entry: ArtworksReportEntry) =>
+  //       acc + entry.statistics.totalMatches,
+  //     0
+  //   );
 
-    return {
-      totalMatches
-    };
-  }
+  //   return {
+  //     totalMatches
+  //   };
+  // }
 
-  async getArtworksReport(userId: string): Promise<ArtworksReport> {
-    const entries: ArtworksReportEntry[] = await this.getArtworksReportEntries(
-      userId,
-      DEFAULT_PAGINATION_LIMIT
-    );
-    const statistics: ArtworksReportStatistics =
-      this.getArtworksReportStatistics(entries);
+  async getArtworksReport(userId: string): Promise<ArtworksReportGet> {
+    const entries: ArtworksReportEntryGet[] =
+      await this.getArtworksReportEntries(userId, DEFAULT_PAGINATION_LIMIT);
+    // const statistics: ArtworksReportStatistics =
+    //   this.getArtworksReportStatistics(entries);
 
     return {
       detectionDate: new Date(),
-      statistics,
+      // statistics,
       entries
     };
   }
@@ -110,11 +108,11 @@ export class ReportsService {
   async getAllArtworksMatches(
     userId: string,
     { websiteCategory }: GetArtworksMatchesDTO
-  ): Promise<MatchingPage[]> {
-    const entries: ArtworksReportEntry[] =
+  ): Promise<MatchingPageGet[]> {
+    const entries: ArtworksReportEntryGet[] =
       await this.getArtworksReportEntries(userId);
     const matchingPages = entries.reduce(
-      (acc: MatchingPage[], value: ArtworksReportEntry) => {
+      (acc: MatchingPageGet[], value: ArtworksReportEntryGet) => {
         acc.push(...value.matchingPages);
         return acc;
       },
@@ -122,7 +120,7 @@ export class ReportsService {
     );
     if (websiteCategory) {
       const filteredMatchingPages = matchingPages.filter(
-        (page: MatchingPage) => page.category == websiteCategory
+        (page: MatchingPageGet) => page.category == websiteCategory
       );
       return filteredMatchingPages;
     }
@@ -132,7 +130,7 @@ export class ReportsService {
   async getArtworkMatches(
     artworkId: string,
     { websiteCategory }: GetArtworksMatchesDTO
-  ): Promise<MatchingPage[]> {
+  ): Promise<MatchingPageGet[]> {
     const artwork = await this.artworksService.findOne(artworkId);
 
     if (!artwork) {
@@ -144,7 +142,7 @@ export class ReportsService {
     const matchingPages = aggregatedVisualSearchResults.matchingPages;
     if (websiteCategory) {
       const filteredMatchingPages = matchingPages.filter(
-        (page: MatchingPage) => page.category == websiteCategory
+        (page: MatchingPageGet) => page.category == websiteCategory
       );
       return filteredMatchingPages;
     }

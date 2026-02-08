@@ -10,4 +10,7 @@
  */
 export type * from './models/User.js'
 export type * from './models/Artwork.js'
+export type * from './models/MatchingPage.js'
+export type * from './models/ArtworksReportEntry.js'
+export type * from './models/ArtworksReport.js'
 export type * from './commonInputTypes.js'

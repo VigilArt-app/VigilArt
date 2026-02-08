@@ -1,10 +1,15 @@
 import { z } from "zod";
 import { createZodDto } from "nestjs-zod";
-import { MatchingPageSchema } from "./VisualSearchResult";
+import {
+  ArtworksReportEntrySchema as BaseArtworksReportEntry,
+  ArtworksReportSchema as BaseArtworksReport,
+  MatchingPageSchema
+} from "../../generated/zod";
 import { dateTimeStringToDate } from "../../constants";
+import { MatchingPageGetSchema } from "./VisualSearchResult";
 
 export const GetArtworksMatchesSchema = z.object({
-  websiteCategory: z.string().optional(),
+  websiteCategory: z.string().optional()
 });
 export class GetArtworksMatchesDTO extends createZodDto(
   GetArtworksMatchesSchema
@@ -13,62 +18,67 @@ export class GetArtworksMatchesDTO extends createZodDto(
 export const ArtworksReportEntryStatisticsSchema = z.object({
   totalMatches: z.number({
     error: (e) =>
-      e.input === undefined ? "Total matches is required." : undefined,
-  }),
+      e.input === undefined ? "Total matches is required." : undefined
+  })
 });
 export class ArtworksReportEntryStatisticsDTO extends createZodDto(
   ArtworksReportEntryStatisticsSchema
 ) {}
 
-export const ArtworksReportEntrySchema = z.object({
-  artworkId: z.string({
-    error: (e) =>
-      e.input === undefined ? "Artwork ID is required." : undefined,
-  }),
-  statistics: ArtworksReportEntryStatisticsSchema.refine(
-    (val) => val !== undefined,
-    {
-      message: "Artworks report entry statistics is required.",
-    }
-  ),
-  matchingPages: z.array(MatchingPageSchema, {
-    error: (e) =>
-      e.input === undefined ? "Matching pages array is required." : undefined,
-  }),
+export const ArtworksReportEntrySchema = BaseArtworksReportEntry.extend({
+  matchingPages: z.array(MatchingPageSchema)
 });
+
 export class ArtworksReportEntryDTO extends createZodDto(
   ArtworksReportEntrySchema
+) {}
+
+export const ArtworksReportEntryGetSchema = ArtworksReportEntrySchema.omit({
+  id: true,
+  artworkReportId: true
+}).extend({
+  matchingPages: z.array(MatchingPageGetSchema)
+});
+
+export class ArtworksReportEntryGetDTO extends createZodDto(
+  ArtworksReportEntryGetSchema
 ) {}
 
 export const ArtworksReportStatisticsSchema = z.object({
   totalMatches: z.number({
     error: (e) =>
-      e.input === undefined ? "Total matches is required." : undefined,
-  }),
+      e.input === undefined ? "Total matches is required." : undefined
+  })
 });
 export class ArtworksReportStatisticsDTO extends createZodDto(
   ArtworksReportStatisticsSchema
 ) {}
 
-export const ArtworksReportSchema = z.object({
+export const ArtworksReportSchema = BaseArtworksReport.extend({
   detectionDate: dateTimeStringToDate,
-  statistics: ArtworksReportStatisticsSchema.refine(
-    (val) => val !== undefined,
-    {
-      message: "Artworks report statistics is required.",
-    }
-  ),
-  entries: z.array(ArtworksReportEntrySchema, {
-    error: (e) =>
-      e.input === undefined ? "Entries array is required." : undefined,
-  }),
+  entries: z.array(ArtworksReportEntrySchema)
 });
 export class ArtworksReportDTO extends createZodDto(ArtworksReportSchema) {}
 
+export const ArtworksReportGetSchema = ArtworksReportSchema.omit({
+  id: true,
+  userId: true
+}).extend({
+  entries: z.array(ArtworksReportEntryGetSchema)
+});
+export class ArtworksReportGetDTO extends createZodDto(
+  ArtworksReportGetSchema
+) {}
+
 export const AggregatedVisualSearchResultsSchema =
-  ArtworksReportEntrySchema.omit({
+  ArtworksReportEntrySchema.extend({
+    matchingPages: z.array(MatchingPageGetSchema)
+  }).omit({
     artworkId: true,
+    artworkReportId: true,
+    id: true
   });
+
 export class AggregatedVisualSearchResultsDTO extends createZodDto(
   AggregatedVisualSearchResultsSchema
 ) {}

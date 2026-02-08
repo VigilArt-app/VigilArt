@@ -10,8 +10,7 @@ import {
   mockedFilteredArtworksReportEntries,
   mockedSearchImageReturnValue
 } from "./sample-inputs";
-import { AggregatedVisualSearchResults } from "@vigilart/shared";
-import { ArtworksReportEntry } from "@vigilart/shared";
+import { AggregatedVisualSearchResults, ArtworksReportEntryGet } from "@vigilart/shared";
 import { NotFoundException } from "@nestjs/common";
 import { WebsiteCategory } from "@vigilart/shared/server";
 import { StorageService } from "../storage/storage.service";
@@ -73,9 +72,6 @@ describe("ReportsService", () => {
       expect(res.matchingPages).toEqual(
         mockedSearchImageReturnValue.matchingPages
       );
-      expect(res.statistics).toEqual({
-        totalMatches: 4
-      });
     });
 
     it("Should handle null response from Vision service", async () => {
@@ -87,7 +83,6 @@ describe("ReportsService", () => {
 
       expect(spy).toHaveBeenCalledWith(Buffer.from(""));
       expect(res.matchingPages).toEqual([]);
-      expect(res.statistics.totalMatches).toBe(0);
     });
   });
 
@@ -100,22 +95,20 @@ describe("ReportsService", () => {
     });
 
     it("Should return full artworks report entry without limit", async () => {
-      const res: ArtworksReportEntry =
+      const res: ArtworksReportEntryGet =
         await service.getArtworksReportEntry(mockedArtwork);
       expect(res.artworkId).toEqual("1");
-      expect(res.statistics).toEqual({ totalMatches: 4 });
       expect(res.matchingPages).toEqual(
         mockedSearchImageReturnValue.matchingPages
       );
     });
 
     it("Should limit matching pages when limit is specified", async () => {
-      const res: ArtworksReportEntry = await service.getArtworksReportEntry(
+      const res: ArtworksReportEntryGet = await service.getArtworksReportEntry(
         mockedArtwork,
         2
       );
       expect(res.artworkId).toEqual("1");
-      expect(res.statistics).toEqual({ totalMatches: 4 });
       expect(res.matchingPages).toEqual(
         mockedSearchImageReturnValue.matchingPages.slice(0, 2)
       );
@@ -150,7 +143,6 @@ describe("ReportsService", () => {
     it("Should return list of artworks report entries without matches limit", async () => {
       const res = await service.getArtworksReportEntries("0");
       const expectedEntry = {
-        statistics: { totalMatches: 4 },
         matchingPages: mockedSearchImageReturnValue.matchingPages
       };
 
@@ -177,7 +169,6 @@ describe("ReportsService", () => {
     it("Should return list of artworks report entries when limit is specified", async () => {
       const res = await service.getArtworksReportEntries("0", 2);
       const expectedEntry = {
-        statistics: { totalMatches: 4 },
         matchingPages: mockedSearchImageReturnValue.matchingPages.slice(0, 2)
       };
 
@@ -204,7 +195,6 @@ describe("ReportsService", () => {
     it("Should handle limit larger than available matching pages", async () => {
       const res = await service.getArtworksReportEntries("0", 100);
       const expectedEntry = {
-        statistics: { totalMatches: 4 },
         matchingPages: mockedSearchImageReturnValue.matchingPages.slice(0, 100)
       };
 
@@ -231,7 +221,6 @@ describe("ReportsService", () => {
     it("Should handle limit of 0", async () => {
       const res = await service.getArtworksReportEntries("0", 0);
       const expectedEntry = {
-        statistics: { totalMatches: 4 },
         matchingPages: mockedSearchImageReturnValue.matchingPages.slice(0, 0)
       };
 
@@ -263,27 +252,27 @@ describe("ReportsService", () => {
     });
   });
 
-  describe("getArtworksReportStatistics", () => {
-    beforeEach(() => {});
+  // describe("getArtworksReportStatistics", () => {
+  //   beforeEach(() => {});
 
-    it("Should return global statistics about all artworks", () => {
-      const res = service.getArtworksReportStatistics(
-        mockedFilteredArtworksReportEntries
-      );
+  //   it("Should return global statistics about all artworks", () => {
+  //     const res = service.getArtworksReportStatistics(
+  //       mockedFilteredArtworksReportEntries
+  //     );
 
-      expect(res).toEqual({
-        totalMatches: 12
-      });
-    });
+  //     expect(res).toEqual({
+  //       totalMatches: 12
+  //     });
+  //   });
 
-    it("Should handle no entries", () => {
-      const res = service.getArtworksReportStatistics([]);
+  //   it("Should handle no entries", () => {
+  //     const res = service.getArtworksReportStatistics([]);
 
-      expect(res).toEqual({
-        totalMatches: 0
-      });
-    });
-  });
+  //     expect(res).toEqual({
+  //       totalMatches: 0
+  //     });
+  //   });
+  // });
 
   describe("getArtworksReport", () => {
     it("Should return artworks report", async () => {
@@ -294,7 +283,6 @@ describe("ReportsService", () => {
 
       expect(res).toEqual({
         detectionDate: expect.any(Date),
-        statistics: { totalMatches: 12 },
         entries: mockedFilteredArtworksReportEntries
       });
     });
@@ -305,7 +293,6 @@ describe("ReportsService", () => {
 
       expect(res).toEqual({
         detectionDate: expect.any(Date),
-        statistics: { totalMatches: 0 },
         entries: []
       });
     });

@@ -67,7 +67,7 @@ const DOMAIN_PATTERNS: Record<WebsiteCategoryType, RegExp[]> = {
   OTHER: []
 };
 
-export const classifyWebsite = (rawUrl: string): WebsiteCategoryType | null => {
+export const classifyWebsite = (rawUrl: string): WebsiteCategoryType => {
   let url = new URL(rawUrl);
   const hostname = url.hostname.toLowerCase();
 
@@ -79,7 +79,7 @@ export const classifyWebsite = (rawUrl: string): WebsiteCategoryType | null => {
   return WebsiteCategory.OTHER;
 };
 
-export const extractRootDomain = (url: string): string | null => {
+export const extractRootDomain = (url: string): string => {
   const hostname = new URL(url).hostname.replace(/^www\./, "");
   const parts = hostname.split(".");
   let rootDomain: string;

@@ -11,12 +11,14 @@ import { ReportsService } from "./reports.service";
 import {
   ArtworksReport,
   ArtworksReportDTO,
+  ArtworksReportGet,
   MatchingPage,
-  MatchingPageDTO
+  MatchingPageDTO,
+  MatchingPageGet
 } from "@vigilart/shared";
 import { GetArtworksMatchesDTO } from "@vigilart/shared";
 import { ApiEndpoint } from "../common/decorators/api-endpoint.decorator";
-import { ApiBody, ApiParam, ApiQuery } from "@nestjs/swagger";
+import { ApiParam, ApiQuery } from "@nestjs/swagger";
 
 @Controller("reports")
 export class ReportsController {
@@ -35,7 +37,7 @@ export class ReportsController {
   @ApiParam({ name: "id", type: String })
   async getArtworksReport(
     @Param("id", ParseUUIDPipe) userId: string
-  ): Promise<ArtworksReport> {
+  ): Promise<ArtworksReportGet> {
     return await this.reportsService.getArtworksReport(userId);
   }
 
@@ -53,7 +55,7 @@ export class ReportsController {
   async getArtworksMatches(
     @Param("id", ParseUUIDPipe) userId: string,
     @Query() getArtworksMatchesDto: GetArtworksMatchesDTO
-  ): Promise<MatchingPage[]> {
+  ): Promise<MatchingPageGet[]> {
     return await this.reportsService.getAllArtworksMatches(
       userId,
       getArtworksMatchesDto
@@ -75,10 +77,14 @@ export class ReportsController {
   async getArtworkMatches(
     @Param("id", ParseUUIDPipe) artworkId: string,
     @Query() getArtworksMatchesDto: GetArtworksMatchesDTO
-  ): Promise<MatchingPage[]> {
+  ): Promise<MatchingPageGet[]> {
     return await this.reportsService.getArtworkMatches(
       artworkId,
       getArtworksMatchesDto
     );
   }
+
+  // ROUTE TO RETURN ARTWORKS REPORT GLOBAL STATISTICS
+  // AND ANOTHER TO RETURN ARTWORKS REPORT ENTRY STATISTICS
+  // REDO UNIT TESTS FOR STATISTICS
 }

@@ -179,6 +179,23 @@ export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedDateTimeNullableFilter<$PrismaModel>
 }
 
+export type EnumWebsiteCategoryFilter<$PrismaModel = never> = {
+  equals?: $Enums.WebsiteCategory | Prisma.EnumWebsiteCategoryFieldRefInput<$PrismaModel>
+  in?: $Enums.WebsiteCategory[] | Prisma.ListEnumWebsiteCategoryFieldRefInput<$PrismaModel>
+  notIn?: $Enums.WebsiteCategory[] | Prisma.ListEnumWebsiteCategoryFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumWebsiteCategoryFilter<$PrismaModel> | $Enums.WebsiteCategory
+}
+
+export type EnumWebsiteCategoryWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.WebsiteCategory | Prisma.EnumWebsiteCategoryFieldRefInput<$PrismaModel>
+  in?: $Enums.WebsiteCategory[] | Prisma.ListEnumWebsiteCategoryFieldRefInput<$PrismaModel>
+  notIn?: $Enums.WebsiteCategory[] | Prisma.ListEnumWebsiteCategoryFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumWebsiteCategoryWithAggregatesFilter<$PrismaModel> | $Enums.WebsiteCategory
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumWebsiteCategoryFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumWebsiteCategoryFilter<$PrismaModel>
+}
+
 export type NestedStringFilter<$PrismaModel = never> = {
   equals?: string | Prisma.StringFieldRefInput<$PrismaModel>
   in?: string[] | Prisma.ListStringFieldRefInput<$PrismaModel>
@@ -355,6 +372,23 @@ export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
   _min?: Prisma.NestedDateTimeNullableFilter<$PrismaModel>
   _max?: Prisma.NestedDateTimeNullableFilter<$PrismaModel>
+}
+
+export type NestedEnumWebsiteCategoryFilter<$PrismaModel = never> = {
+  equals?: $Enums.WebsiteCategory | Prisma.EnumWebsiteCategoryFieldRefInput<$PrismaModel>
+  in?: $Enums.WebsiteCategory[] | Prisma.ListEnumWebsiteCategoryFieldRefInput<$PrismaModel>
+  notIn?: $Enums.WebsiteCategory[] | Prisma.ListEnumWebsiteCategoryFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumWebsiteCategoryFilter<$PrismaModel> | $Enums.WebsiteCategory
+}
+
+export type NestedEnumWebsiteCategoryWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.WebsiteCategory | Prisma.EnumWebsiteCategoryFieldRefInput<$PrismaModel>
+  in?: $Enums.WebsiteCategory[] | Prisma.ListEnumWebsiteCategoryFieldRefInput<$PrismaModel>
+  notIn?: $Enums.WebsiteCategory[] | Prisma.ListEnumWebsiteCategoryFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumWebsiteCategoryWithAggregatesFilter<$PrismaModel> | $Enums.WebsiteCategory
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumWebsiteCategoryFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumWebsiteCategoryFilter<$PrismaModel>
 }
 
 

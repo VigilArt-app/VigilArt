@@ -5,7 +5,7 @@ import {
   ArtworkMetadata,
   ArtworkMetadataLabel,
   ArtworkWebEntity,
-  MatchingPage
+  MatchingPageGet
 } from "@vigilart/shared";
 import { WebDetection, WebEntity, WebLabel, WebPage } from "./types";
 import { classifyWebsite, extractRootDomain, getImageUrl } from "./utils";
@@ -72,12 +72,12 @@ export class VisionService implements OnModuleDestroy {
 
   getArtworkReportMatchingPages(
     pagesWithMatchingImages: WebPage[] | null | undefined
-  ): MatchingPage[] {
+  ): MatchingPageGet[] {
     if (!pagesWithMatchingImages) {
       return [];
     }
-    const matchingPages: MatchingPage[] = pagesWithMatchingImages.reduce(
-      (acc: MatchingPage[], page: WebPage) => {
+    const matchingPages: MatchingPageGet[] = pagesWithMatchingImages.reduce(
+      (acc: MatchingPageGet[], page: WebPage) => {
         const hasFullMatches = (page.fullMatchingImages?.length ?? 0) > 0;
         const hasPartialMatches = (page.partialMatchingImages?.length ?? 0) > 0;
         let imageUrl;
@@ -89,7 +89,7 @@ export class VisionService implements OnModuleDestroy {
           imageUrl = getImageUrl(page.partialMatchingImages);
         }
         if (page.url && (hasFullMatches || hasPartialMatches)) {
-          const validItem: MatchingPage = {
+          const validItem: MatchingPageGet = {
             url: page.url,
             category: classifyWebsite(page.url),
             websiteName: extractRootDomain(page.url),

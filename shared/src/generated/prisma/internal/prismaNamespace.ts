@@ -385,7 +385,10 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 
 export const ModelName = {
   User: 'User',
-  Artwork: 'Artwork'
+  Artwork: 'Artwork',
+  MatchingPage: 'MatchingPage',
+  ArtworksReportEntry: 'ArtworksReportEntry',
+  ArtworksReport: 'ArtworksReport'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -401,7 +404,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "artwork"
+    modelProps: "user" | "artwork" | "matchingPage" | "artworksReportEntry" | "artworksReport"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -553,6 +556,228 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    MatchingPage: {
+      payload: Prisma.$MatchingPagePayload<ExtArgs>
+      fields: Prisma.MatchingPageFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.MatchingPageFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MatchingPagePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.MatchingPageFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MatchingPagePayload>
+        }
+        findFirst: {
+          args: Prisma.MatchingPageFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MatchingPagePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.MatchingPageFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MatchingPagePayload>
+        }
+        findMany: {
+          args: Prisma.MatchingPageFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MatchingPagePayload>[]
+        }
+        create: {
+          args: Prisma.MatchingPageCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MatchingPagePayload>
+        }
+        createMany: {
+          args: Prisma.MatchingPageCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.MatchingPageCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MatchingPagePayload>[]
+        }
+        delete: {
+          args: Prisma.MatchingPageDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MatchingPagePayload>
+        }
+        update: {
+          args: Prisma.MatchingPageUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MatchingPagePayload>
+        }
+        deleteMany: {
+          args: Prisma.MatchingPageDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.MatchingPageUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.MatchingPageUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MatchingPagePayload>[]
+        }
+        upsert: {
+          args: Prisma.MatchingPageUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MatchingPagePayload>
+        }
+        aggregate: {
+          args: Prisma.MatchingPageAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateMatchingPage>
+        }
+        groupBy: {
+          args: Prisma.MatchingPageGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MatchingPageGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.MatchingPageCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MatchingPageCountAggregateOutputType> | number
+        }
+      }
+    }
+    ArtworksReportEntry: {
+      payload: Prisma.$ArtworksReportEntryPayload<ExtArgs>
+      fields: Prisma.ArtworksReportEntryFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ArtworksReportEntryFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtworksReportEntryPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ArtworksReportEntryFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtworksReportEntryPayload>
+        }
+        findFirst: {
+          args: Prisma.ArtworksReportEntryFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtworksReportEntryPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ArtworksReportEntryFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtworksReportEntryPayload>
+        }
+        findMany: {
+          args: Prisma.ArtworksReportEntryFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtworksReportEntryPayload>[]
+        }
+        create: {
+          args: Prisma.ArtworksReportEntryCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtworksReportEntryPayload>
+        }
+        createMany: {
+          args: Prisma.ArtworksReportEntryCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ArtworksReportEntryCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtworksReportEntryPayload>[]
+        }
+        delete: {
+          args: Prisma.ArtworksReportEntryDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtworksReportEntryPayload>
+        }
+        update: {
+          args: Prisma.ArtworksReportEntryUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtworksReportEntryPayload>
+        }
+        deleteMany: {
+          args: Prisma.ArtworksReportEntryDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ArtworksReportEntryUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ArtworksReportEntryUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtworksReportEntryPayload>[]
+        }
+        upsert: {
+          args: Prisma.ArtworksReportEntryUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtworksReportEntryPayload>
+        }
+        aggregate: {
+          args: Prisma.ArtworksReportEntryAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateArtworksReportEntry>
+        }
+        groupBy: {
+          args: Prisma.ArtworksReportEntryGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ArtworksReportEntryGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ArtworksReportEntryCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ArtworksReportEntryCountAggregateOutputType> | number
+        }
+      }
+    }
+    ArtworksReport: {
+      payload: Prisma.$ArtworksReportPayload<ExtArgs>
+      fields: Prisma.ArtworksReportFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ArtworksReportFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtworksReportPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ArtworksReportFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtworksReportPayload>
+        }
+        findFirst: {
+          args: Prisma.ArtworksReportFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtworksReportPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ArtworksReportFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtworksReportPayload>
+        }
+        findMany: {
+          args: Prisma.ArtworksReportFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtworksReportPayload>[]
+        }
+        create: {
+          args: Prisma.ArtworksReportCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtworksReportPayload>
+        }
+        createMany: {
+          args: Prisma.ArtworksReportCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ArtworksReportCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtworksReportPayload>[]
+        }
+        delete: {
+          args: Prisma.ArtworksReportDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtworksReportPayload>
+        }
+        update: {
+          args: Prisma.ArtworksReportUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtworksReportPayload>
+        }
+        deleteMany: {
+          args: Prisma.ArtworksReportDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ArtworksReportUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ArtworksReportUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtworksReportPayload>[]
+        }
+        upsert: {
+          args: Prisma.ArtworksReportUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtworksReportPayload>
+        }
+        aggregate: {
+          args: Prisma.ArtworksReportAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateArtworksReport>
+        }
+        groupBy: {
+          args: Prisma.ArtworksReportGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ArtworksReportGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ArtworksReportCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ArtworksReportCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -622,6 +847,37 @@ export const ArtworkScalarFieldEnum = {
 } as const
 
 export type ArtworkScalarFieldEnum = (typeof ArtworkScalarFieldEnum)[keyof typeof ArtworkScalarFieldEnum]
+
+
+export const MatchingPageScalarFieldEnum = {
+  id: 'id',
+  reportEntryId: 'reportEntryId',
+  url: 'url',
+  category: 'category',
+  websiteName: 'websiteName',
+  imageUrl: 'imageUrl',
+  pageTitle: 'pageTitle'
+} as const
+
+export type MatchingPageScalarFieldEnum = (typeof MatchingPageScalarFieldEnum)[keyof typeof MatchingPageScalarFieldEnum]
+
+
+export const ArtworksReportEntryScalarFieldEnum = {
+  id: 'id',
+  artworkId: 'artworkId',
+  artworkReportId: 'artworkReportId'
+} as const
+
+export type ArtworksReportEntryScalarFieldEnum = (typeof ArtworksReportEntryScalarFieldEnum)[keyof typeof ArtworksReportEntryScalarFieldEnum]
+
+
+export const ArtworksReportScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  detectionDate: 'detectionDate'
+} as const
+
+export type ArtworksReportScalarFieldEnum = (typeof ArtworksReportScalarFieldEnum)[keyof typeof ArtworksReportScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -707,6 +963,20 @@ export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'In
  * Reference to a field of type 'Int[]'
  */
 export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
+    
+
+
+/**
+ * Reference to a field of type 'WebsiteCategory'
+ */
+export type EnumWebsiteCategoryFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'WebsiteCategory'>
+    
+
+
+/**
+ * Reference to a field of type 'WebsiteCategory[]'
+ */
+export type ListEnumWebsiteCategoryFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'WebsiteCategory[]'>
     
 
 
@@ -820,6 +1090,9 @@ export type PrismaClientOptions = ({
 export type GlobalOmitConfig = {
   user?: Prisma.UserOmit
   artwork?: Prisma.ArtworkOmit
+  matchingPage?: Prisma.MatchingPageOmit
+  artworksReportEntry?: Prisma.ArtworksReportEntryOmit
+  artworksReport?: Prisma.ArtworksReportOmit
 }
 
 /* Types for Logging */

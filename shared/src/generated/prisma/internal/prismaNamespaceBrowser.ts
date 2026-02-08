@@ -52,7 +52,10 @@ export const AnyNull = runtime.AnyNull
 
 export const ModelName = {
   User: 'User',
-  Artwork: 'Artwork'
+  Artwork: 'Artwork',
+  MatchingPage: 'MatchingPage',
+  ArtworksReportEntry: 'ArtworksReportEntry',
+  ArtworksReport: 'ArtworksReport'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -101,6 +104,37 @@ export const ArtworkScalarFieldEnum = {
 } as const
 
 export type ArtworkScalarFieldEnum = (typeof ArtworkScalarFieldEnum)[keyof typeof ArtworkScalarFieldEnum]
+
+
+export const MatchingPageScalarFieldEnum = {
+  id: 'id',
+  reportEntryId: 'reportEntryId',
+  url: 'url',
+  category: 'category',
+  websiteName: 'websiteName',
+  imageUrl: 'imageUrl',
+  pageTitle: 'pageTitle'
+} as const
+
+export type MatchingPageScalarFieldEnum = (typeof MatchingPageScalarFieldEnum)[keyof typeof MatchingPageScalarFieldEnum]
+
+
+export const ArtworksReportEntryScalarFieldEnum = {
+  id: 'id',
+  artworkId: 'artworkId',
+  artworkReportId: 'artworkReportId'
+} as const
+
+export type ArtworksReportEntryScalarFieldEnum = (typeof ArtworksReportEntryScalarFieldEnum)[keyof typeof ArtworksReportEntryScalarFieldEnum]
+
+
+export const ArtworksReportScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  detectionDate: 'detectionDate'
+} as const
+
+export type ArtworksReportScalarFieldEnum = (typeof ArtworksReportScalarFieldEnum)[keyof typeof ArtworksReportScalarFieldEnum]
 
 
 export const SortOrder = {

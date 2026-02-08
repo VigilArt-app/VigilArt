@@ -16,6 +16,12 @@ export const UserScalarFieldEnumSchema = z.enum(['id','email','password','firstN
 
 export const ArtworkScalarFieldEnumSchema = z.enum(['id','userId','originalFilename','storageKey','contentType','sizeBytes','width','height','description','createdAt','updatedAt','lastScanAt']);
 
+export const MatchingPageScalarFieldEnumSchema = z.enum(['id','reportEntryId','url','category','websiteName','imageUrl','pageTitle']);
+
+export const ArtworksReportEntryScalarFieldEnumSchema = z.enum(['id','artworkId','artworkReportId']);
+
+export const ArtworksReportScalarFieldEnumSchema = z.enum(['id','userId','detectionDate']);
+
 export const SortOrderSchema = z.enum(['asc','desc']);
 
 export const QueryModeSchema = z.enum(['default','insensitive']);
@@ -71,3 +77,43 @@ export const ArtworkSchema = z.object({
 })
 
 export type Artwork = z.infer<typeof ArtworkSchema>
+
+/////////////////////////////////////////
+// MATCHING PAGE SCHEMA
+/////////////////////////////////////////
+
+export const MatchingPageSchema = z.object({
+  category: WebsiteCategorySchema,
+  id: z.uuid(),
+  reportEntryId: z.string(),
+  url: z.string(),
+  websiteName: z.string(),
+  imageUrl: z.string().nullable(),
+  pageTitle: z.string().nullable(),
+})
+
+export type MatchingPage = z.infer<typeof MatchingPageSchema>
+
+/////////////////////////////////////////
+// ARTWORKS REPORT ENTRY SCHEMA
+/////////////////////////////////////////
+
+export const ArtworksReportEntrySchema = z.object({
+  id: z.uuid(),
+  artworkId: z.string(),
+  artworkReportId: z.string(),
+})
+
+export type ArtworksReportEntry = z.infer<typeof ArtworksReportEntrySchema>
+
+/////////////////////////////////////////
+// ARTWORKS REPORT SCHEMA
+/////////////////////////////////////////
+
+export const ArtworksReportSchema = z.object({
+  id: z.uuid(),
+  userId: z.string(),
+  detectionDate: z.coerce.date(),
+})
+
+export type ArtworksReport = z.infer<typeof ArtworksReportSchema>

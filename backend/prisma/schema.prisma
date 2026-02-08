@@ -35,7 +35,8 @@ model User {
   avatar           String?
   createdAt        DateTime         @default(now())
   subscriptionTier SubscriptionTier
-  artworks Artwork[]
+  artworks         Artwork[]
+  artworksReport   ArtworksReport[]
 }
 
 enum SubscriptionTier {
@@ -59,6 +60,7 @@ model Artwork {
   createdAt         DateTime          @default(now())
   updatedAt         DateTime          @updatedAt
   lastScanAt        DateTime?
+  reportEntries     ArtworksReportEntry[]
 }
 
 enum WebsiteCategory {
@@ -69,4 +71,35 @@ enum WebsiteCategory {
   MEDIA
   SEARCH
   OTHER
+}
+
+model MatchingPage {
+  id                String            @id @default(uuid())
+  reportEntryId     String
+  reportEntry       ArtworksReportEntry           @relation(fields: [reportEntryId], references: [id], onDelete: Cascade)
+
+  url               String
+  category          WebsiteCategory
+  websiteName       String
+  imageUrl          String?
+  pageTitle         String?
+}
+
+model ArtworksReportEntry {
+  id                String            @id @default(uuid())
+  artworkId         String
+  artwork           Artwork           @relation(fields: [artworkId], references: [id], onDelete: Cascade)
+  artworkReportId   String
+  artworkReport     ArtworksReport    @relation(fields: [artworkReportId], references: [id], onDelete: Cascade)
+
+  matchingPages     MatchingPage[]
+}
+
+model ArtworksReport {
+  id                String            @id @default(uuid())
+  userId            String
+  user              User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  detectionDate     DateTime          @default(now())
+  entries           ArtworksReportEntry[]
 }
