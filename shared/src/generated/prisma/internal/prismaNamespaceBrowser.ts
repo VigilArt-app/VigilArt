@@ -54,7 +54,6 @@ export const ModelName = {
   User: 'User',
   Artwork: 'Artwork',
   MatchingPage: 'MatchingPage',
-  ArtworksReportEntry: 'ArtworksReportEntry',
   ArtworksReport: 'ArtworksReport'
 } as const
 
@@ -108,24 +107,16 @@ export type ArtworkScalarFieldEnum = (typeof ArtworkScalarFieldEnum)[keyof typeo
 
 export const MatchingPageScalarFieldEnum = {
   id: 'id',
-  reportEntryId: 'reportEntryId',
+  artworkId: 'artworkId',
   url: 'url',
   category: 'category',
   websiteName: 'websiteName',
   imageUrl: 'imageUrl',
-  pageTitle: 'pageTitle'
+  pageTitle: 'pageTitle',
+  firstDetectedAt: 'firstDetectedAt'
 } as const
 
 export type MatchingPageScalarFieldEnum = (typeof MatchingPageScalarFieldEnum)[keyof typeof MatchingPageScalarFieldEnum]
-
-
-export const ArtworksReportEntryScalarFieldEnum = {
-  id: 'id',
-  artworkId: 'artworkId',
-  artworkReportId: 'artworkReportId'
-} as const
-
-export type ArtworksReportEntryScalarFieldEnum = (typeof ArtworksReportEntryScalarFieldEnum)[keyof typeof ArtworksReportEntryScalarFieldEnum]
 
 
 export const ArtworksReportScalarFieldEnum = {

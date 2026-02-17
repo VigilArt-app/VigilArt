@@ -1,13 +1,12 @@
 import { z } from "zod";
 import {
-  AggregatedVisualSearchResultsSchema,
   ArtworkMetadataLabelSchema,
   ArtworkMetadataSchema,
   ArtworkWebEntitySchema,
   VisualSearchResultSchema,
-  MatchingPageSchema,
   MatchingPageGetSchema
 } from "../../schemas/Reports";
+import { MatchingPageSchema } from "../../schemas";
 
 export type ArtworkMetadataLabel = z.infer<typeof ArtworkMetadataLabelSchema>;
 
@@ -20,7 +19,3 @@ export type MatchingPage = z.infer<typeof MatchingPageSchema>;
 export type MatchingPageGet = z.infer<typeof MatchingPageGetSchema>;
 
 export type VisualSearchResult = z.infer<typeof VisualSearchResultSchema>;
-
-export type AggregatedVisualSearchResults = z.infer<
-  typeof AggregatedVisualSearchResultsSchema
->;

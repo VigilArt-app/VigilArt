@@ -33,11 +33,6 @@ export type Artwork = Prisma.ArtworkModel
  */
 export type MatchingPage = Prisma.MatchingPageModel
 /**
- * Model ArtworksReportEntry
- * 
- */
-export type ArtworksReportEntry = Prisma.ArtworksReportEntryModel
-/**
  * Model ArtworksReport
  * 
  */

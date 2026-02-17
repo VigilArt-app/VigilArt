@@ -1,13 +1,4 @@
-import {
-  Artwork,
-  ArtworksReportEntryGet,
-  WebsiteCategory
-} from "@vigilart/shared";
-import {
-  ArtworksReportEntry,
-  AggregatedVisualSearchResults
-} from "@vigilart/shared";
-import { DEFAULT_PAGINATION_LIMIT } from "@vigilart/shared";
+import { Artwork, MatchingPageGet, WebsiteCategory } from "@vigilart/shared";
 
 export const mockedSearchImageReturnValue = {
   metadata: null,
@@ -60,9 +51,8 @@ export const mockedArtwork: Artwork = {
   lastScanAt: null
 };
 
-export const mockedAggregatedResults: AggregatedVisualSearchResults = {
-  matchingPages: mockedSearchImageReturnValue.matchingPages
-};
+export const mockedAggregatedResults: MatchingPageGet[] =
+  mockedSearchImageReturnValue.matchingPages;
 
 export const mockedArtworks: Artwork[] = [
   mockedArtwork,
@@ -80,41 +70,41 @@ export const mockedArtworks: Artwork[] = [
   }
 ];
 
-export const mockedFilteredArtworksReportEntries: ArtworksReportEntryGet[] = [
-  {
-    artworkId: "1",
-    matchingPages: mockedSearchImageReturnValue.matchingPages.slice(
-      0,
-      DEFAULT_PAGINATION_LIMIT
-    )
-  },
-  {
-    artworkId: "2",
-    matchingPages: mockedSearchImageReturnValue.matchingPages.slice(
-      0,
-      DEFAULT_PAGINATION_LIMIT
-    )
-  },
-  {
-    artworkId: "3",
-    matchingPages: mockedSearchImageReturnValue.matchingPages.slice(
-      0,
-      DEFAULT_PAGINATION_LIMIT
-    )
-  }
-];
+// export const mockedFilteredArtworksReportEntries: ArtworksReportEntryGet[] = [
+//   {
+//     artworkId: "1",
+//     matchingPages: mockedSearchImageReturnValue.matchingPages.slice(
+//       0,
+//       DEFAULT_PAGINATION_LIMIT
+//     )
+//   },
+//   {
+//     artworkId: "2",
+//     matchingPages: mockedSearchImageReturnValue.matchingPages.slice(
+//       0,
+//       DEFAULT_PAGINATION_LIMIT
+//     )
+//   },
+//   {
+//     artworkId: "3",
+//     matchingPages: mockedSearchImageReturnValue.matchingPages.slice(
+//       0,
+//       DEFAULT_PAGINATION_LIMIT
+//     )
+//   }
+// ];
 
-export const mockedArtworksReportEntries: ArtworksReportEntryGet[] = [
-  {
-    artworkId: "1",
-    matchingPages: mockedSearchImageReturnValue.matchingPages
-  },
-  {
-    artworkId: "2",
-    matchingPages: mockedSearchImageReturnValue.matchingPages
-  },
-  {
-    artworkId: "3",
-    matchingPages: mockedSearchImageReturnValue.matchingPages
-  }
-];
+// export const mockedArtworksReportEntries: ArtworksReportEntryGet[] = [
+//   {
+//     artworkId: "1",
+//     matchingPages: mockedSearchImageReturnValue.matchingPages
+//   },
+//   {
+//     artworkId: "2",
+//     matchingPages: mockedSearchImageReturnValue.matchingPages
+//   },
+//   {
+//     artworkId: "3",
+//     matchingPages: mockedSearchImageReturnValue.matchingPages
+//   }
+// ];

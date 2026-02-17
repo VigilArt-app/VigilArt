@@ -1,32 +1,21 @@
 import { z } from "zod";
+import { ArtworksReportSchema } from "../../schemas";
 import {
-  ArtworksReportEntryStatisticsSchema,
-  ArtworksReportSchema,
   ArtworksReportGetSchema,
-  ArtworksReportStatisticsSchema,
-  GetArtworksMatchesSchema,
-  ArtworksReportEntrySchema,
-  ArtworksReportEntryGetSchema
-} from "../../schemas/Reports";
+  ArtworksReportGlobalStatisticsSchema,
+  ArtworksReportStatisticsSchema
+} from "../../schemas";
 
-export type GetArtworksMatches = z.infer<typeof GetArtworksMatchesSchema>;
+export type ArtworksReport = z.infer<typeof ArtworksReportSchema>;
 
-export type ArtworksReportEntryStatistics = z.infer<
-  typeof ArtworksReportEntryStatisticsSchema
->;
-
-export type ArtworksReportEntry = z.infer<typeof ArtworksReportEntrySchema>;
-
-export type ArtworksReportEntryGet = z.infer<
-  typeof ArtworksReportEntryGetSchema
->;
+export type ArtworksReportGet = z.infer<typeof ArtworksReportGetSchema>;
 
 export type ArtworksReportStatistics = z.infer<
   typeof ArtworksReportStatisticsSchema
 >;
 
-export type ArtworksReport = z.infer<typeof ArtworksReportSchema>;
-
-export type ArtworksReportGet = z.infer<typeof ArtworksReportGetSchema>;
+export type ArtworksReportGlobalStatistics = z.infer<
+  typeof ArtworksReportGlobalStatisticsSchema
+>;
 
 export * from "./VisualSearchResult";

@@ -5,29 +5,36 @@ import {
   HttpStatus,
   Param,
   ParseUUIDPipe,
+  Post,
   Query
 } from "@nestjs/common";
 import { ReportsService } from "./reports.service";
 import {
-  ArtworksReport,
   ArtworksReportDTO,
+  ArtworksReport,
   ArtworksReportGet,
   MatchingPage,
+  ArtworksReportGetDTO,
   MatchingPageDTO,
-  MatchingPageGet
+  ArtworksReportGlobalStatistics,
+  ArtworksReportStatistics,
+  ArtworksReportStatisticsDTO,
+  ArtworksReportGlobalStatisticsDTO
 } from "@vigilart/shared";
-import { GetArtworksMatchesDTO } from "@vigilart/shared";
 import { ApiEndpoint } from "../common/decorators/api-endpoint.decorator";
 import { ApiParam, ApiQuery } from "@nestjs/swagger";
+import { MatchingPagesService } from "./matchingPage.service";
 
 @Controller("reports")
 export class ReportsController {
-  constructor(private readonly reportsService: ReportsService) {}
+  constructor(
+    private readonly reportsService: ReportsService,
+    private readonly matchingPagesService: MatchingPagesService
+  ) {}
 
-  @Get("/user/:id")
+  @Post("user/:id")
   @ApiEndpoint({
-    summary:
-      "Returns a report listing detected matches for each artwork owned by a user",
+    summary: "Create a new report for all artworks owned by a user",
     success: {
       status: HttpStatus.OK,
       type: ArtworksReportDTO
@@ -35,56 +42,135 @@ export class ReportsController {
     protected: true
   })
   @ApiParam({ name: "id", type: String })
-  async getArtworksReport(
+  async generateArtworkReport(
     @Param("id", ParseUUIDPipe) userId: string
+  ): Promise<ArtworksReport> {
+    return await this.reportsService.generate(userId);
+  }
+
+  @Get("user/:id")
+  @ApiEndpoint({
+    summary: "Retrieve all reports of a user",
+    success: {
+      status: HttpStatus.OK,
+      type: [ArtworksReportDTO]
+    },
+    protected: true
+  })
+  @ApiParam({ name: "id", type: String })
+  async getAllArtworksReportsByUser(
+    @Param("id", ParseUUIDPipe) userId: string
+  ): Promise<ArtworksReport[]> {
+    return await this.reportsService.findAllPerUser(userId);
+  }
+
+  @Get(":id")
+  @ApiEndpoint({
+    summary: "Retreive a report by ID",
+    success: {
+      status: HttpStatus.OK,
+      type: ArtworksReportGetDTO
+    },
+    protected: true
+  })
+  @ApiParam({ name: "id", type: String })
+  async getArtworksReport(
+    @Param("id", ParseUUIDPipe) id: string
   ): Promise<ArtworksReportGet> {
-    return await this.reportsService.getArtworksReport(userId);
+    return await this.reportsService.findOne(id);
   }
 
-  @Get("/matches/user/:id")
+  @Get("artwork/:artworkId/matches")
   @ApiEndpoint({
-    summary: "Returns all detected matches for artworks owned by a user.",
+    summary: "Retreive found matches of an artwork",
     success: {
       status: HttpStatus.OK,
       type: [MatchingPageDTO]
     },
     protected: true
   })
-  @ApiParam({ name: "id", type: String })
-  @ApiQuery({ type: GetArtworksMatchesDTO })
-  async getArtworksMatches(
-    @Param("id", ParseUUIDPipe) userId: string,
-    @Query() getArtworksMatchesDto: GetArtworksMatchesDTO
-  ): Promise<MatchingPageGet[]> {
-    return await this.reportsService.getAllArtworksMatches(
-      userId,
-      getArtworksMatchesDto
-    );
-  }
-
-  @Get("/matches/artwork/:id")
-  @ApiEndpoint({
-    summary: "Returns all detected matches by artwork ID",
-    success: {
-      status: HttpStatus.OK,
-      type: [MatchingPageDTO]
-    },
-    errors: [HttpStatus.INTERNAL_SERVER_ERROR],
-    protected: true
+  @ApiParam({ name: "artworkId", type: String })
+  @ApiQuery({
+    name: "reportId",
+    required: false,
+    type: String,
+    description: "Optional: get matches from a specific report"
   })
-  @ApiParam({ name: "id", type: String })
-  @ApiQuery({ type: GetArtworksMatchesDTO })
-  async getArtworkMatches(
-    @Param("id", ParseUUIDPipe) artworkId: string,
-    @Query() getArtworksMatchesDto: GetArtworksMatchesDTO
-  ): Promise<MatchingPageGet[]> {
-    return await this.reportsService.getArtworkMatches(
+  @ApiQuery({
+    name: "userId",
+    required: true,
+    type: String,
+    description: "User id, temporary" //jwt session should be used instead
+  })
+  async getMatchesArtwork(
+    @Param("artworkId", ParseUUIDPipe) artworkId: string,
+    @Query("userId", ParseUUIDPipe) userId: string,
+    @Query("reportId") reportId?: string
+  ): Promise<MatchingPage[]> {
+    return await this.reportsService.findManyByArtwork(
       artworkId,
-      getArtworksMatchesDto
+      userId,
+      reportId
     );
   }
 
-  // ROUTE TO RETURN ARTWORKS REPORT GLOBAL STATISTICS
-  // AND ANOTHER TO RETURN ARTWORKS REPORT ENTRY STATISTICS
-  // REDO UNIT TESTS FOR STATISTICS
+  @Get("user/:userId/statistics")
+  @ApiEndpoint({
+    summary: "Get global statistics from a report",
+    success: {
+      status: HttpStatus.OK,
+      type: ArtworksReportGlobalStatisticsDTO
+    },
+    protected: true
+  })
+  @ApiParam({ name: "userId", type: String })
+  @ApiQuery({
+    name: "reportId",
+    required: false,
+    type: String,
+    description: "Optional: get matches from a specific report"
+  })
+  async getGlobalStatistics(
+    @Param("userId", ParseUUIDPipe) userId: string,
+    @Query("reportId") reportId?: string
+  ): Promise<ArtworksReportGlobalStatistics> {
+    return await this.reportsService.getGlobalStatistics(userId, reportId);
+  }
+
+  @Get("artwork/:artworkId/statistics")
+  @ApiEndpoint({
+    summary: "Get artwork statistics from a report",
+    success: {
+      status: HttpStatus.OK,
+      type: ArtworksReportStatisticsDTO
+    },
+    protected: true
+  })
+  @ApiParam({ name: "artworkId", type: String })
+  @ApiQuery({
+    name: "userId",
+    required: true,
+    type: String,
+    description: "User id, temporary" //jwt session should be used instead
+  })
+  @ApiQuery({
+    name: "reportId",
+    required: false,
+    type: String,
+    description: "Optional: get matches from a specific report"
+  })
+  async getArtworkStatistics(
+    @Param("artworkId", ParseUUIDPipe) artworkId: string,
+    @Query("userId", ParseUUIDPipe) userId: string,
+    @Query("reportId") reportId?: string
+  ): Promise<ArtworksReportStatistics> {
+    return await this.reportsService.getArtworkStatistics(
+      artworkId,
+      userId,
+      reportId
+    );
+  }
+
+  // faire pagination api (compare offset and cursor-based)
+  // REDO UNIT TESTS FOR ALL RELATED FUNCTIONS
 }

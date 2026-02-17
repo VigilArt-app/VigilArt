@@ -60,7 +60,7 @@ model Artwork {
   createdAt         DateTime          @default(now())
   updatedAt         DateTime          @updatedAt
   lastScanAt        DateTime?
-  reportEntries     ArtworksReportEntry[]
+  matchingPages     MatchingPage[]
 }
 
 enum WebsiteCategory {
@@ -75,24 +75,19 @@ enum WebsiteCategory {
 
 model MatchingPage {
   id                String            @id @default(uuid())
-  reportEntryId     String
-  reportEntry       ArtworksReportEntry           @relation(fields: [reportEntryId], references: [id], onDelete: Cascade)
+  artworkId         String
+  artwork           Artwork           @relation(fields: [artworkId], references: [id], onDelete: Cascade)
 
   url               String
   category          WebsiteCategory
   websiteName       String
   imageUrl          String?
   pageTitle         String?
-}
+  firstDetectedAt   DateTime          @default(now())
+  
+  reports           ArtworksReport[]
 
-model ArtworksReportEntry {
-  id                String            @id @default(uuid())
-  artworkId         String
-  artwork           Artwork           @relation(fields: [artworkId], references: [id], onDelete: Cascade)
-  artworkReportId   String
-  artworkReport     ArtworksReport    @relation(fields: [artworkReportId], references: [id], onDelete: Cascade)
-
-  matchingPages     MatchingPage[]
+  @@unique([url, artworkId])
 }
 
 model ArtworksReport {
@@ -101,5 +96,5 @@ model ArtworksReport {
   user              User              @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   detectionDate     DateTime          @default(now())
-  entries           ArtworksReportEntry[]
+  matchingPages     MatchingPage[]
 }

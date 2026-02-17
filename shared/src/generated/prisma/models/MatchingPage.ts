@@ -26,64 +26,70 @@ export type AggregateMatchingPage = {
 
 export type MatchingPageMinAggregateOutputType = {
   id: string | null
-  reportEntryId: string | null
+  artworkId: string | null
   url: string | null
   category: $Enums.WebsiteCategory | null
   websiteName: string | null
   imageUrl: string | null
   pageTitle: string | null
+  firstDetectedAt: Date | null
 }
 
 export type MatchingPageMaxAggregateOutputType = {
   id: string | null
-  reportEntryId: string | null
+  artworkId: string | null
   url: string | null
   category: $Enums.WebsiteCategory | null
   websiteName: string | null
   imageUrl: string | null
   pageTitle: string | null
+  firstDetectedAt: Date | null
 }
 
 export type MatchingPageCountAggregateOutputType = {
   id: number
-  reportEntryId: number
+  artworkId: number
   url: number
   category: number
   websiteName: number
   imageUrl: number
   pageTitle: number
+  firstDetectedAt: number
   _all: number
 }
 
 
 export type MatchingPageMinAggregateInputType = {
   id?: true
-  reportEntryId?: true
+  artworkId?: true
   url?: true
   category?: true
   websiteName?: true
   imageUrl?: true
   pageTitle?: true
+  firstDetectedAt?: true
 }
 
 export type MatchingPageMaxAggregateInputType = {
   id?: true
-  reportEntryId?: true
+  artworkId?: true
   url?: true
   category?: true
   websiteName?: true
   imageUrl?: true
   pageTitle?: true
+  firstDetectedAt?: true
 }
 
 export type MatchingPageCountAggregateInputType = {
   id?: true
-  reportEntryId?: true
+  artworkId?: true
   url?: true
   category?: true
   websiteName?: true
   imageUrl?: true
   pageTitle?: true
+  firstDetectedAt?: true
   _all?: true
 }
 
@@ -161,12 +167,13 @@ export type MatchingPageGroupByArgs<ExtArgs extends runtime.Types.Extensions.Int
 
 export type MatchingPageGroupByOutputType = {
   id: string
-  reportEntryId: string
+  artworkId: string
   url: string
   category: $Enums.WebsiteCategory
   websiteName: string
   imageUrl: string | null
   pageTitle: string | null
+  firstDetectedAt: Date
   _count: MatchingPageCountAggregateOutputType | null
   _min: MatchingPageMinAggregateOutputType | null
   _max: MatchingPageMaxAggregateOutputType | null
@@ -192,48 +199,56 @@ export type MatchingPageWhereInput = {
   OR?: Prisma.MatchingPageWhereInput[]
   NOT?: Prisma.MatchingPageWhereInput | Prisma.MatchingPageWhereInput[]
   id?: Prisma.StringFilter<"MatchingPage"> | string
-  reportEntryId?: Prisma.StringFilter<"MatchingPage"> | string
+  artworkId?: Prisma.StringFilter<"MatchingPage"> | string
   url?: Prisma.StringFilter<"MatchingPage"> | string
   category?: Prisma.EnumWebsiteCategoryFilter<"MatchingPage"> | $Enums.WebsiteCategory
   websiteName?: Prisma.StringFilter<"MatchingPage"> | string
   imageUrl?: Prisma.StringNullableFilter<"MatchingPage"> | string | null
   pageTitle?: Prisma.StringNullableFilter<"MatchingPage"> | string | null
-  reportEntry?: Prisma.XOR<Prisma.ArtworksReportEntryScalarRelationFilter, Prisma.ArtworksReportEntryWhereInput>
+  firstDetectedAt?: Prisma.DateTimeFilter<"MatchingPage"> | Date | string
+  artwork?: Prisma.XOR<Prisma.ArtworkScalarRelationFilter, Prisma.ArtworkWhereInput>
+  reports?: Prisma.ArtworksReportListRelationFilter
 }
 
 export type MatchingPageOrderByWithRelationInput = {
   id?: Prisma.SortOrder
-  reportEntryId?: Prisma.SortOrder
+  artworkId?: Prisma.SortOrder
   url?: Prisma.SortOrder
   category?: Prisma.SortOrder
   websiteName?: Prisma.SortOrder
   imageUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   pageTitle?: Prisma.SortOrderInput | Prisma.SortOrder
-  reportEntry?: Prisma.ArtworksReportEntryOrderByWithRelationInput
+  firstDetectedAt?: Prisma.SortOrder
+  artwork?: Prisma.ArtworkOrderByWithRelationInput
+  reports?: Prisma.ArtworksReportOrderByRelationAggregateInput
 }
 
 export type MatchingPageWhereUniqueInput = Prisma.AtLeast<{
   id?: string
+  url_artworkId?: Prisma.MatchingPageUrlArtworkIdCompoundUniqueInput
   AND?: Prisma.MatchingPageWhereInput | Prisma.MatchingPageWhereInput[]
   OR?: Prisma.MatchingPageWhereInput[]
   NOT?: Prisma.MatchingPageWhereInput | Prisma.MatchingPageWhereInput[]
-  reportEntryId?: Prisma.StringFilter<"MatchingPage"> | string
+  artworkId?: Prisma.StringFilter<"MatchingPage"> | string
   url?: Prisma.StringFilter<"MatchingPage"> | string
   category?: Prisma.EnumWebsiteCategoryFilter<"MatchingPage"> | $Enums.WebsiteCategory
   websiteName?: Prisma.StringFilter<"MatchingPage"> | string
   imageUrl?: Prisma.StringNullableFilter<"MatchingPage"> | string | null
   pageTitle?: Prisma.StringNullableFilter<"MatchingPage"> | string | null
-  reportEntry?: Prisma.XOR<Prisma.ArtworksReportEntryScalarRelationFilter, Prisma.ArtworksReportEntryWhereInput>
-}, "id">
+  firstDetectedAt?: Prisma.DateTimeFilter<"MatchingPage"> | Date | string
+  artwork?: Prisma.XOR<Prisma.ArtworkScalarRelationFilter, Prisma.ArtworkWhereInput>
+  reports?: Prisma.ArtworksReportListRelationFilter
+}, "id" | "url_artworkId">
 
 export type MatchingPageOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
-  reportEntryId?: Prisma.SortOrder
+  artworkId?: Prisma.SortOrder
   url?: Prisma.SortOrder
   category?: Prisma.SortOrder
   websiteName?: Prisma.SortOrder
   imageUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   pageTitle?: Prisma.SortOrderInput | Prisma.SortOrder
+  firstDetectedAt?: Prisma.SortOrder
   _count?: Prisma.MatchingPageCountOrderByAggregateInput
   _max?: Prisma.MatchingPageMaxOrderByAggregateInput
   _min?: Prisma.MatchingPageMinOrderByAggregateInput
@@ -244,12 +259,13 @@ export type MatchingPageScalarWhereWithAggregatesInput = {
   OR?: Prisma.MatchingPageScalarWhereWithAggregatesInput[]
   NOT?: Prisma.MatchingPageScalarWhereWithAggregatesInput | Prisma.MatchingPageScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"MatchingPage"> | string
-  reportEntryId?: Prisma.StringWithAggregatesFilter<"MatchingPage"> | string
+  artworkId?: Prisma.StringWithAggregatesFilter<"MatchingPage"> | string
   url?: Prisma.StringWithAggregatesFilter<"MatchingPage"> | string
   category?: Prisma.EnumWebsiteCategoryWithAggregatesFilter<"MatchingPage"> | $Enums.WebsiteCategory
   websiteName?: Prisma.StringWithAggregatesFilter<"MatchingPage"> | string
   imageUrl?: Prisma.StringNullableWithAggregatesFilter<"MatchingPage"> | string | null
   pageTitle?: Prisma.StringNullableWithAggregatesFilter<"MatchingPage"> | string | null
+  firstDetectedAt?: Prisma.DateTimeWithAggregatesFilter<"MatchingPage"> | Date | string
 }
 
 export type MatchingPageCreateInput = {
@@ -259,17 +275,21 @@ export type MatchingPageCreateInput = {
   websiteName: string
   imageUrl?: string | null
   pageTitle?: string | null
-  reportEntry: Prisma.ArtworksReportEntryCreateNestedOneWithoutMatchingPagesInput
+  firstDetectedAt?: Date | string
+  artwork: Prisma.ArtworkCreateNestedOneWithoutMatchingPagesInput
+  reports?: Prisma.ArtworksReportCreateNestedManyWithoutMatchingPagesInput
 }
 
 export type MatchingPageUncheckedCreateInput = {
   id?: string
-  reportEntryId: string
+  artworkId: string
   url: string
   category: $Enums.WebsiteCategory
   websiteName: string
   imageUrl?: string | null
   pageTitle?: string | null
+  firstDetectedAt?: Date | string
+  reports?: Prisma.ArtworksReportUncheckedCreateNestedManyWithoutMatchingPagesInput
 }
 
 export type MatchingPageUpdateInput = {
@@ -279,27 +299,32 @@ export type MatchingPageUpdateInput = {
   websiteName?: Prisma.StringFieldUpdateOperationsInput | string
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pageTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  reportEntry?: Prisma.ArtworksReportEntryUpdateOneRequiredWithoutMatchingPagesNestedInput
+  firstDetectedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  artwork?: Prisma.ArtworkUpdateOneRequiredWithoutMatchingPagesNestedInput
+  reports?: Prisma.ArtworksReportUpdateManyWithoutMatchingPagesNestedInput
 }
 
 export type MatchingPageUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  reportEntryId?: Prisma.StringFieldUpdateOperationsInput | string
+  artworkId?: Prisma.StringFieldUpdateOperationsInput | string
   url?: Prisma.StringFieldUpdateOperationsInput | string
   category?: Prisma.EnumWebsiteCategoryFieldUpdateOperationsInput | $Enums.WebsiteCategory
   websiteName?: Prisma.StringFieldUpdateOperationsInput | string
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pageTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstDetectedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  reports?: Prisma.ArtworksReportUncheckedUpdateManyWithoutMatchingPagesNestedInput
 }
 
 export type MatchingPageCreateManyInput = {
   id?: string
-  reportEntryId: string
+  artworkId: string
   url: string
   category: $Enums.WebsiteCategory
   websiteName: string
   imageUrl?: string | null
   pageTitle?: string | null
+  firstDetectedAt?: Date | string
 }
 
 export type MatchingPageUpdateManyMutationInput = {
@@ -309,46 +334,18 @@ export type MatchingPageUpdateManyMutationInput = {
   websiteName?: Prisma.StringFieldUpdateOperationsInput | string
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pageTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstDetectedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type MatchingPageUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  reportEntryId?: Prisma.StringFieldUpdateOperationsInput | string
+  artworkId?: Prisma.StringFieldUpdateOperationsInput | string
   url?: Prisma.StringFieldUpdateOperationsInput | string
   category?: Prisma.EnumWebsiteCategoryFieldUpdateOperationsInput | $Enums.WebsiteCategory
   websiteName?: Prisma.StringFieldUpdateOperationsInput | string
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pageTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-}
-
-export type MatchingPageCountOrderByAggregateInput = {
-  id?: Prisma.SortOrder
-  reportEntryId?: Prisma.SortOrder
-  url?: Prisma.SortOrder
-  category?: Prisma.SortOrder
-  websiteName?: Prisma.SortOrder
-  imageUrl?: Prisma.SortOrder
-  pageTitle?: Prisma.SortOrder
-}
-
-export type MatchingPageMaxOrderByAggregateInput = {
-  id?: Prisma.SortOrder
-  reportEntryId?: Prisma.SortOrder
-  url?: Prisma.SortOrder
-  category?: Prisma.SortOrder
-  websiteName?: Prisma.SortOrder
-  imageUrl?: Prisma.SortOrder
-  pageTitle?: Prisma.SortOrder
-}
-
-export type MatchingPageMinOrderByAggregateInput = {
-  id?: Prisma.SortOrder
-  reportEntryId?: Prisma.SortOrder
-  url?: Prisma.SortOrder
-  category?: Prisma.SortOrder
-  websiteName?: Prisma.SortOrder
-  imageUrl?: Prisma.SortOrder
-  pageTitle?: Prisma.SortOrder
+  firstDetectedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type MatchingPageListRelationFilter = {
@@ -361,94 +358,174 @@ export type MatchingPageOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
+export type MatchingPageUrlArtworkIdCompoundUniqueInput = {
+  url: string
+  artworkId: string
+}
+
+export type MatchingPageCountOrderByAggregateInput = {
+  id?: Prisma.SortOrder
+  artworkId?: Prisma.SortOrder
+  url?: Prisma.SortOrder
+  category?: Prisma.SortOrder
+  websiteName?: Prisma.SortOrder
+  imageUrl?: Prisma.SortOrder
+  pageTitle?: Prisma.SortOrder
+  firstDetectedAt?: Prisma.SortOrder
+}
+
+export type MatchingPageMaxOrderByAggregateInput = {
+  id?: Prisma.SortOrder
+  artworkId?: Prisma.SortOrder
+  url?: Prisma.SortOrder
+  category?: Prisma.SortOrder
+  websiteName?: Prisma.SortOrder
+  imageUrl?: Prisma.SortOrder
+  pageTitle?: Prisma.SortOrder
+  firstDetectedAt?: Prisma.SortOrder
+}
+
+export type MatchingPageMinOrderByAggregateInput = {
+  id?: Prisma.SortOrder
+  artworkId?: Prisma.SortOrder
+  url?: Prisma.SortOrder
+  category?: Prisma.SortOrder
+  websiteName?: Prisma.SortOrder
+  imageUrl?: Prisma.SortOrder
+  pageTitle?: Prisma.SortOrder
+  firstDetectedAt?: Prisma.SortOrder
+}
+
+export type MatchingPageCreateNestedManyWithoutArtworkInput = {
+  create?: Prisma.XOR<Prisma.MatchingPageCreateWithoutArtworkInput, Prisma.MatchingPageUncheckedCreateWithoutArtworkInput> | Prisma.MatchingPageCreateWithoutArtworkInput[] | Prisma.MatchingPageUncheckedCreateWithoutArtworkInput[]
+  connectOrCreate?: Prisma.MatchingPageCreateOrConnectWithoutArtworkInput | Prisma.MatchingPageCreateOrConnectWithoutArtworkInput[]
+  createMany?: Prisma.MatchingPageCreateManyArtworkInputEnvelope
+  connect?: Prisma.MatchingPageWhereUniqueInput | Prisma.MatchingPageWhereUniqueInput[]
+}
+
+export type MatchingPageUncheckedCreateNestedManyWithoutArtworkInput = {
+  create?: Prisma.XOR<Prisma.MatchingPageCreateWithoutArtworkInput, Prisma.MatchingPageUncheckedCreateWithoutArtworkInput> | Prisma.MatchingPageCreateWithoutArtworkInput[] | Prisma.MatchingPageUncheckedCreateWithoutArtworkInput[]
+  connectOrCreate?: Prisma.MatchingPageCreateOrConnectWithoutArtworkInput | Prisma.MatchingPageCreateOrConnectWithoutArtworkInput[]
+  createMany?: Prisma.MatchingPageCreateManyArtworkInputEnvelope
+  connect?: Prisma.MatchingPageWhereUniqueInput | Prisma.MatchingPageWhereUniqueInput[]
+}
+
+export type MatchingPageUpdateManyWithoutArtworkNestedInput = {
+  create?: Prisma.XOR<Prisma.MatchingPageCreateWithoutArtworkInput, Prisma.MatchingPageUncheckedCreateWithoutArtworkInput> | Prisma.MatchingPageCreateWithoutArtworkInput[] | Prisma.MatchingPageUncheckedCreateWithoutArtworkInput[]
+  connectOrCreate?: Prisma.MatchingPageCreateOrConnectWithoutArtworkInput | Prisma.MatchingPageCreateOrConnectWithoutArtworkInput[]
+  upsert?: Prisma.MatchingPageUpsertWithWhereUniqueWithoutArtworkInput | Prisma.MatchingPageUpsertWithWhereUniqueWithoutArtworkInput[]
+  createMany?: Prisma.MatchingPageCreateManyArtworkInputEnvelope
+  set?: Prisma.MatchingPageWhereUniqueInput | Prisma.MatchingPageWhereUniqueInput[]
+  disconnect?: Prisma.MatchingPageWhereUniqueInput | Prisma.MatchingPageWhereUniqueInput[]
+  delete?: Prisma.MatchingPageWhereUniqueInput | Prisma.MatchingPageWhereUniqueInput[]
+  connect?: Prisma.MatchingPageWhereUniqueInput | Prisma.MatchingPageWhereUniqueInput[]
+  update?: Prisma.MatchingPageUpdateWithWhereUniqueWithoutArtworkInput | Prisma.MatchingPageUpdateWithWhereUniqueWithoutArtworkInput[]
+  updateMany?: Prisma.MatchingPageUpdateManyWithWhereWithoutArtworkInput | Prisma.MatchingPageUpdateManyWithWhereWithoutArtworkInput[]
+  deleteMany?: Prisma.MatchingPageScalarWhereInput | Prisma.MatchingPageScalarWhereInput[]
+}
+
+export type MatchingPageUncheckedUpdateManyWithoutArtworkNestedInput = {
+  create?: Prisma.XOR<Prisma.MatchingPageCreateWithoutArtworkInput, Prisma.MatchingPageUncheckedCreateWithoutArtworkInput> | Prisma.MatchingPageCreateWithoutArtworkInput[] | Prisma.MatchingPageUncheckedCreateWithoutArtworkInput[]
+  connectOrCreate?: Prisma.MatchingPageCreateOrConnectWithoutArtworkInput | Prisma.MatchingPageCreateOrConnectWithoutArtworkInput[]
+  upsert?: Prisma.MatchingPageUpsertWithWhereUniqueWithoutArtworkInput | Prisma.MatchingPageUpsertWithWhereUniqueWithoutArtworkInput[]
+  createMany?: Prisma.MatchingPageCreateManyArtworkInputEnvelope
+  set?: Prisma.MatchingPageWhereUniqueInput | Prisma.MatchingPageWhereUniqueInput[]
+  disconnect?: Prisma.MatchingPageWhereUniqueInput | Prisma.MatchingPageWhereUniqueInput[]
+  delete?: Prisma.MatchingPageWhereUniqueInput | Prisma.MatchingPageWhereUniqueInput[]
+  connect?: Prisma.MatchingPageWhereUniqueInput | Prisma.MatchingPageWhereUniqueInput[]
+  update?: Prisma.MatchingPageUpdateWithWhereUniqueWithoutArtworkInput | Prisma.MatchingPageUpdateWithWhereUniqueWithoutArtworkInput[]
+  updateMany?: Prisma.MatchingPageUpdateManyWithWhereWithoutArtworkInput | Prisma.MatchingPageUpdateManyWithWhereWithoutArtworkInput[]
+  deleteMany?: Prisma.MatchingPageScalarWhereInput | Prisma.MatchingPageScalarWhereInput[]
+}
+
 export type EnumWebsiteCategoryFieldUpdateOperationsInput = {
   set?: $Enums.WebsiteCategory
 }
 
-export type MatchingPageCreateNestedManyWithoutReportEntryInput = {
-  create?: Prisma.XOR<Prisma.MatchingPageCreateWithoutReportEntryInput, Prisma.MatchingPageUncheckedCreateWithoutReportEntryInput> | Prisma.MatchingPageCreateWithoutReportEntryInput[] | Prisma.MatchingPageUncheckedCreateWithoutReportEntryInput[]
-  connectOrCreate?: Prisma.MatchingPageCreateOrConnectWithoutReportEntryInput | Prisma.MatchingPageCreateOrConnectWithoutReportEntryInput[]
-  createMany?: Prisma.MatchingPageCreateManyReportEntryInputEnvelope
+export type MatchingPageCreateNestedManyWithoutReportsInput = {
+  create?: Prisma.XOR<Prisma.MatchingPageCreateWithoutReportsInput, Prisma.MatchingPageUncheckedCreateWithoutReportsInput> | Prisma.MatchingPageCreateWithoutReportsInput[] | Prisma.MatchingPageUncheckedCreateWithoutReportsInput[]
+  connectOrCreate?: Prisma.MatchingPageCreateOrConnectWithoutReportsInput | Prisma.MatchingPageCreateOrConnectWithoutReportsInput[]
   connect?: Prisma.MatchingPageWhereUniqueInput | Prisma.MatchingPageWhereUniqueInput[]
 }
 
-export type MatchingPageUncheckedCreateNestedManyWithoutReportEntryInput = {
-  create?: Prisma.XOR<Prisma.MatchingPageCreateWithoutReportEntryInput, Prisma.MatchingPageUncheckedCreateWithoutReportEntryInput> | Prisma.MatchingPageCreateWithoutReportEntryInput[] | Prisma.MatchingPageUncheckedCreateWithoutReportEntryInput[]
-  connectOrCreate?: Prisma.MatchingPageCreateOrConnectWithoutReportEntryInput | Prisma.MatchingPageCreateOrConnectWithoutReportEntryInput[]
-  createMany?: Prisma.MatchingPageCreateManyReportEntryInputEnvelope
+export type MatchingPageUncheckedCreateNestedManyWithoutReportsInput = {
+  create?: Prisma.XOR<Prisma.MatchingPageCreateWithoutReportsInput, Prisma.MatchingPageUncheckedCreateWithoutReportsInput> | Prisma.MatchingPageCreateWithoutReportsInput[] | Prisma.MatchingPageUncheckedCreateWithoutReportsInput[]
+  connectOrCreate?: Prisma.MatchingPageCreateOrConnectWithoutReportsInput | Prisma.MatchingPageCreateOrConnectWithoutReportsInput[]
   connect?: Prisma.MatchingPageWhereUniqueInput | Prisma.MatchingPageWhereUniqueInput[]
 }
 
-export type MatchingPageUpdateManyWithoutReportEntryNestedInput = {
-  create?: Prisma.XOR<Prisma.MatchingPageCreateWithoutReportEntryInput, Prisma.MatchingPageUncheckedCreateWithoutReportEntryInput> | Prisma.MatchingPageCreateWithoutReportEntryInput[] | Prisma.MatchingPageUncheckedCreateWithoutReportEntryInput[]
-  connectOrCreate?: Prisma.MatchingPageCreateOrConnectWithoutReportEntryInput | Prisma.MatchingPageCreateOrConnectWithoutReportEntryInput[]
-  upsert?: Prisma.MatchingPageUpsertWithWhereUniqueWithoutReportEntryInput | Prisma.MatchingPageUpsertWithWhereUniqueWithoutReportEntryInput[]
-  createMany?: Prisma.MatchingPageCreateManyReportEntryInputEnvelope
+export type MatchingPageUpdateManyWithoutReportsNestedInput = {
+  create?: Prisma.XOR<Prisma.MatchingPageCreateWithoutReportsInput, Prisma.MatchingPageUncheckedCreateWithoutReportsInput> | Prisma.MatchingPageCreateWithoutReportsInput[] | Prisma.MatchingPageUncheckedCreateWithoutReportsInput[]
+  connectOrCreate?: Prisma.MatchingPageCreateOrConnectWithoutReportsInput | Prisma.MatchingPageCreateOrConnectWithoutReportsInput[]
+  upsert?: Prisma.MatchingPageUpsertWithWhereUniqueWithoutReportsInput | Prisma.MatchingPageUpsertWithWhereUniqueWithoutReportsInput[]
   set?: Prisma.MatchingPageWhereUniqueInput | Prisma.MatchingPageWhereUniqueInput[]
   disconnect?: Prisma.MatchingPageWhereUniqueInput | Prisma.MatchingPageWhereUniqueInput[]
   delete?: Prisma.MatchingPageWhereUniqueInput | Prisma.MatchingPageWhereUniqueInput[]
   connect?: Prisma.MatchingPageWhereUniqueInput | Prisma.MatchingPageWhereUniqueInput[]
-  update?: Prisma.MatchingPageUpdateWithWhereUniqueWithoutReportEntryInput | Prisma.MatchingPageUpdateWithWhereUniqueWithoutReportEntryInput[]
-  updateMany?: Prisma.MatchingPageUpdateManyWithWhereWithoutReportEntryInput | Prisma.MatchingPageUpdateManyWithWhereWithoutReportEntryInput[]
+  update?: Prisma.MatchingPageUpdateWithWhereUniqueWithoutReportsInput | Prisma.MatchingPageUpdateWithWhereUniqueWithoutReportsInput[]
+  updateMany?: Prisma.MatchingPageUpdateManyWithWhereWithoutReportsInput | Prisma.MatchingPageUpdateManyWithWhereWithoutReportsInput[]
   deleteMany?: Prisma.MatchingPageScalarWhereInput | Prisma.MatchingPageScalarWhereInput[]
 }
 
-export type MatchingPageUncheckedUpdateManyWithoutReportEntryNestedInput = {
-  create?: Prisma.XOR<Prisma.MatchingPageCreateWithoutReportEntryInput, Prisma.MatchingPageUncheckedCreateWithoutReportEntryInput> | Prisma.MatchingPageCreateWithoutReportEntryInput[] | Prisma.MatchingPageUncheckedCreateWithoutReportEntryInput[]
-  connectOrCreate?: Prisma.MatchingPageCreateOrConnectWithoutReportEntryInput | Prisma.MatchingPageCreateOrConnectWithoutReportEntryInput[]
-  upsert?: Prisma.MatchingPageUpsertWithWhereUniqueWithoutReportEntryInput | Prisma.MatchingPageUpsertWithWhereUniqueWithoutReportEntryInput[]
-  createMany?: Prisma.MatchingPageCreateManyReportEntryInputEnvelope
+export type MatchingPageUncheckedUpdateManyWithoutReportsNestedInput = {
+  create?: Prisma.XOR<Prisma.MatchingPageCreateWithoutReportsInput, Prisma.MatchingPageUncheckedCreateWithoutReportsInput> | Prisma.MatchingPageCreateWithoutReportsInput[] | Prisma.MatchingPageUncheckedCreateWithoutReportsInput[]
+  connectOrCreate?: Prisma.MatchingPageCreateOrConnectWithoutReportsInput | Prisma.MatchingPageCreateOrConnectWithoutReportsInput[]
+  upsert?: Prisma.MatchingPageUpsertWithWhereUniqueWithoutReportsInput | Prisma.MatchingPageUpsertWithWhereUniqueWithoutReportsInput[]
   set?: Prisma.MatchingPageWhereUniqueInput | Prisma.MatchingPageWhereUniqueInput[]
   disconnect?: Prisma.MatchingPageWhereUniqueInput | Prisma.MatchingPageWhereUniqueInput[]
   delete?: Prisma.MatchingPageWhereUniqueInput | Prisma.MatchingPageWhereUniqueInput[]
   connect?: Prisma.MatchingPageWhereUniqueInput | Prisma.MatchingPageWhereUniqueInput[]
-  update?: Prisma.MatchingPageUpdateWithWhereUniqueWithoutReportEntryInput | Prisma.MatchingPageUpdateWithWhereUniqueWithoutReportEntryInput[]
-  updateMany?: Prisma.MatchingPageUpdateManyWithWhereWithoutReportEntryInput | Prisma.MatchingPageUpdateManyWithWhereWithoutReportEntryInput[]
+  update?: Prisma.MatchingPageUpdateWithWhereUniqueWithoutReportsInput | Prisma.MatchingPageUpdateWithWhereUniqueWithoutReportsInput[]
+  updateMany?: Prisma.MatchingPageUpdateManyWithWhereWithoutReportsInput | Prisma.MatchingPageUpdateManyWithWhereWithoutReportsInput[]
   deleteMany?: Prisma.MatchingPageScalarWhereInput | Prisma.MatchingPageScalarWhereInput[]
 }
 
-export type MatchingPageCreateWithoutReportEntryInput = {
+export type MatchingPageCreateWithoutArtworkInput = {
   id?: string
   url: string
   category: $Enums.WebsiteCategory
   websiteName: string
   imageUrl?: string | null
   pageTitle?: string | null
+  firstDetectedAt?: Date | string
+  reports?: Prisma.ArtworksReportCreateNestedManyWithoutMatchingPagesInput
 }
 
-export type MatchingPageUncheckedCreateWithoutReportEntryInput = {
+export type MatchingPageUncheckedCreateWithoutArtworkInput = {
   id?: string
   url: string
   category: $Enums.WebsiteCategory
   websiteName: string
   imageUrl?: string | null
   pageTitle?: string | null
+  firstDetectedAt?: Date | string
+  reports?: Prisma.ArtworksReportUncheckedCreateNestedManyWithoutMatchingPagesInput
 }
 
-export type MatchingPageCreateOrConnectWithoutReportEntryInput = {
+export type MatchingPageCreateOrConnectWithoutArtworkInput = {
   where: Prisma.MatchingPageWhereUniqueInput
-  create: Prisma.XOR<Prisma.MatchingPageCreateWithoutReportEntryInput, Prisma.MatchingPageUncheckedCreateWithoutReportEntryInput>
+  create: Prisma.XOR<Prisma.MatchingPageCreateWithoutArtworkInput, Prisma.MatchingPageUncheckedCreateWithoutArtworkInput>
 }
 
-export type MatchingPageCreateManyReportEntryInputEnvelope = {
-  data: Prisma.MatchingPageCreateManyReportEntryInput | Prisma.MatchingPageCreateManyReportEntryInput[]
+export type MatchingPageCreateManyArtworkInputEnvelope = {
+  data: Prisma.MatchingPageCreateManyArtworkInput | Prisma.MatchingPageCreateManyArtworkInput[]
   skipDuplicates?: boolean
 }
 
-export type MatchingPageUpsertWithWhereUniqueWithoutReportEntryInput = {
+export type MatchingPageUpsertWithWhereUniqueWithoutArtworkInput = {
   where: Prisma.MatchingPageWhereUniqueInput
-  update: Prisma.XOR<Prisma.MatchingPageUpdateWithoutReportEntryInput, Prisma.MatchingPageUncheckedUpdateWithoutReportEntryInput>
-  create: Prisma.XOR<Prisma.MatchingPageCreateWithoutReportEntryInput, Prisma.MatchingPageUncheckedCreateWithoutReportEntryInput>
+  update: Prisma.XOR<Prisma.MatchingPageUpdateWithoutArtworkInput, Prisma.MatchingPageUncheckedUpdateWithoutArtworkInput>
+  create: Prisma.XOR<Prisma.MatchingPageCreateWithoutArtworkInput, Prisma.MatchingPageUncheckedCreateWithoutArtworkInput>
 }
 
-export type MatchingPageUpdateWithWhereUniqueWithoutReportEntryInput = {
+export type MatchingPageUpdateWithWhereUniqueWithoutArtworkInput = {
   where: Prisma.MatchingPageWhereUniqueInput
-  data: Prisma.XOR<Prisma.MatchingPageUpdateWithoutReportEntryInput, Prisma.MatchingPageUncheckedUpdateWithoutReportEntryInput>
+  data: Prisma.XOR<Prisma.MatchingPageUpdateWithoutArtworkInput, Prisma.MatchingPageUncheckedUpdateWithoutArtworkInput>
 }
 
-export type MatchingPageUpdateManyWithWhereWithoutReportEntryInput = {
+export type MatchingPageUpdateManyWithWhereWithoutArtworkInput = {
   where: Prisma.MatchingPageScalarWhereInput
-  data: Prisma.XOR<Prisma.MatchingPageUpdateManyMutationInput, Prisma.MatchingPageUncheckedUpdateManyWithoutReportEntryInput>
+  data: Prisma.XOR<Prisma.MatchingPageUpdateManyMutationInput, Prisma.MatchingPageUncheckedUpdateManyWithoutArtworkInput>
 }
 
 export type MatchingPageScalarWhereInput = {
@@ -456,119 +533,241 @@ export type MatchingPageScalarWhereInput = {
   OR?: Prisma.MatchingPageScalarWhereInput[]
   NOT?: Prisma.MatchingPageScalarWhereInput | Prisma.MatchingPageScalarWhereInput[]
   id?: Prisma.StringFilter<"MatchingPage"> | string
-  reportEntryId?: Prisma.StringFilter<"MatchingPage"> | string
+  artworkId?: Prisma.StringFilter<"MatchingPage"> | string
   url?: Prisma.StringFilter<"MatchingPage"> | string
   category?: Prisma.EnumWebsiteCategoryFilter<"MatchingPage"> | $Enums.WebsiteCategory
   websiteName?: Prisma.StringFilter<"MatchingPage"> | string
   imageUrl?: Prisma.StringNullableFilter<"MatchingPage"> | string | null
   pageTitle?: Prisma.StringNullableFilter<"MatchingPage"> | string | null
+  firstDetectedAt?: Prisma.DateTimeFilter<"MatchingPage"> | Date | string
 }
 
-export type MatchingPageCreateManyReportEntryInput = {
+export type MatchingPageCreateWithoutReportsInput = {
   id?: string
   url: string
   category: $Enums.WebsiteCategory
   websiteName: string
   imageUrl?: string | null
   pageTitle?: string | null
+  firstDetectedAt?: Date | string
+  artwork: Prisma.ArtworkCreateNestedOneWithoutMatchingPagesInput
 }
 
-export type MatchingPageUpdateWithoutReportEntryInput = {
+export type MatchingPageUncheckedCreateWithoutReportsInput = {
+  id?: string
+  artworkId: string
+  url: string
+  category: $Enums.WebsiteCategory
+  websiteName: string
+  imageUrl?: string | null
+  pageTitle?: string | null
+  firstDetectedAt?: Date | string
+}
+
+export type MatchingPageCreateOrConnectWithoutReportsInput = {
+  where: Prisma.MatchingPageWhereUniqueInput
+  create: Prisma.XOR<Prisma.MatchingPageCreateWithoutReportsInput, Prisma.MatchingPageUncheckedCreateWithoutReportsInput>
+}
+
+export type MatchingPageUpsertWithWhereUniqueWithoutReportsInput = {
+  where: Prisma.MatchingPageWhereUniqueInput
+  update: Prisma.XOR<Prisma.MatchingPageUpdateWithoutReportsInput, Prisma.MatchingPageUncheckedUpdateWithoutReportsInput>
+  create: Prisma.XOR<Prisma.MatchingPageCreateWithoutReportsInput, Prisma.MatchingPageUncheckedCreateWithoutReportsInput>
+}
+
+export type MatchingPageUpdateWithWhereUniqueWithoutReportsInput = {
+  where: Prisma.MatchingPageWhereUniqueInput
+  data: Prisma.XOR<Prisma.MatchingPageUpdateWithoutReportsInput, Prisma.MatchingPageUncheckedUpdateWithoutReportsInput>
+}
+
+export type MatchingPageUpdateManyWithWhereWithoutReportsInput = {
+  where: Prisma.MatchingPageScalarWhereInput
+  data: Prisma.XOR<Prisma.MatchingPageUpdateManyMutationInput, Prisma.MatchingPageUncheckedUpdateManyWithoutReportsInput>
+}
+
+export type MatchingPageCreateManyArtworkInput = {
+  id?: string
+  url: string
+  category: $Enums.WebsiteCategory
+  websiteName: string
+  imageUrl?: string | null
+  pageTitle?: string | null
+  firstDetectedAt?: Date | string
+}
+
+export type MatchingPageUpdateWithoutArtworkInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   url?: Prisma.StringFieldUpdateOperationsInput | string
   category?: Prisma.EnumWebsiteCategoryFieldUpdateOperationsInput | $Enums.WebsiteCategory
   websiteName?: Prisma.StringFieldUpdateOperationsInput | string
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pageTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstDetectedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  reports?: Prisma.ArtworksReportUpdateManyWithoutMatchingPagesNestedInput
 }
 
-export type MatchingPageUncheckedUpdateWithoutReportEntryInput = {
+export type MatchingPageUncheckedUpdateWithoutArtworkInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   url?: Prisma.StringFieldUpdateOperationsInput | string
   category?: Prisma.EnumWebsiteCategoryFieldUpdateOperationsInput | $Enums.WebsiteCategory
   websiteName?: Prisma.StringFieldUpdateOperationsInput | string
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pageTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstDetectedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  reports?: Prisma.ArtworksReportUncheckedUpdateManyWithoutMatchingPagesNestedInput
 }
 
-export type MatchingPageUncheckedUpdateManyWithoutReportEntryInput = {
+export type MatchingPageUncheckedUpdateManyWithoutArtworkInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   url?: Prisma.StringFieldUpdateOperationsInput | string
   category?: Prisma.EnumWebsiteCategoryFieldUpdateOperationsInput | $Enums.WebsiteCategory
   websiteName?: Prisma.StringFieldUpdateOperationsInput | string
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pageTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstDetectedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
+export type MatchingPageUpdateWithoutReportsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  url?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.EnumWebsiteCategoryFieldUpdateOperationsInput | $Enums.WebsiteCategory
+  websiteName?: Prisma.StringFieldUpdateOperationsInput | string
+  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pageTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstDetectedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  artwork?: Prisma.ArtworkUpdateOneRequiredWithoutMatchingPagesNestedInput
+}
+
+export type MatchingPageUncheckedUpdateWithoutReportsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  artworkId?: Prisma.StringFieldUpdateOperationsInput | string
+  url?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.EnumWebsiteCategoryFieldUpdateOperationsInput | $Enums.WebsiteCategory
+  websiteName?: Prisma.StringFieldUpdateOperationsInput | string
+  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pageTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstDetectedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type MatchingPageUncheckedUpdateManyWithoutReportsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  artworkId?: Prisma.StringFieldUpdateOperationsInput | string
+  url?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.EnumWebsiteCategoryFieldUpdateOperationsInput | $Enums.WebsiteCategory
+  websiteName?: Prisma.StringFieldUpdateOperationsInput | string
+  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pageTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstDetectedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+
+/**
+ * Count Type MatchingPageCountOutputType
+ */
+
+export type MatchingPageCountOutputType = {
+  reports: number
+}
+
+export type MatchingPageCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  reports?: boolean | MatchingPageCountOutputTypeCountReportsArgs
+}
+
+/**
+ * MatchingPageCountOutputType without action
+ */
+export type MatchingPageCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the MatchingPageCountOutputType
+   */
+  select?: Prisma.MatchingPageCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * MatchingPageCountOutputType without action
+ */
+export type MatchingPageCountOutputTypeCountReportsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ArtworksReportWhereInput
+}
 
 
 export type MatchingPageSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  reportEntryId?: boolean
+  artworkId?: boolean
   url?: boolean
   category?: boolean
   websiteName?: boolean
   imageUrl?: boolean
   pageTitle?: boolean
-  reportEntry?: boolean | Prisma.ArtworksReportEntryDefaultArgs<ExtArgs>
+  firstDetectedAt?: boolean
+  artwork?: boolean | Prisma.ArtworkDefaultArgs<ExtArgs>
+  reports?: boolean | Prisma.MatchingPage$reportsArgs<ExtArgs>
+  _count?: boolean | Prisma.MatchingPageCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["matchingPage"]>
 
 export type MatchingPageSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  reportEntryId?: boolean
+  artworkId?: boolean
   url?: boolean
   category?: boolean
   websiteName?: boolean
   imageUrl?: boolean
   pageTitle?: boolean
-  reportEntry?: boolean | Prisma.ArtworksReportEntryDefaultArgs<ExtArgs>
+  firstDetectedAt?: boolean
+  artwork?: boolean | Prisma.ArtworkDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["matchingPage"]>
 
 export type MatchingPageSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  reportEntryId?: boolean
+  artworkId?: boolean
   url?: boolean
   category?: boolean
   websiteName?: boolean
   imageUrl?: boolean
   pageTitle?: boolean
-  reportEntry?: boolean | Prisma.ArtworksReportEntryDefaultArgs<ExtArgs>
+  firstDetectedAt?: boolean
+  artwork?: boolean | Prisma.ArtworkDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["matchingPage"]>
 
 export type MatchingPageSelectScalar = {
   id?: boolean
-  reportEntryId?: boolean
+  artworkId?: boolean
   url?: boolean
   category?: boolean
   websiteName?: boolean
   imageUrl?: boolean
   pageTitle?: boolean
+  firstDetectedAt?: boolean
 }
 
-export type MatchingPageOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "reportEntryId" | "url" | "category" | "websiteName" | "imageUrl" | "pageTitle", ExtArgs["result"]["matchingPage"]>
+export type MatchingPageOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "artworkId" | "url" | "category" | "websiteName" | "imageUrl" | "pageTitle" | "firstDetectedAt", ExtArgs["result"]["matchingPage"]>
 export type MatchingPageInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  reportEntry?: boolean | Prisma.ArtworksReportEntryDefaultArgs<ExtArgs>
+  artwork?: boolean | Prisma.ArtworkDefaultArgs<ExtArgs>
+  reports?: boolean | Prisma.MatchingPage$reportsArgs<ExtArgs>
+  _count?: boolean | Prisma.MatchingPageCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type MatchingPageIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  reportEntry?: boolean | Prisma.ArtworksReportEntryDefaultArgs<ExtArgs>
+  artwork?: boolean | Prisma.ArtworkDefaultArgs<ExtArgs>
 }
 export type MatchingPageIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  reportEntry?: boolean | Prisma.ArtworksReportEntryDefaultArgs<ExtArgs>
+  artwork?: boolean | Prisma.ArtworkDefaultArgs<ExtArgs>
 }
 
 export type $MatchingPagePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "MatchingPage"
   objects: {
-    reportEntry: Prisma.$ArtworksReportEntryPayload<ExtArgs>
+    artwork: Prisma.$ArtworkPayload<ExtArgs>
+    reports: Prisma.$ArtworksReportPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
-    reportEntryId: string
+    artworkId: string
     url: string
     category: $Enums.WebsiteCategory
     websiteName: string
     imageUrl: string | null
     pageTitle: string | null
+    firstDetectedAt: Date
   }, ExtArgs["result"]["matchingPage"]>
   composites: {}
 }
@@ -963,7 +1162,8 @@ readonly fields: MatchingPageFieldRefs;
  */
 export interface Prisma__MatchingPageClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  reportEntry<T extends Prisma.ArtworksReportEntryDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ArtworksReportEntryDefaultArgs<ExtArgs>>): Prisma.Prisma__ArtworksReportEntryClient<runtime.Types.Result.GetResult<Prisma.$ArtworksReportEntryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  artwork<T extends Prisma.ArtworkDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ArtworkDefaultArgs<ExtArgs>>): Prisma.Prisma__ArtworkClient<runtime.Types.Result.GetResult<Prisma.$ArtworkPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  reports<T extends Prisma.MatchingPage$reportsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.MatchingPage$reportsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ArtworksReportPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -994,12 +1194,13 @@ export interface Prisma__MatchingPageClient<T, Null = never, ExtArgs extends run
  */
 export interface MatchingPageFieldRefs {
   readonly id: Prisma.FieldRef<"MatchingPage", 'String'>
-  readonly reportEntryId: Prisma.FieldRef<"MatchingPage", 'String'>
+  readonly artworkId: Prisma.FieldRef<"MatchingPage", 'String'>
   readonly url: Prisma.FieldRef<"MatchingPage", 'String'>
   readonly category: Prisma.FieldRef<"MatchingPage", 'WebsiteCategory'>
   readonly websiteName: Prisma.FieldRef<"MatchingPage", 'String'>
   readonly imageUrl: Prisma.FieldRef<"MatchingPage", 'String'>
   readonly pageTitle: Prisma.FieldRef<"MatchingPage", 'String'>
+  readonly firstDetectedAt: Prisma.FieldRef<"MatchingPage", 'DateTime'>
 }
     
 
@@ -1393,6 +1594,30 @@ export type MatchingPageDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.
    * Limit how many MatchingPages to delete.
    */
   limit?: number
+}
+
+/**
+ * MatchingPage.reports
+ */
+export type MatchingPage$reportsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ArtworksReport
+   */
+  select?: Prisma.ArtworksReportSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ArtworksReport
+   */
+  omit?: Prisma.ArtworksReportOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ArtworksReportInclude<ExtArgs> | null
+  where?: Prisma.ArtworksReportWhereInput
+  orderBy?: Prisma.ArtworksReportOrderByWithRelationInput | Prisma.ArtworksReportOrderByWithRelationInput[]
+  cursor?: Prisma.ArtworksReportWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ArtworksReportScalarFieldEnum | Prisma.ArtworksReportScalarFieldEnum[]
 }
 
 /**

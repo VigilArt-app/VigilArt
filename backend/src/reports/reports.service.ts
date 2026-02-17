@@ -1,30 +1,35 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { Injectable, Logger, NotFoundException } from "@nestjs/common";
 import { VisionService } from "../vision/vision.service";
 import {
-  AggregatedVisualSearchResults,
-  ArtworksReportEntryGet,
-  ArtworksReportGet,
   VisualSearchResult,
   MatchingPageGet,
-  ArtworksReportEntryStatistics
+  ArtworksReport,
+  Artwork,
+  ArtworksReportGet,
+  ArtworksReportStatistics,
+  MatchingPage,
+  ApiBatchPayload
 } from "@vigilart/shared";
 import { ArtworksService } from "../artworks/artworks.service";
-import { Artwork } from "@vigilart/shared";
-import { DEFAULT_PAGINATION_LIMIT } from "@vigilart/shared";
-import { GetArtworksMatchesDTO } from "@vigilart/shared";
 import { StorageService } from "../storage/storage.service";
+import { PrismaService } from "../prisma/prisma.service";
+import { MatchingPagesService } from "./matchingPage.service";
 
 @Injectable()
 export class ReportsService {
   constructor(
     private readonly visionService: VisionService,
     private readonly artworksService: ArtworksService,
-    private readonly storageService: StorageService
+    private readonly storageService: StorageService,
+    private readonly matchingPagesService: MatchingPagesService,
+    private readonly prisma: PrismaService
   ) {}
+
+  private readonly logger = new Logger(ReportsService.name);
 
   async aggregateVisualSearchResults(
     imageBuffer: Buffer
-  ): Promise<AggregatedVisualSearchResults> {
+  ): Promise<MatchingPageGet[]> {
     const visualSearchResults = await Promise.all([
       this.visionService.searchImage(imageBuffer)
     ]);
@@ -37,115 +42,213 @@ export class ReportsService {
       },
       []
     );
-    const statistics: ArtworksReportEntryStatistics = {
+    return matchingPages;
+  }
+
+  async findArtworkMatches(artwork: Artwork): Promise<string[]> {
+    const imageBuffer = await this.storageService.getImage(artwork.storageKey);
+    const matchingPages = await this.aggregateVisualSearchResults(imageBuffer);
+    let matchingPagesIds: string[] = [];
+
+    for (const match of matchingPages) {
+      const storedMatch = await this.matchingPagesService.findByUrl(
+        match.url,
+        artwork.id
+      );
+
+      if (!storedMatch) {
+        const createdMatch = await this.matchingPagesService.create({
+          artworkId: artwork.id,
+          ...match
+        });
+        matchingPagesIds = [createdMatch.id, ...matchingPagesIds];
+      } else {
+        matchingPagesIds = [storedMatch.id, ...matchingPagesIds];
+      }
+    }
+    return matchingPagesIds;
+  }
+
+  async findArtworksMatches(userId: string): Promise<string[]> {
+    const artworks = await this.artworksService.findAllPerUser(userId);
+    let foundMatchesIds: string[] = [];
+
+    for (const artwork of artworks) {
+      const ids = await this.findArtworkMatches(artwork);
+      foundMatchesIds = [...ids, ...foundMatchesIds];
+    }
+    return foundMatchesIds;
+  }
+
+  async generate(userId: string): Promise<ArtworksReport> {
+    this.logger.log(`Generate new report for user ${userId}`);
+    try {
+      const matchingPagesIds = await this.findArtworksMatches(userId);
+
+      return await this.prisma.artworksReport.create({
+        data: {
+          userId,
+          matchingPages: {
+            connect: matchingPagesIds.map((id) => ({ id }))
+          }
+        }
+      });
+    } catch (e: any) {
+      if (e.code === "P2003") {
+        throw new NotFoundException("User does not exist");
+      }
+      throw e;
+    }
+  }
+
+  async findManyByArtwork(
+    artworkId: string,
+    userId: string,
+    reportId?: string
+  ): Promise<MatchingPage[]> {
+    this.logger.log(`Finding matches of artwork ${artworkId}`);
+    let selectedReportId = "";
+
+    if (reportId) {
+      this.logger.log(`Retrieving report ${reportId}`);
+      selectedReportId = reportId;
+    } else {
+      this.logger.log("Retrieving latest report");
+      const latestReport = await this.findLatestReport(userId);
+      selectedReportId = latestReport.id;
+    }
+    return this.prisma.matchingPage.findMany({
+      where: {
+        artworkId,
+        reports: {
+          some: {
+            id: selectedReportId
+          }
+        }
+      }
+    });
+  }
+
+  async findAll(): Promise<ArtworksReport[]> {
+    this.logger.log("Finding all reports");
+    return this.prisma.artworksReport.findMany();
+  }
+
+  async findAllPerUser(userId: string): Promise<ArtworksReport[]> {
+    this.logger.log(`Finding all reports for user ${userId}`);
+    return this.prisma.artworksReport.findMany({
+      where: {
+        userId
+      }
+    });
+  }
+
+  async findOne(id: string): Promise<ArtworksReportGet> {
+    try {
+      this.logger.log(`Finding report ${id}`);
+      return await this.prisma.artworksReport.findUniqueOrThrow({
+        where: {
+          id
+        },
+        include: { matchingPages: true }
+      });
+    } catch (e: any) {
+      if (e.code == "P2025") {
+        throw new NotFoundException("Artwork report not found");
+      }
+      throw e;
+    }
+  }
+
+  async findLatestReport(userId: string): Promise<ArtworksReport> {
+    try {
+      this.logger.log(`Finding latest report for user ${userId}`);
+      return await this.prisma.artworksReport.findFirstOrThrow({
+        where: {
+          userId
+        },
+        orderBy: {
+          detectionDate: "desc"
+        }
+      });
+    } catch (e: any) {
+      if (e.code == "P2025") {
+        throw new NotFoundException("Latest report not found");
+      }
+      throw e;
+    }
+  }
+
+  async findMatchesByUser(
+    userId: string,
+    reportId?: string
+  ): Promise<MatchingPage[]> {
+    this.logger.log(`Finding matches for user ${userId}`);
+    let selectedReportId = "";
+
+    if (reportId) {
+      this.logger.log(`Retrieving report ${reportId}`);
+      selectedReportId = reportId;
+    } else {
+      this.logger.log("Retrieving latest report");
+      const latestReport = await this.findLatestReport(userId);
+      selectedReportId = latestReport.id;
+    }
+    const { matchingPages } = await this.findOne(selectedReportId);
+    return matchingPages;
+  }
+
+  async getGlobalStatistics(
+    userId: string,
+    reportId?: string
+  ): Promise<ArtworksReportStatistics> {
+    const matchingPages = await this.findMatchesByUser(userId, reportId);
+
+    return {
       totalMatches: matchingPages.length
     };
-
-    return {
-      // statistics,
-
-      matchingPages
-    };
   }
 
-  async getArtworksReportEntry(
-    artwork: Artwork,
-    limit?: number
-  ): Promise<ArtworksReportEntryGet> {
-    const imageBuffer = await this.storageService.getImage(artwork.storageKey);
-    const aggregatedVisualSearchResults =
-      await this.aggregateVisualSearchResults(imageBuffer);
-    const matchingPages = aggregatedVisualSearchResults.matchingPages;
-    // const statistics = aggregatedVisualSearchResults.statistics;
-
-    return {
-      artworkId: artwork.id,
-      // statistics,
-      matchingPages: matchingPages.slice(0, limit ?? matchingPages.length)
-    };
-  }
-
-  async getArtworksReportEntries(
-    userId: string,
-    limit?: number
-  ): Promise<ArtworksReportEntryGet[]> {
-    const artworks = await this.artworksService.findAllPerUser(userId);
-    const entries: ArtworksReportEntryGet[] = await Promise.all(
-      artworks.map(async (artwork: Artwork) => {
-        return this.getArtworksReportEntry(artwork, limit);
-      })
-    );
-    return entries;
-  }
-
-  // getArtworksReportStatistics(
-  //   entries: ArtworksReportEntry[]
-  // ): ArtworksReportStatistics {
-  //   const totalMatches = entries.reduce(
-  //     (acc: number, entry: ArtworksReportEntry) =>
-  //       acc + entry.statistics.totalMatches,
-  //     0
-  //   );
-
-  //   return {
-  //     totalMatches
-  //   };
-  // }
-
-  async getArtworksReport(userId: string): Promise<ArtworksReportGet> {
-    const entries: ArtworksReportEntryGet[] =
-      await this.getArtworksReportEntries(userId, DEFAULT_PAGINATION_LIMIT);
-    // const statistics: ArtworksReportStatistics =
-    //   this.getArtworksReportStatistics(entries);
-
-    return {
-      detectionDate: new Date(),
-      // statistics,
-      entries
-    };
-  }
-
-  async getAllArtworksMatches(
-    userId: string,
-    { websiteCategory }: GetArtworksMatchesDTO
-  ): Promise<MatchingPageGet[]> {
-    const entries: ArtworksReportEntryGet[] =
-      await this.getArtworksReportEntries(userId);
-    const matchingPages = entries.reduce(
-      (acc: MatchingPageGet[], value: ArtworksReportEntryGet) => {
-        acc.push(...value.matchingPages);
-        return acc;
-      },
-      []
-    );
-    if (websiteCategory) {
-      const filteredMatchingPages = matchingPages.filter(
-        (page: MatchingPageGet) => page.category == websiteCategory
-      );
-      return filteredMatchingPages;
-    }
-    return matchingPages;
-  }
-
-  async getArtworkMatches(
+  async getArtworkStatistics(
     artworkId: string,
-    { websiteCategory }: GetArtworksMatchesDTO
-  ): Promise<MatchingPageGet[]> {
-    const artwork = await this.artworksService.findOne(artworkId);
+    userId: string,
+    reportId?: string
+  ): Promise<ArtworksReportStatistics> {
+    const matchingPages = await this.findManyByArtwork(
+      artworkId,
+      userId,
+      reportId
+    );
 
-    if (!artwork) {
-      throw new NotFoundException("Artwork not found");
+    return {
+      totalMatches: matchingPages.length
+    };
+  }
+
+  async remove(id: string): Promise<void> {
+    this.logger.log(`Removing artworks report ${id}`);
+    try {
+      await this.prisma.artworksReport.delete({
+        where: {
+          id
+        }
+      });
+    } catch (e: any) {
+      if (e.code == "P2025") {
+        throw new NotFoundException("Artworks report not found");
+      }
+      throw e;
     }
-    const imageBuffer = await this.storageService.getImage(artwork.storageKey);
-    const aggregatedVisualSearchResults =
-      await this.aggregateVisualSearchResults(imageBuffer);
-    const matchingPages = aggregatedVisualSearchResults.matchingPages;
-    if (websiteCategory) {
-      const filteredMatchingPages = matchingPages.filter(
-        (page: MatchingPageGet) => page.category == websiteCategory
-      );
-      return filteredMatchingPages;
-    }
-    return matchingPages;
+  }
+
+  async removeMany(ids: string[]): Promise<ApiBatchPayload> {
+    this.logger.log(`Removing artworks reports ${ids.join(",")}`);
+    return await this.prisma.artworksReport.deleteMany({
+      where: {
+        id: {
+          in: ids
+        }
+      }
+    });
   }
 }

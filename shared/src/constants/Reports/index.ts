@@ -1,1 +1,1 @@
-export const DEFAULT_PAGINATION_LIMIT = 2;
+export const REPORT_DELETE_BATCH_LIMIT = 10;
