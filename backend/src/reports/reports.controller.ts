@@ -64,7 +64,7 @@ export class ReportsController {
 
   @Get(":id")
   @ApiEndpoint({
-    summary: "Retreive a report by ID",
+    summary: "Retrieve a report by ID",
     success: {
       status: HttpStatus.OK,
       type: ArtworksReportGetDTO
@@ -80,7 +80,7 @@ export class ReportsController {
 
   @Get("artwork/:artworkId/matches")
   @ApiEndpoint({
-    summary: "Retreive found matches of an artwork",
+    summary: "Retrieve found matches of an artwork",
     success: {
       status: HttpStatus.OK,
       type: [MatchingPageDTO]
