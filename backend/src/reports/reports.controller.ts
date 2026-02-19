@@ -105,7 +105,7 @@ export class ReportsController {
     @Query("userId", ParseUUIDPipe) userId: string,
     @Query("reportId") reportId?: string
   ): Promise<MatchingPage[]> {
-    return await this.reportsService.findManyByArtwork(
+    return await this.reportsService.findMatchesByArtwork(
       artworkId,
       userId,
       reportId
