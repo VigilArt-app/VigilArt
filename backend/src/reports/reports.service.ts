@@ -101,7 +101,7 @@ export class ReportsService {
     }
   }
 
-  async findManyByArtwork(
+  async findMatchesByArtwork(
     artworkId: string,
     userId: string,
     reportId?: string
@@ -214,7 +214,7 @@ export class ReportsService {
     userId: string,
     reportId?: string
   ): Promise<ArtworksReportStatistics> {
-    const matchingPages = await this.findManyByArtwork(
+    const matchingPages = await this.findMatchesByArtwork(
       artworkId,
       userId,
       reportId
