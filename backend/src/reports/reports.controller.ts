@@ -23,13 +23,11 @@ import {
 } from "@vigilart/shared";
 import { ApiEndpoint } from "../common/decorators/api-endpoint.decorator";
 import { ApiParam, ApiQuery } from "@nestjs/swagger";
-import { MatchingPagesService } from "./matchingPage.service";
 
 @Controller("reports")
 export class ReportsController {
   constructor(
     private readonly reportsService: ReportsService,
-    private readonly matchingPagesService: MatchingPagesService
   ) {}
 
   @Post("user/:id")
