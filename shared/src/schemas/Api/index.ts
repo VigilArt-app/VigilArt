@@ -81,3 +81,9 @@ export const ApiBatchPayloadSchema = z.object({
   count: z.int()
 });
 export class ApiBatchPayloadDTO extends createZodDto(ApiBatchPayloadSchema) {}
+
+export const ApiPaginationSchema = z.object({
+  limit: z.number().positive().optional(),
+  offset: z.number().min(0).optional(),
+});
+export class ApiPaginationDTO extends createZodDto(ApiPaginationSchema) {}

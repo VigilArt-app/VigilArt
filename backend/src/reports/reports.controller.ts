@@ -171,6 +171,4 @@ export class ReportsController {
     );
   }
 
-  // faire pagination api (compare offset and cursor-based)
-  // REDO UNIT TESTS FOR ALL RELATED FUNCTIONS
 }

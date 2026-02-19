@@ -162,6 +162,4 @@ export class ArtworksController {
     await this.storageService.deleteImages(storageKeys);
     return this.artworksService.removeMany(ids);
   }
-
-  // Faire unit tests pour storage service ?
 }
