@@ -8,12 +8,13 @@ import { Input } from "../../../components/ui/input";
 import { toast } from "sonner";
 import { Cloud, X } from "lucide-react";
 import { getUserIdFromToken } from "../../artwork-gallery/components/utils";
-import type { ArtworkCreateDTO, Artwork, ApiCreated } from "@vigilart/shared";
 
 interface UploadedFile {
   file: File;
   preview: string;
   description: string;
+  width?: number;
+  height?: number;
 }
 
 interface UploadModalProps {
@@ -94,6 +95,22 @@ export function UploadModal({ open, onOpenChange }: UploadModalProps) {
     });
   };
 
+  const getImageDimensions = (file: File): Promise<{ width: number; height: number }> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          resolve({ width: img.naturalWidth, height: img.naturalHeight });
+        };
+        img.onerror = reject;
+        img.src = e.target?.result as string;
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  };
+
   const handleUpload = async () => {
     if (uploadedFiles.length === 0) {
       toast.error("Please select at least one file");
@@ -111,68 +128,115 @@ export function UploadModal({ open, onOpenChange }: UploadModalProps) {
     let uploadedCount = 0;
     let failedCount = 0;
     const uploadedNames: string[] = [];
+    const API_BASE = process.env.NEXT_PUBLIC_API_URL;
+
+    const authToken = 
+      typeof window !== 'undefined' 
+        ? localStorage.getItem("auth_token") || sessionStorage.getItem("auth_token")
+        : null;
+
+    if (!authToken) {
+      toast.error("Authentication token not found. Please login again.");
+      setIsUploading(false);
+      return;
+    }
 
     toast.loading(`Uploading ${totalFiles} image${totalFiles > 1 ? 's' : ''}...`, { id: 'upload-progress' });
 
     try {
-      const API_BASE = process.env.NEXT_PUBLIC_API_URL;
-
-      for (const { file, description } of uploadedFiles) {
+      const artworksToCreate: any[] = [];
+      
+      for (let i = 0; i < uploadedFiles.length; i++) {
+        const { file, description } = uploadedFiles[i];
+        
         try {
-          const base64Data = await new Promise<string>((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = (e) => resolve(e.target?.result as string);
-            reader.onerror = reject;
-            reader.readAsDataURL(file);
-          });
-
-          const requestBody: ArtworkCreateDTO = {
+          console.log(`Processing file: ${file.name}`);
+          
+          const { width, height } = await getImageDimensions(file);
+          
+          artworksToCreate.push({
+            file,
             userId,
-            imageUri: base64Data,
             originalFilename: file.name,
             contentType: file.type,
             sizeBytes: file.size,
             description: description || "",
-          };
+            width,
+            height,
+          });
+          
+          uploadedCount++;
+          toast.loading(`Processed ${uploadedCount}/${totalFiles}...`, { id: 'upload-progress' });
+        } catch (error) {
+          failedCount++;
+          console.error(`Error processing ${file.name}:`, error);
+          toast.error(`Error processing: ${file.name}`);
+        }
+      }
 
-          const response = await fetch(`${API_BASE}/artworks`, {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify(requestBody),
-            });
+      if (artworksToCreate.length === 0) {
+        toast.dismiss('upload-progress');
+        toast.error(`No artworks to upload`);
+        setIsUploading(false);
+        return;
+      }
+
+      uploadedCount = 0;
+      const uploadPromises = artworksToCreate.map(async (artworkData) => {
+        try {
+          const formData = new FormData();
+          formData.append("file", artworkData.file);
+          formData.append("userId", artworkData.userId);
+          formData.append("originalFilename", artworkData.originalFilename);
+          formData.append("contentType", artworkData.contentType);
+          formData.append("sizeBytes", artworkData.sizeBytes.toString());
+          formData.append("description", artworkData.description);
+          formData.append("width", artworkData.width.toString());
+          formData.append("height", artworkData.height.toString());
+
+          const response = await fetch(`${API_BASE}/artworks/upload`, {
+            method: "POST",
+            headers: {
+              "Authorization": `Bearer ${authToken}`,
+            },
+            body: formData,
+          });
 
           if (!response.ok) {
-            failedCount++;
             const contentType = response.headers.get("content-type");
             let errorMessage = "Unknown error";
             
             if (contentType?.includes("application/json")) {
               try {
                 const error = await response.json();
-                errorMessage = error.message || `Error: ${response.status}`;
+                errorMessage = error.message || error.data?.message || `Error: ${response.status}`;
               } catch {
                 errorMessage = `Server error: ${response.status}`;
               }
-            } else {
-              errorMessage = `Server error: ${response.status}`;
             }
             
-            toast.error(`Failed: ${file.name}`, { duration: 5000 });
-            console.error(`Upload failed for ${file.name}:`, errorMessage);
-          } else {
-            uploadedCount++;
-            uploadedNames.push(file.name);
-            toast.loading(`Uploaded ${uploadedCount}/${totalFiles}...`, { id: 'upload-progress' });
+            failedCount++;
+            toast.error(`Failed: ${artworkData.originalFilename}`, { duration: 5000 });
+            console.error(`Upload failed for ${artworkData.originalFilename}:`, errorMessage);
+            return null;
           }
+
+          const result = await response.json();
+          uploadedCount++;
+          uploadedNames.push(artworkData.originalFilename);
+          toast.loading(`Uploaded ${uploadedCount}/${artworksToCreate.length}...`, { id: 'upload-progress' });
+          
+          return result;
         } catch (error) {
           failedCount++;
-          console.error("Upload error:", error);
-          toast.error(`Error: ${file.name}`);
+          console.error(`Upload error for ${artworkData.originalFilename}:`, error);
+          toast.error(`Error uploading: ${artworkData.originalFilename}`);
+          return null;
         }
-      }
+      });
 
+      const uploadResults = await Promise.all(uploadPromises);
+      
       toast.dismiss('upload-progress');
       
       if (uploadedCount > 0) {
@@ -184,8 +248,8 @@ export function UploadModal({ open, onOpenChange }: UploadModalProps) {
       }
     } catch (error) {
       toast.dismiss('upload-progress');
-      console.error("Error:", error);
-      toast.error("An error occurred during upload");
+      console.error("Error during upload:", error);
+      toast.error(error instanceof Error ? error.message : "An error occurred during upload");
     } finally {
       setIsUploading(false);
     }
