@@ -7,8 +7,12 @@ import {
   Param,
   ParseUUIDPipe,
   Patch,
-  Post
+  Post,
+  UploadedFile,
+  UseInterceptors,
+  BadRequestException
 } from "@nestjs/common";
+import { FileInterceptor } from "@nestjs/platform-express";
 import { ArtworksService } from "./artworks.service";
 import { StorageService } from "../storage/storage.service";
 import {
@@ -163,5 +167,58 @@ export class ArtworksController {
     return this.artworksService.removeMany(ids);
   }
 
-  // Faire unit tests pour storage service ?
+  // Need to go through the backend to handle R2 upload via server-to-server connection (no CORS issues)
+  // The backend endpoint accepts the file upload, uploads it to R2, and creates the artwork record in one step.
+  @Post("upload")
+  @UseInterceptors(FileInterceptor("file"))
+  @ApiEndpoint({
+    summary: "Upload an artwork file directly to R2 storage and create artwork record",
+    success: {
+      status: HttpStatus.CREATED,
+      type: ArtworkDTO
+    },
+    errors: [HttpStatus.BAD_REQUEST, HttpStatus.NOT_FOUND],
+    protected: true
+  })
+  async uploadAndCreate(
+    @UploadedFile() file: Express.Multer.File,
+    @Body() body: any
+  ): Promise<Artwork> {
+    if (!file) {
+      throw new BadRequestException("File is required");
+    }
+
+    const {
+      userId,
+      originalFilename,
+      contentType,
+      sizeBytes,
+      description,
+      width,
+      height
+    } = body;
+
+    if (!userId || !originalFilename || !width || !height) {
+      throw new BadRequestException("Missing required fields: userId, originalFilename, width, height");
+    }
+
+    const storageKey = await this.storageService.uploadFile(
+      file.buffer,
+      originalFilename,
+      "artworks"
+    );
+
+    const createArtworkDto: ArtworkCreateDTO = {
+      userId,
+      originalFilename,
+      contentType: contentType || file.mimetype,
+      sizeBytes: parseInt(sizeBytes) || file.size,
+      storageKey,
+      width: parseInt(width),
+      height: parseInt(height),
+      description: description || ""
+    };
+
+    return this.artworksService.create(createArtworkDto);
+  }
 }
