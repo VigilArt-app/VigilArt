@@ -38,6 +38,48 @@ export class StorageService {
     });
   }
 
+  /**
+   * Upload a file directly to R2 storage.
+   * This method is called from the backend, avoiding CORS issues that occur
+   * when browsers try to upload directly to R2.
+   *
+   * @param fileBuffer - The actual file data (bytes) to upload
+   * @param fileName - Original filename (e.g., "my-photo.jpg")
+   * @param prefix - Storage prefix/folder (e.g., "artworks" or "profiles")
+   * @returns The storage key (path in R2) for database reference
+   */
+  async uploadFile(
+    fileBuffer: Buffer,
+    fileName: string,
+    prefix: StoragePrefix
+  ): Promise<string> {
+    const fileExt = path.extname(fileName);
+    
+    const storageKey =
+      `${prefix}/` +
+      fileName.replace(fileExt, "").toLowerCase().split(" ").join("-") +
+      crypto.randomUUID() +
+      fileExt;
+    
+    const contentType = lookup(fileExt);
+
+    if (contentType != "image/jpeg" && contentType != "image/png") {
+      throw new BadRequestException("Only JPEG and PNG formats are supported.");
+    }
+
+    const command = new PutObjectCommand({
+      Bucket: this.bucketName,
+      Key: storageKey,
+      Body: fileBuffer,
+      ContentType: contentType,
+      CacheControl: "private, max-age=31536000"
+    });
+
+    await this.s3.send(command);
+
+    return storageKey;
+  }
+
   async getUploadUrl(fileKey: string, prefix: StoragePrefix): Promise<UploadUrlGet> {
     const fileExt = path.extname(fileKey);
     const fileName =
