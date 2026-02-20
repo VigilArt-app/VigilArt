@@ -1,5 +1,6 @@
 import { Injectable, Logger, BadRequestException, ConflictException } from "@nestjs/common";
 import { PrismaService } from "../../prisma/prisma.service";
+import { StorageService } from "../../storage/storage.service";
 import type {
     DmcaNoticeGet,
     DmcaNoticeCreate,
@@ -48,7 +49,10 @@ interface NecessaryProperties {
 export class DmcaNoticeService {
     private readonly logger = new Logger(DmcaNoticeService.name);
 
-    constructor(private prisma: PrismaService) {}
+    constructor(
+        private prisma: PrismaService,
+        private storage: StorageService
+    ) {}
 
     async findAll(): Promise<DmcaNoticeGet[]> {
         this.logger.log("Finding all DMCA notices");
@@ -330,9 +334,8 @@ export class DmcaNoticeService {
         return new Promise((resolve) => {
             doc.on("end", async () => {
                 const buffer = Buffer.concat(buffers);
-                // MOCK: In production, upload buffer to Cloudflare R2 here
-                // const fileUrl = await this.uploadToR2(buffer, `dmca-notices/${id}.pdf`);
-                const fileUrl = `https://storage.vigilart.app/dmca-notices/${id}.pdf`;
+                const fileKey = `dmca-notices/${id}.pdf`;
+                const fileUrl = await this.storage.uploadBuffer(buffer, fileKey, "application/pdf", 1);
 
                 await this.prisma.dmcaNoticeData.update({
                     where: {

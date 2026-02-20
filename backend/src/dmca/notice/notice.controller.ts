@@ -92,7 +92,7 @@ export class DmcaNoticeController {
             status: HttpStatus.OK,
             type: DmcaNoticeGetDTO
         },
-        errors: [HttpStatus.NOT_FOUND],
+        errors: [HttpStatus.NOT_FOUND, HttpStatus.CONFLICT],
         protected: true
     })
     @ApiParam({ name: "id", type: String })
@@ -111,7 +111,7 @@ export class DmcaNoticeController {
             status: HttpStatus.OK,
             type: DmcaNoticeGetDTO
         },
-        errors: [HttpStatus.NOT_FOUND],
+        errors: [HttpStatus.NOT_FOUND, HttpStatus.CONFLICT],
         protected: true
     })
     @ApiParam({ name: "id", type: String })
@@ -129,7 +129,7 @@ export class DmcaNoticeController {
         success: {
             status: HttpStatus.NO_CONTENT
         },
-        errors: [HttpStatus.NOT_FOUND],
+        errors: [HttpStatus.NOT_FOUND, HttpStatus.CONFLICT],
         protected: true
     })
     @ApiParam({ name: "id", type: String })
