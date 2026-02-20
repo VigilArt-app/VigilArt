@@ -76,6 +76,7 @@ export class DmcaNoticeController {
             status: HttpStatus.CREATED,
             type: DmcaNoticeGetDTO
         },
+        errors: [HttpStatus.BAD_REQUEST],
         protected: true
     })
     @ApiBody({ type: DmcaNoticeCreateDTO })
