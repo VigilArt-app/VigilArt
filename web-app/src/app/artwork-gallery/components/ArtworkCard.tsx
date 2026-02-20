@@ -1,6 +1,9 @@
+"use client";
+
 import { Trash2 } from "lucide-react";
 import type { Artwork } from "@vigilart/shared/types";
 import { getArtworkStatus } from "./types";
+import { useArtworkImageUrl } from "./hooks/useArtworkImageUrl";
 
 interface ArtworkCardProps {
   artwork: Artwork;
@@ -16,6 +19,7 @@ export function ArtworkCard({
   onDelete,
 }: ArtworkCardProps) {
   const status = getArtworkStatus(artwork);
+  const { imageUrl, isLoading } = useArtworkImageUrl(artwork.storageKey);
 
   return (
     <div
@@ -51,14 +55,21 @@ export function ArtworkCard({
       </button>
 
       <div className="aspect-square bg-muted relative overflow-hidden">
-        <img
-          src={artwork.imageUri}
-          alt={artwork.description || artwork.originalFilename || "Artwork"}
-          className="w-full h-full object-cover"
-          onError={(e) => {
-            e.currentTarget.style.display = "none";
-          }}
-        />
+        {isLoading && (
+          <div className="w-full h-full flex items-center justify-center bg-gray-200">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-400" />
+          </div>
+        )}
+        {imageUrl && (
+          <img
+            src={imageUrl}
+            alt={artwork.description || artwork.originalFilename || "Artwork"}
+            className="w-full h-full object-cover"
+            onError={(e) => {
+              e.currentTarget.style.display = "none";
+            }}
+          />
+        )}
       </div>
 
       <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3">

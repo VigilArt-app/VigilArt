@@ -1,5 +1,8 @@
+"use client";
+
 import { Info } from "lucide-react";
 import { Artwork, getArtworkStatus } from "./types";
+import { useArtworkImageUrl } from "./hooks/useArtworkImageUrl";
 
 interface ArtworkDetailsProps {
   artwork: Artwork;
@@ -7,6 +10,7 @@ interface ArtworkDetailsProps {
 
 export function ArtworkDetails({ artwork }: ArtworkDetailsProps) {
   const status = getArtworkStatus(artwork);
+  const { imageUrl, isLoading } = useArtworkImageUrl(artwork.storageKey);
 
   return (
     <div className="w-96 border-l bg-background p-6 overflow-y-auto">
@@ -16,11 +20,18 @@ export function ArtworkDetails({ artwork }: ArtworkDetailsProps) {
 
       <div className="space-y-4">
         <div className="aspect-square rounded-lg overflow-hidden border">
-          <img
-            src={artwork.imageUri}
-            alt={artwork.description || "Artwork"}
-            className="w-full h-full object-cover"
-          />
+          {isLoading && (
+            <div className="w-full h-full flex items-center justify-center bg-gray-200">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-400" />
+            </div>
+          )}
+          {imageUrl && (
+            <img
+              src={imageUrl}
+              alt={artwork.description || "Artwork"}
+              className="w-full h-full object-cover"
+            />
+          )}
         </div>
 
         <div
