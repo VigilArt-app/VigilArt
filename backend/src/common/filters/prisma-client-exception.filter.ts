@@ -5,7 +5,7 @@ import { Response } from "express";
 import {
   ConflictApiError,
   BadRequestApiError,
-  NotFoundApiError,
+  NotFoundApiError
 } from "@vigilart/shared/types";
 
 @Catch(Prisma.PrismaClientKnownRequestError)
@@ -24,7 +24,7 @@ export class PrismaClientExceptionFilter extends BaseExceptionFilter {
           success: false,
           statusCode: status,
           message: "Resource already exists",
-          error: "Conflict",
+          error: "Conflict"
         } satisfies ConflictApiError);
         break;
       }
@@ -34,7 +34,7 @@ export class PrismaClientExceptionFilter extends BaseExceptionFilter {
           success: false,
           statusCode: status,
           message: "Invalid reference to related resource",
-          error: "Bad Request",
+          error: "Bad Request"
         } satisfies BadRequestApiError);
         break;
       }
@@ -44,7 +44,7 @@ export class PrismaClientExceptionFilter extends BaseExceptionFilter {
           success: false,
           statusCode: status,
           message: "Resource not found",
-          error: "Not Found",
+          error: "Not Found"
         } satisfies NotFoundApiError);
         break;
       }

@@ -14,10 +14,10 @@ export class AuthController {
     summary: "Register a new user",
     success: {
       status: HttpStatus.CREATED,
-      type: AuthResponseDTO,
+      type: AuthResponseDTO
     },
     errors: [HttpStatus.CONFLICT],
-    protected: false,
+    protected: false
   })
   @ApiBody({ type: SignUpDTO })
   async signUp(@Body() signUpDto: SignUpDTO): Promise<AuthResponse> {
@@ -29,10 +29,10 @@ export class AuthController {
     summary: "Authenticate a user and obtain a JWT token",
     success: {
       status: HttpStatus.OK,
-      type: AuthResponseDTO,
+      type: AuthResponseDTO
     },
     errors: [HttpStatus.UNAUTHORIZED],
-    protected: false,
+    protected: false
   })
   @ApiBody({ type: LoginDTO })
   async login(@Body() loginDto: LoginDTO): Promise<AuthResponse> {

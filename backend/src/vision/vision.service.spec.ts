@@ -9,32 +9,31 @@ jest.mock("@google-cloud/vision", () => {
     ImageAnnotatorClient: jest.fn().mockImplementation(() => {
       return {
         close: jest.fn().mockResolvedValue(undefined),
-        webDetection: jest.fn(),
+        webDetection: jest.fn()
       };
-    }),
+    })
   };
 });
 
 describe("VisionService", () => {
   let service: VisionService;
-  let module: TestingModule;
 
   beforeEach(async () => {
-    module = await Test.createTestingModule({
+    const module = await Test.createTestingModule({
       imports: [
         ConfigModule.forRoot({
           isGlobal: true,
-          cache: false,
-        }),
+          cache: false
+        })
       ],
-      providers: [VisionService],
+      providers: [VisionService]
     }).compile();
 
     service = module.get<VisionService>(VisionService);
   });
 
-  afterAll(async () => {
-    await module.close();
+  afterEach(() => {
+    jest.clearAllMocks();
   });
 
   describe("getArtworkReportMetadata", () => {
@@ -47,14 +46,14 @@ describe("VisionService", () => {
       const labels: WebLabel[] = [
         { label: "Illustration", languageCode: "en" },
         { label: null },
-        { label: "Youtube channel" },
+        { label: "Youtube channel" }
       ];
       const result = service.getArtworkReportMetadata(labels, null);
 
       expect(result).toBeDefined();
       expect(result?.bestGuessLabels).toEqual([
         { label: "Illustration", languageCode: "en" },
-        { label: "Youtube channel" },
+        { label: "Youtube channel" }
       ]);
     });
 
@@ -62,13 +61,13 @@ describe("VisionService", () => {
       const entities: WebEntity[] = [
         { entityId: "id", description: "Drawing", score: 0.9 },
         { entityId: "id1", description: "Art", score: null },
-        { entityId: "id2", description: null, score: 0.8 },
+        { entityId: "id2", description: null, score: 0.8 }
       ];
       const result = service.getArtworkReportMetadata(null, entities);
 
       expect(result).toBeDefined();
       expect(result?.webEntities).toEqual([
-        { score: 0.9, description: "Drawing" },
+        { score: 0.9, description: "Drawing" }
       ]);
     });
 
@@ -88,11 +87,11 @@ describe("VisionService", () => {
       expect(result).toBeDefined();
       expect(result?.bestGuessLabels).toEqual([
         {
-          label: "Art",
-        },
+          label: "Art"
+        }
       ]);
       expect(result?.webEntities).toEqual([
-        { description: "Modern art", score: 0.9 },
+        { description: "Modern art", score: 0.9 }
       ]);
     });
   });
@@ -110,24 +109,24 @@ describe("VisionService", () => {
           partialMatchingImages: null,
           url: null,
           score: 0,
-          pageTitle: "Illustration | Ultimate Pop Culture Wiki - Fandom",
+          pageTitle: "Illustration | Ultimate Pop Culture Wiki - Fandom"
         },
         {
           fullMatchingImages: [
             {
               url: "https://64.media.tumblr.com/853eb47c8fe24d2dbb2f742e906b9378/2bfc4b18c0150b65-5d/s640x960/6e3b30d3cd28d4eda06032af3f6b503b0450ba66.jpg",
-              score: 0,
+              score: 0
             },
             {
               url: "https://64.media.tumblr.com/853eb47c8fe24d2dbb2f742e906b9378/2bfc4b18c0150b65-5d/s500x750/29dd115ee853ef59732d94a5b436daad3011bfe2.jpg",
-              score: 0,
-            },
+              score: 0
+            }
           ],
           partialMatchingImages: [],
           url: "https://emblask.tumblr.com/post/650058868223819776",
           score: 0,
-          pageTitle: "Ayaka Suda illustration - Tumblr",
-        },
+          pageTitle: "Ayaka Suda illustration - Tumblr"
+        }
       ];
       const result = service.getArtworkReportMatchingPages(pages);
 
@@ -138,8 +137,8 @@ describe("VisionService", () => {
           category: WebsiteCategory.SOCIAL,
           websiteName: "tumblr.com",
           imageUrl:
-            "https://64.media.tumblr.com/853eb47c8fe24d2dbb2f742e906b9378/2bfc4b18c0150b65-5d/s640x960/6e3b30d3cd28d4eda06032af3f6b503b0450ba66.jpg",
-        },
+            "https://64.media.tumblr.com/853eb47c8fe24d2dbb2f742e906b9378/2bfc4b18c0150b65-5d/s640x960/6e3b30d3cd28d4eda06032af3f6b503b0450ba66.jpg"
+        }
       ]);
     });
 
@@ -150,21 +149,21 @@ describe("VisionService", () => {
           partialMatchingImages: [],
           url: "https://www.pinterest.com/leland/illustration/",
           score: 0,
-          pageTitle: "900+ Illustration ideas - Pinterest",
+          pageTitle: "900+ Illustration ideas - Pinterest"
         },
         {
           fullMatchingImages: [
             {
               url: "https://i.pinimg.com/236x/b0/42/f7/b042f7f4d3583298407291b0a8882fef.jpg",
-              score: 0,
-            },
+              score: 0
+            }
           ],
           partialMatchingImages: [],
           url: "https://in.pinterest.com/rukminidubey/illustration-light-tone/",
           score: 0,
           pageTitle:
-            "Discover 21 Illustration Light tone and cute drawings ideas",
-        },
+            "Discover 21 Illustration Light tone and cute drawings ideas"
+        }
       ];
       const result = service.getArtworkReportMatchingPages(pages);
 
@@ -176,8 +175,8 @@ describe("VisionService", () => {
           category: WebsiteCategory.SOCIAL,
           websiteName: "pinterest.com",
           imageUrl:
-            "https://i.pinimg.com/236x/b0/42/f7/b042f7f4d3583298407291b0a8882fef.jpg",
-        },
+            "https://i.pinimg.com/236x/b0/42/f7/b042f7f4d3583298407291b0a8882fef.jpg"
+        }
       ]);
     });
 
@@ -187,30 +186,30 @@ describe("VisionService", () => {
           fullMatchingImages: [
             {
               url: "https://64.media.tumblr.com/853eb47c8fe24d2dbb2f742e906b9378/2bfc4b18c0150b65-5d/s640x960/6e3b30d3cd28d4eda06032af3f6b503b0450ba66.jpg",
-              score: 0,
+              score: 0
             },
             {
               url: "https://64.media.tumblr.com/853eb47c8fe24d2dbb2f742e906b9378/2bfc4b18c0150b65-5d/s500x750/29dd115ee853ef59732d94a5b436daad3011bfe2.jpg",
-              score: 0,
-            },
+              score: 0
+            }
           ],
           partialMatchingImages: [],
           url: "https://emblask.tumblr.com/post/650058868223819776",
           score: 0,
-          pageTitle: "Ayaka Suda illustration - Tumblr",
+          pageTitle: "Ayaka Suda illustration - Tumblr"
         },
         {
           fullMatchingImages: [
             {
               url: "https://pbs.twimg.com/media/FCnJBzCVcAIaOW0.jpg",
-              score: 0,
-            },
+              score: 0
+            }
           ],
           partialMatchingImages: [],
           url: "http://x.com/lingsilvy",
           score: 0,
-          pageTitle: "SilvyLing (@LingSilvy) / Posts / X",
-        },
+          pageTitle: "SilvyLing (@LingSilvy) / Posts / X"
+        }
       ];
       const result = service.getArtworkReportMatchingPages(pages);
 
@@ -221,15 +220,15 @@ describe("VisionService", () => {
           category: WebsiteCategory.SOCIAL,
           websiteName: "tumblr.com",
           imageUrl:
-            "https://64.media.tumblr.com/853eb47c8fe24d2dbb2f742e906b9378/2bfc4b18c0150b65-5d/s640x960/6e3b30d3cd28d4eda06032af3f6b503b0450ba66.jpg",
+            "https://64.media.tumblr.com/853eb47c8fe24d2dbb2f742e906b9378/2bfc4b18c0150b65-5d/s640x960/6e3b30d3cd28d4eda06032af3f6b503b0450ba66.jpg"
         },
         {
           url: "http://x.com/lingsilvy",
           pageTitle: "SilvyLing (@LingSilvy) / Posts / X",
           category: WebsiteCategory.SOCIAL,
           websiteName: "x.com",
-          imageUrl: "https://pbs.twimg.com/media/FCnJBzCVcAIaOW0.jpg",
-        },
+          imageUrl: "https://pbs.twimg.com/media/FCnJBzCVcAIaOW0.jpg"
+        }
       ]);
     });
 
@@ -240,24 +239,24 @@ describe("VisionService", () => {
           partialMatchingImages: [
             {
               url: "https://64.media.tumblr.com/853eb47c8fe24d2dbb2f742e906b9378/2bfc4b18c0150b65-5d/s500x750/29dd115ee853ef59732d94a5b436daad3011bfe2.jpg",
-              score: 0,
+              score: 0
             },
             {
               url: "https://64.media.tumblr.com/853eb47c8fe24d2dbb2f742e906b9378/2bfc4b18c0150b65-5d/s640x960/6e3b30d3cd28d4eda06032af3f6b503b0450ba66.jpg",
-              score: 0,
-            },
+              score: 0
+            }
           ],
           url: "https://emblask.tumblr.com/post/650058868223819776",
           score: 0,
-          pageTitle: "Ayaka Suda illustration - Tumblr",
+          pageTitle: "Ayaka Suda illustration - Tumblr"
         },
         {
           fullMatchingImages: [],
           partialMatchingImages: [],
           url: "http://x.com/lingsilvy",
           score: 0,
-          pageTitle: "SilvyLing (@LingSilvy) / Posts / X",
-        },
+          pageTitle: "SilvyLing (@LingSilvy) / Posts / X"
+        }
       ];
       const result = service.getArtworkReportMatchingPages(pages);
 
@@ -268,8 +267,8 @@ describe("VisionService", () => {
           category: WebsiteCategory.SOCIAL,
           websiteName: "tumblr.com",
           imageUrl:
-            "https://64.media.tumblr.com/853eb47c8fe24d2dbb2f742e906b9378/2bfc4b18c0150b65-5d/s500x750/29dd115ee853ef59732d94a5b436daad3011bfe2.jpg",
-        },
+            "https://64.media.tumblr.com/853eb47c8fe24d2dbb2f742e906b9378/2bfc4b18c0150b65-5d/s500x750/29dd115ee853ef59732d94a5b436daad3011bfe2.jpg"
+        }
       ]);
     });
 
@@ -279,13 +278,13 @@ describe("VisionService", () => {
           fullMatchingImages: [
             {
               url: "https://64.media.tumblr.com/853eb47c8fe24d2dbb2f742e906b9378/2bfc4b18c0150b65-5d/s500x750/29dd115ee853ef59732d94a5b436daad3011bfe2.jpg",
-              score: 0,
-            },
+              score: 0
+            }
           ],
           partialMatchingImages: [],
           url: "https://x.com/sparrows89",
-          score: 0,
-        },
+          score: 0
+        }
       ];
       const result = service.getArtworkReportMatchingPages(pages);
 
@@ -296,8 +295,8 @@ describe("VisionService", () => {
           websiteName: "x.com",
           pageTitle: undefined,
           imageUrl:
-            "https://64.media.tumblr.com/853eb47c8fe24d2dbb2f742e906b9378/2bfc4b18c0150b65-5d/s500x750/29dd115ee853ef59732d94a5b436daad3011bfe2.jpg",
-        },
+            "https://64.media.tumblr.com/853eb47c8fe24d2dbb2f742e906b9378/2bfc4b18c0150b65-5d/s500x750/29dd115ee853ef59732d94a5b436daad3011bfe2.jpg"
+        }
       ]);
     });
   });
@@ -305,23 +304,23 @@ describe("VisionService", () => {
   describe("searchImage", () => {
     it("Should return null when webDetection returns null/undefined", async () => {
       jest.spyOn(service, "webDetection").mockResolvedValue(null);
-      expect(await service.searchImage("test.jpg")).toBeNull();
+      expect(await service.searchImage(Buffer.from(""))).toBeNull();
 
       jest.spyOn(service, "webDetection").mockResolvedValue(undefined);
-      expect(await service.searchImage("test.jpg")).toBeNull();
+      expect(await service.searchImage(Buffer.from(""))).toBeNull();
     });
 
     it("Should return null when pagesWithMatchingImages is null/undefined", async () => {
       jest.spyOn(service, "webDetection").mockResolvedValue({
         bestGuessLabels: [{ label: "Art" }],
-        pagesWithMatchingImages: null,
+        pagesWithMatchingImages: null
       });
-      expect(await service.searchImage("test.jpg")).toBeNull();
+      expect(await service.searchImage(Buffer.from(""))).toBeNull();
 
       jest.spyOn(service, "webDetection").mockResolvedValue({
-        bestGuessLabels: [{ label: "Art" }],
+        bestGuessLabels: [{ label: "Art" }]
       });
-      expect(await service.searchImage("test.jpg")).toBeNull();
+      expect(await service.searchImage(Buffer.from(""))).toBeNull();
     });
 
     it("Should process valid response correctly", async () => {
@@ -334,40 +333,40 @@ describe("VisionService", () => {
             partialMatchingImages: [],
             url: "https://ultimatepopculture.fandom.com/wiki/Illustration",
             score: 0,
-            pageTitle: "Illustration | Ultimate Pop Culture Wiki - Fandom",
+            pageTitle: "Illustration | Ultimate Pop Culture Wiki - Fandom"
           },
           {
             fullMatchingImages: [
               {
                 url: "https://pbs.twimg.com/media/FCnJBzCVcAIaOW0.jpg",
-                score: 0,
-              },
+                score: 0
+              }
             ],
             partialMatchingImages: [],
             url: "http://x.com/lingsilvy",
             score: 0,
-            pageTitle: "SilvyLing (@LingSilvy) / Posts / X",
+            pageTitle: "SilvyLing (@LingSilvy) / Posts / X"
           },
           {
             fullMatchingImages: [
               {
                 url: "https://pbs.twimg.com/media/E0XD3lQVgAEUCwr.jpg",
-                score: 0,
-              },
+                score: 0
+              }
             ],
             partialMatchingImages: [],
             url: "https://x.com/sparrows89",
             score: 0,
-            pageTitle: "Madi's Mayhem (@sparrows89) / Posts / X - Twitter",
-          },
-        ],
+            pageTitle: "Madi's Mayhem (@sparrows89) / Posts / X - Twitter"
+          }
+        ]
       });
-      const result = await service.searchImage("test.jpg");
+      const result = await service.searchImage(Buffer.from(""));
 
       expect(result).toEqual({
         metadata: {
           bestGuessLabels: [{ label: "Art" }],
-          webEntities: [{ description: "Modern", score: 0.9 }],
+          webEntities: [{ description: "Modern", score: 0.9 }]
         },
         matchingPages: [
           {
@@ -375,16 +374,16 @@ describe("VisionService", () => {
             pageTitle: "SilvyLing (@LingSilvy) / Posts / X",
             category: WebsiteCategory.SOCIAL,
             websiteName: "x.com",
-            imageUrl: "https://pbs.twimg.com/media/FCnJBzCVcAIaOW0.jpg",
+            imageUrl: "https://pbs.twimg.com/media/FCnJBzCVcAIaOW0.jpg"
           },
           {
             url: "https://x.com/sparrows89",
             pageTitle: "Madi's Mayhem (@sparrows89) / Posts / X - Twitter",
             category: WebsiteCategory.SOCIAL,
             websiteName: "x.com",
-            imageUrl: "https://pbs.twimg.com/media/E0XD3lQVgAEUCwr.jpg",
-          },
-        ],
+            imageUrl: "https://pbs.twimg.com/media/E0XD3lQVgAEUCwr.jpg"
+          }
+        ]
       });
     });
   });

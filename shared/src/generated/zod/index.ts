@@ -14,7 +14,7 @@ export const TransactionIsolationLevelSchema = z.enum(['ReadUncommitted','ReadCo
 
 export const UserScalarFieldEnumSchema = z.enum(['id','email','password','firstName','lastName','avatar','createdAt','subscriptionTier']);
 
-export const ArtworkScalarFieldEnumSchema = z.enum(['id','userId','imageUri','originalFilename','contentType','sizeBytes','description','createdAt','updatedAt','lastScanAt']);
+export const ArtworkScalarFieldEnumSchema = z.enum(['id','userId','originalFilename','storageKey','contentType','sizeBytes','width','height','description','createdAt','updatedAt','lastScanAt']);
 
 export const SortOrderSchema = z.enum(['asc','desc']);
 
@@ -58,10 +58,12 @@ export type User = z.infer<typeof UserSchema>
 export const ArtworkSchema = z.object({
   id: z.uuid(),
   userId: z.string(),
-  imageUri: z.string(),
-  originalFilename: z.string().nullable(),
-  contentType: z.string().nullable(),
-  sizeBytes: z.number().int().nullable(),
+  originalFilename: z.string(),
+  storageKey: z.string(),
+  contentType: z.string(),
+  sizeBytes: z.number().int(),
+  width: z.number().int(),
+  height: z.number().int(),
   description: z.string().nullable(),
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),

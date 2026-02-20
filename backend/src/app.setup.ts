@@ -21,7 +21,10 @@ export const setupApp = (app: INestApplication) => {
   );
   app.useGlobalInterceptors(new ResponseWrapperInterceptor());
 
-  if (process.env.NODE_ENV !== "production") {
+  if (
+    process.env.NODE_ENV !== "production" &&
+    process.env.NODE_ENV !== "test"
+  ) {
     const swaggerConfig = new DocumentBuilder()
       .setTitle("VigilArt API")
       .setDescription(
@@ -31,7 +34,7 @@ export const setupApp = (app: INestApplication) => {
       .addBearerAuth()
       .addGlobalResponse({
         status: 500,
-        type: InternalServerErrorDTO,
+        type: InternalServerErrorDTO
       })
       .build();
     const documentFactory = SwaggerModule.createDocument(app, swaggerConfig);

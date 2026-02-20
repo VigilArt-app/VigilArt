@@ -2,10 +2,17 @@ import {
   BadRequestException,
   Injectable,
   Logger,
-  NotFoundException,
+  NotFoundException
 } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
-import { Artwork, ArtworkCreateDTO, ArtworkUpdateDTO } from "@vigilart/shared";
+import {
+  Artwork,
+  ArtworkCreateDTO,
+  ArtworkCreateManyDTO,
+  ArtworkUpdateDTO,
+  ArtworkCreateManyResponseDTO,
+  ApiBatchPayload
+} from "@vigilart/shared";
 
 @Injectable()
 export class ArtworksService {
@@ -13,28 +20,38 @@ export class ArtworksService {
 
   private readonly logger = new Logger(ArtworksService.name);
 
-  async create({
-    userId,
-    imageUri,
-    originalFilename,
-    contentType,
-    sizeBytes,
-    description,
-  }: ArtworkCreateDTO): Promise<Artwork> {
-    const artworkData = {
-      userId,
-      imageUri,
-      originalFilename,
-      contentType,
-      sizeBytes,
-      description,
-    };
-
-    this.logger.log(`Creating new artwork ${imageUri} of user ${userId}`);
+  async create(artworkData: ArtworkCreateDTO): Promise<Artwork> {
+    this.logger.log(
+      `Creating new artwork ${artworkData.originalFilename} of user ${artworkData.userId}`
+    );
     try {
       return await this.prisma.artwork.create({
-        data: artworkData,
+        data: artworkData
       });
+    } catch (e: any) {
+      if (e.code === "P2003") {
+        throw new NotFoundException("User does not exist");
+      }
+      throw e;
+    }
+  }
+
+  async createMany(
+    artworksData: ArtworkCreateManyDTO
+  ): Promise<ArtworkCreateManyResponseDTO> {
+    this.logger.log("Creating new artworks");
+    try {
+      const res = await this.prisma.artwork.createManyAndReturn({
+        data: artworksData
+      });
+      return {
+        count: res.length,
+        artworks: res.map((artwork) => ({
+          id: artwork.id,
+          userId: artwork.userId,
+          originalFilename: artwork.originalFilename
+        }))
+      };
     } catch (e: any) {
       if (e.code === "P2003") {
         throw new NotFoundException("User does not exist");
@@ -52,8 +69,8 @@ export class ArtworksService {
     this.logger.log(`Finding all artworks for user ${userId}`);
     return this.prisma.artwork.findMany({
       where: {
-        userId,
-      },
+        userId
+      }
     });
   }
 
@@ -62,8 +79,8 @@ export class ArtworksService {
       this.logger.log(`Finding artwork ${id}`);
       return await this.prisma.artwork.findUniqueOrThrow({
         where: {
-          id,
-        },
+          id
+        }
       });
     } catch (e: any) {
       if (e.code == "P2025") {
@@ -71,6 +88,17 @@ export class ArtworksService {
       }
       throw e;
     }
+  }
+
+  async findMany(ids: string[]): Promise<Artwork[]> {
+    this.logger.log(`Finding artworks ${ids.join(",")}`);
+    return this.prisma.artwork.findMany({
+      where: {
+        id: {
+          in: ids
+        }
+      }
+    });
   }
 
   async update(
@@ -81,9 +109,9 @@ export class ArtworksService {
     try {
       return await this.prisma.artwork.update({
         where: {
-          id,
+          id
         },
-        data: updateArtworkDto,
+        data: updateArtworkDto
       });
     } catch (e: any) {
       if (e.code == "P2025") {
@@ -98,8 +126,8 @@ export class ArtworksService {
     try {
       await this.prisma.artwork.delete({
         where: {
-          id,
-        },
+          id
+        }
       });
     } catch (e: any) {
       if (e.code == "P2025") {
@@ -107,5 +135,16 @@ export class ArtworksService {
       }
       throw e;
     }
+  }
+
+  async removeMany(ids: string[]): Promise<ApiBatchPayload> {
+    this.logger.log(`Removing artworks ${ids.join(",")}`);
+    return await this.prisma.artwork.deleteMany({
+      where: {
+        id: {
+          in: ids
+        }
+      }
+    });
   }
 }
