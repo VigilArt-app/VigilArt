@@ -105,15 +105,15 @@ model DmcaProfile {
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId       String   @unique
 
-  fullName     String
-  street       String
+  fullName     String?
+  street       String?
   aptSuite     String?
-  city         String
-  postalCode   String
-  country      String
-  email        String
-  phone        String
-  signature    String
+  city         String?
+  postalCode   String?
+  country      String?
+  email        String?
+  phone        String?
+  signature    String?
 
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt @default(now())
