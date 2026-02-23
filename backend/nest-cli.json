@@ -3,6 +3,7 @@
   "compilerOptions": {
     "tsConfigPath": "tsconfig.build.json",
     "watchAssets": true,
-    "builder": "tsc"
+    "builder": "webpack",
+    "webpack": true
   }
 }

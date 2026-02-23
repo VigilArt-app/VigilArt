@@ -10,7 +10,7 @@
     "dev:backend": "pnpm --filter backend dev",
     "dev:frontend": "pnpm --filter web-app dev",
     "dev:shared": "pnpm --filter shared dev",
-    "dev": "pnpm --parallel --filter \"shared...\" --filter \"backend...\" --filter \"web-app...\" dev",
+    "dev": "pnpm -r --parallel dev",
     "test": "pnpm --filter backend test",
     "test:it": "pnpm --filter backend test:it",
     "test:e2e": "pnpm --filter backend test:e2e",
