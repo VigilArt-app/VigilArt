@@ -23,6 +23,12 @@ export default function LoginPage() {
         setError(null)
         setIsLoading(true)
         try {
+            // Clear any existing expired tokens before attempting login
+            try {
+                localStorage.removeItem("auth_token")
+                sessionStorage.removeItem("auth_token")
+            } catch {}
+            
             const API_BASE = process.env.NEXT_PUBLIC_API_URL
             const res = await fetch(`${API_BASE}/auth/login`, {
                 method: "POST",
@@ -35,16 +41,20 @@ export default function LoginPage() {
                 throw new Error(Array.isArray(message) ? message.join(", ") : message)
             }
             const data = await res.json()
-            if (data?.accessToken) {
-                try {
-                    if (remember) {
-                        localStorage.setItem("auth_token", data.accessToken)
-                    } else {
-                        sessionStorage.setItem("auth_token", data.accessToken)
-                    }
-                    setCookie("auth_token", data.accessToken, remember ? 365 : 1)
-                } catch {}
+            const accessToken = data?.data?.accessToken
+            if (!accessToken) {
+                throw new Error("No access token in response")
             }
+            
+            try {
+                if (remember) {
+                    localStorage.setItem("auth_token", accessToken)
+                } else {
+                    sessionStorage.setItem("auth_token", accessToken)
+                }
+                setCookie("auth_token", accessToken, remember ? 365 : 1)
+            } catch {}
+            
             router.push("/dashboard")
         } catch (err: any) {
             setError(err.message || "Unexpected error")

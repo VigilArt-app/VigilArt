@@ -8,6 +8,7 @@ import { ThemeProvider } from "../components/theme-provider";
 import { ThemeToggle } from "../components/toggle-theme";
 import { LanguageToggle } from "../components/ui/languageToggle";
 import I18nProvider from './i18n/I18nProvider';
+import { Toaster } from "sonner";
 
 function ClientWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -17,6 +18,7 @@ function ClientWrapper({ children }: { children: React.ReactNode }) {
   return (
     <I18nProvider>
       <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+        <Toaster position="top-right" richColors />
         {showSidebar ? (
           <SidebarProvider>
             <AppSidebar />
