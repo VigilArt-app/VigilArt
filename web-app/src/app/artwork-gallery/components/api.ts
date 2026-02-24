@@ -2,6 +2,31 @@ import { toast } from "sonner";
 import { Artwork } from "./types";
 import { getUserIdFromToken } from "./utils";
 
+/**
+ * Get the auth token from localStorage or sessionStorage
+ */
+const getAuthToken = (): string | null => {
+  if (typeof window === "undefined") return null;
+  return localStorage.getItem("auth_token") || sessionStorage.getItem("auth_token");
+};
+
+/**
+ * Centralized fetch helper that includes Authorization header
+ */
+const authenticatedFetch = (url: string, options: RequestInit = {}) => {
+  const authToken = getAuthToken();
+  if (!authToken) {
+    throw new Error("Authentication token not found");
+  }
+
+  const headers = {
+    ...options.headers,
+    Authorization: `Bearer ${authToken}`,
+  };
+
+  return fetch(url, { ...options, headers });
+};
+
 export const fetchArtworks = async (): Promise<Artwork[]> => {
   const userId = getUserIdFromToken();
   if (!userId) {
@@ -11,7 +36,7 @@ export const fetchArtworks = async (): Promise<Artwork[]> => {
 
   try {
     const API_BASE = process.env.NEXT_PUBLIC_API_URL;
-    const response = await fetch(`${API_BASE}/artworks/user/${userId}`);
+    const response = await authenticatedFetch(`${API_BASE}/artworks/user/${userId}`);
 
     if (!response.ok) {
       throw new Error("Failed to fetch artworks");
@@ -29,7 +54,7 @@ export const fetchArtworks = async (): Promise<Artwork[]> => {
 export const deleteArtwork = async (id: string): Promise<void> => {
   try {
     const API_BASE = process.env.NEXT_PUBLIC_API_URL;
-    const response = await fetch(`${API_BASE}/artworks/${id}`, {
+    const response = await authenticatedFetch(`${API_BASE}/artworks/${id}`, {
       method: "DELETE",
     });
 
