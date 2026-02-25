@@ -10,6 +10,7 @@ services:
     environment:
       DATABASE_URL: ${DATABASE_URL}
       NODE_ENV: ${NODE_ENV}
+    entrypoint: []
     command: sh -c "cd /app/backend && pnpm db:migrate:prod"
     restart: "no"
     profiles:
