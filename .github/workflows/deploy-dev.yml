@@ -14,6 +14,8 @@ jobs:
   run-tests:
     name: 🧪 Run E2E Tests
     runs-on: ubuntu-latest
+    environment:
+      name: Development
 
     steps:
       - name: Checkout code
@@ -89,7 +91,8 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Lowercase repo owner
-        run: echo "OWNER=${GITHUB_REPOSITORY_OWNER,,}" >> ${GITHUB_ENV}
+        id: repo-owner
+        run: echo "owner=${GITHUB_REPOSITORY_OWNER,,}" >> ${GITHUB_OUTPUT}
 
       - name: Build and push backend
         uses: docker/build-push-action@v5
@@ -97,7 +100,7 @@ jobs:
           context: .
           file: backend/Dockerfile.prod
           push: true
-          tags: ghcr.io/${{ env.OWNER }}/vigilart-backend:dev
+          tags: ghcr.io/${{ steps.repo-owner.outputs.owner }}/vigilart-backend:dev
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -107,7 +110,7 @@ jobs:
           context: .
           file: web-app/Dockerfile.prod
           push: true
-          tags: ghcr.io/${{ env.OWNER }}/vigilart-frontend:dev
+          tags: ghcr.io/${{ steps.repo-owner.outputs.owner }}/vigilart-frontend:dev
           cache-from: type=gha
           cache-to: type=gha,mode=max
           build-args: |
@@ -126,4 +129,4 @@ jobs:
           script: |
             cd /srv/VigilArt
             echo ${{ secrets.GITHUB_TOKEN }} | sudo docker login ghcr.io -u ${{ github.actor }} --password-stdin
-            sudo REPO_OWNER=${{ env.OWNER }} bash ./deploy.sh
+            sudo REPO_OWNER=${{ steps.repo-owner.outputs.owner }} bash ./deploy.sh
