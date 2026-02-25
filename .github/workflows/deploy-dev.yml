@@ -79,13 +79,14 @@ jobs:
 
           echo "Building images and starting database..."
           doppler run -- docker compose -f docker-compose.prod.yml build
-          doppler run -- docker compose -f docker-compose.prod.yml up -d db
-          doppler run -- docker compose -f docker-compose.prod.yml wait db
+          doppler run -- docker compose -f docker-compose.prod.yml up -d --wait db
+
           echo "Running database migrations..."
           doppler run -- docker compose -f docker-compose.prod.yml --profile migrate run --rm migrator
+
           echo "Starting backend and frontend..."
-          doppler run -- docker compose -f docker-compose.prod.yml up -d backend frontend
-          doppler run -- docker compose -f docker-compose.prod.yml wait backend frontend
+          doppler run -- docker compose -f docker-compose.prod.yml up -d --wait backend frontend
+
           echo "✅ Smoke test passed: build, migrations, and health checks successful."
 
       - name: Log in to GitHub container registry
