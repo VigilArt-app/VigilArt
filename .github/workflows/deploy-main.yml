@@ -10,63 +10,20 @@ permissions:
   contents: read
 
 jobs:
-  # run-tests:
-  #   name: 🧪 Run E2E Tests
-  #   runs-on: ubuntu-latest
-
-  #   steps:
-  #     - name: Checkout code
-  #       uses: actions/checkout@v4
-
-  #     - name: Install pnpm
-  #       uses: pnpm/action-setup@v2
-  #       with:
-  #         version: 10.20.0
-  #         run_install: false
-
-  #     - name: Setup Node.js
-  #       uses: actions/setup-node@v4
-  #       with:
-  #         node-version: '22'
-  #         cache: 'pnpm'
-
-  #     - name: Install Dependencies
-  #       run: pnpm install --frozen-lockfile
-
-  #     - name: Generate Prisma Client
-  #       run: pnpm --filter @vigilart/backend db:generate
-
-  #     - name: Run E2E Tests
-  #       run: pnpm --filter @vigilart/backend test:e2e
+  run-ci:
+    uses: ./.github/workflows/ci.yml
+    secrets: inherit
 
   build-and-deploy:
-    name: Build & deploy
+    name: 🚀 Build & Deploy
     runs-on: ubuntu-latest
-    # needs: run-tests
+    needs: run-ci
     environment:
       name: Production
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
-      - name: Install Doppler CLI
-        uses: dopplerhq/cli-action@v3
-        with:
-          token: ${{ secrets.DOPPLER_TOKEN }}
-          version: 'latest'
-
-      - name: Set up Docker buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Smoke test
-        env:
-          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN }}
-        run: |
-          echo "Starting stack with Doppler..."
-          doppler run -- docker compose -f docker-compose.prod.yml up -d --build --wait
-          echo "✅ Smoke test passed: stack is healthy."
-          doppler run -- docker compose -f docker-compose.prod.yml down
 
       - name: Log in to GitHub container registry
         uses: docker/login-action@v3
@@ -76,7 +33,8 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Lowercase repo owner
-        run: echo "OWNER=${GITHUB_REPOSITORY_OWNER,,}" >> ${GITHUB_ENV}
+        id: repo-owner
+        run: echo "owner=${GITHUB_REPOSITORY_OWNER,,}" >> ${GITHUB_OUTPUT}
 
       - name: Build and push backend
         uses: docker/build-push-action@v5
@@ -84,7 +42,7 @@ jobs:
           context: .
           file: backend/Dockerfile.prod
           push: true
-          tags: ghcr.io/${{ env.OWNER }}/vigilart-backend:prod
+          tags: ghcr.io/${{ steps.repo-owner.outputs.owner }}/vigilart-backend:prod
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -94,7 +52,7 @@ jobs:
           context: .
           file: web-app/Dockerfile.prod
           push: true
-          tags: ghcr.io/${{ env.OWNER }}/vigilart-frontend:prod
+          tags: ghcr.io/${{ steps.repo-owner.outputs.owner }}/vigilart-frontend:prod
           cache-from: type=gha
           cache-to: type=gha,mode=max
           build-args: |
@@ -113,4 +71,4 @@ jobs:
           script: |
             cd /srv/VigilArt
             echo ${{ secrets.GITHUB_TOKEN }} | sudo docker login ghcr.io -u ${{ github.actor }} --password-stdin
-            sudo REPO_OWNER=${{ env.OWNER }} ./deploy.sh
+            sudo REPO_OWNER=${{ steps.repo-owner.outputs.owner }} bash ./deploy.sh
