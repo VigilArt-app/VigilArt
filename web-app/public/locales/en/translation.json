@@ -1,0 +1,69 @@
+{
+    "login_page": {
+        "welcome": "Welcome",
+        "on": "on",
+        "greetings": "Nice to see you again",
+        "login": "Login",
+        "email": "Email address",
+        "password": "Password",
+        "placeholder_email": "Enter your email",
+        "placeholder_password": "Enter your password",
+        "forgot_password": "Forgot password?",
+        "remember_me": "Remember me",
+        "sign_in": "Sign in",
+        "signing_in": "Signing in...",
+        "sign_in_with_google": "Or Sign in with Google",
+        "no_account": "Don't have an account?",
+        "sign_up": "Sign up now",
+        "or": "or",
+        "error_login_failed": "Login failed. Please check your credentials.",
+        "error_no_token": "No authentication token received.",
+        "error_unexpected": "An unexpected error occurred. Please try again."
+    },
+    "sign_up_page": {
+        "welcome": "Welcome",
+        "on": "on",
+        "ready_to_sign_up": "Ready to sign up?",
+        "first_name": "First name",
+        "last_name": "Last name",
+        "email": "Email address",
+        "password": "Password",
+        "confirm_password": "Confirm password",
+        "passwords_do_not_match": "Passwords do not match",
+        "or": "or",
+        "sign_up": "Sign up",
+        "sign_up_with_google": "Sign up with Google",
+        "already_have_account": "Already have an account?",
+        "sign_in": "Sign in",
+        "signing_up": "Signing up...",
+        "error_unexpected": "An unexpected error occurred. Please try again.",
+        "sign_up_failed": "Sign up failed. Please check your information and try again."
+    },
+    "logout_page":{
+        "logging_out": "Logging out..."
+    },
+    "dashboard_page": {
+        "upload": {
+            "upload_picture": "Upload Picture(s)",
+            "drag_and_drop": "Drag and drop your pictures here, or click to select files",
+            "drag_or": "Drag and drop files, or",
+            "click_to_select": "click to select files",
+            "supported_formats": "Supported formats: JPEG, PNG",
+            "cancel": "Cancel",
+            "upload": "Upload",
+            "uploaded_files": "Uploaded files",
+            "uploading": "Uploading...",
+            "add_description": "Add a description (optional)",
+            "artworks": "artworks",
+            "have": "have",
+            "has": "has",
+            "them": "them",
+            "it": "it",
+            "been_uploaded": "been uploaded, you can see",
+            "in_your_gallery": "in your artwork gallery",
+            "uploaded": "uploaded",
+            "failed": "failed",
+            "error_process": "Failed to process "
+        }
+    }
+}

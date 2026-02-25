@@ -1,0 +1,69 @@
+{
+    "login_page": {
+        "welcome": "Bienvenue",
+        "on": "sur",
+        "greetings": "Ravi de vous revoir !",
+        "login": "Connexion",
+        "email": "Adresse e-mail",
+        "password": "Mot de passe",
+        "placeholder_email": "Entrez votre adresse e-mail",
+        "placeholder_password": "Entrez votre mot de passe",
+        "forgot_password": "Mot de passe oublié ?",
+        "remember_me": "Se souvenir de moi",
+        "sign_in": "Se connecter",
+        "signing_in": "Connexion en cours...",
+        "sign_in_with_google": "Se connecter avec Google",
+        "no_account": "Vous n'avez pas de compte ?",
+        "sign_up": "S'inscrire",
+        "or": "ou",
+        "error_login_failed": "La connexion a échoué. Veuillez vérifier vos identifiants.",
+        "error_no_token": "Aucun jeton d'authentification reçu.",
+        "error_unexpected": "Une erreur inattendue s'est produite. Veuillez réessayer."
+    },
+    "sign_up_page": {
+        "welcome": "Bienvenue",
+        "on": "sur",
+        "ready_to_sign_up": "Prêt à vous inscrire ?",
+        "first_name": "Prénom",
+        "last_name": "Nom de famille",
+        "email": "Adresse e-mail",
+        "password": "Mot de passe",
+        "confirm_password": "Confirmer le mot de passe",
+        "passwords_do_not_match": "Les mots de passe ne correspondent pas",
+        "or": "ou",
+        "sign_up": "S'inscrire",
+        "sign_up_with_google": "S'inscrire avec Google",
+        "already_have_account": "Vous avez déjà un compte ?",
+        "sign_in": "Se connecter",
+        "signing_up": "Inscription en cours...",
+        "error_unexpected": "Une erreur inattendue s'est produite. Veuillez réessayer.",
+        "sign_up_failed": "L'inscription a échoué. Veuillez vérifier vos informations et réessayer."
+    },
+    "logout_page":{
+        "logging_out": "Déconnexion en cours..."
+    },
+    "dashboard_page": {
+        "upload": {
+            "upload_picture": "Télécharger une ou plusieurs image(s)",
+            "drag_and_drop": "Glissez-déposez vos images ici, ou cliquez pour sélectionner des fichiers",
+            "drag_or": "Glissez-déposez des fichiers, ou",
+            "click_to_select": "cliquez pour sélectionner des fichiers",
+            "supported_formats": "Formats supportés : JPEG, PNG",
+            "cancel": "Annuler",
+            "upload": "Télécharger",
+            "uploaded_files": "Fichiers téléchargés",
+            "uploading": "Téléchargement en cours...",
+            "add_description": "Ajouter une description (optionnel)",
+            "artworks": "œuvres",
+            "have": "ont",
+            "has": "a",
+            "them": "voir vos œuvres dans votre galerie",
+            "it": "voir votre œuvre dans votre galerie",
+            "been_uploaded": "été téléchargée(s), vous pouvez",
+            "in_your_gallery": "",
+            "uploaded": "téléchargée(s)",
+            "failed": "échouée(s)",
+            "error_process": "Erreur lors du traitement de "
+        }
+    }
+}
