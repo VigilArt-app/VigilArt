@@ -31,6 +31,9 @@ jobs:
           node-version: '22'
           cache: 'pnpm'
 
+      - name: Install Doppler CLI
+        uses: dopplerhq/cli-action@v3
+
       - name: Install Dependencies
         run: pnpm install --frozen-lockfile
 
@@ -41,7 +44,9 @@ jobs:
         run: pnpm --filter @vigilart/backend db:generate
 
       - name: Run E2E Tests
-        run: pnpm --filter @vigilart/backend test:e2e
+        env:
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN }}
+        run: doppler run -- pnpm --filter @vigilart/backend test:e2e
 
   build-and-deploy:
     name: Build & deploy
