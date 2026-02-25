@@ -6,6 +6,9 @@ on:
       - '**'
       - '!dev'
       - '!main'
+  pull_request:
+    branches:
+      - '**'
   workflow_call:
 
 permissions:
@@ -52,7 +55,6 @@ jobs:
   smoke-test:
     name: 🔥 Smoke Test
     runs-on: ubuntu-latest
-    needs: run-tests
 
     steps:
       - name: Checkout code
