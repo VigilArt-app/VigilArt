@@ -12,6 +12,7 @@ permissions:
 jobs:
   run-ci:
     uses: ./.github/workflows/ci.yml
+    secrets: inherit
 
   build-and-deploy:
     name: 🚀 Build & Deploy

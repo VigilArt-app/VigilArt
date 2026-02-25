@@ -7,6 +7,11 @@ on:
       - '!dev'
       - '!main'
   workflow_call:
+    secrets:
+      DOPPLER_TEST_TOKEN:
+        required: true
+      GITHUB_TOKEN:
+        required: true
 
 permissions:
   contents: read
