@@ -5,9 +5,10 @@ import { ThemeProvider } from "next-themes";
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import { useEffect, useState } from 'react';
-import Backend from 'i18next-http-backend';
 import { getCookie, setCookie } from '../cookies';
 import i18next from 'i18next';
+import enTranslations from '../../../public/locales/en/translation.json';
+import frTranslations from '../../../public/locales/fr/translation.json';
 
 function SkeletonLoader() {
 
@@ -44,7 +45,6 @@ function I18nProvider({ children }: { children: React.ReactNode }) {
     const init = async () => {
       try {
         await i18n
-          .use(Backend)
           .use(initReactI18next)
           .init({
             lng: 'en',
@@ -54,8 +54,13 @@ function I18nProvider({ children }: { children: React.ReactNode }) {
             interpolation: {
               escapeValue: false,
             },
-            backend: {
-              loadPath: '/locales/{{lng}}/{{ns}}.json',
+            resources: {
+              en: {
+                translation: enTranslations,
+              },
+              fr: {
+                translation: frTranslations,
+              },
             },
           });
 
