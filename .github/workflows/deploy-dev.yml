@@ -10,83 +10,20 @@ permissions:
   contents: read
 
 jobs:
-  run-tests:
-    name: 🧪 Run E2E Tests
-    runs-on: ubuntu-latest
-    environment:
-      name: Development
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Install pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: 10.20.0
-          run_install: false
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-          cache: 'pnpm'
-
-      - name: Install Doppler CLI
-        uses: dopplerhq/cli-action@v3
-
-      - name: Install Dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Build Shared Package
-        run: pnpm --filter @vigilart/shared build
-
-      - name: Generate Prisma Client
-        run: pnpm --filter @vigilart/backend db:generate
-
-      - name: Run E2E Tests
-        env:
-          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN }}
-        run: doppler run -- pnpm --filter @vigilart/backend test:e2e
+  run-ci:
+    uses: ./.github/workflows/ci.yml
+    secrets: inherit
 
   build-and-deploy:
-    name: Build & deploy
+    name: 🚀 Build & Deploy
     runs-on: ubuntu-latest
-    needs: run-tests
+    needs: run-ci
     environment:
       name: Development
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
-      - name: Install Doppler CLI
-        uses: dopplerhq/cli-action@v3
-
-      - name: Set up Docker buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Smoke test
-        env:
-          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN }}
-        run: |
-          cleanup() {
-            echo "Cleaning up containers and volumes..."
-            doppler run -- docker compose -f docker-compose.prod.yml down -v
-          }
-          trap cleanup EXIT
-
-          echo "Building images and starting database..."
-          doppler run -- docker compose -f docker-compose.prod.yml build
-          doppler run -- docker compose -f docker-compose.prod.yml up -d --wait db
-
-          echo "Running database migrations..."
-          doppler run -- docker compose -f docker-compose.prod.yml --profile migrate run --rm migrator
-
-          echo "Starting backend and frontend..."
-          doppler run -- docker compose -f docker-compose.prod.yml up -d --wait backend frontend
-
-          echo "✅ Smoke test passed: build, migrations, and health checks successful."
 
       - name: Log in to GitHub container registry
         uses: docker/login-action@v3
