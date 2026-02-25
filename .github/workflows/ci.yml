@@ -7,9 +7,6 @@ on:
       - '!dev'
       - '!main'
   workflow_call:
-    secrets:
-      DOPPLER_TOKEN:
-        required: true
 
 permissions:
   contents: read
@@ -51,7 +48,7 @@ jobs:
 
       - name: Run E2E Tests
         env:
-          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN }}
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TEST_TOKEN }}
         run: doppler run -- pnpm --filter @vigilart/backend test:e2e
 
   smoke-test:
@@ -80,7 +77,7 @@ jobs:
 
       - name: Run smoke test
         env:
-          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN }}
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TEST_TOKEN }}
         run: |
           cleanup() {
             echo "Cleaning up containers..."
