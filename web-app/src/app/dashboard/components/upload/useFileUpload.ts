@@ -216,8 +216,9 @@ export function useFileUpload() {
         throw new Error(`Failed to create artworks: ${errorMessage}`);
       }
 
-      const result: ArtworkCreateManyResponseDTO = await createResponse.json();
-      const createdArtworks = result;
+      const createJson = await createResponse.json().catch(() => null);
+      const createdArtworks = (createJson && (createJson.data || createJson)) || {};
+
       uploadedCount = createdArtworks.count || createdArtworks.artworks?.length || 0;
       uploadedNames.push(
         ...(createdArtworks.artworks?.map((a: any) => a.originalFilename) || [])
