@@ -63,7 +63,23 @@
             "in_your_gallery": "in your artwork gallery",
             "uploaded": "uploaded",
             "failed": "failed",
-            "error_process": "Failed to process "
+            "error_process": "Failed to process ",
+            "see_gallery": "See gallery",
+            "upload_artworks": "Upload artworks",
+            "uploading_toatser": "Uploading",
+            "select_one_file": "Please select at least one file.",
+            "not_authenticated": "You are not authenticated. Please log in again.",
+            "token_expired": "Your session has expired. Please log in again.",
+            "failed_toaster": "Failed:",
+            "uploaded_toaster": "Uploaded",
+            "failed_to_upload": "Failed to upload any files. Please try again.",
+            "error_toaster": "Error:",
+            "create_records": "Creating artwork records...",
+            "no_artworks_to_create": "No artworks to create.",
+            "unknown_error": "Unknown error",
+            "server_error": "Server error: ",
+            "failed_create": "Failed to create artworks:",
+            "error_upload": "An error occurred during upload"
         }
     }
 }

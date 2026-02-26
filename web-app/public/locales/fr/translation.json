@@ -51,7 +51,7 @@
             "supported_formats": "Formats supportés : JPEG, PNG",
             "cancel": "Annuler",
             "upload": "Télécharger",
-            "uploaded_files": "Fichiers téléchargés",
+            "uploaded_files": "Télécharger",
             "uploading": "Téléchargement en cours...",
             "add_description": "Ajouter une description (optionnel)",
             "artworks": "œuvres",
@@ -63,7 +63,23 @@
             "in_your_gallery": "",
             "uploaded": "téléchargée(s)",
             "failed": "échouée(s)",
-            "error_process": "Erreur lors du traitement de "
+            "error_process": "Erreur lors du traitement de ",
+            "see_gallery": "Voir la galerie",
+            "upload_artworks": "Télécharger des œuvres",
+            "uploading_toatser": "Téléchargement de",
+            "select_one_file": "Veuillez sélectionner au moins un fichier.",
+            "not_authenticated": "Vous n'êtes pas authentifié. Veuillez vous reconnecter.",
+            "token_expired": "Votre session a expiré. Veuillez vous reconnecter.",
+            "failed_toaster": "Échec :",
+            "uploaded_toaster": "Téléchargé",
+            "failed_to_upload": "Échec du téléchargement de tous les fichiers. Veuillez réessayer.",
+            "error_toaster": "Erreur :",
+            "create_records": "Création des enregistrements d'œuvres...",
+            "no_artworks_to_create": "Aucune œuvre à créer.",
+            "unknown_error": "Erreur inconnue",
+            "server_error": "Erreur serveur : ",
+            "failed_create": "Échec de la création des œuvres :",
+            "error_upload": "Une erreur s'est produite pendant le téléchargement"
         }
     }
 }
