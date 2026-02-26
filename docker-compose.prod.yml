@@ -1,5 +1,21 @@
 services:
 
+  migrator:
+    image: ghcr.io/${REPO_OWNER:-vigilart-app}/vigilart-backend:${IMAGE_TAG}
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - app-network
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      NODE_ENV: ${NODE_ENV}
+    entrypoint: []
+    command: sh -c "cd /app/backend && pnpm db:migrate:prod"
+    restart: "no"
+    profiles:
+      - migrate
+
   backend:
     image: ghcr.io/${REPO_OWNER:-vigilart-app}/vigilart-backend:${IMAGE_TAG}
     build:
@@ -28,6 +44,10 @@ services:
       JWT_EXPIRES: ${JWT_EXPIRES}
       SALT_ROUNDS: ${SALT_ROUNDS}
       REDIS_URL: ${REDIS_URL}
+      CLOUDFLARE_BUCKET_NAME: ${CLOUDFLARE_BUCKET_NAME}
+      CLOUDFLARE_R2_ENDPOINT: ${CLOUDFLARE_R2_ENDPOINT}
+      CLOUDFLARE_R2_ACCESS_KEY: ${CLOUDFLARE_R2_ACCESS_KEY}
+      CLOUDFLARE_R2_SECRET_KEY: ${CLOUDFLARE_R2_SECRET_KEY}
     restart: always
     init: true
     healthcheck:

@@ -27,8 +27,8 @@ pnpm-debug.log*
 .github
 
 # Docker files
-Dockerfile*
-docker-compose*
+**/Dockerfile*
+**/docker-compose*
 
 # OS generated files
 .DS_Store

@@ -28,7 +28,7 @@ export const setupApp = (app: INestApplication) => {
       .setDescription(
         "Official API documentation for the VigilArt application."
       )
-      .setVersion("0.0.1")
+      .setVersion("0.1.0")
       .addBearerAuth()
       .addGlobalResponse({
         status: 500,
