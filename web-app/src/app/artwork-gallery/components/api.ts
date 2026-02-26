@@ -1,31 +1,7 @@
 import { toast } from "sonner";
 import { Artwork } from "./types";
-import { getUserIdFromToken } from "./utils";
-
-/**
- * Get the auth token from localStorage or sessionStorage
- */
-const getAuthToken = (): string | null => {
-  if (typeof window === "undefined") return null;
-  return localStorage.getItem("auth_token") || sessionStorage.getItem("auth_token");
-};
-
-/**
- * Centralized fetch helper that includes Authorization header
- */
-const authenticatedFetch = (url: string, options: RequestInit = {}) => {
-  const authToken = getAuthToken();
-  if (!authToken) {
-    throw new Error("Authentication token not found");
-  }
-
-  const headers = {
-    ...options.headers,
-    Authorization: `Bearer ${authToken}`,
-  };
-
-  return fetch(url, { ...options, headers });
-};
+import { getUserIdFromToken } from "../../../utils/auth/getUserIdFromToken";
+import { authenticatedFetch } from "../../../utils/auth/authenticatedFetch";
 
 export const fetchArtworks = async (): Promise<Artwork[]> => {
   const userId = getUserIdFromToken();

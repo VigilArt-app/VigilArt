@@ -1,53 +1,9 @@
 import { toast } from "sonner";
 import type { UserGet, UserUpdate } from "@vigilart/shared/types";
 import type { UploadUrlGet, UploadUrlsGetDTO } from "@vigilart/shared";
-
-/**
- * Get the auth token from localStorage or sessionStorage
- */
-const getAuthToken = (): string | null => {
-  if (typeof window === "undefined") return null;
-  return localStorage.getItem("auth_token") || sessionStorage.getItem("auth_token");
-};
-
-/**
- * Get user ID from token
- */
-const getUserIdFromToken = (): string | null => {
-  if (typeof window === "undefined") return null;
-  const token = getAuthToken();
-  if (!token) return null;
-
-  try {
-    const parts = token.split(".");
-    if (parts.length !== 3) return null;
-    const decoded = JSON.parse(atob(parts[1]));
-    return decoded.sub || null;
-  } catch {
-    return null;
-  }
-};
-
-/**
- * Centralized fetch helper that includes Authorization header
- */
-const authenticatedFetch = (url: string, options: RequestInit = {}) => {
-  const authToken = getAuthToken();
-  if (!authToken) {
-    throw new Error("Authentication token not found");
-  }
-
-  const headers: HeadersInit = {
-    ...options.headers,
-    Authorization: `Bearer ${authToken}`,
-  };
-
-  if (!(options.body instanceof FormData)) {
-    headers["Content-Type"] = "application/json";
-  }
-
-  return fetch(url, { ...options, headers });
-};
+import { getAuthToken } from "../../utils/auth/getAuthToken";
+import { authenticatedFetch } from "../../utils/auth/authenticatedFetch";
+import { getUserIdFromToken } from "../../utils/auth/getUserIdFromToken";
 
 /**
  * Fetch current user profile

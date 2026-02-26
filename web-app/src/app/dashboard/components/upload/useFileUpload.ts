@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { toast } from "sonner";
-import { getUserIdFromToken } from "../../../artwork-gallery/components/utils";
+import { getUserIdFromToken } from "../../../../utils/auth/getUserIdFromToken";
 import type { ArtworkCreateManyResponseDTO, UploadUrlsGetDTO } from "@vigilart/shared";
 import { getImageDimensions } from "./imageUtils";
 
