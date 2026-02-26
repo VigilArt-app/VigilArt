@@ -9,6 +9,7 @@ import { getCookie, setCookie } from '../cookies';
 import i18next from 'i18next';
 import enTranslations from '../../../public/locales/en/translation.json';
 import frTranslations from '../../../public/locales/fr/translation.json';
+import { Toaster, toast } from "sonner";
 
 function SkeletonLoader() {
 
@@ -40,6 +41,7 @@ function SkeletonLoader() {
 
 function I18nProvider({ children }: { children: React.ReactNode }) {
   const [isInitialized, setIsInitialized] = useState(false);
+  const [hasInitError, setHasInitError] = useState(false);
 
   useEffect(() => {
     const init = async () => {
@@ -66,12 +68,18 @@ function I18nProvider({ children }: { children: React.ReactNode }) {
 
         setIsInitialized(true);
       } catch (error) {
-        console.error('Failed to initialize i18n:', error);
+        setHasInitError(true);
       }
     };
 
     init();
   }, []);
+
+  useEffect(() => {
+    if (hasInitError) {
+      toast.error("Failed to initialize internationalization");
+    }
+  }, [hasInitError]);
 
   useEffect(() => {
     const savedLanguage = getCookie('language') || 'en'
@@ -90,6 +98,7 @@ function I18nProvider({ children }: { children: React.ReactNode }) {
   if (!isInitialized) {
     return (
       <ThemeProvider attribute="class" defaultTheme="system" enableSystem >
+        <Toaster position="top-right" richColors />
         <SkeletonLoader />
       </ThemeProvider>
     );

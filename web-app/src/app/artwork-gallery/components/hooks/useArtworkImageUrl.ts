@@ -61,7 +61,6 @@ export function useArtworkImageUrl(storageKey: string | undefined) {
       } catch (err) {
         const error = err instanceof Error ? err : new Error(String(err));
         setError(error);
-        console.error("Error fetching image URL:", error);
       } finally {
         setIsLoading(false);
       }
