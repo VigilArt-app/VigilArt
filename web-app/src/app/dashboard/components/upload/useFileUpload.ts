@@ -115,7 +115,6 @@ export function useFileUpload() {
 
           if (!uploadInfo) {
             failedCount++;
-            console.error(`No presigned URL for ${file.name}`);
             toast.error(`Failed: ${file.name}`);
             continue;
           }
@@ -130,7 +129,6 @@ export function useFileUpload() {
 
           if (!uploadResponse.ok) {
             failedCount++;
-            console.error(`R2 upload failed for ${file.name}:`, uploadResponse.status);
             toast.error(`Failed: ${file.name}`);
             continue;
           }
@@ -142,7 +140,6 @@ export function useFileUpload() {
           });
         } catch (error) {
           failedCount++;
-          console.error(`Upload error for ${file.name}:`, error);
           toast.error(`Error: ${file.name}`);
         }
       }
@@ -179,7 +176,6 @@ export function useFileUpload() {
           });
         } catch (error) {
           failedCount++;
-          console.error(`Error processing ${file.name}:`, error);
         }
       }
 
@@ -229,7 +225,6 @@ export function useFileUpload() {
       return true;
     } catch (error) {
       toast.dismiss("upload-progress");
-      console.error("Error during upload:", error);
       toast.error(error instanceof Error ? error.message : "An error occurred during upload");
       return false;
     } finally {

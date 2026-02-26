@@ -26,7 +26,6 @@ export const fetchUserProfile = async (): Promise<UserGet> => {
     const data = await response.json();
     return data.data || data;
   } catch (error) {
-    console.error("Error fetching user profile:", error);
     toast.error("Failed to load user profile");
     throw error;
   }
@@ -64,7 +63,6 @@ export const getAvatarUploadUrl = async (filename: string): Promise<UploadUrlGet
     const uploadUrls: UploadUrlsGetDTO = urlsData.data || urlsData;
     return uploadUrls[filename];
   } catch (error) {
-    console.error("Error getting avatar upload URL:", error);
     toast.error("Failed to prepare avatar upload");
     throw error;
   }
@@ -90,7 +88,6 @@ export const uploadAvatarToR2 = async (
       throw new Error(`Upload failed with status ${response.status}`);
     }
   } catch (error) {
-    console.error("Error uploading avatar to R2:", error);
     toast.error("Failed to upload avatar");
     throw error;
   }
@@ -126,7 +123,6 @@ export const getAvatarDownloadUrl = async (storageKey: string): Promise<string> 
     const downloadUrls = urlsData.data || urlsData;
     return downloadUrls[storageKey];
   } catch (error) {
-    console.error("Error getting avatar download URL:", error);
     throw error;
   }
 };
@@ -161,7 +157,6 @@ export const updateUserProfile = async (
     toast.success("Profile updated successfully");
     return data.data || data;
   } catch (error) {
-    console.error("Error updating user profile:", error);
     toast.error(
       error instanceof Error ? error.message : "Failed to update profile"
     );

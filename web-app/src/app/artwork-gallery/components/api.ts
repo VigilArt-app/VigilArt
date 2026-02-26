@@ -21,7 +21,6 @@ export const fetchArtworks = async (): Promise<Artwork[]> => {
     const data = await response.json();
     return data.data || [];
   } catch (error) {
-    console.error("Error fetching artworks:", error);
     toast.error("Failed to load artworks");
     throw error;
   }
@@ -40,7 +39,6 @@ export const deleteArtwork = async (id: string): Promise<void> => {
 
     toast.success("Artwork deleted successfully");
   } catch (error) {
-    console.error("Error deleting artwork:", error);
     toast.error("Failed to delete artwork");
     throw error;
   }

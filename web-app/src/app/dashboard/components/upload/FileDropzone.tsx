@@ -21,7 +21,6 @@ export function FileDropzone({ onFilesAdded }: FileDropzoneProps) {
           description: "",
         });
       } catch (error) {
-        console.error("Error compressing image:", error);
         toast.error(`Failed to process ${file.name}`);
       }
     }

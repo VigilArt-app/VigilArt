@@ -61,7 +61,6 @@ function I18nProvider({ children }: { children: React.ReactNode }) {
 
         setIsInitialized(true);
       } catch (error) {
-        console.error('Failed to initialize i18n:', error);
       }
     };
 

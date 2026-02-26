@@ -62,7 +62,6 @@ export default function ProfilePage() {
           const downloadUrl = await getAvatarDownloadUrl(formData.avatar);
           setAvatarDisplayUrl(downloadUrl);
         } catch (error) {
-          console.error("Error loading avatar from bucket:", error);
           setAvatarDisplayUrl("");
         }
       }
@@ -119,7 +118,6 @@ export default function ProfilePage() {
           await uploadAvatarToR2(formData.avatarFile, uploadUrlData.presignedUrl);
           updatePayload.avatar = uploadUrlData.storageKey;
         } catch (error) {
-          console.error("Error uploading avatar to R2:", error);
           setIsSaving(false);
           return;
         }
