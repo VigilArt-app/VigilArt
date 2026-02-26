@@ -1,7 +1,6 @@
 import { toast } from "sonner";
 import type { UserGet, UserUpdate } from "@vigilart/shared/types";
 import type { UploadUrlGet, UploadUrlsGetDTO } from "@vigilart/shared";
-import { getAuthToken } from "../../utils/auth/getAuthToken";
 import { authenticatedFetch } from "../../utils/auth/authenticatedFetch";
 import { getUserIdFromToken } from "../../utils/auth/getUserIdFromToken";
 
@@ -35,20 +34,10 @@ export const fetchUserProfile = async (): Promise<UserGet> => {
  * Get presigned upload URL for avatar from storage service
  */
 export const getAvatarUploadUrl = async (filename: string): Promise<UploadUrlGet> => {
-  const authToken = getAuthToken();
-  if (!authToken) {
-    toast.error("User not authenticated. Please login.");
-    throw new Error("Not authenticated");
-  }
-
   try {
     const API_BASE = process.env.NEXT_PUBLIC_API_URL;
-    const response = await fetch(`${API_BASE}/storage/artworks/upload-urls`, {
+    const response = await authenticatedFetch(`${API_BASE}/storage/artworks/upload-urls`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${authToken}`,
-      },
       body: JSON.stringify({
         filenames: [filename],
         prefix: "profiles",
@@ -97,19 +86,10 @@ export const uploadAvatarToR2 = async (
  * Get download URL for avatar from storage service
  */
 export const getAvatarDownloadUrl = async (storageKey: string): Promise<string> => {
-  const authToken = getAuthToken();
-  if (!authToken) {
-    throw new Error("Not authenticated");
-  }
-
   try {
     const API_BASE = process.env.NEXT_PUBLIC_API_URL;
-    const response = await fetch(`${API_BASE}/storage/artworks/download-urls`, {
+    const response = await authenticatedFetch(`${API_BASE}/storage/artworks/download-urls`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${authToken}`,
-      },
       body: JSON.stringify({
         storageKeys: [storageKey],
       }),
