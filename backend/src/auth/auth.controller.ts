@@ -1,4 +1,9 @@
-import { Body, Controller, HttpStatus, Post } from "@nestjs/common";
+import {
+  Body,
+  Controller,
+  HttpStatus,
+  Post
+} from "@nestjs/common";
 import { LoginDTO, SignUpDTO, AuthResponseDTO } from "@vigilart/shared/schemas";
 import type { AuthResponse } from "@vigilart/shared/types";
 import { AuthService } from "./auth.service";
@@ -21,7 +26,7 @@ export class AuthController {
   })
   @ApiBody({ type: SignUpDTO })
   async signUp(@Body() signUpDto: SignUpDTO): Promise<AuthResponse> {
-    return await this.authService.signUp(signUpDto);
+    return this.authService.signUp(signUpDto);
   }
 
   @Post("login")
@@ -36,6 +41,6 @@ export class AuthController {
   })
   @ApiBody({ type: LoginDTO })
   async login(@Body() loginDto: LoginDTO): Promise<AuthResponse> {
-    return await this.authService.login(loginDto);
+    return this.authService.login(loginDto);
   }
 }

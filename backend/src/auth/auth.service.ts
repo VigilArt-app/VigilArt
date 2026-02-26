@@ -48,7 +48,7 @@ export class AuthService {
     const userExists = await this.usersService.findByEmail(email);
     if (userExists) throw new ConflictException("Email already in use");
 
-    const saltRounds = Number(this.config.get<number>("SALT_ROUNDS")) || 10;
+    const saltRounds = this.config.get<number>("SALT_ROUNDS") || 10;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
     const user = await this.usersService.create({
       email,

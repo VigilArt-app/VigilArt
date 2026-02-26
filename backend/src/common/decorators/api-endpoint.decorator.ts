@@ -1,6 +1,7 @@
-import { applyDecorators, HttpCode, HttpStatus, Type } from "@nestjs/common";
+import { applyDecorators, HttpCode, HttpStatus, Type, UseGuards } from "@nestjs/common";
 import { ApiOperation, ApiResponse, ApiBearerAuth } from "@nestjs/swagger";
 import { ApiResponseGeneric } from "./api-ok-response-generic.decorator";
+import { JwtAuthGuard } from "../guards/jwt-auth.guard";
 import {
   BadRequestErrorDTO,
   UnauthorizedErrorDTO,
@@ -76,6 +77,7 @@ export function ApiEndpoint(options: ApiEndpointOptions) {
     });
   }
   if (options.protected) {
+    decorators.push(UseGuards(JwtAuthGuard));
     decorators.push(
       ApiResponse({
         status: HttpStatus.UNAUTHORIZED,

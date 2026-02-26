@@ -45,15 +45,14 @@ export class HttpExceptionFilter extends BaseExceptionFilter {
         errorBody.message = res;
         errorBody.error = exception.name;
       }
-      this.logger.error(errorBody.message);
     } else if (exception instanceof Error) {
       errorBody.message = "An unexpected error occurred";
       errorBody.error = "Internal Server Error";
-      this.logger.error(exception.stack);
     }
     errorBody.error = errorBody.error
       ? errorBody.error
       : errorLabels[errorBody.statusCode];
+    this.logger.error(exception);
     response.status(errorBody.statusCode).json(errorBody);
   }
 }
