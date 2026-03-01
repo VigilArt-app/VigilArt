@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { createZodDto } from "nestjs-zod";
 import { MatchingPageSchema } from "./VisualSearchResult";
-import { dateTimeStringToDate } from "../../constants";
+import { dateTimeStringToDate } from "../../functions";
 
 export const GetArtworksMatchesSchema = z.object({
   websiteCategory: z.string().optional(),

@@ -21,6 +21,10 @@ Currently working on a website and a mobile app!
 - Get regularly **notified** about where your artworks appear online, all in one dashboard.
 - **Take action** with automatically generated DMCA reports to remove unauthorized uses of your artworks.
 
+## Status
+
+[![Deploy to dev](https://github.com/VigilArt-app/VigilArt/actions/workflows/deploy-dev.yml/badge.svg?branch=dev)](https://dev.vigilart.app)
+
 ## Getting started
 
 Quick steps to run the project locally.

@@ -27,3 +27,23 @@ export type User = Prisma.UserModel
  * 
  */
 export type Artwork = Prisma.ArtworkModel
+/**
+ * Model DmcaPlatform
+ * 
+ */
+export type DmcaPlatform = Prisma.DmcaPlatformModel
+/**
+ * Model DmcaProfile
+ * 
+ */
+export type DmcaProfile = Prisma.DmcaProfileModel
+/**
+ * Model DmcaNotice
+ * 
+ */
+export type DmcaNotice = Prisma.DmcaNoticeModel
+/**
+ * Model DmcaNoticeData
+ * 
+ */
+export type DmcaNoticeData = Prisma.DmcaNoticeDataModel
