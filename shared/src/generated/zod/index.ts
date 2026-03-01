@@ -14,6 +14,8 @@ export const TransactionIsolationLevelSchema = z.enum(['ReadUncommitted','ReadCo
 
 export const UserScalarFieldEnumSchema = z.enum(['id','email','password','firstName','lastName','avatar','createdAt','subscriptionTier']);
 
+export const RefreshTokenScalarFieldEnumSchema = z.enum(['id','userId','token','deviceInfo','ipAddress','expiresAt','createdAt']);
+
 export const ArtworkScalarFieldEnumSchema = z.enum(['id','userId','originalFilename','storageKey','contentType','sizeBytes','width','height','description','createdAt','updatedAt','lastScanAt']);
 
 export const SortOrderSchema = z.enum(['asc','desc']);
@@ -50,6 +52,22 @@ export const UserSchema = z.object({
 })
 
 export type User = z.infer<typeof UserSchema>
+
+/////////////////////////////////////////
+// REFRESH TOKEN SCHEMA
+/////////////////////////////////////////
+
+export const RefreshTokenSchema = z.object({
+  id: z.uuid(),
+  userId: z.string(),
+  token: z.string(),
+  deviceInfo: z.string().nullable(),
+  ipAddress: z.string().nullable(),
+  expiresAt: z.coerce.date(),
+  createdAt: z.coerce.date(),
+})
+
+export type RefreshToken = z.infer<typeof RefreshTokenSchema>
 
 /////////////////////////////////////////
 // ARTWORK SCHEMA

@@ -7,13 +7,20 @@ import { HttpExceptionFilter } from "./common/filters/http-exception.filter";
 import { ResponseWrapperInterceptor } from "./common/interceptors/response-wrapper.interceptor";
 import { PrismaClientExceptionFilter } from "./common/filters/prisma-client-exception.filter";
 import { HttpAdapterHost } from "@nestjs/core";
+import cookieParser from "cookie-parser";
 
 export const setupApp = (app: INestApplication) => {
   const configService = app.get(ConfigService);
   const apiPrefix = configService.get<string>("API_PREFIX") || "/api/v1";
   const { httpAdapter } = app.get(HttpAdapterHost);
 
-  app.enableCors();
+  app.use(cookieParser());
+
+  app.enableCors({
+    origin: configService.get<string>("CORS_ORIGINS")?.split(",") || true,
+    credentials: true,
+  });
+
   app.setGlobalPrefix(apiPrefix);
   app.useGlobalFilters(
     new HttpExceptionFilter(httpAdapter),

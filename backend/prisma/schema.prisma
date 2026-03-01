@@ -36,6 +36,22 @@ model User {
   createdAt        DateTime         @default(now())
   subscriptionTier SubscriptionTier
   artworks Artwork[]
+  refreshTokens     RefreshToken[]
+}
+
+model RefreshToken {
+  id          String    @id @default(uuid())
+  userId      String
+  token       String    @db.VarChar(512)
+  deviceInfo  String?   @db.VarChar(256)
+  ipAddress   String?   @db.VarChar(45)
+
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  expiresAt   DateTime
+  createdAt   DateTime  @default(now())
+
+  @@index([userId, expiresAt])
 }
 
 enum SubscriptionTier {
