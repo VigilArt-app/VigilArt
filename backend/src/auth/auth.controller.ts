@@ -6,7 +6,8 @@ import {
   Post,
   Req,
   Res,
-  UseGuards
+  UseGuards,
+  Get
 } from "@nestjs/common";
 import type { Request, Response } from "express";
 import { LoginDTO, SignUpDTO, UserGetDTO } from "@vigilart/shared/schemas";
@@ -28,8 +29,7 @@ export class AuthController {
       status: HttpStatus.CREATED,
       type: UserGetDTO
     },
-    errors: [HttpStatus.CONFLICT],
-    protected: false
+    errors: [HttpStatus.CONFLICT]
   })
   @ApiBody({ type: SignUpDTO })
   async signUp(@Body() signUpDto: SignUpDTO): Promise<UserGet> {
@@ -42,9 +42,7 @@ export class AuthController {
     success: {
       status: HttpStatus.OK,
       type: UserGetDTO
-    },
-    errors: [HttpStatus.UNAUTHORIZED],
-    protected: false
+    }
   })
   @ApiBody({ type: LoginDTO })
   async login(
@@ -100,7 +98,6 @@ export class AuthController {
     success: {
       status: HttpStatus.NO_CONTENT
     },
-    errors: [HttpStatus.UNAUTHORIZED],
     protected: true
   })
   async logoutAll(
@@ -108,5 +105,18 @@ export class AuthController {
     @Res({ passthrough: true }) response: Response
   ): Promise<void> {
     return this.authService.logoutAllDevices(response, req.user.id);
+  }
+
+  @Get("me")
+  @ApiEndpoint({
+    summary: "Retrieve authenticated user data",
+    success: {
+      status: HttpStatus.OK,
+      type: UserGetDTO
+    },
+    protected: true
+  })
+  async getAuthenticatedUser(@Req() req: AuthenticatedRequest): Promise<UserGet> {
+    return this.authService.me(req.user);
   }
 }

@@ -10,6 +10,7 @@ import * as bcrypt from "bcrypt";
 import { ConfigService } from "@nestjs/config";
 import { PrismaService } from "../prisma/prisma.service";
 import type { Request, Response } from "express";
+import { AuthenticatedRequest } from "./auth";
 
 @Injectable()
 export class AuthService {
@@ -203,5 +204,17 @@ export class AuthService {
       where: { userId }
     });
     this.clearAuthCookies(response);
+  }
+
+  async me(auth: AuthenticatedRequest["user"]): Promise<UserGet> {
+    return this.prisma.user.findUniqueOrThrow({
+      where: {
+        id: auth.id,
+        email: auth.email
+      },
+      omit: {
+        password: true
+      }
+    });
   }
 }
