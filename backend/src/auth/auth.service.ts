@@ -28,7 +28,7 @@ export class AuthService {
   ): Promise<AuthTokens> {
     const accessTokenExpiry = this.config.get("JWT_EXPIRES") || "15m";
     const refreshTokenExpiry = this.config.get("JWT_REFRESH_EXPIRES") || "7d";
-    const saltRounds = this.config.get<number>("SALT_ROUNDS") || 10;
+    const saltRounds = Number(this.config.get<number>("SALT_ROUNDS") || 10);
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(
         { sub: userId, email },
@@ -139,7 +139,7 @@ export class AuthService {
     const userExists = await this.usersService.findByEmail(email);
     if (userExists) throw new ConflictException("Email already in use");
 
-    const saltRounds = this.config.get<number>("SALT_ROUNDS") || 10;
+    const saltRounds = Number(this.config.get<number>("SALT_ROUNDS") || 10);
     const hashedPassword = await bcrypt.hash(password, saltRounds);
     return this.usersService.create({
       email,

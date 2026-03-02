@@ -3,3 +3,4 @@ export * from "./Artwork";
 export * from "./Reports";
 export * from "./Api";
 export * from "./Storage";
+export * from "./Json";
