@@ -2,9 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { Loader2, Upload, X } from "lucide-react";
-import type { UserGet, UserUpdate } from "@vigilart/shared/types";
+import type { UserUpdate } from "@vigilart/shared/types";
 import {
-  fetchUserProfile,
   updateUserProfile,
   getAvatarUploadUrl,
   uploadAvatarToR2,
@@ -13,13 +12,13 @@ import {
 import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
 import { Label } from "@/src/components/ui/label";
+import { useAuth } from "@/src/components/contexts/authContext";
 
 export default function ProfilePage() {
-  const [user, setUser] = useState<UserGet | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const { user, loading: isLoading, refreshUser } = useAuth();
   const [isSaving, setIsSaving] = useState(false);
   const [avatarDisplayUrl, setAvatarDisplayUrl] = useState<string>("");
-  
+
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -29,24 +28,16 @@ export default function ProfilePage() {
   });
 
   useEffect(() => {
-    const loadProfile = async () => {
-      try {
-        const userData = await fetchUserProfile();
-        setUser(userData);
-        setFormData({
-          firstName: userData.firstName || "",
-          lastName: userData.lastName || "",
-          email: userData.email || "",
-          avatar: userData.avatar || "",
-          avatarFile: null,
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadProfile();
-  }, []);
+    if (user) {
+      setFormData({
+        firstName: user.firstName || "",
+        lastName: user.lastName || "",
+        email: user.email || "",
+        avatar: user.avatar || "",
+        avatarFile: null,
+      });
+    }
+  }, [user]);
 
   useEffect(() => {
     const loadAvatarUrl = async () => {
@@ -101,7 +92,7 @@ export default function ProfilePage() {
     setIsSaving(true);
     try {
       const updatePayload: UserUpdate = {};
-      
+
       if (formData.firstName !== user?.firstName) {
         updatePayload.firstName = formData.firstName;
       }
@@ -127,15 +118,12 @@ export default function ProfilePage() {
         return;
       }
 
-      const updatedUser = await updateUserProfile(updatePayload);
-      setUser(updatedUser);
-      setFormData({
-        firstName: updatedUser.firstName || "",
-        lastName: updatedUser.lastName || "",
-        email: updatedUser.email || "",
-        avatar: updatedUser.avatar || "",
+      await updateUserProfile(user.id, updatePayload);
+      await refreshUser();
+      setFormData((prev) => ({
+        ...prev,
         avatarFile: null,
-      });
+      }));
     } finally {
       setIsSaving(false);
     }
@@ -164,13 +152,13 @@ export default function ProfilePage() {
               <div className="flex items-center justify-between gap-6">
                 <div className="flex items-center gap-6 flex-1">
                   {avatarDisplayUrl ? (
-                    <img src={avatarDisplayUrl} alt="Profile" className="h-24 w-24 rounded-full object-cover border-2 flex-shrink-0" />
+                    <img src={avatarDisplayUrl} alt="Profile" className="h-24 w-24 rounded-full object-cover border-2 shrink-0" />
                   ) : (
-                    <div className="h-24 w-24 rounded-full flex items-center justify-center border-2 flex-shrink-0">
+                    <div className="h-24 w-24 rounded-full flex items-center justify-center border-2 shrink-0">
                       <span className="text-xs">No avatar</span>
                     </div>
                   )}
-                  
+
                   <div>
                     <h2 className="text-2xl font-bold">
                       {user.firstName} {user.lastName}

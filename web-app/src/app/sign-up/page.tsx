@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation"
 import { Button } from "../../components/ui/button"
 import { Input } from "../../components/ui/input"
 import { Label } from "../../components/ui/label"
+import { authenticatedFetch } from "@/src/utils/auth/authenticatedFetch"
 
 export default function SignUpPage() {
   const [email, setEmail] = useState("")
@@ -27,10 +28,8 @@ export default function SignUpPage() {
     }
     setIsLoading(true)
     try {
-      const API_BASE = process.env.NEXT_PUBLIC_API_URL
-      const res = await fetch(`${API_BASE}/auth/signup`, {
+      const res = await authenticatedFetch(`/auth/signup`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password, firstName, lastName })
       })
       if (!res.ok) {

@@ -1,18 +1,12 @@
 import { toast } from "sonner";
 import { Artwork } from "./types";
-import { getUserIdFromToken } from "../../../utils/auth/getUserIdFromToken";
 import { authenticatedFetch } from "../../../utils/auth/authenticatedFetch";
 
-export const fetchArtworks = async (): Promise<Artwork[]> => {
-  const userId = getUserIdFromToken();
-  if (!userId) {
-    toast.error("User not authenticated. Please login.");
-    throw new Error("Not authenticated");
-  }
-
+export const fetchArtworks = async (
+  userId: string
+): Promise<Artwork[]> => {
   try {
-    const API_BASE = process.env.NEXT_PUBLIC_API_URL;
-    const response = await authenticatedFetch(`${API_BASE}/artworks/user/${userId}`);
+    const response = await authenticatedFetch(`/artworks/user/${userId}`);
 
     if (!response.ok) {
       throw new Error("Failed to fetch artworks");
@@ -28,8 +22,7 @@ export const fetchArtworks = async (): Promise<Artwork[]> => {
 
 export const deleteArtwork = async (id: string): Promise<void> => {
   try {
-    const API_BASE = process.env.NEXT_PUBLIC_API_URL;
-    const response = await authenticatedFetch(`${API_BASE}/artworks/${id}`, {
+    const response = await authenticatedFetch(`/artworks/${id}`, {
       method: "DELETE",
     });
 
