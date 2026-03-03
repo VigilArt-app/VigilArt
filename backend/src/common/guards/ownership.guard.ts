@@ -33,7 +33,6 @@ export class OwnershipGuard implements CanActivate {
         throw new UnauthorizedException("User is not authenticated");
 
       const resourceOwnerIds = this.resolveDataPath(request[param.type], param.data);
-      console.log(resourceOwnerIds);
       if (!resourceOwnerIds.length)
         throw new ForbiddenException(`'${param.data}' not found in ${param.type}`);
       if (!resourceOwnerIds.every(id => id === authenticatedUserParam))
@@ -78,10 +77,11 @@ export class OwnershipGuard implements CanActivate {
       if (allItemsMatch) {
         const fieldName = allItemsMatch[1];
 
-        if (typeof current !== "object" || Array.isArray(current))
-          return [];
-        if (fieldName)
+        if (fieldName) {
+          if (typeof current !== "object" || Array.isArray(current))
+            return [];
           current = current[fieldName];
+        }
         if (!Array.isArray(current))
           return [];
 
