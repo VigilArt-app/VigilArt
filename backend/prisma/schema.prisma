@@ -12,12 +12,9 @@ generator client {
 }
 
 generator zod {
-  provider          = "zod-prisma-types"
-  output            = "../../shared/src/generated/zod"
-  prismaClientPath  = "../prisma/client"
-  createInputTypes  = false
-  addIncludeType    = false
-  useTypeAssertions = true
+  provider = "prisma-zod-generator"
+  output   = "../../shared/src/generated/zod"
+  config   = "../zod-generator.config.json"
 }
 
 datasource db {
@@ -33,10 +30,15 @@ model User {
   firstName        String           @db.VarChar(64)
   lastName         String           @db.VarChar(64)
   avatar           String?
+  subscriptionTier SubscriptionTier @default(FREE)
+
   createdAt        DateTime         @default(now())
-  subscriptionTier SubscriptionTier
-  artworks Artwork[]
-  refreshTokens     RefreshToken[]
+  updatedAt        DateTime         @updatedAt @default(now())
+
+  dmcaProfile      DmcaProfile?
+  dmcaNotices      DmcaNotice[]
+  artworks         Artwork[]
+  refreshTokens    RefreshToken[]
 }
 
 model RefreshToken {
@@ -62,6 +64,7 @@ enum SubscriptionTier {
 
 model Artwork {
   id                String            @id @default(uuid())
+
   userId            String
   user              User              @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -75,6 +78,8 @@ model Artwork {
   createdAt         DateTime          @default(now())
   updatedAt         DateTime          @updatedAt
   lastScanAt        DateTime?
+
+  dmcaNotices       DmcaNotice[]
 }
 
 enum WebsiteCategory {
@@ -85,4 +90,78 @@ enum WebsiteCategory {
   MEDIA
   SEARCH
   OTHER
+}
+
+// DMCA Models & Enums
+
+enum DmcaStatus {
+  DRAFT
+  SUBMITTED
+}
+
+model DmcaPlatform {
+  id            String            @id @default(uuid())
+
+  slug          String            @unique
+  displayName   String
+  domain        String            @unique
+  dmcaUrl       String
+  email         String
+  websiteCategory WebsiteCategory
+  formSchema    Json
+
+  dmcaNotices   DmcaNotice[]
+
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt @default(now())
+}
+
+model DmcaProfile {
+  id           String   @id @default(uuid())
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId       String   @unique
+
+  fullName     String?
+  street       String?
+  aptSuite     String?
+  city         String?
+  postalCode   String?
+  country      String?
+  email        String?
+  phone        String?
+  signature    String?
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt @default(now())
+}
+
+model DmcaNotice {
+  id String @id @default(uuid())
+
+  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userId String?
+
+  dmcaPlatform   DmcaPlatform @relation(fields: [dmcaPlatformSlug], references: [slug], onDelete: Restrict)
+  dmcaPlatformSlug String
+
+  artwork   Artwork? @relation(fields: [artworkId], references: [id], onDelete: SetNull)
+  artworkId String?
+
+  dmcaNoticeData DmcaNoticeData?
+
+  status DmcaStatus @default(DRAFT)
+  payload Json      @default("{}")
+  submittedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt @default(now())
+}
+
+model DmcaNoticeData {
+  id String @id @default(uuid())
+
+  dmcaNotice DmcaNotice @relation(fields: [dmcaNoticeId], references: [id], onDelete: Cascade)
+  dmcaNoticeId String @unique
+
+  generated   Int @default(0)
 }

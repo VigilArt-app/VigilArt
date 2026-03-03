@@ -51,7 +51,7 @@ export class OwnershipGuard implements CanActivate {
       return this.resolveArrayPath(source, path);
 
     const keys = path.split('.');
-    let current: JsonValue = source;
+    let current: JsonValue | undefined = source;
 
     for (const key of keys) {
       if (!current || typeof current !== "object" || Array.isArray(current))
@@ -65,7 +65,7 @@ export class OwnershipGuard implements CanActivate {
 
   private resolveArrayPath(source: JsonValue, path: string): string[] {
     const segments = path.split('.');
-    let current: JsonValue = source;
+    let current: JsonValue | undefined = source;
 
     for (const segment of segments) {
       if (!current)

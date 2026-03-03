@@ -44,6 +44,7 @@ type ApiEndpointOptions200 = BaseApiEndpointOptions & ProtectionOptions & {
   success: {
     status: HttpStatus.OK;
     type?: Type<unknown> | [Type<unknown>];
+    nullable?: boolean;
   };
 };
 
@@ -51,6 +52,7 @@ type ApiEndpointOptions201 = BaseApiEndpointOptions & ProtectionOptions & {
   success: {
     status: HttpStatus.CREATED;
     type?: Type<unknown> | [Type<unknown>];
+    nullable?: boolean;
   };
 };
 
@@ -58,6 +60,7 @@ type ApiEndpointOptions204 = BaseApiEndpointOptions & ProtectionOptions & {
   success: {
     status: HttpStatus.NO_CONTENT;
     type?: never;
+    nullable?: never;
   };
 };
 
@@ -69,17 +72,15 @@ type ApiEndpointOptions =
 export function ApiEndpoint(options: ApiEndpointOptions) {
   const decorators: any[] = [];
 
-  decorators.push(ApiOperation({ summary: options.summary }));
-  decorators.push(HttpCode(options.success.status));
-  if (options.success.status !== HttpStatus.NO_CONTENT)
-    decorators.push(
-      ApiResponseGeneric(options.success.status, options.success.type)
-    );
-  if (options.success.status === HttpStatus.NO_CONTENT)
-    decorators.push(ApiResponseGeneric(options.success.status));
-  if (options.errors) {
-    options.errors.forEach((status) => {
-      const ErrorClass = ERROR_MAP[status];
+    decorators.push(ApiOperation({ summary: options.summary }));
+    decorators.push(HttpCode(options.success.status));
+    if (options.success.status !== HttpStatus.NO_CONTENT)
+        decorators.push(ApiResponseGeneric(options.success.status, options.success.type, options.success.nullable));
+    if (options.success.status === HttpStatus.NO_CONTENT)
+        decorators.push(ApiResponseGeneric(options.success.status));
+    if (options.errors) {
+        options.errors.forEach((status) => {
+            const ErrorClass = ERROR_MAP[status];
 
       if (ErrorClass)
         decorators.push(ApiResponse({ status, type: ErrorClass }));

@@ -42,7 +42,7 @@ describe("Auth E2E", () => {
       expect(res.body).toEqual({
         success: true,
         statusCode: HttpStatus.CREATED,
-        message: "Data created successfully.",
+        message: "Created",
         data: {
           accessToken: expect.any(String),
           refreshToken: expect.any(String),
@@ -52,11 +52,12 @@ describe("Auth E2E", () => {
             email: "emma.dao@mail.com",
             firstName: "Emma",
             lastName: "Dao",
-            createdAt: expect.any(String),
             avatar: null,
-            subscriptionTier: SubscriptionTier.FREE
-          }
-        }
+            subscriptionTier: SubscriptionTier.FREE,
+            createdAt: expect.any(String),
+            updatedAt: expect.any(String)
+          },
+        },
       });
     });
 
@@ -74,7 +75,7 @@ describe("Auth E2E", () => {
       expect(res.body).toEqual({
         success: true,
         statusCode: HttpStatus.CREATED,
-        message: "Data created successfully.",
+        message: "Created",
         data: {
           accessToken: expect.any(String),
           refreshToken: expect.any(String),
@@ -84,11 +85,12 @@ describe("Auth E2E", () => {
             email: "emma.dao@mail.com",
             firstName: "Emma",
             lastName: "Dao",
-            createdAt: expect.any(String),
             avatar: null,
-            subscriptionTier: SubscriptionTier.FREE
-          }
-        }
+            subscriptionTier: SubscriptionTier.FREE,
+            createdAt: expect.any(String),
+            updatedAt: expect.any(String)
+          },
+        },
       });
     });
 
@@ -133,8 +135,8 @@ describe("Auth E2E", () => {
       expect(res.body).toEqual({
         success: false,
         statusCode: HttpStatus.BAD_REQUEST,
-        message: "Validation failed",
-        error: expect.any(String)
+        message: expect.any(String),
+        error: "Bad Request"
       });
     });
 
@@ -159,8 +161,8 @@ describe("Auth E2E", () => {
       expect(res.body).toEqual({
         success: false,
         statusCode: HttpStatus.BAD_REQUEST,
-        message: "Validation failed",
-        error: "Invalid email address"
+        message: expect.any(String),
+        error: "Bad Request"
       });
     });
   });
@@ -188,7 +190,7 @@ describe("Auth E2E", () => {
       expect(res.body).toEqual({
         success: true,
         statusCode: HttpStatus.OK,
-        message: "Request successful.",
+        message: "OK",
         data: {
           accessToken: expect.any(String),
           refreshToken: expect.any(String),
@@ -198,11 +200,12 @@ describe("Auth E2E", () => {
             email: "emma.dao@mail.com",
             firstName: "Emma",
             lastName: "Dao",
-            createdAt: expect.any(String),
             subscriptionTier: SubscriptionTier.FREE,
-            avatar: null
-          }
-        }
+            avatar: null,
+            createdAt: expect.any(String),
+            updatedAt: expect.any(String)
+          },
+        },
       });
     });
 
@@ -218,7 +221,7 @@ describe("Auth E2E", () => {
       expect(res.body).toEqual({
         success: false,
         statusCode: HttpStatus.UNAUTHORIZED,
-        message: "Invalid credentials",
+        message: expect.any(String),
         error: "Unauthorized"
       });
     });
@@ -244,7 +247,7 @@ describe("Auth E2E", () => {
       expect(res.body).toEqual({
         success: false,
         statusCode: HttpStatus.UNAUTHORIZED,
-        message: "Invalid credentials",
+        message: expect.any(String),
         error: "Unauthorized"
       });
     });

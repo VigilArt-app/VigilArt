@@ -48,19 +48,12 @@ export class UsersService {
   }
 
   async findOne(id: string): Promise<User> {
-    try {
-      this.logger.log(`Finding user ${id}`);
-      return await this.prisma.user.findUniqueOrThrow({
-        where: {
-          id
-        }
-      });
-    } catch (e: any) {
-      if (e.code == "P2025") {
-        throw new NotFoundException("User not found");
+    this.logger.log(`Finding user ${id}`);
+    return this.prisma.user.findUniqueOrThrow({
+      where: {
+        id
       }
-      throw e;
-    }
+    });
   }
 
   async findByEmail(email: string): Promise<User | null> {
@@ -73,22 +66,15 @@ export class UsersService {
   }
 
   async findOneWithoutPassword(id: string): Promise<UserGet> {
-    try {
-      this.logger.log(`Finding user ${id}`);
-      return await this.prisma.user.findUniqueOrThrow({
-        where: {
-          id
+    this.logger.log(`Finding user ${id}`);
+    return this.prisma.user.findUniqueOrThrow({
+      where: {
+        id
         },
         omit: {
           password: true
         }
       });
-    } catch (e: any) {
-      if (e.code == "P2025") {
-        throw new NotFoundException("User not found");
-      }
-      throw e;
-    }
   }
 
   async findByEmailWithoutPassword(email: string): Promise<UserGet> {
@@ -103,39 +89,28 @@ export class UsersService {
     });
   }
 
-  async update(id: string, updateUserDto: UserUpdate): Promise<UserGet> {
-    try {
-      this.logger.log(`Updating user ${id}`);
-      return await this.prisma.user.update({
-        where: {
-          id
-        },
-        data: updateUserDto,
-        omit: {
-          password: true
-        }
-      });
-    } catch (e: any) {
-      if (e.code == "P2025") {
-        throw new NotFoundException("User not found");
+  async update(
+    id: string,
+    updateUserDto: UserUpdate
+  ): Promise<UserGet> {
+    this.logger.log(`Updating user ${id}`);
+    return this.prisma.user.update({
+      where: {
+        id
+      },
+      data: updateUserDto,
+      omit: {
+        password: true
       }
-      throw e;
-    }
+    });
   }
 
   async remove(id: string): Promise<void> {
-    try {
-      this.logger.log(`Removing user ${id}`);
-      await this.prisma.user.delete({
-        where: {
-          id
-        }
-      });
-    } catch (e: any) {
-      if (e.code == "P2025") {
-        throw new NotFoundException("User not found");
+    this.logger.log(`Removing user ${id}`);
+    await this.prisma.user.delete({
+      where: {
+        id
       }
-      throw e;
-    }
+    });
   }
 }

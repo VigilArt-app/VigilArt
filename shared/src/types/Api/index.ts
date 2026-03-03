@@ -32,17 +32,23 @@ export type InternalServerApiError = z.infer<
   typeof InternalServerApiErrorSchema
 >;
 
+export type ApiErrorData =
+    | ApiError
+    | BadRequestApiError
+    | UnauthorizedApiError
+    | ForbiddenApiError
+    | NotFoundApiError
+    | ConflictApiError
+    | InternalServerApiError;
+
+export type ApiSuccessData<T = undefined> =
+    | ApiSuccess<T>
+    | ApiCreated<T>
+    | ApiNoContent;
+
 export type ApiResponseData<T = undefined> =
-  | ApiSuccess<T>
-  | ApiCreated<T>
-  | ApiNoContent
-  | ApiError
-  | BadRequestApiError
-  | UnauthorizedApiError
-  | ForbiddenApiError
-  | NotFoundApiError
-  | ConflictApiError
-  | InternalServerApiError;
+    | ApiErrorData
+    | ApiSuccessData<T>;
 
 export type ApiResponseAsync<T = undefined> = Promise<ApiResponseData<T>>;
 

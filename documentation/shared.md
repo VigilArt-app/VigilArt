@@ -75,7 +75,8 @@ Created from Zod schemas using `createZodDto()` from the `nestjs-zod` library. T
 ```typescript
 // shared/src/schemas/User/index.ts
 import { createZodDto } from "nestjs-zod";
-import { UserCreateSchema, UserGetSchema } from ".";
+
+// Schema definitions above...
 
 export class UserCreateDTO extends createZodDto(UserCreateSchema) {}
 export class UserGetDTO extends createZodDto(UserGetSchema) {}
@@ -83,6 +84,7 @@ export class UserGetDTO extends createZodDto(UserGetSchema) {}
 
 **Why Classes?**
 - NestJS Swagger needs **classes** (not types) to generate API documentation
+- Nestjs-zod needs classes to apply validation pipes
 - `createZodDto()` creates a class that Swagger can introspect
 - Provides both runtime and compile-time type information
 
@@ -90,13 +92,14 @@ export class UserGetDTO extends createZodDto(UserGetSchema) {}
 ```typescript
 import { ApiEndpoint } from "@backend/common/decorators";
 import { UserCreateDTO, UserGetDTO } from "@vigilart/shared/schemas";
+import type { UserGet } from "@vigilart/shared/types";
 
 @Post()
 @ApiEndpoint({
   summary: "Create a user",
-  success: { status: HttpStatus.CREATED, type: UserCreateDTO }
+  success: { status: HttpStatus.CREATED, type: UserGetDTO }
 })
-async createUser(@Body() user: UserCreateDTO): Promise<UserGetDTO> {
+async createUser(@Body() user: UserCreateDTO): Promise<UserGet> {
   // ...
 }
 ```
@@ -122,7 +125,7 @@ export type UserGet = z.infer<typeof UserGetSchema>;
 **Usage**:
 ```typescript
 // Backend
-async function createUser(user: UserCreate): Promise<UserGet> {
+async function createUser(user: UserCreateDTO): Promise<UserGet> {
   // ...
 }
 
@@ -160,18 +163,19 @@ const newUser: UserCreate = { email: "...", password: "...", ... };
 
 ```typescript
 import { ApiEndpoint } from "@backend/common/decorators";
-import { UserCreateDTO, UserGetDTO } from "@vigilart/shared/schemas";
+import { UserCreateDTO } from "@vigilart/shared/schemas";
+import type { UserGet } from "@vigilart/shared/types";
 
 @Controller("users")
 export class UsersController {
   @Post()
   @ApiEndpoint({
     summary: "Create a new user",
-    success: { status: HttpStatus.CREATED, type: UserCreateDTO },
+    success: { status: HttpStatus.CREATED, type: UserGetDTO },
     errors: [HttpStatus.BAD_REQUEST, HttpStatus.CONFLICT],
     protected: true
   })
-  async create(@Body() user: UserCreateDTO): Promise<UserGetDTO> {
+  async create(@Body() user: UserCreateDTO): Promise<UserGet> {
     return this.usersService.create(user);
   }
 }
