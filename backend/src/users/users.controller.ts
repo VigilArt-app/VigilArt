@@ -18,7 +18,7 @@ import {
   UserGetDTO,
   UserDTO
 } from "@vigilart/shared/schemas";
-import type { UserCreate, UserUpdate, UserGet } from "@vigilart/shared/types";
+import type { UserGet } from "@vigilart/shared/types";
 
 @Controller("users")
 export class UsersController {
@@ -60,7 +60,8 @@ export class UsersController {
       type: UserDTO
     },
     errors: [HttpStatus.NOT_FOUND],
-    protected: true
+    protected: true,
+    ownerships: [{ data: "id", userField: "id", type: "params" }]
   })
   @ApiParam({ name: "id", type: String })
   async findOne(@Param("id", ParseUUIDPipe) id: string): Promise<UserGet> {
@@ -75,7 +76,8 @@ export class UsersController {
       type: UserDTO
     },
     errors: [HttpStatus.NOT_FOUND],
-    protected: true
+    protected: true,
+    ownerships: [{ data: "email", userField: "email", type: "params" }]
   })
   @ApiParam({ name: "email", type: String })
   async findByEmail(@Param("email") email: string): Promise<UserGet> {
@@ -90,7 +92,8 @@ export class UsersController {
       type: UserGetDTO
     },
     errors: [HttpStatus.BAD_REQUEST, HttpStatus.NOT_FOUND],
-    protected: true
+    protected: true,
+    ownerships: [{ data: "id", userField: "id", type: "params" }]
   })
   @ApiParam({ name: "id", type: String })
   @ApiBody({ type: UserUpdateDTO })
@@ -108,7 +111,8 @@ export class UsersController {
       status: HttpStatus.NO_CONTENT
     },
     errors: [HttpStatus.NOT_FOUND],
-    protected: true
+    protected: true,
+    ownerships: [{ data: "id", userField: "id", type: "params" }]
   })
   @ApiParam({ name: "id", type: String })
   async remove(@Param("id", ParseUUIDPipe) id: string): Promise<void> {

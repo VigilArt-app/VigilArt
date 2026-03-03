@@ -102,6 +102,7 @@ export class UsersService {
       }
     });
   }
+
   async update(id: string, updateUserDto: UserUpdate): Promise<UserGet> {
     try {
       this.logger.log(`Updating user ${id}`);
