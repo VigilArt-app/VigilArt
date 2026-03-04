@@ -10,7 +10,7 @@ import * as bcrypt from "bcrypt";
 import { ConfigService } from "@nestjs/config";
 import { PrismaService } from "../prisma/prisma.service";
 import type { Request, Response } from "express";
-import { AuthenticatedRequest } from "./auth";
+import type { AuthenticatedRequest } from "./auth";
 
 @Injectable()
 export class AuthService {

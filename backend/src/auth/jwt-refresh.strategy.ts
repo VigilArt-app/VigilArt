@@ -7,7 +7,7 @@ import { PrismaService } from "../prisma/prisma.service";
 import type { JwtPayload } from './auth';
 import { Request } from 'express';
 import * as bcrypt from "bcrypt";
-import { AuthenticatedRequest } from './auth';
+import type { AuthenticatedRequest } from './auth';
 
 @Injectable()
 export class JwtRefreshStrategy extends PassportStrategy(Strategy, 'jwt-refresh') {

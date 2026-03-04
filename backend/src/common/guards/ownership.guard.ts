@@ -8,7 +8,7 @@ import {
 } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
 import { OWNERSHIP_PARAM_KEY, Ownerships } from "../decorators/check-ownership.decorator";
-import { AuthenticatedRequest } from "../../auth/auth";
+import type { AuthenticatedRequest } from "../../auth/auth";
 import { JsonValue } from "@vigilart/shared";
 
 @Injectable()
