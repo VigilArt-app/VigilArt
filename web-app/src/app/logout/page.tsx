@@ -12,11 +12,10 @@ export default function LogoutPage() {
     const performLogout = async () => {
       try {
         await logout()
-        router.replace("/login")
-      } catch (err: any) {
+      } catch (err) {
         setError(err.message)
-        console.error("Logout error:", err)
-        router.replace("/login")
+      } finally {
+        setTimeout(() => router.replace("/login"), 2000)
       }
     }
 

@@ -144,6 +144,8 @@ export function useFileUpload() {
         try {
           const { width, height } = await getImageDimensions(file);
 
+          if (!user)
+            throw new Error("Unauthenticated");
           artworksToCreate.push({
             userId: user.id,
             originalFilename: file.name,
@@ -154,7 +156,7 @@ export function useFileUpload() {
             width,
             height,
           });
-        } catch (error) {
+        } catch (_) {
           failedCount++;
         }
       }

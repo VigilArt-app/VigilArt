@@ -26,7 +26,7 @@ export default function ArtworkGalleryPage() {
 
   useEffect(() => {
     const loadArtworks = async () => {
-      if (loading)
+      if (loading || !user.id)
         return;
       try {
         const data = await fetchArtworks(user.id);
@@ -38,7 +38,7 @@ export default function ArtworkGalleryPage() {
     };
 
     loadArtworks();
-  }, [loading]);
+  }, [loading, user.id]);
 
   useEffect(() => {
     let filtered = [...artworks];

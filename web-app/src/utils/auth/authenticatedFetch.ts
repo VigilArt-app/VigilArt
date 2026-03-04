@@ -11,6 +11,9 @@ export const authenticatedFetch = async (
   options: RequestInit = {}
 ): Promise<Response> => {
   const API_BASE = process.env.NEXT_PUBLIC_API_URL;
+  if (!API_BASE)
+    throw new Error("Couldn't request to the API.");
+
   const fetchOptions: RequestInit = {
     ...options,
     credentials: 'include',
@@ -28,7 +31,6 @@ export const authenticatedFetch = async (
   let response = await fetch(API_BASE + url, fetchOptions);
 
   if (response.status === 401) {
-
     if (!refreshTokenPromise) {
       refreshTokenPromise = fetch(`${API_BASE}/auth/refresh`, {
         method: 'POST',
@@ -36,17 +38,19 @@ export const authenticatedFetch = async (
       });
     }
 
-    const refreshResponse = await refreshTokenPromise;
+    try {
+      const refreshResponse = await refreshTokenPromise;
 
-    refreshTokenPromise = null;
-
-    if (refreshResponse.ok) {
-      response = await fetch(API_BASE + url, fetchOptions);
-    } else {
-      if (typeof window !== 'undefined') {
-        window.location.href = '/login';
+      if (refreshResponse.ok) {
+        response = await fetch(API_BASE + url, fetchOptions);
+      } else {
+        if (typeof window !== 'undefined') {
+          window.location.href = '/login';
+        }
+        throw new Error("Session expired. Please login again.");
       }
-      throw new Error("Session expired. Please login again.");
+    } finally {
+      refreshTokenPromise = null;
     }
   }
 
