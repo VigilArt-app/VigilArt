@@ -89,19 +89,21 @@ export class AuthService {
 
   private setAuthCookies(response: Response, tokens: AuthTokens): void {
     const isProduction = process.env.NODE_ENV === 'production';
+    const accessTokenExpiry = this.config.get("JWT_EXPIRES") || "15m";
+    const refreshTokenExpiry = this.config.get("JWT_REFRESH_EXPIRES") || "7d";
 
     response.cookie('auth_token', tokens.accessToken, {
       httpOnly: true,
       secure: isProduction,
       sameSite: 'strict',
-      maxAge: 15 * 60 * 1000,
+      maxAge: this.parseExpiryToMs(accessTokenExpiry),
       path: '/'
     });
     response.cookie('refresh_token', tokens.refreshToken, {
       httpOnly: true,
       secure: isProduction,
       sameSite: 'strict',
-      maxAge: 7 * 24 * 60 * 60 * 1000,
+      maxAge: this.parseExpiryToMs(refreshTokenExpiry),
       path: '/'
     });
   }
