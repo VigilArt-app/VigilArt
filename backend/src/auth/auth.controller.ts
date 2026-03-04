@@ -55,7 +55,6 @@ export class AuthController {
 
   @Post("refresh")
   @UseGuards(JwtRefreshAuthGuard)
-  @HttpCode(HttpStatus.OK)
   @ApiEndpoint({
     summary: "Refresh access token using refresh token from httpOnly cookie",
     success: {
