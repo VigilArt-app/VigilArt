@@ -2,7 +2,7 @@ import { z } from "zod";
 import { createZodDto } from "nestjs-zod";
 import { ArtworksReportSchema as base } from "../../generated/zod";
 import { MatchingPageSchema } from "./VisualSearchResult";
-import { dateTimeStringToDate } from "../../constants";
+import { dateTimeStringToDate } from "../../functions";
 
 export const ArtworksReportSchema = base.extend({
   detectionDate: dateTimeStringToDate

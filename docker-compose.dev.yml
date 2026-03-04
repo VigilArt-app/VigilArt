@@ -47,7 +47,7 @@ services:
     environment:
       DATABASE_URL: "postgresql://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}?schema=public"
 
-  seed-db:
+  update-db:
     image: node:22-alpine
     working_dir: /app/backend
     volumes:
@@ -56,7 +56,7 @@ services:
       sh -c "
         corepack enable && corepack prepare pnpm@10.20.0 --activate &&
         pnpm db:push &&
-        pnpm db:seed
+        pnpm db:generate
       "
     env_file:
       - .env
@@ -65,6 +65,28 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    environment:
+      DATABASE_URL: "postgresql://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}?schema=public"
+
+  seed-db:
+    image: node:22-alpine
+    working_dir: /app/backend
+    volumes:
+      - .:/app
+    command: >
+      sh -c "
+        corepack enable && corepack prepare pnpm@10.20.0 --activate &&
+        pnpm db:seed:dev
+      "
+    env_file:
+      - .env
+    networks:
+      - prisma-network
+    depends_on:
+      db:
+        condition: service_healthy
+      update-db:
+        condition: service_completed_successfully
     environment:
       DATABASE_URL: "postgresql://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}?schema=public"
 

@@ -2,9 +2,9 @@ import { z } from "zod";
 import { createZodDto } from "nestjs-zod";
 import { MatchingPageSchema as base } from "../../generated/zod";
 import {
-  dateTimeStringToDate,
   MATCHING_PAGE_CREATE_BATCH_MAX_SIZE
 } from "../../constants";
+import { dateTimeStringToDate } from "../../functions";
 
 export const ArtworkMetadataLabelSchema = z.object({
   label: z.string({

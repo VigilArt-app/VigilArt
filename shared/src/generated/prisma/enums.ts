@@ -29,3 +29,11 @@ export const WebsiteCategory = {
 } as const
 
 export type WebsiteCategory = (typeof WebsiteCategory)[keyof typeof WebsiteCategory]
+
+
+export const DmcaStatus = {
+  DRAFT: 'DRAFT',
+  SUBMITTED: 'SUBMITTED'
+} as const
+
+export type DmcaStatus = (typeof DmcaStatus)[keyof typeof DmcaStatus]

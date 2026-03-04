@@ -18,7 +18,7 @@ import {
   UserGetDTO,
   UserDTO
 } from "@vigilart/shared/schemas";
-import type { UserCreate, UserUpdate, UserGet } from "@vigilart/shared/types";
+import type { UserGet } from "@vigilart/shared/types";
 
 @Controller("users")
 export class UsersController {

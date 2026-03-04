@@ -57,3 +57,23 @@ export type MatchingPage = Prisma.MatchingPageModel
  * 
  */
 export type ArtworksReport = Prisma.ArtworksReportModel
+/**
+ * Model DmcaPlatform
+ * 
+ */
+export type DmcaPlatform = Prisma.DmcaPlatformModel
+/**
+ * Model DmcaProfile
+ * 
+ */
+export type DmcaProfile = Prisma.DmcaProfileModel
+/**
+ * Model DmcaNotice
+ * 
+ */
+export type DmcaNotice = Prisma.DmcaNoticeModel
+/**
+ * Model DmcaNoticeData
+ * 
+ */
+export type DmcaNoticeData = Prisma.DmcaNoticeDataModel

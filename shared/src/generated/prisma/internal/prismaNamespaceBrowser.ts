@@ -54,7 +54,11 @@ export const ModelName = {
   User: 'User',
   Artwork: 'Artwork',
   MatchingPage: 'MatchingPage',
-  ArtworksReport: 'ArtworksReport'
+  ArtworksReport: 'ArtworksReport',
+  DmcaPlatform: 'DmcaPlatform',
+  DmcaProfile: 'DmcaProfile',
+  DmcaNotice: 'DmcaNotice',
+  DmcaNoticeData: 'DmcaNoticeData'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -80,8 +84,9 @@ export const UserScalarFieldEnum = {
   firstName: 'firstName',
   lastName: 'lastName',
   avatar: 'avatar',
+  subscriptionTier: 'subscriptionTier',
   createdAt: 'createdAt',
-  subscriptionTier: 'subscriptionTier'
+  updatedAt: 'updatedAt'
 } as const
 
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
@@ -128,12 +133,78 @@ export const ArtworksReportScalarFieldEnum = {
 export type ArtworksReportScalarFieldEnum = (typeof ArtworksReportScalarFieldEnum)[keyof typeof ArtworksReportScalarFieldEnum]
 
 
+export const DmcaPlatformScalarFieldEnum = {
+  id: 'id',
+  slug: 'slug',
+  displayName: 'displayName',
+  domain: 'domain',
+  dmcaUrl: 'dmcaUrl',
+  email: 'email',
+  websiteCategory: 'websiteCategory',
+  formSchema: 'formSchema',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type DmcaPlatformScalarFieldEnum = (typeof DmcaPlatformScalarFieldEnum)[keyof typeof DmcaPlatformScalarFieldEnum]
+
+
+export const DmcaProfileScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  fullName: 'fullName',
+  street: 'street',
+  aptSuite: 'aptSuite',
+  city: 'city',
+  postalCode: 'postalCode',
+  country: 'country',
+  email: 'email',
+  phone: 'phone',
+  signature: 'signature',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type DmcaProfileScalarFieldEnum = (typeof DmcaProfileScalarFieldEnum)[keyof typeof DmcaProfileScalarFieldEnum]
+
+
+export const DmcaNoticeScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  dmcaPlatformSlug: 'dmcaPlatformSlug',
+  artworkId: 'artworkId',
+  status: 'status',
+  payload: 'payload',
+  submittedAt: 'submittedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type DmcaNoticeScalarFieldEnum = (typeof DmcaNoticeScalarFieldEnum)[keyof typeof DmcaNoticeScalarFieldEnum]
+
+
+export const DmcaNoticeDataScalarFieldEnum = {
+  id: 'id',
+  dmcaNoticeId: 'dmcaNoticeId',
+  generated: 'generated'
+} as const
+
+export type DmcaNoticeDataScalarFieldEnum = (typeof DmcaNoticeDataScalarFieldEnum)[keyof typeof DmcaNoticeDataScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
 } as const
 
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
+
+
+export const JsonNullValueInput = {
+  JsonNull: 'JsonNull'
+} as const
+
+export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
 
 
 export const QueryMode = {
@@ -150,4 +221,13 @@ export const NullsOrder = {
 } as const
 
 export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
+
+
+export const JsonNullValueFilter = {
+  DbNull: 'DbNull',
+  JsonNull: 'JsonNull',
+  AnyNull: 'AnyNull'
+} as const
+
+export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
 

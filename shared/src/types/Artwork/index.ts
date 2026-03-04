@@ -1,1 +1,1 @@
-export { Artwork } from "../../generated/zod";
+export { ArtworkType as Artwork } from "../../generated/zod";
