@@ -11,10 +11,18 @@ import cookieParser from "cookie-parser";
 export const setupApp = (app: INestApplication) => {
   const configService = app.get(ConfigService);
   const apiPrefix = configService.get<string>("API_PREFIX") || API_PREFIX;
+  const corsOrigins = configService.get<string>("CORS_ORIGINS");
+  const origin =
+    corsOrigins && corsOrigins.trim().length > 0
+      ? corsOrigins
+          .split(",")
+          .map((o) => o.trim())
+          .filter((o) => o.length > 0)
+      : true;
 
   app.use(cookieParser());
   app.enableCors({
-    origin: configService.get<string>("CORS_ORIGINS")?.split(",") || true,
+    origin,
     credentials: true,
   });
 
