@@ -320,13 +320,13 @@ describe("ReportsService", () => {
       jest
         .spyOn(service, "aggregateVisualSearchResults")
         .mockResolvedValue(mockedAggregatedResults);
-      const res = await service.getArtworkMatches(mockedArtwork.id, {});
+      const res = await service.getArtworkMatches("", mockedArtwork.id, {});
 
       expect(res).toEqual(mockedSearchImageReturnValue.matchingPages);
     });
 
     it("Should handle artwork not found", async () => {
-      const f = service.getArtworkMatches(mockedArtwork.id, {});
+      const f = service.getArtworkMatches("", mockedArtwork.id, {});
 
       await expect(f).rejects.toThrow(
         new NotFoundException("Artwork not found")
@@ -338,7 +338,7 @@ describe("ReportsService", () => {
       jest
         .spyOn(service, "aggregateVisualSearchResults")
         .mockResolvedValue(mockedAggregatedResults);
-      const res = await service.getArtworkMatches(mockedArtwork.id, {
+      const res = await service.getArtworkMatches("", mockedArtwork.id, {
         websiteCategory: WebsiteCategory.ART_PLATFORMS
       });
 
