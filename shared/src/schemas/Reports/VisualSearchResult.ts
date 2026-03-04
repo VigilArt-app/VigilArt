@@ -1,7 +1,10 @@
 import { z } from "zod";
 import { createZodDto } from "nestjs-zod";
 import { MatchingPageSchema as base } from "../../generated/zod";
-import { dateTimeStringToDate } from "../../constants";
+import {
+  dateTimeStringToDate,
+  MATCHING_PAGE_CREATE_BATCH_MAX_SIZE
+} from "../../constants";
 
 export const ArtworkMetadataLabelSchema = z.object({
   label: z.string({
@@ -63,6 +66,32 @@ export const MatchingPageCreateSchema = MatchingPageSchema.pick({
 
 export class MatchingPageCreateDTO extends createZodDto(
   MatchingPageCreateSchema
+) {}
+
+export const MatchingPageCreateManySchema = z
+  .array(MatchingPageCreateSchema)
+  .max(
+    MATCHING_PAGE_CREATE_BATCH_MAX_SIZE,
+    `Can only select up to ${MATCHING_PAGE_CREATE_BATCH_MAX_SIZE}`
+  );
+
+export class MatchingPageCreateManyDTO extends createZodDto(
+  MatchingPageCreateManySchema
+) {}
+
+export const MatchingPageCreateManyResponseSchema = z.object({
+  count: z.number(),
+  matchingPages: z.array(
+    MatchingPageSchema.pick({
+      id: true,
+      artworkId: true,
+      imageUrl: true
+    })
+  )
+});
+
+export class MatchingPageCreateManyResponseDTO extends createZodDto(
+  MatchingPageCreateManyResponseSchema
 ) {}
 
 export const MatchingPageGetSchema = MatchingPageSchema.extend({

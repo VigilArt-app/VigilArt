@@ -1,7 +1,6 @@
 import {
   Controller,
   Get,
-  HttpCode,
   HttpStatus,
   Param,
   ParseUUIDPipe,
@@ -26,9 +25,7 @@ import { ApiParam, ApiQuery } from "@nestjs/swagger";
 
 @Controller("reports")
 export class ReportsController {
-  constructor(
-    private readonly reportsService: ReportsService,
-  ) {}
+  constructor(private readonly reportsService: ReportsService) {}
 
   @Post("user/:id")
   @ApiEndpoint({
@@ -37,13 +34,14 @@ export class ReportsController {
       status: HttpStatus.OK,
       type: ArtworksReportDTO
     },
-    protected: true
+    protected: true,
+    errors: [HttpStatus.NOT_FOUND]
   })
   @ApiParam({ name: "id", type: String })
   async generateArtworkReport(
     @Param("id", ParseUUIDPipe) userId: string
   ): Promise<ArtworksReport> {
-    return await this.reportsService.generate(userId);
+    return this.reportsService.generate(userId);
   }
 
   @Get("user/:id")
@@ -59,23 +57,24 @@ export class ReportsController {
   async getAllArtworksReportsByUser(
     @Param("id", ParseUUIDPipe) userId: string
   ): Promise<ArtworksReport[]> {
-    return await this.reportsService.findAllPerUser(userId);
+    return this.reportsService.findAllPerUser(userId);
   }
 
-  @Get(":id")
+  @Get("details/:id")
   @ApiEndpoint({
     summary: "Retrieve a report by ID",
     success: {
       status: HttpStatus.OK,
       type: ArtworksReportGetDTO
     },
-    protected: true
+    protected: true,
+    errors: [HttpStatus.NOT_FOUND]
   })
   @ApiParam({ name: "id", type: String })
   async getArtworksReport(
     @Param("id", ParseUUIDPipe) id: string
   ): Promise<ArtworksReportGet> {
-    return await this.reportsService.findOne(id);
+    return this.reportsService.findOne(id);
   }
 
   @Get("artwork/:artworkId/matches")
@@ -85,7 +84,8 @@ export class ReportsController {
       status: HttpStatus.OK,
       type: [MatchingPageDTO]
     },
-    protected: true
+    protected: true,
+    errors: [HttpStatus.FORBIDDEN, HttpStatus.NOT_FOUND]
   })
   @ApiParam({ name: "artworkId", type: String })
   @ApiQuery({
@@ -103,9 +103,9 @@ export class ReportsController {
   async getMatchesArtwork(
     @Param("artworkId", ParseUUIDPipe) artworkId: string,
     @Query("userId", ParseUUIDPipe) userId: string,
-    @Query("reportId") reportId?: string
+    @Query("reportId", new ParseUUIDPipe({ optional: true })) reportId?: string
   ): Promise<MatchingPage[]> {
-    return await this.reportsService.findMatchesByArtwork(
+    return this.reportsService.findMatchesByArtwork(
       artworkId,
       userId,
       reportId
@@ -119,7 +119,8 @@ export class ReportsController {
       status: HttpStatus.OK,
       type: ArtworksReportGlobalStatisticsDTO
     },
-    protected: true
+    protected: true,
+    errors: [HttpStatus.FORBIDDEN, HttpStatus.NOT_FOUND]
   })
   @ApiParam({ name: "userId", type: String })
   @ApiQuery({
@@ -130,9 +131,9 @@ export class ReportsController {
   })
   async getGlobalStatistics(
     @Param("userId", ParseUUIDPipe) userId: string,
-    @Query("reportId") reportId?: string
+    @Query("reportId", new ParseUUIDPipe({ optional: true })) reportId?: string
   ): Promise<ArtworksReportGlobalStatistics> {
-    return await this.reportsService.getGlobalStatistics(userId, reportId);
+    return this.reportsService.getGlobalStatistics(userId, reportId);
   }
 
   @Get("artwork/:artworkId/statistics")
@@ -142,7 +143,8 @@ export class ReportsController {
       status: HttpStatus.OK,
       type: ArtworksReportStatisticsDTO
     },
-    protected: true
+    protected: true,
+    errors: [HttpStatus.FORBIDDEN, HttpStatus.NOT_FOUND]
   })
   @ApiParam({ name: "artworkId", type: String })
   @ApiQuery({
@@ -160,13 +162,12 @@ export class ReportsController {
   async getArtworkStatistics(
     @Param("artworkId", ParseUUIDPipe) artworkId: string,
     @Query("userId", ParseUUIDPipe) userId: string,
-    @Query("reportId") reportId?: string
+    @Query("reportId", new ParseUUIDPipe({ optional: true })) reportId?: string
   ): Promise<ArtworksReportStatistics> {
-    return await this.reportsService.getArtworkStatistics(
+    return this.reportsService.getArtworkStatistics(
       artworkId,
       userId,
       reportId
     );
   }
-
 }

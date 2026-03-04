@@ -1,14 +1,21 @@
-import { Injectable, Logger, NotFoundException } from "@nestjs/common";
+import {
+  ForbiddenException,
+  Injectable,
+  Logger,
+  NotFoundException
+} from "@nestjs/common";
 import { VisionService } from "../vision/vision.service";
 import {
   VisualSearchResult,
-  MatchingPageGet,
   ArtworksReport,
   Artwork,
   ArtworksReportGet,
   ArtworksReportStatistics,
   MatchingPage,
-  ApiBatchPayload
+  MatchingPageGet,
+  ApiBatchPayload,
+  MATCHING_PAGE_CREATE_BATCH_MAX_SIZE,
+  MatchingPageCreateMany
 } from "@vigilart/shared";
 import { ArtworksService } from "../artworks/artworks.service";
 import { StorageService } from "../storage/storage.service";
@@ -45,37 +52,35 @@ export class ReportsService {
     return matchingPages;
   }
 
-  async findArtworkMatches(artwork: Artwork): Promise<string[]> {
+  async findArtworkMatches(artwork: Artwork): Promise<MatchingPageCreateMany> {
     const imageBuffer = await this.storageService.getImage(artwork.storageKey);
     const matchingPages = await this.aggregateVisualSearchResults(imageBuffer);
-    let matchingPagesIds: string[] = [];
+    const matchingPagesData = matchingPages.map((match) => ({
+      artworkId: artwork.id,
+      ...match
+    }));
 
-    for (const match of matchingPages) {
-      const storedMatch = await this.matchingPagesService.findByUrl(
-        match.url,
-        artwork.id
-      );
-
-      if (!storedMatch) {
-        const createdMatch = await this.matchingPagesService.create({
-          artworkId: artwork.id,
-          ...match
-        });
-        matchingPagesIds = [createdMatch.id, ...matchingPagesIds];
-      } else {
-        matchingPagesIds = [storedMatch.id, ...matchingPagesIds];
-      }
-    }
-    return matchingPagesIds;
+    return matchingPagesData;
   }
 
   async findArtworksMatches(userId: string): Promise<string[]> {
     const artworks = await this.artworksService.findAllPerUser(userId);
-    let foundMatchesIds: string[] = [];
 
-    for (const artwork of artworks) {
-      const ids = await this.findArtworkMatches(artwork);
-      foundMatchesIds = [...ids, ...foundMatchesIds];
+    const allMatches = await Promise.all(
+      artworks.map((artwork) => this.findArtworkMatches(artwork))
+    );
+    const matchingPagesData = allMatches.flat();
+
+    const foundMatchesIds: string[] = [];
+    for (
+      let i = 0;
+      i < matchingPagesData.length;
+      i += MATCHING_PAGE_CREATE_BATCH_MAX_SIZE
+    ) {
+      const res = await this.matchingPagesService.createMany(
+        matchingPagesData.slice(i, i + MATCHING_PAGE_CREATE_BATCH_MAX_SIZE)
+      );
+      foundMatchesIds.push(...res.matchingPages.map((m) => m.id));
     }
     return foundMatchesIds;
   }
@@ -109,8 +114,16 @@ export class ReportsService {
     this.logger.log(`Finding matches of artwork ${artworkId}`);
     let selectedReportId = "";
 
+    const artwork = await this.artworksService.findOne(artworkId);
+    if (artwork.userId !== userId) {
+      throw new ForbiddenException("Access denied to this artwork");
+    }
     if (reportId) {
       this.logger.log(`Retrieving report ${reportId}`);
+      const report = await this.findOne(reportId);
+      if (report.userId !== userId) {
+        throw new ForbiddenException("Access denied to this report");
+      }
       selectedReportId = reportId;
     } else {
       this.logger.log("Retrieving latest report");
@@ -188,6 +201,10 @@ export class ReportsService {
 
     if (reportId) {
       this.logger.log(`Retrieving report ${reportId}`);
+      const report = await this.findOne(reportId);
+      if (report.userId !== userId) {
+        throw new ForbiddenException("Access denied to this report");
+      }
       selectedReportId = reportId;
     } else {
       this.logger.log("Retrieving latest report");

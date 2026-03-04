@@ -1,7 +1,7 @@
 import {
-  ARTWORKS_CREATE_BATCH_LIMIT,
+  ARTWORKS_CREATE_BATCH_MAX_SIZE,
   dateTimeStringToDate,
-  ARTWORKS_DELETE_BATCH_LIMIT
+  ARTWORKS_DELETE_BATCH_MAX_SIZE
 } from "../../constants";
 import { ArtworkSchema as base } from "../../generated/zod";
 import { createZodDto } from "nestjs-zod/dto";
@@ -58,7 +58,10 @@ export class ArtworkCreateDTO extends createZodDto(ArtworkCreateSchema) {}
 
 export const ArtworkCreateManySchema = z
   .array(ArtworkCreateSchema)
-  .max(ARTWORKS_CREATE_BATCH_LIMIT, `Can only select up to ${ARTWORKS_CREATE_BATCH_LIMIT}`);
+  .max(
+    ARTWORKS_CREATE_BATCH_MAX_SIZE,
+    `Can only select up to ${ARTWORKS_CREATE_BATCH_MAX_SIZE}`
+  );
 
 export class ArtworkCreateManyDTO extends createZodDto(
   ArtworkCreateManySchema
@@ -75,7 +78,10 @@ export class ArtworkUpdateDTO extends createZodDto(ArtworkUpdateSchema) {}
 export const ArtworkRemoveManySchema = z.object({
   ids: z
     .array(z.uuid())
-    .max(ARTWORKS_DELETE_BATCH_LIMIT, `Can only select up to ${ARTWORKS_DELETE_BATCH_LIMIT}`)
+    .max(
+      ARTWORKS_DELETE_BATCH_MAX_SIZE,
+      `Can only select up to ${ARTWORKS_DELETE_BATCH_MAX_SIZE}`
+    )
 });
 
 export class ArtworkRemoveManyDTO extends createZodDto(

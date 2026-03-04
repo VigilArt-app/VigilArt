@@ -3,6 +3,8 @@ import {
   ApiBatchPayload,
   MatchingPage,
   MatchingPageCreateDTO,
+  MatchingPageCreateManyDTO,
+  MatchingPageCreateManyResponseDTO,
   MatchingPageUpdateDTO
 } from "@vigilart/shared";
 import { PrismaService } from "../prisma/prisma.service";
@@ -15,7 +17,7 @@ export class MatchingPagesService {
 
   async create(matchData: MatchingPageCreateDTO): Promise<MatchingPage> {
     this.logger.log(
-      `Creating new matching page for matching page ${matchData.artworkId}`
+      `Creating new matching page for artwork ${matchData.artworkId}`
     );
     try {
       return await this.prisma.matchingPage.create({
@@ -24,6 +26,31 @@ export class MatchingPagesService {
     } catch (e: any) {
       if (e.code === "P2003") {
         throw new NotFoundException("Artwork not found");
+      }
+      throw e;
+    }
+  }
+
+  async createMany(
+    matchesData: MatchingPageCreateManyDTO
+  ): Promise<MatchingPageCreateManyResponseDTO> {
+    this.logger.log("Creating new matching pages");
+    try {
+      const res = await this.prisma.matchingPage.createManyAndReturn({
+        data: matchesData,
+        skipDuplicates: true
+      });
+      return {
+        count: res.length,
+        matchingPages: res.map((matchingPage) => ({
+          id: matchingPage.id,
+          artworkId: matchingPage.artworkId,
+          imageUrl: matchingPage.imageUrl
+        }))
+      };
+    } catch (e: any) {
+      if (e.code === "P2003") {
+        throw new NotFoundException("Artwork does not exist");
       }
       throw e;
     }
@@ -54,22 +81,15 @@ export class MatchingPagesService {
     url: string,
     artworkId: string
   ): Promise<MatchingPage | null> {
-    try {
-      this.logger.log(`Finding match with url ${url} for artwork ${artworkId}`);
-      return await this.prisma.matchingPage.findUnique({
-        where: {
-          url_artworkId: {
-            url: url,
-            artworkId: artworkId
-          }
+    this.logger.log(`Finding match with url ${url} for artwork ${artworkId}`);
+    return await this.prisma.matchingPage.findUnique({
+      where: {
+        url_artworkId: {
+          url: url,
+          artworkId: artworkId
         }
-      });
-    } catch (e: any) {
-      if (e.code == "P2025") {
-        throw new NotFoundException("Artwork not found");
       }
-      throw e;
-    }
+    });
   }
 
   async findMany(ids: string[]): Promise<MatchingPage[]> {
