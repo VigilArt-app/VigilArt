@@ -38,7 +38,6 @@
     "db:migrate:prod": "pnpm prisma migrate deploy",
     "db:generate": "pnpm prisma generate",
     "db:migrate:dev": "dotenv -e ../.env -- pnpm prisma migrate dev",
-    "psql": "docker -it vigilart-dev-db bash -c 'psql -U \"$POSTGRES_USER\" -d \"$POSTGRES_DB\"'",
     "db:studio": "dotenv -e ../.env -- pnpm prisma studio --config ./prisma.config.ts --port 5555 --browser none",
     "db:seed:dev": "pnpm prisma db seed --config ./prisma.config.ts",
     "db:seed:prod": "node dist/prisma/seeds/index.js"
