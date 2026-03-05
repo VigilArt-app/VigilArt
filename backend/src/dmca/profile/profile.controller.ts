@@ -1,28 +1,16 @@
-import { Body, Controller, Delete, Get, HttpStatus, Param, Patch, Post, HttpCode } from "@nestjs/common";
+import { Body, Controller, Delete, Get, HttpStatus, Param, Patch, Post, HttpCode, Req } from "@nestjs/common";
 import { ApiParam, ApiBody } from "@nestjs/swagger";
 import { ApiEndpoint } from "../../common/decorators/api-endpoint.decorator";
 import { DmcaProfileService } from "./profile.service";
 import { DmcaProfileGetDTO, DmcaProfileCreateDTO, DmcaProfileUpdateDTO } from "@vigilart/shared";
 import type { DmcaProfileGet } from "@vigilart/shared/types";
+import type { AuthenticatedRequest } from "../../auth/auth";
 
 @Controller("dmca/profile")
 export class DmcaProfileController {
     constructor(private readonly profileService: DmcaProfileService) {}
 
     @Get("/")
-    @ApiEndpoint({
-        summary: "Get all DMCA profiles",
-        success: {
-            status: HttpStatus.OK,
-            type: [DmcaProfileGetDTO]
-        },
-        protected: true
-    })
-    async getAllProfiles(): Promise<DmcaProfileGet[]> {
-        return this.profileService.findAll();
-    }
-
-    @Get("/:userId")
     @ApiEndpoint({
         summary: "Get DMCA profile by user ID",
         success: {
@@ -32,12 +20,11 @@ export class DmcaProfileController {
         errors: [HttpStatus.NOT_FOUND],
         protected: true
     })
-    @ApiParam({ name: "userId", type: String })
-    async getProfileByUserId(@Param("userId") userId: string): Promise<DmcaProfileGet> {
-        return this.profileService.findByUserId(userId);
+    async getProfileByUserId(@Req() req: AuthenticatedRequest): Promise<DmcaProfileGet> {
+        return this.profileService.findByUserId(req.user.id);
     }
 
-    @Post("/:userId")
+    @Post("/")
     @HttpCode(HttpStatus.CREATED)
     @ApiEndpoint({
         summary: "Create DMCA profile for user",
@@ -48,16 +35,15 @@ export class DmcaProfileController {
         errors: [HttpStatus.CONFLICT],
         protected: true
     })
-    @ApiParam({ name: "userId", type: String })
     @ApiBody({ type: DmcaProfileCreateDTO })
     async createProfile(
-        @Param("userId") userId: string,
+        @Req() req: AuthenticatedRequest,
         @Body() data: DmcaProfileCreateDTO
     ): Promise<DmcaProfileGet> {
-        return this.profileService.create(userId, data);
+        return this.profileService.create(req.user.id, data);
     }
 
-    @Patch("/:userId")
+    @Patch("/")
     @ApiEndpoint({
         summary: "Update DMCA profile",
         success: {
@@ -67,16 +53,15 @@ export class DmcaProfileController {
         errors: [HttpStatus.NOT_FOUND],
         protected: true
     })
-    @ApiParam({ name: "userId", type: String })
     @ApiBody({ type: DmcaProfileUpdateDTO })
     async updateProfile(
-        @Param("userId") userId: string,
+        @Req() req: AuthenticatedRequest,
         @Body() data: DmcaProfileUpdateDTO
     ): Promise<DmcaProfileGet> {
-        return this.profileService.update(userId, data);
+        return this.profileService.update(req.user.id, data);
     }
 
-    @Delete("/:userId")
+    @Delete("/")
     @ApiEndpoint({
         summary: "Delete DMCA profile",
         success: {
@@ -85,8 +70,7 @@ export class DmcaProfileController {
         errors: [HttpStatus.NOT_FOUND],
         protected: true
     })
-    @ApiParam({ name: "userId", type: String })
-    async deleteProfile(@Param("userId") userId: string): Promise<void> {
-        return this.profileService.delete(userId);
+    async deleteProfile(@Req() req: AuthenticatedRequest): Promise<void> {
+        return this.profileService.delete(req.user.id);
     }
 }

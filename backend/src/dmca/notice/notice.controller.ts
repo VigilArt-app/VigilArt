@@ -7,7 +7,7 @@ import {
     Param,
     Patch,
     Post,
-    HttpCode
+    Req
 } from "@nestjs/common";
 import { ApiParam, ApiBody } from "@nestjs/swagger";
 import { ApiEndpoint } from "../../common/decorators/api-endpoint.decorator";
@@ -20,6 +20,7 @@ import {
 } from "@vigilart/shared/schemas";
 import type { DmcaNoticeGet } from "@vigilart/shared/types";
 import { DmcaStatus } from "@vigilart/shared";
+import type { AuthenticatedRequest } from "../../auth/auth";
 
 @Controller("dmca/notice")
 export class DmcaNoticeController {
@@ -38,7 +39,7 @@ export class DmcaNoticeController {
         return this.noticeService.findAll();
     }
 
-    @Get("/user/:userId")
+    @Get("/user")
     @ApiEndpoint({
         summary: "Get all DMCA notices for a user",
         success: {
@@ -48,9 +49,8 @@ export class DmcaNoticeController {
         errors: [HttpStatus.NOT_FOUND],
         protected: true
     })
-    @ApiParam({ name: "userId", type: String })
-    async getNoticesByUserId(@Param("userId") userId: string): Promise<DmcaNoticeGet[]> {
-        return this.noticeService.findByUserId(userId);
+    async getNoticesByUserId(@Req() req: AuthenticatedRequest): Promise<DmcaNoticeGet[]> {
+        return this.noticeService.findByUserId(req.user.id);
     }
 
     @Get("/:id")
@@ -64,12 +64,14 @@ export class DmcaNoticeController {
         protected: true
     })
     @ApiParam({ name: "id", type: String })
-    async getNoticeById(@Param("id") id: string): Promise<DmcaNoticeGet> {
-        return this.noticeService.findById(id);
+    async getNoticeById(
+        @Req() req: AuthenticatedRequest,
+        @Param("id") id: string
+    ): Promise<DmcaNoticeGet> {
+        return this.noticeService.findById(req.user.id, id);
     }
 
     @Post("/")
-    @HttpCode(HttpStatus.CREATED)
     @ApiEndpoint({
         summary: "Create a new DMCA notice",
         success: {
@@ -99,10 +101,11 @@ export class DmcaNoticeController {
     @ApiParam({ name: "id", type: String })
     @ApiBody({ type: DmcaNoticeUpdateDTO })
     async updateNotice(
+        @Req() req: AuthenticatedRequest,
         @Param("id") id: string,
         @Body() data: DmcaNoticeUpdateDTO
     ): Promise<DmcaNoticeGet> {
-        return this.noticeService.update(id, data);
+        return this.noticeService.update(req.user.id, id, data);
     }
 
     @Patch("/:id/status/:status")
@@ -118,10 +121,11 @@ export class DmcaNoticeController {
     @ApiParam({ name: "id", type: String })
     @ApiParam({ name: "status", enum: DmcaStatus })
     async updateNoticeStatus(
+        @Req() req: AuthenticatedRequest,
         @Param("id") id: string,
         @Param("status") status: DmcaStatus
     ): Promise<DmcaNoticeGet> {
-        return this.noticeService.updateStatus(id, status);
+        return this.noticeService.updateStatus(req.user.id, id, status);
     }
 
     @Delete("/:id")
@@ -134,8 +138,11 @@ export class DmcaNoticeController {
         protected: true
     })
     @ApiParam({ name: "id", type: String })
-    async deleteNotice(@Param("id") id: string): Promise<void> {
-        return this.noticeService.delete(id);
+    async deleteNotice(
+        @Req() req: AuthenticatedRequest,
+        @Param("id") id: string
+    ): Promise<void> {
+        return this.noticeService.delete(req.user.id, id);
     }
 
     @Post("/:id/generate")
@@ -149,7 +156,10 @@ export class DmcaNoticeController {
         protected: true
     })
     @ApiParam({ name: "id", type: String })
-    async generate(@Param("id") id: string): Promise<DmcaNoticeGeneratedContentDTO> {
-        return this.noticeService.generate(id);
+    async generate(
+        @Req() req: AuthenticatedRequest,
+        @Param("id") id: string
+    ): Promise<DmcaNoticeGeneratedContentDTO> {
+        return this.noticeService.generate(req.user.id, id);
     }
 }

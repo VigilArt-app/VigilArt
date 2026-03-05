@@ -66,10 +66,13 @@ export class DmcaNoticeService {
         });
     }
 
-    async findById(id: string): Promise<DmcaNoticeGet> {
+    async findById(userId: string, id: string): Promise<DmcaNoticeGet> {
         this.logger.log(`Finding DMCA notice: ${id}`);
         return this.prisma.dmcaNotice.findUniqueOrThrow({
-            where: { id }
+            where: {
+                id,
+                userId
+            }
         });
     }
 
@@ -99,9 +102,12 @@ export class DmcaNoticeService {
         });
     }
 
-    async update(id: string, data: DmcaNoticeUpdate): Promise<DmcaNoticeGet> {
+    async update(userId: string, id: string, data: DmcaNoticeUpdate): Promise<DmcaNoticeGet> {
         const oldData = await this.prisma.dmcaNotice.findUniqueOrThrow({
-            where: { id }
+            where: {
+                id,
+                userId
+            }
         });
         if (oldData.status === DmcaStatus.SUBMITTED)
             throw new ConflictException("Cannot update a submitted notice");
@@ -127,9 +133,12 @@ export class DmcaNoticeService {
         });
     }
 
-    async updateStatus(id: string, status: DmcaStatus): Promise<DmcaNoticeGet> {
+    async updateStatus(userId: string, id: string, status: DmcaStatus): Promise<DmcaNoticeGet> {
         const notice = await this.prisma.dmcaNotice.findUniqueOrThrow({
-            where: { id }
+            where: {
+                id,
+                userId
+            }
         });
         if (notice.status === DmcaStatus.SUBMITTED)
             throw new ConflictException("Cannot change status of a submitted notice");
@@ -143,9 +152,12 @@ export class DmcaNoticeService {
         });
     }
 
-    async delete(id: string): Promise<void> {
+    async delete(userId: string, id: string): Promise<void> {
         const notice = await this.prisma.dmcaNotice.findUniqueOrThrow({
-            where: { id }
+            where: {
+                id,
+                userId
+            }
         });
         if (notice.status === DmcaStatus.SUBMITTED)
             throw new ConflictException("Cannot delete a submitted notice");
@@ -381,9 +393,12 @@ export class DmcaNoticeService {
         };
     }
 
-    async generate(id: string): Promise<DmcaNoticeGeneratedContent> {
+    async generate(userId: string, id: string): Promise<DmcaNoticeGeneratedContent> {
         const notice = await this.prisma.dmcaNotice.findUniqueOrThrow({
-            where: { id },
+            where: {
+                id,
+                userId
+            },
             include: {
                 dmcaPlatform: {
                     omit: {
