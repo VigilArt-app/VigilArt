@@ -32,7 +32,7 @@
     "build": "nest build",
     "start": "node dist/main.js",
     "test:it": "jest --config ./jest.config.ts",
-    "test:e2e": "cross-env NODE_ENV=test NODE_OPTIONS=\"$NODE_OPTIONS --experimental-vm-modules\" jest --config ./test/jest-e2e.config.ts",
+    "test:e2e": "cross-env NODE_ENV=test NODE_OPTIONS=\"$NODE_OPTIONS --experimental-vm-modules\" jest --config ./test/jest-e2e.config.ts --runInBand",
     "db:reset": "dotenv -e ../.env -- sh -c 'pnpm prisma migrate reset && pnpm db:seed:dev'",
     "db:push": "dotenv -e ../.env -- pnpm prisma db push",
     "db:migrate:prod": "pnpm prisma migrate deploy",

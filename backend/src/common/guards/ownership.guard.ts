@@ -4,7 +4,7 @@ import {
   ExecutionContext,
   ForbiddenException,
   UnauthorizedException,
-  InternalServerErrorException
+  BadRequestException
 } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
 import { OWNERSHIP_PARAM_KEY, Ownerships } from "../decorators/check-ownership.decorator";
@@ -35,7 +35,7 @@ export class OwnershipGuard implements CanActivate {
 
       const resourceOwnerIds = this.resolveDataPath(request[param.type], param.data);
       if (!resourceOwnerIds.length)
-        throw new InternalServerErrorException(`'${param.data}' not found in ${param.type}`);
+        throw new BadRequestException(`'${param.data}' not found in ${param.type}`);
       if (!resourceOwnerIds.every(id => id === authenticatedUserParam))
         throw new ForbiddenException("You do not have permission to access this resource");
     }
@@ -60,7 +60,7 @@ export class OwnershipGuard implements CanActivate {
       current = current[key];
     }
     if (typeof current !== "string")
-      throw new InternalServerErrorException(`Invalid ownership path '${path}'.`);
+      throw new BadRequestException(`Invalid ownership path '${path}'.`);
     return [current];
   }
 
@@ -93,7 +93,7 @@ export class OwnershipGuard implements CanActivate {
 
         if (current.every((item): item is string => typeof item === "string"))
           return current;
-        throw new InternalServerErrorException(`Invalid ownership path '${path}'.`);
+        throw new BadRequestException(`Invalid ownership path '${path}'.`);
       } else if (indexMatch) {
         const fieldName = indexMatch[1];
         const index = parseInt(indexMatch[2], 10);
@@ -104,7 +104,7 @@ export class OwnershipGuard implements CanActivate {
           current = current[fieldName];
         }
         if (!Array.isArray(current) || current.length <= index)
-          throw new InternalServerErrorException(`Invalid ownership path '${path}'.`);
+          throw new BadRequestException(`Invalid ownership path '${path}'.`);
         current = current[index];
       } else {
         if (typeof current !== "object" || Array.isArray(current))
@@ -116,6 +116,6 @@ export class OwnershipGuard implements CanActivate {
       return [current];
     if (Array.isArray(current) && current.every((item): item is string => typeof item === "string"))
       return current;
-    throw new InternalServerErrorException(`Invalid ownership path '${path}'.`);
+    throw new BadRequestException(`Invalid ownership path '${path}'.`);
   }
 }
