@@ -21,6 +21,20 @@ export class AuthService {
     private readonly prisma: PrismaService
   ) {}
 
+  private async generateAccessToken(
+    userId: string,
+    email: string
+  ): Promise<string> {
+    const accessTokenExpiry = this.config.get("JWT_EXPIRES") || "15m";
+    return this.jwtService.signAsync(
+      { sub: userId, email },
+      {
+        secret: this.config.getOrThrow<string>("JWT_SECRET"),
+        expiresIn: accessTokenExpiry
+      }
+    );
+  }
+
   private async generateTokens(
     userId: string,
     email: string,
@@ -85,6 +99,19 @@ export class AuthService {
       case 'd': return value * 24 * 60 * 60 * 1000;
       default: return 15 * 60 * 1000;
     }
+  }
+
+  private setAccessTokenCookie(response: Response, accessToken: string): void {
+    const isProduction = process.env.NODE_ENV === 'production';
+    const accessTokenExpiry = this.config.get("JWT_EXPIRES") || "15m";
+
+    response.cookie('auth_token', accessToken, {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: 'strict',
+      maxAge: this.parseExpiryToMs(accessTokenExpiry),
+      path: '/'
+    });
   }
 
   private setAuthCookies(response: Response, tokens: AuthTokens): void {
@@ -153,7 +180,6 @@ export class AuthService {
 
   async refreshTokens(
     response: Response,
-    request: Request,
     userId: string,
     email: string,
     oldRefreshToken?: string
@@ -161,21 +187,9 @@ export class AuthService {
     if (!oldRefreshToken)
       throw new UnauthorizedException("User is not logged in.");
 
-    const userTokens = await this.prisma.refreshToken.findMany({
-      where: { userId }
-    });
-    for (const storedToken of userTokens) {
-      if (await bcrypt.compare(oldRefreshToken, storedToken.token)) {
-        await this.prisma.refreshToken.delete({
-          where: { id: storedToken.id }
-        });
-        break;
-      }
-    }
+    const accessToken = await this.generateAccessToken(userId, email);
 
-    const tokens = await this.generateTokens(userId, email, request);
-
-    this.setAuthCookies(response, tokens);
+    this.setAccessTokenCookie(response, accessToken);
   }
 
   async logout(

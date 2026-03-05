@@ -68,7 +68,6 @@ export class AuthController {
   ): Promise<void> {
     return this.authService.refreshTokens(
       response,
-      req,
       req.user.id,
       req.user.email,
       req.user.refreshToken
