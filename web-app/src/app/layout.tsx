@@ -20,8 +20,8 @@ function ClientWrapper({ children }: { children: React.ReactNode }) {
     <I18nProvider>
       <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
         <Toaster position="top-right" richColors />
-          <AuthProvider>
-            {showSidebar ? (
+          {showSidebar ? (
+            <AuthProvider>
               <SidebarProvider>
                 <AppSidebar />
                 <main className="w-full min-h-screen">
@@ -33,16 +33,16 @@ function ClientWrapper({ children }: { children: React.ReactNode }) {
                   {children}
                 </main>
               </SidebarProvider>
-            ) : (
-              <main className="w-full min-h-screen">
-                <div className="fixed top-4 right-4 flex justify-evenly space-x-4 z-50">
-                  <ThemeToggle />
-                  <LanguageToggle />
-                </div>
-                {children}
-              </main>
-            )}
-          </AuthProvider>
+            </AuthProvider>
+          ) : (
+            <main className="w-full min-h-screen">
+              <div className="fixed top-4 right-4 flex justify-evenly space-x-4 z-50">
+                <ThemeToggle />
+                <LanguageToggle />
+              </div>
+              {children}
+            </main>
+          )}
       </ThemeProvider>
     </I18nProvider>
   );

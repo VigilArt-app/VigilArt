@@ -26,7 +26,7 @@ export default function LoginPage() {
             const res = await authenticatedFetch(`/auth/login`, {
                 method: "POST",
                 body: JSON.stringify({ email, password })
-            })
+            }, true);
             if (!res.ok) {
                 const data = await res.json().catch(() => null)
                 const message = data?.message || "Login failed"

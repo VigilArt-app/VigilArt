@@ -31,7 +31,7 @@ export default function SignUpPage() {
       const res = await authenticatedFetch(`/auth/signup`, {
         method: "POST",
         body: JSON.stringify({ email, password, firstName, lastName })
-      })
+      }, true);
       if (!res.ok) {
         const data = await res.json().catch(() => null)
         const message = data?.message || "Sign up failed"
