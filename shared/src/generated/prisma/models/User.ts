@@ -217,6 +217,7 @@ export type UserWhereInput = {
   dmcaProfile?: Prisma.XOR<Prisma.DmcaProfileNullableScalarRelationFilter, Prisma.DmcaProfileWhereInput> | null
   dmcaNotices?: Prisma.DmcaNoticeListRelationFilter
   artworks?: Prisma.ArtworkListRelationFilter
+  refreshTokens?: Prisma.RefreshTokenListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -232,6 +233,7 @@ export type UserOrderByWithRelationInput = {
   dmcaProfile?: Prisma.DmcaProfileOrderByWithRelationInput
   dmcaNotices?: Prisma.DmcaNoticeOrderByRelationAggregateInput
   artworks?: Prisma.ArtworkOrderByRelationAggregateInput
+  refreshTokens?: Prisma.RefreshTokenOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -250,6 +252,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   dmcaProfile?: Prisma.XOR<Prisma.DmcaProfileNullableScalarRelationFilter, Prisma.DmcaProfileWhereInput> | null
   dmcaNotices?: Prisma.DmcaNoticeListRelationFilter
   artworks?: Prisma.ArtworkListRelationFilter
+  refreshTokens?: Prisma.RefreshTokenListRelationFilter
 }, "id" | "email">
 
 export type UserOrderByWithAggregationInput = {
@@ -295,6 +298,7 @@ export type UserCreateInput = {
   dmcaProfile?: Prisma.DmcaProfileCreateNestedOneWithoutUserInput
   dmcaNotices?: Prisma.DmcaNoticeCreateNestedManyWithoutUserInput
   artworks?: Prisma.ArtworkCreateNestedManyWithoutUserInput
+  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -310,6 +314,7 @@ export type UserUncheckedCreateInput = {
   dmcaProfile?: Prisma.DmcaProfileUncheckedCreateNestedOneWithoutUserInput
   dmcaNotices?: Prisma.DmcaNoticeUncheckedCreateNestedManyWithoutUserInput
   artworks?: Prisma.ArtworkUncheckedCreateNestedManyWithoutUserInput
+  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserUpdateInput = {
@@ -325,6 +330,7 @@ export type UserUpdateInput = {
   dmcaProfile?: Prisma.DmcaProfileUpdateOneWithoutUserNestedInput
   dmcaNotices?: Prisma.DmcaNoticeUpdateManyWithoutUserNestedInput
   artworks?: Prisma.ArtworkUpdateManyWithoutUserNestedInput
+  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -340,6 +346,7 @@ export type UserUncheckedUpdateInput = {
   dmcaProfile?: Prisma.DmcaProfileUncheckedUpdateOneWithoutUserNestedInput
   dmcaNotices?: Prisma.DmcaNoticeUncheckedUpdateManyWithoutUserNestedInput
   artworks?: Prisma.ArtworkUncheckedUpdateManyWithoutUserNestedInput
+  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -440,6 +447,20 @@ export type DateTimeFieldUpdateOperationsInput = {
   set?: Date | string
 }
 
+export type UserCreateNestedOneWithoutRefreshTokensInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutRefreshTokensInput, Prisma.UserUncheckedCreateWithoutRefreshTokensInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutRefreshTokensInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutRefreshTokensNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutRefreshTokensInput, Prisma.UserUncheckedCreateWithoutRefreshTokensInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutRefreshTokensInput
+  upsert?: Prisma.UserUpsertWithoutRefreshTokensInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutRefreshTokensInput, Prisma.UserUpdateWithoutRefreshTokensInput>, Prisma.UserUncheckedUpdateWithoutRefreshTokensInput>
+}
+
 export type UserCreateNestedOneWithoutArtworksInput = {
   create?: Prisma.XOR<Prisma.UserCreateWithoutArtworksInput, Prisma.UserUncheckedCreateWithoutArtworksInput>
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutArtworksInput
@@ -484,6 +505,82 @@ export type UserUpdateOneWithoutDmcaNoticesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutDmcaNoticesInput, Prisma.UserUpdateWithoutDmcaNoticesInput>, Prisma.UserUncheckedUpdateWithoutDmcaNoticesInput>
 }
 
+export type UserCreateWithoutRefreshTokensInput = {
+  id?: string
+  email: string
+  password: string
+  firstName: string
+  lastName: string
+  avatar?: string | null
+  subscriptionTier?: $Enums.SubscriptionTier
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  dmcaProfile?: Prisma.DmcaProfileCreateNestedOneWithoutUserInput
+  dmcaNotices?: Prisma.DmcaNoticeCreateNestedManyWithoutUserInput
+  artworks?: Prisma.ArtworkCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutRefreshTokensInput = {
+  id?: string
+  email: string
+  password: string
+  firstName: string
+  lastName: string
+  avatar?: string | null
+  subscriptionTier?: $Enums.SubscriptionTier
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  dmcaProfile?: Prisma.DmcaProfileUncheckedCreateNestedOneWithoutUserInput
+  dmcaNotices?: Prisma.DmcaNoticeUncheckedCreateNestedManyWithoutUserInput
+  artworks?: Prisma.ArtworkUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutRefreshTokensInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutRefreshTokensInput, Prisma.UserUncheckedCreateWithoutRefreshTokensInput>
+}
+
+export type UserUpsertWithoutRefreshTokensInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutRefreshTokensInput, Prisma.UserUncheckedUpdateWithoutRefreshTokensInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutRefreshTokensInput, Prisma.UserUncheckedCreateWithoutRefreshTokensInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutRefreshTokensInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutRefreshTokensInput, Prisma.UserUncheckedUpdateWithoutRefreshTokensInput>
+}
+
+export type UserUpdateWithoutRefreshTokensInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.StringFieldUpdateOperationsInput | string
+  lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subscriptionTier?: Prisma.EnumSubscriptionTierFieldUpdateOperationsInput | $Enums.SubscriptionTier
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  dmcaProfile?: Prisma.DmcaProfileUpdateOneWithoutUserNestedInput
+  dmcaNotices?: Prisma.DmcaNoticeUpdateManyWithoutUserNestedInput
+  artworks?: Prisma.ArtworkUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutRefreshTokensInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.StringFieldUpdateOperationsInput | string
+  lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subscriptionTier?: Prisma.EnumSubscriptionTierFieldUpdateOperationsInput | $Enums.SubscriptionTier
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  dmcaProfile?: Prisma.DmcaProfileUncheckedUpdateOneWithoutUserNestedInput
+  dmcaNotices?: Prisma.DmcaNoticeUncheckedUpdateManyWithoutUserNestedInput
+  artworks?: Prisma.ArtworkUncheckedUpdateManyWithoutUserNestedInput
+}
+
 export type UserCreateWithoutArtworksInput = {
   id?: string
   email: string
@@ -496,6 +593,7 @@ export type UserCreateWithoutArtworksInput = {
   updatedAt?: Date | string
   dmcaProfile?: Prisma.DmcaProfileCreateNestedOneWithoutUserInput
   dmcaNotices?: Prisma.DmcaNoticeCreateNestedManyWithoutUserInput
+  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutArtworksInput = {
@@ -510,6 +608,7 @@ export type UserUncheckedCreateWithoutArtworksInput = {
   updatedAt?: Date | string
   dmcaProfile?: Prisma.DmcaProfileUncheckedCreateNestedOneWithoutUserInput
   dmcaNotices?: Prisma.DmcaNoticeUncheckedCreateNestedManyWithoutUserInput
+  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutArtworksInput = {
@@ -540,6 +639,7 @@ export type UserUpdateWithoutArtworksInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   dmcaProfile?: Prisma.DmcaProfileUpdateOneWithoutUserNestedInput
   dmcaNotices?: Prisma.DmcaNoticeUpdateManyWithoutUserNestedInput
+  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutArtworksInput = {
@@ -554,6 +654,7 @@ export type UserUncheckedUpdateWithoutArtworksInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   dmcaProfile?: Prisma.DmcaProfileUncheckedUpdateOneWithoutUserNestedInput
   dmcaNotices?: Prisma.DmcaNoticeUncheckedUpdateManyWithoutUserNestedInput
+  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutDmcaProfileInput = {
@@ -568,6 +669,7 @@ export type UserCreateWithoutDmcaProfileInput = {
   updatedAt?: Date | string
   dmcaNotices?: Prisma.DmcaNoticeCreateNestedManyWithoutUserInput
   artworks?: Prisma.ArtworkCreateNestedManyWithoutUserInput
+  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutDmcaProfileInput = {
@@ -582,6 +684,7 @@ export type UserUncheckedCreateWithoutDmcaProfileInput = {
   updatedAt?: Date | string
   dmcaNotices?: Prisma.DmcaNoticeUncheckedCreateNestedManyWithoutUserInput
   artworks?: Prisma.ArtworkUncheckedCreateNestedManyWithoutUserInput
+  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutDmcaProfileInput = {
@@ -612,6 +715,7 @@ export type UserUpdateWithoutDmcaProfileInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   dmcaNotices?: Prisma.DmcaNoticeUpdateManyWithoutUserNestedInput
   artworks?: Prisma.ArtworkUpdateManyWithoutUserNestedInput
+  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutDmcaProfileInput = {
@@ -626,6 +730,7 @@ export type UserUncheckedUpdateWithoutDmcaProfileInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   dmcaNotices?: Prisma.DmcaNoticeUncheckedUpdateManyWithoutUserNestedInput
   artworks?: Prisma.ArtworkUncheckedUpdateManyWithoutUserNestedInput
+  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutDmcaNoticesInput = {
@@ -640,6 +745,7 @@ export type UserCreateWithoutDmcaNoticesInput = {
   updatedAt?: Date | string
   dmcaProfile?: Prisma.DmcaProfileCreateNestedOneWithoutUserInput
   artworks?: Prisma.ArtworkCreateNestedManyWithoutUserInput
+  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutDmcaNoticesInput = {
@@ -654,6 +760,7 @@ export type UserUncheckedCreateWithoutDmcaNoticesInput = {
   updatedAt?: Date | string
   dmcaProfile?: Prisma.DmcaProfileUncheckedCreateNestedOneWithoutUserInput
   artworks?: Prisma.ArtworkUncheckedCreateNestedManyWithoutUserInput
+  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutDmcaNoticesInput = {
@@ -684,6 +791,7 @@ export type UserUpdateWithoutDmcaNoticesInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   dmcaProfile?: Prisma.DmcaProfileUpdateOneWithoutUserNestedInput
   artworks?: Prisma.ArtworkUpdateManyWithoutUserNestedInput
+  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutDmcaNoticesInput = {
@@ -698,6 +806,7 @@ export type UserUncheckedUpdateWithoutDmcaNoticesInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   dmcaProfile?: Prisma.DmcaProfileUncheckedUpdateOneWithoutUserNestedInput
   artworks?: Prisma.ArtworkUncheckedUpdateManyWithoutUserNestedInput
+  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
 }
 
 
@@ -708,11 +817,13 @@ export type UserUncheckedUpdateWithoutDmcaNoticesInput = {
 export type UserCountOutputType = {
   dmcaNotices: number
   artworks: number
+  refreshTokens: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   dmcaNotices?: boolean | UserCountOutputTypeCountDmcaNoticesArgs
   artworks?: boolean | UserCountOutputTypeCountArtworksArgs
+  refreshTokens?: boolean | UserCountOutputTypeCountRefreshTokensArgs
 }
 
 /**
@@ -739,6 +850,13 @@ export type UserCountOutputTypeCountArtworksArgs<ExtArgs extends runtime.Types.E
   where?: Prisma.ArtworkWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountRefreshTokensArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.RefreshTokenWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -753,6 +871,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   dmcaProfile?: boolean | Prisma.User$dmcaProfileArgs<ExtArgs>
   dmcaNotices?: boolean | Prisma.User$dmcaNoticesArgs<ExtArgs>
   artworks?: boolean | Prisma.User$artworksArgs<ExtArgs>
+  refreshTokens?: boolean | Prisma.User$refreshTokensArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -797,6 +916,7 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   dmcaProfile?: boolean | Prisma.User$dmcaProfileArgs<ExtArgs>
   dmcaNotices?: boolean | Prisma.User$dmcaNoticesArgs<ExtArgs>
   artworks?: boolean | Prisma.User$artworksArgs<ExtArgs>
+  refreshTokens?: boolean | Prisma.User$refreshTokensArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -808,6 +928,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     dmcaProfile: Prisma.$DmcaProfilePayload<ExtArgs> | null
     dmcaNotices: Prisma.$DmcaNoticePayload<ExtArgs>[]
     artworks: Prisma.$ArtworkPayload<ExtArgs>[]
+    refreshTokens: Prisma.$RefreshTokenPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1216,6 +1337,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   dmcaProfile<T extends Prisma.User$dmcaProfileArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$dmcaProfileArgs<ExtArgs>>): Prisma.Prisma__DmcaProfileClient<runtime.Types.Result.GetResult<Prisma.$DmcaProfilePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   dmcaNotices<T extends Prisma.User$dmcaNoticesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$dmcaNoticesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DmcaNoticePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   artworks<T extends Prisma.User$artworksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$artworksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ArtworkPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  refreshTokens<T extends Prisma.User$refreshTokensArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$refreshTokensArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RefreshTokenPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1706,6 +1828,30 @@ export type User$artworksArgs<ExtArgs extends runtime.Types.Extensions.InternalA
   take?: number
   skip?: number
   distinct?: Prisma.ArtworkScalarFieldEnum | Prisma.ArtworkScalarFieldEnum[]
+}
+
+/**
+ * User.refreshTokens
+ */
+export type User$refreshTokensArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the RefreshToken
+   */
+  select?: Prisma.RefreshTokenSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the RefreshToken
+   */
+  omit?: Prisma.RefreshTokenOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.RefreshTokenInclude<ExtArgs> | null
+  where?: Prisma.RefreshTokenWhereInput
+  orderBy?: Prisma.RefreshTokenOrderByWithRelationInput | Prisma.RefreshTokenOrderByWithRelationInput[]
+  cursor?: Prisma.RefreshTokenWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.RefreshTokenScalarFieldEnum | Prisma.RefreshTokenScalarFieldEnum[]
 }
 
 /**

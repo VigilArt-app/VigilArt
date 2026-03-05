@@ -74,12 +74,13 @@ export class ArtworksService {
     });
   }
 
-  async findOne(id: string): Promise<Artwork> {
+  async findOne(userId: string, id: string): Promise<Artwork> {
     try {
       this.logger.log(`Finding artwork ${id}`);
       return await this.prisma.artwork.findUniqueOrThrow({
         where: {
-          id
+          id,
+          userId
         }
       });
     } catch (e: any) {
@@ -90,18 +91,20 @@ export class ArtworksService {
     }
   }
 
-  async findMany(ids: string[]): Promise<Artwork[]> {
-    this.logger.log(`Finding artworks ${ids.join(",")}`);
+  async findMany(userId: string, ids: string[]): Promise<Artwork[]> {
+    this.logger.log(`Finding artworks ${ids.join(",")} for user ${userId}`);
     return this.prisma.artwork.findMany({
       where: {
         id: {
           in: ids
-        }
+        },
+        userId
       }
     });
   }
 
   async update(
+    userId: string,
     id: string,
     updateArtworkDto: ArtworkUpdateDTO
   ): Promise<Artwork> {
@@ -109,7 +112,8 @@ export class ArtworksService {
     try {
       return await this.prisma.artwork.update({
         where: {
-          id
+          id,
+          userId
         },
         data: updateArtworkDto
       });
@@ -121,12 +125,13 @@ export class ArtworksService {
     }
   }
 
-  async remove(id: string): Promise<void> {
+  async remove(userId: string, id: string): Promise<void> {
     this.logger.log(`Removing artwork ${id}`);
     try {
       await this.prisma.artwork.delete({
         where: {
-          id
+          id,
+          userId
         }
       });
     } catch (e: any) {
@@ -137,13 +142,14 @@ export class ArtworksService {
     }
   }
 
-  async removeMany(ids: string[]): Promise<ApiBatchPayload> {
-    this.logger.log(`Removing artworks ${ids.join(",")}`);
-    return await this.prisma.artwork.deleteMany({
+  async removeMany(userId: string, ids: string[]): Promise<ApiBatchPayload> {
+    this.logger.log(`Removing artworks ${ids.join(",")} for user ${userId}`);
+    return this.prisma.artwork.deleteMany({
       where: {
         id: {
           in: ids
-        }
+        },
+        userId
       }
     });
   }

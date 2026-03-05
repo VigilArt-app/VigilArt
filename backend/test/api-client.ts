@@ -5,29 +5,43 @@ import { ConfigService } from "@nestjs/config";
 export class ApiClient {
   private readonly config: ConfigService;
   private readonly base: string;
+  private readonly agent: ReturnType<typeof request.agent>;
 
   constructor(private readonly app: INestApplication) {
     this.config = app.get(ConfigService);
     this.base = this.config.get<string>("API_PREFIX") || "/api/v1";
+    this.agent = request.agent(this.app.getHttpServer());
+  }
+
+  async login(email: string, password: string): Promise<request.Response> {
+    return this.agent.post(this.base + "/auth/login").send({ email, password });
+  }
+
+  async signup(email: string, password: string, firstName: string, lastName: string): Promise<request.Response> {
+    return this.agent.post(this.base + "/auth/signup").send({ email, password, firstName, lastName });
+  }
+
+  async logout(): Promise<request.Response> {
+    return this.agent.post(this.base + "/auth/logout");
   }
 
   get(url: string) {
-    return request(this.app.getHttpServer()).get(this.base + url);
+    return this.agent.get(this.base + url);
   }
 
   post(url: string) {
-    return request(this.app.getHttpServer()).post(this.base + url);
+    return this.agent.post(this.base + url);
   }
 
   put(url: string) {
-    return request(this.app.getHttpServer()).put(this.base + url);
+    return this.agent.put(this.base + url);
   }
 
   patch(url: string) {
-    return request(this.app.getHttpServer()).patch(this.base + url);
+    return this.agent.patch(this.base + url);
   }
 
   delete(url: string) {
-    return request(this.app.getHttpServer()).delete(this.base + url);
+    return this.agent.delete(this.base + url);
   }
 }

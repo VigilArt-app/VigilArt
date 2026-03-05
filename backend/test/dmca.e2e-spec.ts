@@ -7,6 +7,7 @@ import { ApiClient } from "./api-client";
 import {
     DeviantArtDmcaFormJSON,
     DeviantArtDmcaPayload,
+    type UserGet
 } from "@vigilart/shared";
 
 describe("DMCA User Journey E2E", () => {
@@ -14,9 +15,8 @@ describe("DMCA User Journey E2E", () => {
     let prismaService: PrismaService;
     let api: ApiClient;
 
-    let userId: string;
-    let accessToken: string;
     let noticeId: string;
+    let testUser: { email: string; password: string, id?: string };
 
     beforeAll(async () => {
         const moduleRef = await Test.createTestingModule({
@@ -41,147 +41,81 @@ describe("DMCA User Journey E2E", () => {
         await app.close();
     });
 
-    describe("1. User Registration", () => {
-        it("Should reject signup with invalid email", async () => {
+    describe("Unauthenticated Access Tests", () => {
+        it("Should reject profile creation without authentication", async () => {
             await api
-                .post("/auth/signup")
+                .post(`/dmca/profile`)
                 .send({
-                    email: "invalid-email",
-                    password: "SecurePass123!",
-                    firstName: "John",
-                    lastName: "Doe"
-                })
-                .expect(HttpStatus.BAD_REQUEST);
-        });
-
-        it("Should reject signup with weak password", async () => {
-            await api
-                .post("/auth/signup")
-                .send({
+                    fullName: "John Doe",
                     email: "john.doe@vigilart.app",
-                    password: "weak",
-                    firstName: "John",
-                    lastName: "Doe"
-                })
-                .expect(HttpStatus.BAD_REQUEST);
-        });
-
-        it("Should reject signup with missing fields", async () => {
-            await api
-                .post("/auth/signup")
-                .send({
-                    email: "john.doe@vigilart.app",
-                    password: "SecurePass123!"
-                })
-                .expect(HttpStatus.BAD_REQUEST);
-        });
-
-        it("Should successfully sign up a new user", async () => {
-            const res = await api
-                .post("/auth/signup")
-                .send({
-                    email: "john.doe@vigilart.app",
-                    password: "SecurePass123!",
-                    firstName: "John",
-                    lastName: "Doe"
-                })
-                .expect(HttpStatus.CREATED);
-
-            expect(res.body.success).toBe(true);
-            expect(res.body.data).toMatchObject({
-                accessToken: expect.any(String),
-                refreshToken: expect.any(String),
-                expiresIn: expect.any(String),
-                user: {
-                    id: expect.any(String),
-                    email: "john.doe@vigilart.app",
-                    firstName: "John",
-                    lastName: "Doe"
-                }
-            });
-
-            userId = res.body.data.user.id;
-            accessToken = res.body.data.accessToken;
-        });
-
-        it("Should reject duplicate signup", async () => {
-            await api
-                .post("/auth/signup")
-                .send({
-                    email: "john.doe@vigilart.app",
-                    password: "SecurePass123!",
-                    firstName: "John",
-                    lastName: "Doe"
-                })
-                .expect(HttpStatus.CONFLICT);
-        });
-    });
-
-    describe("2. User Authentication", () => {
-        it("Should reject login with wrong password", async () => {
-            await api
-                .post("/auth/login")
-                .send({
-                    email: "john.doe@vigilart.app",
-                    password: "WrongPassword123!"
+                    address: "123 Main St",
+                    city: "New York",
+                    state: "NY",
+                    zipCode: "10001",
+                    country: "USA"
                 })
                 .expect(HttpStatus.UNAUTHORIZED);
         });
 
-        it("Should reject login with non-existent email", async () => {
+        it("Should reject notice creation without authentication", async () => {
             await api
-                .post("/auth/login")
+                .post("/dmca/notice")
                 .send({
-                    email: "nonexistent@vigilart.app",
-                    password: "SecurePass123!"
+                    dmcaPlatformSlug: "DEVIANTART",
+                    payload: {}
                 })
                 .expect(HttpStatus.UNAUTHORIZED);
         });
 
-        it("Should successfully login", async () => {
-            const res = await api
-                .post("/auth/login")
+        it("Should reject update without authentication", async () => {
+            await api
+                .patch(`/dmca/notice/00000000-0000-0000-0000-000000000000`)
                 .send({
-                    email: "john.doe@vigilart.app",
-                    password: "SecurePass123!"
+                    payload: {}
                 })
-                .expect(HttpStatus.OK);
+                .expect(HttpStatus.UNAUTHORIZED);
+        });
 
-            expect(res.body.success).toBe(true);
-            expect(res.body.data).toMatchObject({
-                accessToken: expect.any(String),
-                refreshToken: expect.any(String),
-                expiresIn: expect.any(String),
-                user: {
-                    id: userId,
-                    email: "john.doe@vigilart.app",
-                    firstName: "John",
-                    lastName: "Doe"
-                }
-            });
+        it("Should reject PDF generation without authentication", async () => {
+            await api
+                .post(`/dmca/notice/00000000-0000-0000-0000-000000000000/generate`)
+                .expect(HttpStatus.UNAUTHORIZED);
         });
     });
 
-    describe("3. DMCA Profile Management", () => {
-        // it("Should reject profile creation without authentication", async () => {
-        //     await api
-        //         .post(`/dmca/profile/${userId}`)
-        //         .send({
-        //             fullName: "John Doe",
-        //             email: "john.doe@vigilart.app",
-        //             address: "123 Main St",
-        //             city: "New York",
-        //             state: "NY",
-        //             zipCode: "10001",
-        //             country: "USA"
-        //         })
-        //         .expect(HttpStatus.UNAUTHORIZED);
-        // });
+    describe("Authenticated User Journey", () => {
+        beforeAll(async () => {
+            testUser = {
+                email: "test.auth@mail.com",
+                password: "Secure_P4ssword"
+            };
+            await api.signup(
+                testUser.email,
+                testUser.password,
+                "Test",
+                "User"
+            );
+        });
+
+        afterAll(async () => {
+            await prismaService.user.deleteMany();
+        });
+
+        beforeEach(async () => {
+            const user: UserGet = (await api.login(testUser.email, testUser.password)).body.data;
+            testUser.id = user.id;
+        });
+
+        afterEach(async () => {
+            testUser.id = undefined;
+            await api.logout();
+        });
+
+        describe("1. DMCA Profile Management", () => {
 
         it("Should reject profile creation with missing required fields", async () => {
             await api
-                .post(`/dmca/profile/${userId}`)
-                .set("Authorization", `Bearer ${accessToken}`)
+                .post(`/dmca/profile`)
                 .send({
                     fullName: "John Doe",
                     email: "john.doe@vigilart.app"
@@ -191,8 +125,7 @@ describe("DMCA User Journey E2E", () => {
 
         it("Should successfully create a DMCA profile", async () => {
             const res = await api
-                .post(`/dmca/profile/${userId}`)
-                .set("Authorization", `Bearer ${accessToken}`)
+                .post(`/dmca/profile`)
                 .send({
                     fullName: "John Doe",
                     email: "john.doe@vigilart.app",
@@ -208,7 +141,7 @@ describe("DMCA User Journey E2E", () => {
             expect(res.body.success).toBe(true);
             expect(res.body.data).toMatchObject({
                 id: expect.any(String),
-                userId: userId,
+                userId: testUser.id,
                 fullName: "John Doe",
                 email: "john.doe@vigilart.app",
                 street: "123 Main St",
@@ -224,8 +157,7 @@ describe("DMCA User Journey E2E", () => {
 
         it("Should reject duplicate profile creation", async () => {
             await api
-                .post(`/dmca/profile/${userId}`)
-                .set("Authorization", `Bearer ${accessToken}`)
+                .post(`/dmca/profile`)
                 .send({
                     fullName: "John Doe",
                     email: "john.doe@vigilart.app",
@@ -241,14 +173,13 @@ describe("DMCA User Journey E2E", () => {
 
         it("Should successfully retrieve the DMCA profile", async () => {
             const res = await api
-                .get(`/dmca/profile/${userId}`)
-                .set("Authorization", `Bearer ${accessToken}`)
+                .get(`/dmca/profile`)
                 .expect(HttpStatus.OK);
 
             expect(res.body.success).toBe(true);
             expect(res.body.data).toMatchObject({
                 id: expect.any(String),
-                userId: userId,
+                userId: testUser.id,
                 fullName: "John Doe",
                 email: "john.doe@vigilart.app",
                 street: "123 Main St",
@@ -264,8 +195,7 @@ describe("DMCA User Journey E2E", () => {
 
         it("Should successfully update the DMCA profile", async () => {
             const res = await api
-                .patch(`/dmca/profile/${userId}`)
-                .set("Authorization", `Bearer ${accessToken}`)
+                .patch(`/dmca/profile`)
                 .send({
                     phone: "+9876543210",
                     street: "456 Oak Avenue"
@@ -275,7 +205,7 @@ describe("DMCA User Journey E2E", () => {
             expect(res.body.success).toBe(true);
             expect(res.body.data).toMatchObject({
                 id: expect.any(String),
-                userId: userId,
+                userId: testUser.id,
                 fullName: "John Doe",
                 email: "john.doe@vigilart.app",
                 street: "456 Oak Avenue",
@@ -290,21 +220,10 @@ describe("DMCA User Journey E2E", () => {
         });
     });
 
-    describe("4. DMCA Notice Creation", () => {
-        // it("Should reject notice creation without authentication", async () => {
-        //     await api
-        //         .post("/dmca/notice")
-        //         .send({
-        //             dmcaPlatformSlug: "DEVIANTART",
-        //             payload: {}
-        //         })
-        //         .expect(HttpStatus.UNAUTHORIZED);
-        // });
-
+    describe("2. DMCA Notice Creation", () => {
         it("Should reject notice with invalid platform", async () => {
             await api
                 .post("/dmca/notice")
-                .set("Authorization", `Bearer ${accessToken}`)
                 .send({
                     dmcaPlatformSlug: "INVALID_PLATFORM",
                     payload: {}
@@ -322,7 +241,6 @@ describe("DMCA User Journey E2E", () => {
 
             await api
                 .post("/dmca/notice")
-                .set("Authorization", `Bearer ${accessToken}`)
                 .send({
                     dmcaPlatformSlug: "DEVIANTART",
                     payload: incompletePayload
@@ -352,7 +270,6 @@ describe("DMCA User Journey E2E", () => {
 
             await api
                 .post("/dmca/notice")
-                .set("Authorization", `Bearer ${accessToken}`)
                 .send({
                     dmcaPlatformSlug: "DEVIANTART",
                     payload: invalidPayload
@@ -385,18 +302,17 @@ describe("DMCA User Journey E2E", () => {
 
             const res = await api
                 .post("/dmca/notice")
-                .set("Authorization", `Bearer ${accessToken}`)
                 .send({
                     dmcaPlatformSlug: "DEVIANTART",
                     payload: validPayload,
-                    userId: userId,
+                    userId: testUser.id,
                     artworkId: null
                 }).expect(HttpStatus.CREATED);
 
             expect(res.body.success).toBe(true);
             expect(res.body.data).toMatchObject({
                 id: expect.any(String),
-                userId: userId,
+                userId: testUser.id,
                 dmcaPlatformSlug: "DEVIANTART",
                 status: expect.any(String),
                 payload: expect.any(Object),
@@ -409,13 +325,12 @@ describe("DMCA User Journey E2E", () => {
         it("Should successfully retrieve the created notice", async () => {
             const res = await api
                 .get(`/dmca/notice/${noticeId}`)
-                .set("Authorization", `Bearer ${accessToken}`)
                 .expect(HttpStatus.OK);
 
             expect(res.body.success).toBe(true);
             expect(res.body.data).toMatchObject({
                 id: noticeId,
-                userId: userId,
+                userId: testUser.id,
                 dmcaPlatformSlug: "DEVIANTART",
                 status: expect.any(String),
                 payload: expect.any(Object),
@@ -426,8 +341,7 @@ describe("DMCA User Journey E2E", () => {
 
         it("Should successfully retrieve all notices for user", async () => {
             const res = await api
-                .get(`/dmca/notice/user/${userId}`)
-                .set("Authorization", `Bearer ${accessToken}`)
+                .get(`/dmca/notice/user`)
                 .expect(HttpStatus.OK);
 
             expect(res.body.success).toBe(true);
@@ -435,7 +349,7 @@ describe("DMCA User Journey E2E", () => {
                 expect.arrayContaining([
                     expect.objectContaining({
                         id: noticeId,
-                        userId: userId,
+                        userId: testUser.id,
                         dmcaPlatformSlug: "DEVIANTART",
                         status: expect.any(String),
                         payload: expect.any(Object)
@@ -445,20 +359,10 @@ describe("DMCA User Journey E2E", () => {
         });
     });
 
-    describe("5. DMCA Notice Updates", () => {
-        // it("Should reject update without authentication", async () => {
-        //     await api
-        //         .patch(`/dmca/notice/${noticeId}`)
-        //         .send({
-        //             payload: {}
-        //         })
-        //         .expect(HttpStatus.UNAUTHORIZED);
-        // });
-
+    describe("3. DMCA Notice Updates", () => {
         it("Should reject update with non-existent notice ID", async () => {
             await api
                 .patch(`/dmca/notice/00000000-0000-0000-0000-000000000000`)
-                .set("Authorization", `Bearer ${accessToken}`)
                 .send({
                     payload: {}
                 })
@@ -493,7 +397,6 @@ describe("DMCA User Journey E2E", () => {
 
             const res = await api
                 .patch(`/dmca/notice/${noticeId}`)
-                .set("Authorization", `Bearer ${accessToken}`)
                 .send({
                     payload: updatedPayload
                 })
@@ -502,7 +405,7 @@ describe("DMCA User Journey E2E", () => {
             expect(res.body.success).toBe(true);
             expect(res.body.data).toMatchObject({
                 id: noticeId,
-                userId: userId,
+                userId: testUser.id,
                 dmcaPlatformSlug: "DEVIANTART",
                 status: expect.any(String),
                 payload: {
@@ -527,13 +430,12 @@ describe("DMCA User Journey E2E", () => {
         it("Should successfully update notice status", async () => {
             const res = await api
                 .patch(`/dmca/notice/${noticeId}/status/SUBMITTED`)
-                .set("Authorization", `Bearer ${accessToken}`)
                 .expect(HttpStatus.OK);
 
             expect(res.body.success).toBe(true);
             expect(res.body.data).toMatchObject({
                 id: noticeId,
-                userId: userId,
+                userId: testUser.id,
                 dmcaPlatformSlug: "DEVIANTART",
                 status: "SUBMITTED",
                 payload: expect.any(Object),
@@ -543,24 +445,16 @@ describe("DMCA User Journey E2E", () => {
         });
     });
 
-    describe("6. DMCA Notice Generation", () => {
-        // it("Should reject PDF generation without authentication", async () => {
-        //     await api
-        //         .post(`/dmca/notice/${noticeId}/generate`)
-        //         .expect(HttpStatus.UNAUTHORIZED);
-        // });
-
+    describe("4. DMCA Notice Generation", () => {
         it("Should reject generation for non-existent notice", async () => {
             await api
                 .post(`/dmca/notice/00000000-0000-0000-0000-000000000000/generate`)
-                .set("Authorization", `Bearer ${accessToken}`)
                 .expect(HttpStatus.NOT_FOUND);
         });
 
         it("Should successfully generate PDF and email content", async () => {
             const res = await api
                 .post(`/dmca/notice/${noticeId}/generate`)
-                .set("Authorization", `Bearer ${accessToken}`)
                 .expect(HttpStatus.OK);
 
             expect(res.body.success).toBe(true);
@@ -582,7 +476,6 @@ describe("DMCA User Journey E2E", () => {
         it("Should verify generated content contains correct information", async () => {
             const res = await api
                 .post(`/dmca/notice/${noticeId}/generate`)
-                .set("Authorization", `Bearer ${accessToken}`)
                 .expect(HttpStatus.OK);
 
             expect(res.body.data).toMatchObject({
@@ -601,19 +494,18 @@ describe("DMCA User Journey E2E", () => {
         });
     });
 
-    describe("7. Cleanup and Deletion", () => {
-        it("Should successfully delete the DMCA profile", async () => {
-            await api
-                .delete(`/dmca/profile/${userId}`)
-                .set("Authorization", `Bearer ${accessToken}`)
-                .expect(HttpStatus.NO_CONTENT);
-        });
+        describe("5. Cleanup and Deletion", () => {
+            it("Should successfully delete the DMCA profile", async () => {
+                await api
+                    .delete(`/dmca/profile`)
+                    .expect(HttpStatus.NO_CONTENT);
+            });
 
-        it("Should verify profile was deleted", async () => {
-            await api
-                .get(`/dmca/profile/${userId}`)
-                .set("Authorization", `Bearer ${accessToken}`)
-                .expect(HttpStatus.NOT_FOUND);
+            it("Should verify profile was deleted", async () => {
+                await api
+                    .get(`/dmca/profile`)
+                    .expect(HttpStatus.NOT_FOUND);
+            });
         });
     });
 });

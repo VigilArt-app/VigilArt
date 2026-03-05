@@ -16,6 +16,12 @@ export const UserScalarFieldEnumSchema = z.enum(['id', 'email', 'password', 'fir
 
 export type UserScalarFieldEnum = z.infer<typeof UserScalarFieldEnumSchema>;
 
+// File: RefreshTokenScalarFieldEnum.schema.ts
+
+export const RefreshTokenScalarFieldEnumSchema = z.enum(['id', 'userId', 'token', 'deviceInfo', 'ipAddress', 'expiresAt', 'createdAt'])
+
+export type RefreshTokenScalarFieldEnum = z.infer<typeof RefreshTokenScalarFieldEnumSchema>;
+
 // File: ArtworkScalarFieldEnum.schema.ts
 
 export const ArtworkScalarFieldEnumSchema = z.enum(['id', 'userId', 'originalFilename', 'storageKey', 'contentType', 'sizeBytes', 'width', 'height', 'description', 'createdAt', 'updatedAt', 'lastScanAt'])
@@ -109,6 +115,21 @@ export const UserSchema = z.object({
 });
 
 export type UserType = z.infer<typeof UserSchema>;
+
+
+// File: RefreshToken.schema.ts
+
+export const RefreshTokenSchema = z.object({
+  id: z.string(),
+  userId: z.string(),
+  token: z.string(),
+  deviceInfo: z.string().nullable(),
+  ipAddress: z.string().nullable(),
+  expiresAt: z.coerce.date(),
+  createdAt: z.coerce.date(),
+});
+
+export type RefreshTokenType = z.infer<typeof RefreshTokenSchema>;
 
 
 // File: Artwork.schema.ts

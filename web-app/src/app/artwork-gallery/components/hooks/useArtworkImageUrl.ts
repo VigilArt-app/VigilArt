@@ -1,3 +1,4 @@
+import { authenticatedFetch } from "@/src/utils/auth/authenticatedFetch";
 import { useState, useEffect } from "react";
 
 export function useArtworkImageUrl(storageKey: string | undefined) {
@@ -15,23 +16,8 @@ export function useArtworkImageUrl(storageKey: string | undefined) {
     const fetchImageUrl = async () => {
       try {
         setIsLoading(true);
-        const API_BASE = process.env.NEXT_PUBLIC_API_URL;
-        
-        const authToken = 
-          typeof window !== 'undefined' 
-            ? localStorage.getItem("auth_token") || sessionStorage.getItem("auth_token")
-            : null;
-
-        if (!authToken) {
-          throw new Error("Authentication token not found");
-        }
-        
-        const response = await fetch(`${API_BASE}/storage/artworks/download-urls`, {
+        const response = await authenticatedFetch(`/storage/artworks/download-urls`, {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${authToken}`,
-          },
           body: JSON.stringify({
             storageKeys: [storageKey],
           }),

@@ -1,6 +1,9 @@
-import { applyDecorators, HttpCode, HttpStatus, Type } from "@nestjs/common";
+import { applyDecorators, HttpCode, HttpStatus, Type, UseGuards } from "@nestjs/common";
 import { ApiOperation, ApiResponse, ApiBearerAuth } from "@nestjs/swagger";
 import { ApiResponseGeneric } from "./api-ok-response-generic.decorator";
+import { CheckOwnership, type Ownerships } from "./check-ownership.decorator";
+import { JwtAuthGuard } from "../guards/jwt-auth.guard";
+import { OwnershipGuard } from "../guards/ownership.guard";
 import {
   BadRequestErrorDTO,
   UnauthorizedErrorDTO,
@@ -20,38 +23,46 @@ const ERROR_MAP: Record<number, Type<ApiErrorDTO>> = {
   [HttpStatus.INTERNAL_SERVER_ERROR]: InternalServerErrorDTO
 };
 
-interface ApiEndpointOptions200 {
-    summary: string;
-    success: {
-        status: HttpStatus.OK;
-        type?: Type<unknown> | [Type<unknown>];
-        nullable?: boolean;
-    };
-    errors?: number[];
-    protected?: boolean;
+interface BaseApiEndpointOptions {
+  summary: string;
+  errors?: number[];
 }
 
-interface ApiEndpointOptions201 {
-    summary: string;
-    success: {
-        status: HttpStatus.CREATED;
-        type?: Type<unknown> | [Type<unknown>];
-        nullable?: boolean;
-    };
-    errors?: number[];
-    protected?: boolean;
+interface ProtectedOptions {
+  protected: true;
+  ownerships?: Ownerships[];
 }
 
-interface ApiEndpointOptions204 {
-    summary: string;
-    success: {
-        status: HttpStatus.NO_CONTENT;
-        type?: never;
-        nullable?: never;
-    };
-    errors?: number[];
-    protected?: boolean;
+interface UnprotectedOptions {
+  protected?: false;
+  ownerships?: never;
 }
+
+type ProtectionOptions = ProtectedOptions | UnprotectedOptions;
+
+type ApiEndpointOptions200 = BaseApiEndpointOptions & ProtectionOptions & {
+  success: {
+    status: HttpStatus.OK;
+    type?: Type<unknown> | [Type<unknown>];
+    nullable?: boolean;
+  };
+};
+
+type ApiEndpointOptions201 = BaseApiEndpointOptions & ProtectionOptions & {
+  success: {
+    status: HttpStatus.CREATED;
+    type?: Type<unknown> | [Type<unknown>];
+    nullable?: boolean;
+  };
+};
+
+type ApiEndpointOptions204 = BaseApiEndpointOptions & ProtectionOptions & {
+  success: {
+    status: HttpStatus.NO_CONTENT;
+    type?: never;
+    nullable?: never;
+  };
+};
 
 type ApiEndpointOptions =
   | ApiEndpointOptions200
@@ -76,17 +87,15 @@ export function ApiEndpoint(options: ApiEndpointOptions) {
       else decorators.push(ApiResponse({ status }));
     });
   }
-  if (options.protected) {
-    decorators.push(
-      ApiResponse({
-        status: HttpStatus.UNAUTHORIZED,
-        type: UnauthorizedErrorDTO
-      })
-    );
-    decorators.push(
-      ApiResponse({ status: HttpStatus.FORBIDDEN, type: ForbiddenErrorDTO })
-    );
+  if (options.protected === true) {
+    decorators.push(UseGuards(JwtAuthGuard));
+    decorators.push(ApiResponse({ status: HttpStatus.UNAUTHORIZED, type: UnauthorizedErrorDTO }));
     decorators.push(ApiBearerAuth());
+    if (options.ownerships && options.ownerships.length > 0) {
+      decorators.push(CheckOwnership(options.ownerships));
+      decorators.push(UseGuards(OwnershipGuard));
+      decorators.push(ApiResponse({ status: HttpStatus.FORBIDDEN, type: ForbiddenErrorDTO }));
+    }
   }
 
   return applyDecorators(...decorators);

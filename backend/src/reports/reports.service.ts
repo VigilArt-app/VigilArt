@@ -130,10 +130,11 @@ export class ReportsService {
   }
 
   async getArtworkMatches(
+    userId: string,
     artworkId: string,
     { websiteCategory }: GetArtworksMatchesDTO
   ): Promise<MatchingPage[]> {
-    const artwork = await this.artworksService.findOne(artworkId);
+    const artwork = await this.artworksService.findOne(userId, artworkId);
 
     if (!artwork) {
       throw new NotFoundException("Artwork not found");

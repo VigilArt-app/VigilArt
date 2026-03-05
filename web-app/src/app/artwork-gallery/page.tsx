@@ -10,6 +10,7 @@ import { ArtworkCard } from "./components/ArtworkCard";
 import { ArtworkDetails } from "./components/ArtworkDetails";
 import { DeleteDialog } from "./components/DeleteDialog";
 import { EmptyState } from "./components/EmptyState";
+import { useAuth } from "@/src/components/contexts/authContext";
 
 export default function ArtworkGalleryPage() {
   const [artworks, setArtworks] = useState<Artwork[]>([]);
@@ -21,11 +22,14 @@ export default function ArtworkGalleryPage() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [artworkToDelete, setArtworkToDelete] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const { user, loading } = useAuth();
 
   useEffect(() => {
     const loadArtworks = async () => {
+      if (loading || !user.id)
+        return;
       try {
-        const data = await fetchArtworks();
+        const data = await fetchArtworks(user.id);
         setArtworks(data);
         setFilteredArtworks(data);
       } finally {
@@ -34,7 +38,7 @@ export default function ArtworkGalleryPage() {
     };
 
     loadArtworks();
-  }, []);
+  }, [loading, user.id]);
 
   useEffect(() => {
     let filtered = [...artworks];

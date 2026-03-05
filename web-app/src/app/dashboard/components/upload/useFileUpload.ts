@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { toast } from "sonner";
-import { getUserIdFromToken } from "../../../../utils/auth/getUserIdFromToken";
 import type { ArtworkCreateManyResponseDTO, UploadUrlsGetDTO } from "@vigilart/shared";
 import { getImageDimensions } from "./imageUtils";
+import { authenticatedFetch } from "@/src/utils/auth/authenticatedFetch";
+import { useAuth } from "@/src/components/contexts/authContext";
 
 interface UploadedFile {
   file: File;
@@ -22,6 +23,7 @@ export function useFileUpload() {
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadResult, setUploadResult] = useState<UploadResult | null>(null);
+  const { user } = useAuth();
 
   const addFiles = (files: UploadedFile[]) => {
     setUploadedFiles((prev) => [...prev, ...files]);
@@ -54,29 +56,11 @@ export function useFileUpload() {
       toast.error("Please select at least one file");
       return false;
     }
-
-    const userId = getUserIdFromToken();
-    if (!userId) {
-      toast.error("User not authenticated. Please login again.");
-      return false;
-    }
-
-    const authToken =
-      typeof window !== "undefined"
-        ? localStorage.getItem("auth_token") || sessionStorage.getItem("auth_token")
-        : null;
-
-    if (!authToken) {
-      toast.error("Authentication token not found. Please login again.");
-      return false;
-    }
-
     setIsUploading(true);
     const totalFiles = uploadedFiles.length;
     let uploadedCount = 0;
     let failedCount = 0;
     const uploadedNames: string[] = [];
-    const API_BASE = process.env.NEXT_PUBLIC_API_URL;
 
     toast.loading(`Uploading ${totalFiles} image${totalFiles > 1 ? "s" : ""}...`, {
       id: "upload-progress",
@@ -86,12 +70,8 @@ export function useFileUpload() {
       // Get presigned URLs
       const filenames = uploadedFiles.map((f) => f.file.name);
 
-      const uploadUrlsResponse = await fetch(`${API_BASE}/storage/artworks/upload-urls`, {
+      const uploadUrlsResponse = await authenticatedFetch(`/storage/artworks/upload-urls`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${authToken}`,
-        },
         body: JSON.stringify({
           filenames,
           prefix: "artworks",
@@ -164,8 +144,10 @@ export function useFileUpload() {
         try {
           const { width, height } = await getImageDimensions(file);
 
+          if (!user)
+            throw new Error("Unauthenticated");
           artworksToCreate.push({
-            userId,
+            userId: user.id,
             originalFilename: file.name,
             contentType: file.type,
             sizeBytes: file.size,
@@ -174,7 +156,7 @@ export function useFileUpload() {
             width,
             height,
           });
-        } catch (error) {
+        } catch (_) {
           failedCount++;
         }
       }
@@ -186,12 +168,8 @@ export function useFileUpload() {
         return false;
       }
 
-      const createResponse = await fetch(`${API_BASE}/artworks/batch`, {
+      const createResponse = await authenticatedFetch(`/artworks/batch`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${authToken}`,
-        },
         body: JSON.stringify(artworksToCreate),
       });
 

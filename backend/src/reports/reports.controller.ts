@@ -1,11 +1,11 @@
 import {
   Controller,
   Get,
-  HttpCode,
   HttpStatus,
   Param,
   ParseUUIDPipe,
-  Query
+  Query,
+  Req
 } from "@nestjs/common";
 import { ReportsService } from "./reports.service";
 import {
@@ -16,7 +16,8 @@ import {
 } from "@vigilart/shared";
 import { GetArtworksMatchesDTO } from "@vigilart/shared";
 import { ApiEndpoint } from "../common/decorators/api-endpoint.decorator";
-import { ApiBody, ApiParam, ApiQuery } from "@nestjs/swagger";
+import { ApiParam, ApiQuery } from "@nestjs/swagger";
+import type { AuthenticatedRequest } from "../auth/auth";
 
 @Controller("reports")
 export class ReportsController {
@@ -30,13 +31,14 @@ export class ReportsController {
       status: HttpStatus.OK,
       type: ArtworksReportDTO
     },
-    protected: true
+    protected: true,
+    ownerships: [{ data: "id", userField: "id", type: "params" }]
   })
   @ApiParam({ name: "id", type: String })
   async getArtworksReport(
     @Param("id", ParseUUIDPipe) userId: string
   ): Promise<ArtworksReport> {
-    return await this.reportsService.getArtworksReport(userId);
+    return this.reportsService.getArtworksReport(userId);
   }
 
   @Get("/matches/user/:id")
@@ -46,7 +48,8 @@ export class ReportsController {
       status: HttpStatus.OK,
       type: [MatchingPageDTO]
     },
-    protected: true
+    protected: true,
+    ownerships: [{ data: "id", userField: "id", type: "params" }]
   })
   @ApiParam({ name: "id", type: String })
   @ApiQuery({ type: GetArtworksMatchesDTO })
@@ -54,7 +57,7 @@ export class ReportsController {
     @Param("id", ParseUUIDPipe) userId: string,
     @Query() getArtworksMatchesDto: GetArtworksMatchesDTO
   ): Promise<MatchingPage[]> {
-    return await this.reportsService.getAllArtworksMatches(
+    return this.reportsService.getAllArtworksMatches(
       userId,
       getArtworksMatchesDto
     );
@@ -73,10 +76,12 @@ export class ReportsController {
   @ApiParam({ name: "id", type: String })
   @ApiQuery({ type: GetArtworksMatchesDTO })
   async getArtworkMatches(
+    @Req() req: AuthenticatedRequest,
     @Param("id", ParseUUIDPipe) artworkId: string,
     @Query() getArtworksMatchesDto: GetArtworksMatchesDTO
   ): Promise<MatchingPage[]> {
-    return await this.reportsService.getArtworkMatches(
+    return this.reportsService.getArtworkMatches(
+      req.user.id,
       artworkId,
       getArtworksMatchesDto
     );

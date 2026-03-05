@@ -7,7 +7,7 @@ import { Button } from "../../components/ui/button"
 import { Input } from "../../components/ui/input"
 import { Label } from "../../components/ui/label"
 import { Switch } from "../../components/ui/switch"
-import { setCookie } from "../cookies"
+import { authenticatedFetch } from "@/src/utils/auth/authenticatedFetch"
 
 export default function LoginPage() {
     const [email, setEmail] = useState("")
@@ -23,38 +23,15 @@ export default function LoginPage() {
         setError(null)
         setIsLoading(true)
         try {
-            // Clear any existing expired tokens before attempting login
-            try {
-                localStorage.removeItem("auth_token")
-                sessionStorage.removeItem("auth_token")
-            } catch {}
-            
-            const API_BASE = process.env.NEXT_PUBLIC_API_URL
-            const res = await fetch(`${API_BASE}/auth/login`, {
+            const res = await authenticatedFetch(`/auth/login`, {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ email, password })
-            })
+            }, true);
             if (!res.ok) {
                 const data = await res.json().catch(() => null)
                 const message = data?.message || "Login failed"
                 throw new Error(Array.isArray(message) ? message.join(", ") : message)
             }
-            const data = await res.json()
-            const accessToken = data?.data?.accessToken
-            if (!accessToken) {
-                throw new Error("No access token in response")
-            }
-            
-            try {
-                if (remember) {
-                    localStorage.setItem("auth_token", accessToken)
-                } else {
-                    sessionStorage.setItem("auth_token", accessToken)
-                }
-                setCookie("auth_token", accessToken, remember ? 365 : 1)
-            } catch {}
-            
             router.push("/dashboard")
         } catch (err: any) {
             setError(err.message || "Unexpected error")
