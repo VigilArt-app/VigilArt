@@ -186,6 +186,16 @@ export type EnumWebsiteCategoryFilter<$PrismaModel = never> = {
   not?: Prisma.NestedEnumWebsiteCategoryFilter<$PrismaModel> | $Enums.WebsiteCategory
 }
 
+export type EnumWebsiteCategoryWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.WebsiteCategory | Prisma.EnumWebsiteCategoryFieldRefInput<$PrismaModel>
+  in?: $Enums.WebsiteCategory[] | Prisma.ListEnumWebsiteCategoryFieldRefInput<$PrismaModel>
+  notIn?: $Enums.WebsiteCategory[] | Prisma.ListEnumWebsiteCategoryFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumWebsiteCategoryWithAggregatesFilter<$PrismaModel> | $Enums.WebsiteCategory
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumWebsiteCategoryFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumWebsiteCategoryFilter<$PrismaModel>
+}
+
 export type JsonFilter<$PrismaModel = never> =
 | Prisma.PatchUndefined<
     Prisma.Either<Required<JsonFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonFilterBase<$PrismaModel>>, 'path'>>,
@@ -208,16 +218,6 @@ export type JsonFilterBase<$PrismaModel = never> = {
   gt?: runtime.InputJsonValue | Prisma.JsonFieldRefInput<$PrismaModel>
   gte?: runtime.InputJsonValue | Prisma.JsonFieldRefInput<$PrismaModel>
   not?: runtime.InputJsonValue | Prisma.JsonFieldRefInput<$PrismaModel> | Prisma.JsonNullValueFilter
-}
-
-export type EnumWebsiteCategoryWithAggregatesFilter<$PrismaModel = never> = {
-  equals?: $Enums.WebsiteCategory | Prisma.EnumWebsiteCategoryFieldRefInput<$PrismaModel>
-  in?: $Enums.WebsiteCategory[] | Prisma.ListEnumWebsiteCategoryFieldRefInput<$PrismaModel>
-  notIn?: $Enums.WebsiteCategory[] | Prisma.ListEnumWebsiteCategoryFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumWebsiteCategoryWithAggregatesFilter<$PrismaModel> | $Enums.WebsiteCategory
-  _count?: Prisma.NestedIntFilter<$PrismaModel>
-  _min?: Prisma.NestedEnumWebsiteCategoryFilter<$PrismaModel>
-  _max?: Prisma.NestedEnumWebsiteCategoryFilter<$PrismaModel>
 }
 
 export type JsonWithAggregatesFilter<$PrismaModel = never> =

@@ -1,6 +1,6 @@
 import { Body, Controller, HttpStatus, Post } from "@nestjs/common";
 import { LoginDTO, SignUpDTO, AuthResponseDTO } from "@vigilart/shared/schemas";
-import type { AuthResponse } from "@vigilart/shared/types";
+import { AuthResponse } from "@vigilart/shared/types";
 import { AuthService } from "./auth.service";
 import { ApiEndpoint } from "../common/decorators/api-endpoint.decorator";
 import { ApiBody } from "@nestjs/swagger";

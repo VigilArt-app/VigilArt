@@ -421,10 +421,6 @@ export type DmcaPlatformScalarRelationFilter = {
   isNot?: Prisma.DmcaPlatformWhereInput
 }
 
-export type EnumWebsiteCategoryFieldUpdateOperationsInput = {
-  set?: $Enums.WebsiteCategory
-}
-
 export type DmcaPlatformCreateNestedOneWithoutDmcaNoticesInput = {
   create?: Prisma.XOR<Prisma.DmcaPlatformCreateWithoutDmcaNoticesInput, Prisma.DmcaPlatformUncheckedCreateWithoutDmcaNoticesInput>
   connectOrCreate?: Prisma.DmcaPlatformCreateOrConnectWithoutDmcaNoticesInput

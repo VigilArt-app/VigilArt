@@ -386,6 +386,8 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 export const ModelName = {
   User: 'User',
   Artwork: 'Artwork',
+  MatchingPage: 'MatchingPage',
+  ArtworksReport: 'ArtworksReport',
   DmcaPlatform: 'DmcaPlatform',
   DmcaProfile: 'DmcaProfile',
   DmcaNotice: 'DmcaNotice',
@@ -405,7 +407,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "artwork" | "dmcaPlatform" | "dmcaProfile" | "dmcaNotice" | "dmcaNoticeData"
+    modelProps: "user" | "artwork" | "matchingPage" | "artworksReport" | "dmcaPlatform" | "dmcaProfile" | "dmcaNotice" | "dmcaNoticeData"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -554,6 +556,154 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.ArtworkCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.ArtworkCountAggregateOutputType> | number
+        }
+      }
+    }
+    MatchingPage: {
+      payload: Prisma.$MatchingPagePayload<ExtArgs>
+      fields: Prisma.MatchingPageFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.MatchingPageFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MatchingPagePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.MatchingPageFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MatchingPagePayload>
+        }
+        findFirst: {
+          args: Prisma.MatchingPageFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MatchingPagePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.MatchingPageFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MatchingPagePayload>
+        }
+        findMany: {
+          args: Prisma.MatchingPageFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MatchingPagePayload>[]
+        }
+        create: {
+          args: Prisma.MatchingPageCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MatchingPagePayload>
+        }
+        createMany: {
+          args: Prisma.MatchingPageCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.MatchingPageCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MatchingPagePayload>[]
+        }
+        delete: {
+          args: Prisma.MatchingPageDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MatchingPagePayload>
+        }
+        update: {
+          args: Prisma.MatchingPageUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MatchingPagePayload>
+        }
+        deleteMany: {
+          args: Prisma.MatchingPageDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.MatchingPageUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.MatchingPageUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MatchingPagePayload>[]
+        }
+        upsert: {
+          args: Prisma.MatchingPageUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MatchingPagePayload>
+        }
+        aggregate: {
+          args: Prisma.MatchingPageAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateMatchingPage>
+        }
+        groupBy: {
+          args: Prisma.MatchingPageGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MatchingPageGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.MatchingPageCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MatchingPageCountAggregateOutputType> | number
+        }
+      }
+    }
+    ArtworksReport: {
+      payload: Prisma.$ArtworksReportPayload<ExtArgs>
+      fields: Prisma.ArtworksReportFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ArtworksReportFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtworksReportPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ArtworksReportFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtworksReportPayload>
+        }
+        findFirst: {
+          args: Prisma.ArtworksReportFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtworksReportPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ArtworksReportFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtworksReportPayload>
+        }
+        findMany: {
+          args: Prisma.ArtworksReportFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtworksReportPayload>[]
+        }
+        create: {
+          args: Prisma.ArtworksReportCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtworksReportPayload>
+        }
+        createMany: {
+          args: Prisma.ArtworksReportCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ArtworksReportCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtworksReportPayload>[]
+        }
+        delete: {
+          args: Prisma.ArtworksReportDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtworksReportPayload>
+        }
+        update: {
+          args: Prisma.ArtworksReportUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtworksReportPayload>
+        }
+        deleteMany: {
+          args: Prisma.ArtworksReportDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ArtworksReportUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ArtworksReportUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtworksReportPayload>[]
+        }
+        upsert: {
+          args: Prisma.ArtworksReportUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtworksReportPayload>
+        }
+        aggregate: {
+          args: Prisma.ArtworksReportAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateArtworksReport>
+        }
+        groupBy: {
+          args: Prisma.ArtworksReportGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ArtworksReportGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ArtworksReportCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ArtworksReportCountAggregateOutputType> | number
         }
       }
     }
@@ -925,6 +1075,29 @@ export const ArtworkScalarFieldEnum = {
 export type ArtworkScalarFieldEnum = (typeof ArtworkScalarFieldEnum)[keyof typeof ArtworkScalarFieldEnum]
 
 
+export const MatchingPageScalarFieldEnum = {
+  id: 'id',
+  artworkId: 'artworkId',
+  url: 'url',
+  category: 'category',
+  websiteName: 'websiteName',
+  imageUrl: 'imageUrl',
+  pageTitle: 'pageTitle',
+  firstDetectedAt: 'firstDetectedAt'
+} as const
+
+export type MatchingPageScalarFieldEnum = (typeof MatchingPageScalarFieldEnum)[keyof typeof MatchingPageScalarFieldEnum]
+
+
+export const ArtworksReportScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  detectionDate: 'detectionDate'
+} as const
+
+export type ArtworksReportScalarFieldEnum = (typeof ArtworksReportScalarFieldEnum)[keyof typeof ArtworksReportScalarFieldEnum]
+
+
 export const DmcaPlatformScalarFieldEnum = {
   id: 'id',
   slug: 'slug',
@@ -1238,6 +1411,8 @@ export type PrismaClientOptions = ({
 export type GlobalOmitConfig = {
   user?: Prisma.UserOmit
   artwork?: Prisma.ArtworkOmit
+  matchingPage?: Prisma.MatchingPageOmit
+  artworksReport?: Prisma.ArtworksReportOmit
   dmcaPlatform?: Prisma.DmcaPlatformOmit
   dmcaProfile?: Prisma.DmcaProfileOmit
   dmcaNotice?: Prisma.DmcaNoticeOmit

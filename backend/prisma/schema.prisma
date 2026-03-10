@@ -33,11 +33,12 @@ model User {
   subscriptionTier SubscriptionTier @default(FREE)
 
   createdAt        DateTime         @default(now())
+  artworks         Artwork[]
+  artworksReport   ArtworksReport[]
   updatedAt        DateTime         @updatedAt @default(now())
 
   dmcaProfile      DmcaProfile?
   dmcaNotices      DmcaNotice[]
-  artworks         Artwork[]
 }
 
 enum SubscriptionTier {
@@ -62,6 +63,7 @@ model Artwork {
   createdAt         DateTime          @default(now())
   updatedAt         DateTime          @updatedAt
   lastScanAt        DateTime?
+  matchingPages     MatchingPage[]
 
   dmcaNotices       DmcaNotice[]
 }
@@ -76,6 +78,31 @@ enum WebsiteCategory {
   OTHER
 }
 
+model MatchingPage {
+  id                String            @id @default(uuid())
+  artworkId         String
+  artwork           Artwork           @relation(fields: [artworkId], references: [id], onDelete: Cascade)
+
+  url               String
+  category          WebsiteCategory
+  websiteName       String
+  imageUrl          String?
+  pageTitle         String?
+  firstDetectedAt   DateTime          @default(now())
+  
+  reports           ArtworksReport[]
+
+  @@unique([url, artworkId])
+}
+
+model ArtworksReport {
+  id                String            @id @default(uuid())
+  userId            String
+  user              User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  detectionDate     DateTime          @default(now())
+  matchingPages     MatchingPage[]
+}
 // DMCA Models & Enums
 
 enum DmcaStatus {

@@ -48,6 +48,16 @@ export type User = Prisma.UserModel
  */
 export type Artwork = Prisma.ArtworkModel
 /**
+ * Model MatchingPage
+ * 
+ */
+export type MatchingPage = Prisma.MatchingPageModel
+/**
+ * Model ArtworksReport
+ * 
+ */
+export type ArtworksReport = Prisma.ArtworksReportModel
+/**
  * Model DmcaPlatform
  * 
  */
