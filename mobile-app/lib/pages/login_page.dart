@@ -6,6 +6,7 @@ import '../widgets/logo_header.dart';
 import '../widgets/custom_input_field.dart';
 import '../widgets/custom_button.dart';
 import '../(api)/auth.dart';
+
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
 
@@ -32,19 +33,12 @@ class _LoginPageState extends State<LoginPage> {
       String password = _passwordController.text.trim();
 
       try {
-        final response = await apiService.login(context, email, password);
+        final response = await apiService.login(email, password);
 
         if (response.statusCode == 200) {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => const DashboardPage()),
-          );
-        } else if (response.statusCode == 401 || response.statusCode == 403) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Invalid email or password'),
-              backgroundColor: Colors.red,
-            ),
           );
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
