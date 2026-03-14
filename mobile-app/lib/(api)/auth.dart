@@ -12,7 +12,6 @@ class ApiService {
   static const String keyUserLastName = 'userLastName';
   static const String keyUserEmail = 'userEmail';
 
-  // 1. Removed the '?' to fix your build error
   Future<http.Response> login(String email, String password) async {
     final url = Uri.parse('$serverUrl/auth/login');
     

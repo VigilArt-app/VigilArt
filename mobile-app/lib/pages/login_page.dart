@@ -1,6 +1,6 @@
-import 'package:VigilArt/pages/dashboard/dashboard.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'dashboard/dashboard.dart';
 import 'signup_page.dart';
 import '../widgets/logo_header.dart';
 import '../widgets/custom_input_field.dart';
@@ -40,6 +40,7 @@ class _LoginPageState extends State<LoginPage> {
             context,
             MaterialPageRoute(builder: (context) => const DashboardPage()),
           );
+
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
