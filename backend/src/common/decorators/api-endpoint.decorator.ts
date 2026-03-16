@@ -21,33 +21,36 @@ const ERROR_MAP: Record<number, Type<ApiErrorDTO>> = {
 };
 
 interface ApiEndpointOptions200 {
-  summary: string;
-  success: {
-    status: HttpStatus.OK;
-    type?: Type<unknown> | [Type<unknown>];
-  };
-  errors?: number[];
-  protected?: boolean;
+    summary: string;
+    success: {
+        status: HttpStatus.OK;
+        type?: Type<unknown> | [Type<unknown>];
+        nullable?: boolean;
+    };
+    errors?: number[];
+    protected?: boolean;
 }
 
 interface ApiEndpointOptions201 {
-  summary: string;
-  success: {
-    status: HttpStatus.CREATED;
-    type?: Type<unknown> | [Type<unknown>];
-  };
-  errors?: number[];
-  protected?: boolean;
+    summary: string;
+    success: {
+        status: HttpStatus.CREATED;
+        type?: Type<unknown> | [Type<unknown>];
+        nullable?: boolean;
+    };
+    errors?: number[];
+    protected?: boolean;
 }
 
 interface ApiEndpointOptions204 {
-  summary: string;
-  success: {
-    status: HttpStatus.NO_CONTENT;
-    type?: never;
-  };
-  errors?: number[];
-  protected?: boolean;
+    summary: string;
+    success: {
+        status: HttpStatus.NO_CONTENT;
+        type?: never;
+        nullable?: never;
+    };
+    errors?: number[];
+    protected?: boolean;
 }
 
 type ApiEndpointOptions =
@@ -58,17 +61,15 @@ type ApiEndpointOptions =
 export function ApiEndpoint(options: ApiEndpointOptions) {
   const decorators: any[] = [];
 
-  decorators.push(ApiOperation({ summary: options.summary }));
-  decorators.push(HttpCode(options.success.status));
-  if (options.success.status !== HttpStatus.NO_CONTENT)
-    decorators.push(
-      ApiResponseGeneric(options.success.status, options.success.type)
-    );
-  if (options.success.status === HttpStatus.NO_CONTENT)
-    decorators.push(ApiResponseGeneric(options.success.status));
-  if (options.errors) {
-    options.errors.forEach((status) => {
-      const ErrorClass = ERROR_MAP[status];
+    decorators.push(ApiOperation({ summary: options.summary }));
+    decorators.push(HttpCode(options.success.status));
+    if (options.success.status !== HttpStatus.NO_CONTENT)
+        decorators.push(ApiResponseGeneric(options.success.status, options.success.type, options.success.nullable));
+    if (options.success.status === HttpStatus.NO_CONTENT)
+        decorators.push(ApiResponseGeneric(options.success.status));
+    if (options.errors) {
+        options.errors.forEach((status) => {
+            const ErrorClass = ERROR_MAP[status];
 
       if (ErrorClass)
         decorators.push(ApiResponse({ status, type: ErrorClass }));

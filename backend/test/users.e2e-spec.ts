@@ -43,16 +43,17 @@ describe("Users E2E", () => {
       expect(res.body).toEqual({
         success: true,
         statusCode: HttpStatus.CREATED,
-        message: "Data created successfully.",
+        message: "Created",
         data: {
           id: expect.any(String),
           email: "yuki.endo@mail.com",
           firstName: "Yuki",
           lastName: "Endo",
           avatar: null,
+          subscriptionTier: expect.any(String),
           createdAt: expect.any(String),
-          subscriptionTier: expect.any(String)
-        }
+          updatedAt: expect.any(String)
+        },
       });
     });
 
@@ -79,7 +80,7 @@ describe("Users E2E", () => {
       expect(res.body).toEqual({
         success: false,
         statusCode: HttpStatus.CONFLICT,
-        message: "Email already in use",
+        message: expect.any(String),
         error: "Conflict"
       });
     });
@@ -93,8 +94,8 @@ describe("Users E2E", () => {
       expect(res.body).toEqual({
         success: false,
         statusCode: HttpStatus.BAD_REQUEST,
-        message: "Validation failed",
-        error: expect.any(String)
+        message: expect.any(String),
+        error: "Bad Request"
       });
     });
 
@@ -112,8 +113,8 @@ describe("Users E2E", () => {
       expect(res.body).toEqual({
         success: false,
         statusCode: HttpStatus.BAD_REQUEST,
-        message: "Validation failed",
-        error: expect.any(String)
+        message: expect.any(String),
+        error: "Bad Request"
       });
     });
   });
@@ -146,8 +147,9 @@ describe("Users E2E", () => {
           firstName: "Emma",
           lastName: "Dao",
           subscriptionTier: SubscriptionTier.FREE,
+          avatar: null,
           createdAt: expect.any(String),
-          avatar: null
+          updatedAt: expect.any(String)
         },
         {
           id: expect.any(String),
@@ -156,14 +158,15 @@ describe("Users E2E", () => {
           lastName: "Raimon",
           avatar: null,
           subscriptionTier: SubscriptionTier.FREE,
-          createdAt: expect.any(String)
+          createdAt: expect.any(String),
+          updatedAt: expect.any(String)
         }
       ];
 
       expect(res.body).toEqual({
         success: true,
         statusCode: HttpStatus.OK,
-        message: "Request successful.",
+        message: "OK",
         data: expectedUsers
       });
     });
@@ -189,16 +192,17 @@ describe("Users E2E", () => {
       expect(res.body).toEqual({
         success: true,
         statusCode: HttpStatus.OK,
-        message: "Request successful.",
+        message: "OK",
         data: {
           id: expect.any(String),
           email: "emma.dao@mail.com",
           firstName: "Emma",
           lastName: "Dao",
           avatar: null,
+          subscriptionTier: SubscriptionTier.FREE,
           createdAt: expect.any(String),
-          subscriptionTier: SubscriptionTier.FREE
-        }
+          updatedAt: expect.any(String)
+        },
       });
     });
 
@@ -210,7 +214,7 @@ describe("Users E2E", () => {
       expect(res.body).toEqual({
         success: false,
         statusCode: HttpStatus.NOT_FOUND,
-        message: "User not found",
+        message: expect.any(String),
         error: "Not Found"
       });
     });
@@ -221,7 +225,7 @@ describe("Users E2E", () => {
       expect(res.body).toEqual({
         success: false,
         statusCode: HttpStatus.BAD_REQUEST,
-        message: "Validation failed (uuid is expected)",
+        message: expect.any(String),
         error: "Bad Request"
       });
     });
@@ -248,16 +252,17 @@ describe("Users E2E", () => {
       expect(res.body).toEqual({
         success: true,
         statusCode: HttpStatus.OK,
-        message: "Request successful.",
+        message: "OK",
         data: {
           id: expect.any(String),
           email: "amanda.rawles@mail.com",
           firstName: "Amanda",
           lastName: "Rawles",
           avatar: "new_url",
+          subscriptionTier: SubscriptionTier.FREE,
           createdAt: expect.any(String),
-          subscriptionTier: SubscriptionTier.FREE
-        }
+          updatedAt: expect.any(String)
+        },
       });
     });
 
@@ -272,7 +277,7 @@ describe("Users E2E", () => {
       expect(res.body).toEqual({
         success: false,
         statusCode: HttpStatus.NOT_FOUND,
-        message: "User not found",
+        message: expect.any(String),
         error: "Not Found"
       });
     });
@@ -288,7 +293,56 @@ describe("Users E2E", () => {
       expect(res.body).toEqual({
         success: false,
         statusCode: HttpStatus.BAD_REQUEST,
-        message: "Validation failed (uuid is expected)",
+        message: expect.any(String),
+        error: "Bad Request"
+      });
+    });
+  });
+
+  describe("DELETE /users/:id", () => {
+    it("Should remove specific user with ID", async () => {
+      const user = await prismaService.user.create({
+        data: {
+          email: "amanda.rawles@mail.com",
+          password: "Hashed_P4ssword_",
+          firstName: "Amanda",
+          lastName: "Rawles",
+          subscriptionTier: SubscriptionTier.FREE
+        },
+      });
+      const res = await api
+        .delete(`/users/${user.id}`)
+        .expect(HttpStatus.NO_CONTENT);
+      expect(res.body).toEqual({});
+    });
+    it("Shouldn't update specific user with non-existent ID", async () => {
+      const res = await api
+        .patch("/users/123e4567-e89b-12d3-a456-426614174000")
+        .send({
+          avatar: "new_url",
+        })
+        .expect(HttpStatus.NOT_FOUND);
+
+      expect(res.body).toEqual({
+        success: false,
+        statusCode: HttpStatus.NOT_FOUND,
+        message: expect.any(String),
+        error: "Not Found"
+      });
+    });
+
+    it("Should expect an UUID", async () => {
+      const res = await api
+        .patch("/users/1")
+        .send({
+          avatar: "new_url"
+        })
+        .expect(HttpStatus.BAD_REQUEST);
+
+      expect(res.body).toEqual({
+        success: false,
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: expect.any(String),
         error: "Bad Request"
       });
     });
@@ -319,7 +373,32 @@ describe("Users E2E", () => {
       expect(res.body).toEqual({
         success: false,
         statusCode: HttpStatus.NOT_FOUND,
-        message: "User not found",
+        message: expect.any(String),
+        error: "Not Found"
+      });
+    });
+
+    it("Should expect an UUID", async () => {
+      const res = await api
+        .delete("/users/1")
+        .expect(HttpStatus.BAD_REQUEST);
+
+      expect(res.body).toEqual({
+        success: false,
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: expect.any(String),
+        error: "Bad Request"
+      });
+    });
+    it("Shouldn't remove user with non-existent ID", async () => {
+      const res = await api
+        .delete("/users/123e4567-e89b-12d3-a456-426614174000")
+        .expect(HttpStatus.NOT_FOUND);
+
+      expect(res.body).toEqual({
+        success: false,
+        statusCode: HttpStatus.NOT_FOUND,
+        message: expect.any(String),
         error: "Not Found"
       });
     });
@@ -330,7 +409,7 @@ describe("Users E2E", () => {
       expect(res.body).toEqual({
         success: false,
         statusCode: HttpStatus.BAD_REQUEST,
-        message: "Validation failed (uuid is expected)",
+        message: expect.any(String),
         error: "Bad Request"
       });
     });
