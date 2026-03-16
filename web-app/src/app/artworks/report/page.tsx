@@ -2,18 +2,22 @@
 import React, { useState } from "react";
 
 interface ReportData {
-  id: string;
-  userId: string;
   detectionDate: string;
-  matchingPages: Array<{
-    id: string;
+  statistics: {
+    totalMatches: number;
+  };
+  entries: Array<{
     artworkId: string;
-    category: string;
-    url: string;
-    websiteName: string;
-    imageUrl: string;
-    pageTitle: string;
-    firstDetectedAt: string;
+    matchingPages: Array<{
+      id: string;
+      artworkId: string;
+      category: string;
+      url: string;
+      websiteName: string;
+      imageUrl: string;
+      pageTitle: string;
+      firstDetectedAt: string;
+    }>;
   }>;
 }
 
@@ -27,7 +31,7 @@ const getUserIdFromToken = (token: string): string | null => {
     const parts = token.split(".");
     if (parts.length !== 3) return null;
     const decoded = JSON.parse(atob(parts[1]));
-    return decoded.sub || decoded.sub || decoded.userId || decoded.id || null;
+    return decoded.sub || decoded.userId || decoded.id || null;
   } catch {
     return null;
   }
@@ -61,35 +65,7 @@ export default function ReportPage() {
       const API_BASE = process.env.NEXT_PUBLIC_API_URL || "";
       const base = API_BASE.replace(/\/+$/, "");
       
-      const createRes = await fetch(`${base}/reports/user/${userId}`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (!createRes.ok) {
-        const err = await createRes.json().catch(() => ({ message: createRes.statusText }));
-        setMessage(`Échec création: ${err.message || createRes.statusText}`);
-        setLoading(false);
-        return;
-      }
-
-      const createdReport = await createRes.json();
-      console.log("Created report response:", createdReport);
-      
-      const reportId = createdReport.data?.id || createdReport.id;
-      
-      if (!reportId) {
-        setMessage(`Échec: ID du report non trouvé dans la réponse`);
-        setLoading(false);
-        return;
-      }
-      
-      setMessage("Report créé avec succès. Chargement des détails...");
-
-      const getRes = await fetch(`${base}/reports/${reportId}`, {
+      const reportRes = await fetch(`${base}/reports/user/${userId}`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -97,17 +73,18 @@ export default function ReportPage() {
         },
       });
 
-      if (!getRes.ok) {
-        const err = await getRes.json().catch(() => ({ message: getRes.statusText }));
-        setMessage(`Échec récupération: ${err.message || getRes.statusText}`);
-      } else {
-        const response = await getRes.json();
-        console.log("Fetched report data:", response);
-        const reportData = response.data;
-        setReport(reportData);
-        const matchCount = reportData.matchingPages?.length || 0;
-        setMessage(`Report chargé: ${matchCount} détections trouvées.`);
+      if (!reportRes.ok) {
+        const err = await reportRes.json().catch(() => ({ message: reportRes.statusText }));
+        setMessage(`Échec chargement: ${err.message || reportRes.statusText}`);
+        setLoading(false);
+        return;
       }
+
+      const response = await reportRes.json();
+      const reportData: ReportData = response.data || response;
+      setReport(reportData);
+      const matchCount = reportData.statistics?.totalMatches || 0;
+      setMessage(`Report chargé: ${matchCount} détections trouvées.`);
     } catch (e: any) {
       setMessage(`Erreur: ${e?.message || String(e)}`);
     } finally {
@@ -132,17 +109,16 @@ export default function ReportPage() {
         <div className="mt-8 border border-gray-200 rounded-lg p-6">
           <h2 className="text-xl font-semibold mb-4">Détails du Report</h2>
           <div className="mb-4 text-sm text-gray-600">
-            <p><strong>ID:</strong> {report.id}</p>
             <p><strong>Date de détection:</strong> {new Date(report.detectionDate).toLocaleString('fr-FR')}</p>
-            <p><strong>Nombre de détections:</strong> {report.matchingPages?.length || 0}</p>
+            <p><strong>Nombre de détections:</strong> {report.statistics?.totalMatches || 0}</p>
           </div>
 
-          {report.matchingPages && report.matchingPages.length > 0 && (
+          {report.entries?.flatMap((entry) => entry.matchingPages).length > 0 && (
             <div className="mt-6">
               <h3 className="text-lg font-semibold mb-4">Détections</h3>
               <div className="space-y-4">
-                {report.matchingPages.map((page, idx) => (
-                  <div key={page.id} className="border rounded-lg p-4">
+                {report.entries.flatMap((entry) => entry.matchingPages).map((page) => (
+                  <div key={`${page.artworkId}-${page.id}-${page.url}-${page.firstDetectedAt}`} className="border rounded-lg p-4">
                     <div className="flex gap-4">
                       {page.imageUrl && (
                         <div className="flex-shrink-0">

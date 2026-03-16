@@ -37,6 +37,16 @@ interface ScanRow {
   matchingPages: MatchingPage[];
 }
 
+interface ArtworksReportEntry {
+  artworkId: string;
+  matchingPages: MatchingPage[];
+}
+
+interface ArtworksReport {
+  detectionDate: string;
+  entries: ArtworksReportEntry[];
+}
+
 type SortField = 'title' | 'matches' | 'creditedMatches' | 'mostRecentDate';
 type SortDirection = 'asc' | 'desc' | null;
 const TABLE_ROW_CELL_CLASS = "px-2 h-20 align-middle";
@@ -98,14 +108,10 @@ export default function ScansReport() {
           headers: { Authorization: `Bearer ${token}` },
         });
         const reportResponse = await reportRes.json();
-        
-        let reports = Array.isArray(reportResponse) 
-          ? reportResponse 
-          : (Array.isArray(reportResponse.data) 
-              ? reportResponse.data 
-              : []);
-        
-        if (reports.length === 0) {
+        const fullReport: ArtworksReport = reportResponse.data || reportResponse;
+        const reportEntries = fullReport?.entries || [];
+
+        if (reportEntries.length === 0) {
           setScans(artworks.map(art => ({
             artworkId: art.originalFilename,
             title: art.title || `Artwork`,
@@ -119,30 +125,6 @@ export default function ScansReport() {
           setLoading(false);
           return;
         }
-        
-        const latestReport = reports[reports.length - 1];
-
-        if (!latestReport?.id) {
-          setScans(artworks.map(art => ({
-            artworkId: art.originalFilename,
-            title: art.title || `Artwork`,
-            matches: 0,
-            creditedMatches: 0,
-            mostRecentSource: "N/A",
-            mostRecentDate: new Date().toISOString(),
-            matchingPages: [],
-          })));
-          setSelectedDate(new Date().toISOString().split('T')[0]);
-          setLoading(false);
-          return;
-        }
-
-        const fullReportRes = await fetch(`${base}/reports/${latestReport.id}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const fullReportResponse = await fullReportRes.json();
-        
-        const fullReport = fullReportResponse.data || fullReportResponse;
 
         const artworkStorageKeys = artworks
           .map((art) => art.storageKey)
@@ -166,12 +148,9 @@ export default function ScansReport() {
         }
 
         const matchesByArtwork = new Map<string, MatchingPage[]>();
-        if (fullReport?.matchingPages) {
-          fullReport.matchingPages.forEach((page: MatchingPage) => {
-            const currentMatches = matchesByArtwork.get(page.artworkId) || [];
-            matchesByArtwork.set(page.artworkId, [...currentMatches, page]);
-          });
-        }
+        reportEntries.forEach((entry) => {
+          matchesByArtwork.set(entry.artworkId, entry.matchingPages || []);
+        });
 
         const scanRows: ScanRow[] = artworks.map(art => {
           const matches = matchesByArtwork.get(art.id) || [];
@@ -362,7 +341,7 @@ export default function ScansReport() {
                       <>
                         {paginatedScans.map((scan) => (
                           <tr 
-                            key={scan.artworkId} 
+                            key={`${scan.artworkId}-${scan.title}-${scan.mostRecentDate}`} 
                             className="border-b hover:bg-muted/50 cursor-pointer"
                             onClick={() => setSelectedArtwork(scan)}
                           >
@@ -469,7 +448,7 @@ export default function ScansReport() {
                 <div className="space-y-3">
                   <h3 className="font-semibold">All Detected Reposts:</h3>
                   {selectedArtwork.matchingPages.map((page) => (
-                    <div key={page.id} className="border rounded-lg p-3">
+                    <div key={`${page.artworkId}-${page.id}-${page.url}-${page.firstDetectedAt}`} className="border rounded-lg p-3">
                       <div className="flex gap-3">
                         {page.imageUrl && (
                           <img
