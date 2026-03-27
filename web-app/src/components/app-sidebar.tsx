@@ -13,34 +13,36 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { Palette, User, LayoutDashboard, LogOut } from "lucide-react"
+import { useTranslation } from "react-i18next";
 
-const items = [
-  {
-    title: "Profile",
-    url: "/profile",
-    icon: User,
-  },
-  {
-    title: "Dashboard",
-    url: "/dashboard",
-    icon: LayoutDashboard,
-  },
-  {
-    title: "Artwork Gallery",
-    url: "/artwork-gallery",
-    icon: Palette,
-  },
-]
-
-const logout_items = [
-  {
-    title: "Logout",
-    url: "/logout",
-    icon: LogOut,
-  },
-]
 
 export function AppSidebar() {
+  const { t } = useTranslation();
+  const items = [
+    {
+      title: t("sidebar.profile"),
+      url: "/profile",
+      icon: User,
+    },
+    {
+      title: t("sidebar.dashboard"),
+      url: "/dashboard",
+      icon: LayoutDashboard,
+    },
+    {
+      title: t("sidebar.artwork_gallery"),
+      url: "/artwork-gallery",
+      icon: Palette,
+    },
+  ]
+  
+  const logout_items = [
+    {
+      title: t("sidebar.logout"),
+      url: "/logout",
+      icon: LogOut,
+    },
+  ]
   return (
     <Sidebar>
       <SidebarHeader>
@@ -81,7 +83,7 @@ export function AppSidebar() {
       </SidebarMenu>
       <SidebarFooter>
         <div className="w-full flex items-center justify-center py-4">
-          Upgrade to Pro
+          {t("sidebar.upgrade")}
         </div>
       </SidebarFooter>
     </Sidebar>

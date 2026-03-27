@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "../../../components/ui/card";
 import { Input } from "../../../components/ui/input";
 import { Label } from "../../../components/ui/label";
@@ -49,25 +49,9 @@ interface ArtworksReport {
 
 type SortField = 'title' | 'matches' | 'creditedMatches' | 'mostRecentDate';
 type SortDirection = 'asc' | 'desc' | null;
-const TABLE_ROW_CELL_CLASS = "px-2 h-20 align-middle";
-
-const getAuthToken = (): string | null => {
-  if (typeof window === "undefined") return null;
-  return localStorage.getItem("auth_token") || sessionStorage.getItem("auth_token");
-};
-
-const getUserIdFromToken = (token: string): string | null => {
-  try {
-    const parts = token.split(".");
-    if (parts.length !== 3) return null;
-    const decoded = JSON.parse(atob(parts[1]));
-    return decoded.sub || decoded.userId || decoded.id || null;
-  } catch {
-    return null;
-  }
-};
 
 export default function ScansReport() {
+  const { t } = useTranslation();
   const [searchQuery, setSearchQuery] = useState("");
   const [sortField, setSortField] = useState<SortField | null>(null);
   const [sortDirection, setSortDirection] = useState<SortDirection>(null);
@@ -196,33 +180,24 @@ export default function ScansReport() {
   };
 
   const filteredAndSortedScans = useMemo(() => {
-    let result = [...scans];
+    let result = [...mockScans];
 
     if (searchQuery) {
       result = result.filter(scan =>
-        scan.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        scan.mostRecentSource.toLowerCase().includes(searchQuery.toLowerCase())
+        scan.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        scan.source.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
 
-    if (sortByDate && selectedDate) {
-      result = result.filter(scan => 
-        new Date(scan.mostRecentDate).toISOString().split('T')[0] === selectedDate
-      );
-    }
-
-    if (onlyUncredited) {
-      result = result.filter(scan => scan.matches > scan.creditedMatches);
-    }
+    if (sortByDate && selectedDate) result = result.filter(scan => scan.date === selectedDate);
+    if (onlyUncredited) result = result.filter(scan => scan.matches > scan.creditedMatches);
 
     if (sortField && sortDirection) {
       result.sort((a, b) => {
         let aValue: string | number = a[sortField];
         let bValue: string | number = b[sortField];
-        
         if (typeof aValue === 'string') {
-          const comparison = aValue.localeCompare(bValue as string);
-          return sortDirection === 'asc' ? comparison : -comparison;
+          return sortDirection === 'asc' ? aValue.localeCompare(bValue as string) : (bValue as string).localeCompare(aValue);
         } else {
           return sortDirection === 'asc' ? aValue - (bValue as number) : (bValue as number) - aValue;
         }
@@ -230,26 +205,7 @@ export default function ScansReport() {
     }
 
     return result;
-  }, [searchQuery, sortField, sortDirection, sortByDate, selectedDate, onlyUncredited, scans]);
-
-  const totalPages = Math.max(1, Math.ceil(filteredAndSortedScans.length / rowsPerPage));
-
-  const paginatedScans = useMemo(() => {
-    const startIndex = (currentPage - 1) * rowsPerPage;
-    return filteredAndSortedScans.slice(startIndex, startIndex + rowsPerPage);
-  }, [filteredAndSortedScans, currentPage]);
-
-  const emptyRowsCount = Math.max(0, rowsPerPage - paginatedScans.length);
-
-  useEffect(() => {
-    setCurrentPage(1);
   }, [searchQuery, sortField, sortDirection, sortByDate, selectedDate, onlyUncredited]);
-
-  useEffect(() => {
-    if (currentPage > totalPages) {
-      setCurrentPage(totalPages);
-    }
-  }, [currentPage, totalPages]);
 
   const SortIcon = ({ field }: { field: SortField }) => {
     if (sortField !== field) return <ArrowUpDown className="w-4 h-4 ml-1 opacity-30" />;
@@ -258,47 +214,37 @@ export default function ScansReport() {
     return <ArrowUpDown className="w-4 h-4 ml-1 opacity-30" />;
   };
 
-  const getMatchColor = (matchCount: number) => {
-    if (matchCount === 0) return 'rgb(100, 200, 100)'; // Green
-    if (matchCount < 5) return 'rgb(255, 200, 50)'; // Yellow-orange
-    if (matchCount < 20) return 'rgb(255, 150, 50)'; // Orange
-    return 'rgb(255, 100, 100)'; // Red
+  const getGradientColor = (percentage: number, reverse: boolean = false) => {
+    const normalized = Math.max(0, Math.min(100, percentage)) / 100;
+    const value = reverse ? 1 - normalized : normalized;
+    let r, g, b;
+    if (value < 0.5) { r = Math.round(value * 2 * 200 + 55); g = 200; b = 50; }
+    else { r = 220; g = Math.round((1 - (value - 0.5) * 2) * 180 + 40); b = 40; }
+    return `rgb(${r}, ${g}, ${b})`;
   };
 
   return (
-    <>
-      <Card className="lg:col-span-2 w-full">
-        <CardHeader>
-          <CardTitle className="text-2xl">Scans Report</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex flex-wrap gap-4 items-center justify-between">
-            <div className="flex gap-4 items-center">
-              <Input 
-                type="date" 
-                value={selectedDate} 
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSelectedDate(e.target.value)} 
-                className="w-auto" 
-              />
-              <Input 
-                type="text" 
-                placeholder="Search by title or source..." 
-                className="w-48" 
-                value={searchQuery} 
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)} 
-              />
+    <Card className="lg:col-span-2 w-full">
+      <CardHeader>
+        <CardTitle className="text-2xl">{t("dashboard_page.scans_report.scan_report")}</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="flex flex-wrap gap-4 items-center justify-between">
+          <div className="flex gap-4 items-center">
+            <Input type="date" value={selectedDate} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSelectedDate(e.target.value)} className="w-auto" />
+            <Input type="text" placeholder={t("dashboard_page.scans_report.Search_by_name")} className="w-48" value={searchQuery} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)} />
+          </div>
+          <div className="flex gap-4 items-center">
+            <div className="flex items-center gap-2">
+              <Label htmlFor="sort-by-date">{t("dashboard_page.scans_report.sort_date")}</Label>
+              <Switch id="sort-by-date" checked={sortByDate} onCheckedChange={setSortByDate} />
             </div>
-            <div className="flex gap-4 items-center">
-              <div className="flex items-center gap-2">
-                <Label htmlFor="sort-by-date">Sort by date</Label>
-                <Switch id="sort-by-date" checked={sortByDate} onCheckedChange={setSortByDate} />
-              </div>
-              <div className="flex items-center gap-2">
-                <Label htmlFor="only-uncredited">Only uncredited</Label>
-                <Switch id="only-uncredited" checked={onlyUncredited} onCheckedChange={setOnlyUncredited} />
-              </div>
+            <div className="flex items-center gap-2">
+              <Label htmlFor="only-uncredited">{t("dashboard_page.scans_report.only_uncredited")}</Label>
+              <Switch id="only-uncredited" checked={onlyUncredited} onCheckedChange={setOnlyUncredited} />
             </div>
           </div>
+        </div>
 
           {loading ? (
             <div className="flex-1 flex items-center justify-center text-muted-foreground">Loading scans...</div>
