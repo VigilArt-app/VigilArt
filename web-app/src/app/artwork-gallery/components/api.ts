@@ -1,5 +1,5 @@
 import { toast } from "sonner";
-import { Artwork } from "./types";
+import { Artwork, ArtworkReportInsights, MatchingPage } from "./types";
 import { getUserIdFromToken } from "../../../utils/auth/getUserIdFromToken";
 import { authenticatedFetch } from "../../../utils/auth/authenticatedFetch";
 import i18next from "i18next";
@@ -27,6 +27,96 @@ export const fetchArtworks = async (): Promise<Artwork[]> => {
   } catch (error) {
     toast.error(t("artwork_gallery_page.failed_load", "Failed to load artworks"));
     throw error;
+  }
+};
+
+interface ReportSummary {
+  id: string;
+}
+
+interface ReportDetails {
+  id: string;
+  detectionDate: string;
+  matchingPages: MatchingPage[];
+}
+
+export const fetchArtworkReportInsights = async (): Promise<Record<string, ArtworkReportInsights>> => {
+  const userId = getUserIdFromToken();
+  if (!userId) {
+    return {};
+  }
+
+  try {
+    const API_BASE = process.env.NEXT_PUBLIC_API_URL;
+    const reportsRes = await authenticatedFetch(`${API_BASE}/reports/user/${userId}`);
+
+    if (!reportsRes.ok) {
+      throw new Error("Failed to fetch reports");
+    }
+
+    const reportsData = await reportsRes.json();
+    const reports: ReportSummary[] = Array.isArray(reportsData?.data)
+      ? reportsData.data
+      : Array.isArray(reportsData)
+      ? reportsData
+      : [];
+
+    if (reports.length === 0) {
+      return {};
+    }
+
+    const detailsResults = await Promise.all(
+      reports.map(async (report) => {
+        try {
+          const detailsRes = await authenticatedFetch(`${API_BASE}/reports/details/${report.id}`);
+          if (!detailsRes.ok) return null;
+
+          const detailsData = await detailsRes.json();
+          const reportDetails = (detailsData?.data || detailsData) as ReportDetails;
+
+          if (!reportDetails || !Array.isArray(reportDetails.matchingPages)) {
+            return null;
+          }
+
+          return reportDetails;
+        } catch {
+          return null;
+        }
+      })
+    );
+
+    const validDetails = detailsResults.filter((d): d is ReportDetails => !!d);
+    const pagesByArtwork = new Map<string, Map<string, MatchingPage>>();
+
+    validDetails.forEach((report) => {
+      report.matchingPages.forEach((page) => {
+        const key = page.id || `${page.url}-${page.firstDetectedAt}`;
+        const existing = pagesByArtwork.get(page.artworkId) || new Map<string, MatchingPage>();
+        existing.set(key, page);
+        pagesByArtwork.set(page.artworkId, existing);
+      });
+    });
+
+    const insightsByArtwork: Record<string, ArtworkReportInsights> = {};
+
+    pagesByArtwork.forEach((pagesMap, artworkId) => {
+      const matchingPages = Array.from(pagesMap.values()).sort(
+        (a, b) => new Date(b.firstDetectedAt).getTime() - new Date(a.firstDetectedAt).getTime()
+      );
+      const mostRecent = matchingPages[0];
+
+      insightsByArtwork[artworkId] = {
+        totalMatches: matchingPages.length,
+        mostRecentSource: mostRecent?.websiteName || "N/A",
+        mostRecentDate: mostRecent?.firstDetectedAt || null,
+        matchingPages,
+      };
+    });
+
+    return insightsByArtwork;
+  } catch {
+    toast.error(t("artwork_gallery_page.failed_load_reports", "Failed to load reports data"));
+    return {};
   }
 };
 
