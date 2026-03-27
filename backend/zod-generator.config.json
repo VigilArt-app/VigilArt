@@ -1,0 +1,13 @@
+{
+    "useMultipleFiles": false,
+    "singleFileName": "index.ts",
+    "pureModels": true,
+    "variants": {
+        "pure": { "enabled": true },
+        "input": { "enabled": false },
+        "result": { "enabled": false }
+    },
+    "emit": { "objects": false, "crud": false, "variants": false },
+    "optionalFieldBehavior": "nullable",
+    "dateTimeStrategy": "coerce"
+}

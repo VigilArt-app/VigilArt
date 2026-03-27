@@ -4,8 +4,9 @@ import { AppService } from "./app.service";
 
 import { AppController } from "./app.controller";
 
-import { ZodValidationPipe, ZodSerializerInterceptor } from "nestjs-zod";
-import { APP_INTERCEPTOR, APP_PIPE } from "@nestjs/core";
+import { ZodValidationPipe } from "nestjs-zod";
+import { ResponseWrapperInterceptor } from "./common/interceptors/response-wrapper.interceptor";
+import { APP_PIPE, APP_INTERCEPTOR } from "@nestjs/core";
 
 import { UsersModule } from "./users/users.module";
 import { ConfigModule } from "@nestjs/config";
@@ -15,6 +16,9 @@ import { ArtworksModule } from "./artworks/artworks.module";
 import { ReportsModule } from "./reports/reports.module";
 import { PrismaModule } from "./prisma/prisma.module";
 import { StorageModule } from "./storage/storage.module";
+import { DmcaPlatformModule } from "./dmca/platform/platform.module";
+import { DmcaProfileModule } from "./dmca/profile/profile.module";
+import { DmcaNoticeModule } from "./dmca/notice/notice.module";
 
 @Module({
   imports: [
@@ -28,18 +32,21 @@ import { StorageModule } from "./storage/storage.module";
     ArtworksModule,
     ReportsModule,
     PrismaModule,
-    StorageModule
+    StorageModule,
+    DmcaPlatformModule,
+    DmcaProfileModule,
+    DmcaNoticeModule,
   ],
   controllers: [AppController],
   providers: [
     AppService,
     {
-      provide: APP_INTERCEPTOR,
-      useClass: ZodSerializerInterceptor
-    },
-    {
       provide: APP_PIPE,
       useClass: ZodValidationPipe
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: ResponseWrapperInterceptor
     }
   ]
 })

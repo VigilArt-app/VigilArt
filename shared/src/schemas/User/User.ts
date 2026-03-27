@@ -1,5 +1,5 @@
 import { UserSchema as base } from "../../generated/zod";
-import { dateTimeStringToDate } from "../../constants/DateTimeStringToDate";
+import { dateTimeStringToDate } from "../../functions";
 import { createZodDto } from "nestjs-zod/dto";
 import { z } from "zod";
 import {
@@ -15,6 +15,7 @@ export const UserSchema = base.extend({
     error: (e) => (e.input === undefined ? "Email is required." : undefined),
   }),
   createdAt: dateTimeStringToDate,
+  updatedAt: dateTimeStringToDate
 });
 export class UserDTO extends createZodDto(UserSchema) {}
 

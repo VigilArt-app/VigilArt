@@ -11,9 +11,8 @@ import {
   mockedSearchImageReturnValue
 } from "./sample-inputs";
 import { AggregatedVisualSearchResults } from "@vigilart/shared";
-import { ArtworksReportEntry } from "@vigilart/shared";
+import { ArtworksReportEntry, WebsiteCategory } from "@vigilart/shared";
 import { NotFoundException } from "@nestjs/common";
-import { WebsiteCategory } from "@vigilart/shared/server";
 import { StorageService } from "../storage/storage.service";
 
 describe("ReportsService", () => {

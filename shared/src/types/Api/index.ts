@@ -10,7 +10,8 @@ import {
   NotFoundApiErrorSchema,
   ConflictApiErrorSchema,
   InternalServerApiErrorSchema,
-  ApiBatchPayloadSchema
+  ApiBatchPayloadSchema,
+  ApiPaginationSchema
 } from "../../schemas/Api";
 import { z } from "zod";
 
@@ -32,18 +33,26 @@ export type InternalServerApiError = z.infer<
   typeof InternalServerApiErrorSchema
 >;
 
+export type ApiErrorData =
+    | ApiError
+    | BadRequestApiError
+    | UnauthorizedApiError
+    | ForbiddenApiError
+    | NotFoundApiError
+    | ConflictApiError
+    | InternalServerApiError;
+
+export type ApiSuccessData<T = undefined> =
+    | ApiSuccess<T>
+    | ApiCreated<T>
+    | ApiNoContent;
+
 export type ApiResponseData<T = undefined> =
-  | ApiSuccess<T>
-  | ApiCreated<T>
-  | ApiNoContent
-  | ApiError
-  | BadRequestApiError
-  | UnauthorizedApiError
-  | ForbiddenApiError
-  | NotFoundApiError
-  | ConflictApiError
-  | InternalServerApiError;
+    | ApiErrorData
+    | ApiSuccessData<T>;
 
 export type ApiResponseAsync<T = undefined> = Promise<ApiResponseData<T>>;
 
 export type ApiBatchPayload = z.infer<typeof ApiBatchPayloadSchema>;
+
+export type ApiPagination = z.infer<typeof ApiPaginationSchema>;

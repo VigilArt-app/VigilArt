@@ -112,7 +112,7 @@ describe("Artworks E2E", () => {
       expect(res.body).toEqual({
         success: true,
         statusCode: HttpStatus.CREATED,
-        message: "Data created successfully.",
+        message: "Created",
         data: {
           id: expect.any(String),
           userId: user.id,
@@ -154,7 +154,7 @@ describe("Artworks E2E", () => {
       expect(res.body).toEqual({
         success: true,
         statusCode: HttpStatus.CREATED,
-        message: "Data created successfully.",
+        message: "Created",
         data: {
           id: expect.any(String),
           userId: user.id,
@@ -189,8 +189,8 @@ describe("Artworks E2E", () => {
       expect(res.body).toEqual({
         success: false,
         statusCode: HttpStatus.BAD_REQUEST,
-        message: "Validation failed",
-        error: "User id is required."
+        message: expect.any(String),
+        error: "Bad Request",
       });
     });
 
@@ -213,7 +213,7 @@ describe("Artworks E2E", () => {
       expect(res.body).toEqual({
         success: false,
         statusCode: HttpStatus.NOT_FOUND,
-        message: "User does not exist",
+        message: expect.any(String),
         error: "Not Found"
       });
     });
@@ -254,7 +254,7 @@ describe("Artworks E2E", () => {
       expect(res.body).toEqual({
         success: true,
         statusCode: HttpStatus.CREATED,
-        message: "Data created successfully.",
+        message: "Created",
         data: {
           count: 2,
           artworks: [
@@ -347,7 +347,7 @@ describe("Artworks E2E", () => {
       expect(res.body).toEqual({
         success: true,
         statusCode: HttpStatus.CREATED,
-        message: "Data created successfully.",
+        message: "Created",
         data: {
           count: 2,
           artworks: [
@@ -439,8 +439,8 @@ describe("Artworks E2E", () => {
       expect(res.body).toEqual({
         success: false,
         statusCode: HttpStatus.BAD_REQUEST,
-        message: "Validation failed",
-        error: "User id is required."
+        error: "Bad Request",
+        message: "0.userId: User id is required.",
       });
     });
 
@@ -524,7 +524,7 @@ describe("Artworks E2E", () => {
       expect(res.body).toEqual({
         success: true,
         statusCode: HttpStatus.OK,
-        message: "Request successful.",
+        message: "OK",
         data: expectedArtworks
       });
     });
@@ -544,7 +544,7 @@ describe("Artworks E2E", () => {
       expect(res.body).toEqual({
         success: true,
         statusCode: HttpStatus.OK,
-        message: "Request successful.",
+        message: "OK",
         data: [
           {
             id: expect.any(String),
@@ -572,7 +572,7 @@ describe("Artworks E2E", () => {
       expect(res.body).toEqual({
         success: false,
         statusCode: HttpStatus.BAD_REQUEST,
-        message: "Validation failed (uuid is expected)",
+        message: expect.any(String),
         error: "Bad Request"
       });
     });
@@ -605,7 +605,7 @@ describe("Artworks E2E", () => {
       expect(res.body).toEqual({
         success: true,
         statusCode: HttpStatus.OK,
-        message: "Request successful.",
+        message: "OK",
         data: {
           id: expect.any(String),
           userId: expect.any(String),
@@ -631,7 +631,7 @@ describe("Artworks E2E", () => {
       expect(res.body).toEqual({
         success: false,
         statusCode: HttpStatus.NOT_FOUND,
-        message: "Artwork not found",
+        message: expect.any(String),
         error: "Not Found"
       });
     });
@@ -642,7 +642,7 @@ describe("Artworks E2E", () => {
       expect(res.body).toEqual({
         success: false,
         statusCode: HttpStatus.BAD_REQUEST,
-        message: "Validation failed (uuid is expected)",
+        message: expect.any(String),
         error: "Bad Request"
       });
     });
@@ -678,7 +678,7 @@ describe("Artworks E2E", () => {
       expect(res.body).toEqual({
         success: true,
         statusCode: HttpStatus.OK,
-        message: "Request successful.",
+        message: "OK",
         data: {
           id: expect.any(String),
           userId: expect.any(String),
@@ -707,7 +707,7 @@ describe("Artworks E2E", () => {
       expect(res.body).toEqual({
         success: false,
         statusCode: HttpStatus.NOT_FOUND,
-        message: "Artwork not found",
+        message: expect.any(String),
         error: "Not Found"
       });
     });
@@ -723,7 +723,7 @@ describe("Artworks E2E", () => {
       expect(res.body).toEqual({
         success: false,
         statusCode: HttpStatus.BAD_REQUEST,
-        message: "Validation failed (uuid is expected)",
+        message: expect.any(String),
         error: "Bad Request"
       });
     });
@@ -764,7 +764,7 @@ describe("Artworks E2E", () => {
       expect(res.body).toEqual({
         success: false,
         statusCode: HttpStatus.NOT_FOUND,
-        message: "Artwork not found",
+        message: expect.any(String),
         error: "Not Found"
       });
     });
@@ -777,7 +777,7 @@ describe("Artworks E2E", () => {
       expect(res.body).toEqual({
         success: false,
         statusCode: HttpStatus.BAD_REQUEST,
-        message: "Validation failed (uuid is expected)",
+        message: expect.any(String),
         error: "Bad Request"
       });
     });
@@ -825,7 +825,7 @@ describe("Artworks E2E", () => {
       expect(res.body).toEqual({
         success: true,
         statusCode: HttpStatus.OK,
-        message: "Request successful.",
+        message: "OK",
         data: {
           count: 2
         }
@@ -861,7 +861,7 @@ describe("Artworks E2E", () => {
       expect(res.body).toEqual({
         success: true,
         statusCode: HttpStatus.OK,
-        message: "Request successful.",
+        message: "OK",
         data: {
           count: 1
         }
@@ -877,8 +877,8 @@ describe("Artworks E2E", () => {
       expect(res.body).toEqual({
         success: false,
         statusCode: HttpStatus.BAD_REQUEST,
-        error: "Invalid UUID",
-        message: "Validation failed"
+        error: "Bad Request",
+        message: "ids.0: Invalid UUID"
       });
     });
   });

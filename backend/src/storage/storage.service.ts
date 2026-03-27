@@ -89,6 +89,22 @@ export class StorageService {
     return uploadUrlMap;
   }
 
+  async uploadBuffer(buffer: Buffer, fileKey: string, contentType: string, expiresInDays?: number): Promise<string> {
+    const putCommand = new PutObjectCommand({
+      Bucket: this.bucketName,
+      Key: fileKey,
+      Body: buffer,
+      ContentType: contentType,
+      CacheControl: "private, max-age=31536000",
+      ...(expiresInDays && {
+        Expires: new Date(Date.now() + expiresInDays * 24 * 60 * 60 * 1000)
+      })
+    });
+
+    await this.s3.send(putCommand);
+    return await this.getDownloadUrl(fileKey);
+  }
+
   async getDownloadUrl(fileKey: string): Promise<string> {
     const command = new GetObjectCommand({
       Bucket: this.bucketName,
