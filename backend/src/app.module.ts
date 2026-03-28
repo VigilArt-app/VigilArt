@@ -19,7 +19,7 @@ import { StorageModule } from "./storage/storage.module";
 import { DmcaPlatformModule } from "./dmca/platform/platform.module";
 import { DmcaProfileModule } from "./dmca/profile/profile.module";
 import { DmcaNoticeModule } from "./dmca/notice/notice.module";
-import { BrightDataModule } from "./brightdata/brightdata.module";
+import { GoogleLensModule } from "./googlelens/googlelens.module";
 
 @Module({
   imports: [
@@ -37,7 +37,7 @@ import { BrightDataModule } from "./brightdata/brightdata.module";
     DmcaPlatformModule,
     DmcaProfileModule,
     DmcaNoticeModule,
-    BrightDataModule
+    GoogleLensModule
   ],
   controllers: [AppController],
   providers: [

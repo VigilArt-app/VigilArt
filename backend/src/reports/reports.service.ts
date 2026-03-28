@@ -21,13 +21,13 @@ import { ArtworksService } from "../artworks/artworks.service";
 import { StorageService } from "../storage/storage.service";
 import { PrismaService } from "../prisma/prisma.service";
 import { MatchingPagesService } from "./matchingPage.service";
-import { BrightDataService } from "../brightdata/brightdata.service";
+import { GoogleLensService } from "../googlelens/googlelens.service";
 
 @Injectable()
 export class ReportsService {
   constructor(
     private readonly visionService: VisionService,
-    private readonly brightDataService: BrightDataService,
+    private readonly googleLensService: GoogleLensService,
     private readonly artworksService: ArtworksService,
     private readonly storageService: StorageService,
     private readonly matchingPagesService: MatchingPagesService,
@@ -42,7 +42,7 @@ export class ReportsService {
   ): Promise<MatchingPageGet[]> {
     const visualSearchResults = await Promise.all([
       this.visionService.searchImage(imageBuffer),
-      this.brightDataService.searchImage(imageDownloadUrl)
+      // this.googleLensService.searchImage(imageDownloadUrl)
     ]);
     const matchingPages = visualSearchResults.reduce<MatchingPageGet[]>(
       (acc: MatchingPageGet[], value: VisualSearchResult | null) => {

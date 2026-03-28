@@ -6,7 +6,7 @@ import { ArtworksModule } from "../artworks/artworks.module";
 import { StorageModule } from "../storage/storage.module";
 import { MatchingPagesService } from "./matchingPage.service";
 import { PrismaModule } from "../prisma/prisma.module";
-import { BrightDataModule } from "../brightdata/brightdata.module";
+import { GoogleLensModule } from "../googlelens/googlelens.module";
 
 @Module({
   imports: [
@@ -14,7 +14,7 @@ import { BrightDataModule } from "../brightdata/brightdata.module";
     VisionModule,
     ArtworksModule,
     StorageModule,
-    BrightDataModule
+    GoogleLensModule
   ],
   controllers: [ReportsController],
   providers: [ReportsService, MatchingPagesService]

@@ -7,7 +7,7 @@ import { GoogleLensExactResult } from "./interfaces";
 import { classifyWebsite, extractRootDomain } from "../vision/utils";
 
 @Injectable()
-export class BrightDataService {
+export class GoogleLensService {
   private readonly apiKey: string;
   private readonly zone: string;
 
@@ -15,8 +15,8 @@ export class BrightDataService {
     private readonly httpService: HttpService,
     private readonly config: ConfigService
   ) {
-    this.apiKey = config.getOrThrow<string>("BRIGHTDATA_API_KEY");
-    this.zone = config.getOrThrow<string>("BRIGHTDATA_ZONE");
+    this.apiKey = config.getOrThrow<string>("GOOGLE_LENS_API_KEY");
+    this.zone = config.getOrThrow<string>("BRIGHTDATA_SERP_API_ZONE");
   }
 
   async getGoogleLensExactMatches(
@@ -44,7 +44,13 @@ export class BrightDataService {
     const foundMatches: GoogleLensExactResult[] = data.exact_matches;
     return foundMatches;
   }
-
+  /* MAKE PAGINATION
+    add website blacklist (check claude)
+    /!\ IMPROVE STATISTICS /!\
+    Update reports routes to include :
+    F14 View statistics based on all detected reposts e.g. the total number of reposts.
+    + CRON JOB
+  */
   async searchImage(downloadUrl: string): Promise<VisualSearchResult | null> {
     const metadata = {
       bestGuessLabels: [],

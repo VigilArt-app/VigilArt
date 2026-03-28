@@ -1,11 +1,11 @@
 import { Module } from "@nestjs/common";
-import { BrightDataService } from "./brightdata.service";
+import { GoogleLensService } from "./googlelens.service";
 import { HttpModule } from "@nestjs/axios";
 import { ConfigModule } from "@nestjs/config";
 
 @Module({
   imports: [HttpModule, ConfigModule],
-  providers: [BrightDataService],
-  exports: [BrightDataService]
+  providers: [GoogleLensService],
+  exports: [GoogleLensService]
 })
-export class BrightDataModule {}
+export class GoogleLensModule {}
