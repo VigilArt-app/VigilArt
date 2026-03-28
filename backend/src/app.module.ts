@@ -19,6 +19,7 @@ import { StorageModule } from "./storage/storage.module";
 import { DmcaPlatformModule } from "./dmca/platform/platform.module";
 import { DmcaProfileModule } from "./dmca/profile/profile.module";
 import { DmcaNoticeModule } from "./dmca/notice/notice.module";
+import { BrightDataModule } from "./brightdata/brightdata.module";
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { DmcaNoticeModule } from "./dmca/notice/notice.module";
     DmcaPlatformModule,
     DmcaProfileModule,
     DmcaNoticeModule,
+    BrightDataModule
   ],
   controllers: [AppController],
   providers: [

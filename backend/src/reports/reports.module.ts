@@ -6,9 +6,16 @@ import { ArtworksModule } from "../artworks/artworks.module";
 import { StorageModule } from "../storage/storage.module";
 import { MatchingPagesService } from "./matchingPage.service";
 import { PrismaModule } from "../prisma/prisma.module";
+import { BrightDataModule } from "../brightdata/brightdata.module";
 
 @Module({
-  imports: [PrismaModule, VisionModule, ArtworksModule, StorageModule],
+  imports: [
+    PrismaModule,
+    VisionModule,
+    ArtworksModule,
+    StorageModule,
+    BrightDataModule
+  ],
   controllers: [ReportsController],
   providers: [ReportsService, MatchingPagesService]
 })
