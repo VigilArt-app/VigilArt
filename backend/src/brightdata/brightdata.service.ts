@@ -44,7 +44,7 @@ export class BrightDataService {
     const foundMatches: GoogleLensExactResult[] = data.exact_matches;
     return foundMatches;
   }
-  // MAKE UNIT TESTS AND PAGINATION
+
   async searchImage(downloadUrl: string): Promise<VisualSearchResult | null> {
     const metadata = {
       bestGuessLabels: [],
