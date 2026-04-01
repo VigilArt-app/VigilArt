@@ -1,7 +1,7 @@
 export interface GoogleLensExactResult {
   title?: string;
   link?: string;
-  extensions?: [string];
+  extensions?: string[];
   source?: string;
   logo?: string;
   image?: string;

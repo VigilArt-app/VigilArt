@@ -49,7 +49,7 @@ describe("VisionService", () => {
     jest
       .spyOn(service, "webDetection")
       .mockResolvedValue(webDetectionResult.result.webDetection);
-    const result = await service.searchImage(webDetectionResult.inputImageUri);
+    const result = await service.searchImage(Buffer.from(""));
 
     return { result, expectedOutput };
   };

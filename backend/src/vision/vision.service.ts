@@ -97,7 +97,7 @@ export class VisionService implements OnModuleDestroy {
         if (hasFullMatches) {
           imageUrl = this.getImageUrl(page.fullMatchingImages);
         }
-        if (hasPartialMatches) {
+        if (!imageUrl && hasPartialMatches) {
           imageUrl = this.getImageUrl(page.partialMatchingImages);
         }
         if (page.url && (hasFullMatches || hasPartialMatches)) {
