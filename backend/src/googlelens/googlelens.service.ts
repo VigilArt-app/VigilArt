@@ -4,7 +4,11 @@ import { ConfigService } from "@nestjs/config";
 import { MatchingPageGet, VisualSearchResult } from "@vigilart/shared";
 import { lastValueFrom } from "rxjs";
 import { GoogleLensExactResult } from "./interfaces";
-import { classifyWebsite, extractRootDomain } from "../vision/utils";
+import {
+  classifyWebsite,
+  extractRootDomain,
+  isBlacklisted
+} from "../common/utils/website-class";
 
 @Injectable()
 export class GoogleLensService {
@@ -44,13 +48,7 @@ export class GoogleLensService {
     const foundMatches: GoogleLensExactResult[] = data.exact_matches;
     return foundMatches;
   }
-  /* MAKE PAGINATION
-    add website blacklist (check claude)
-    /!\ IMPROVE STATISTICS /!\
-    Update reports routes to include :
-    F14 View statistics based on all detected reposts e.g. the total number of reposts.
-    + CRON JOB
-  */
+
   async searchImage(downloadUrl: string): Promise<VisualSearchResult | null> {
     const metadata = {
       bestGuessLabels: [],
@@ -63,7 +61,7 @@ export class GoogleLensService {
     }
     const matchingPages: MatchingPageGet[] = googleLensExactMatches.reduce(
       (acc: MatchingPageGet[], match: GoogleLensExactResult) => {
-        if (match.link) {
+        if (match.link && !isBlacklisted(match.link)) {
           const validItem: MatchingPageGet = {
             url: match.link,
             category: classifyWebsite(match.link),
