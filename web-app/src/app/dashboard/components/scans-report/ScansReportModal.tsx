@@ -1,6 +1,10 @@
-import { X } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { Card, CardContent, CardHeader, CardTitle } from "../../../../components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "../../../../components/ui/dialog";
 import { ScanRow } from "./types";
 
 interface ScansReportModalProps {
@@ -13,15 +17,12 @@ export function ScansReportModal({ artwork, onClose }: ScansReportModalProps) {
   if (!artwork) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <Card className="w-full max-w-2xl max-h-[80vh] overflow-y-auto">
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>{artwork.title || t("dashboard_page.scans_report.unknown_artwork")}</CardTitle>
-          <button onClick={onClose} className="p-1 hover:bg-muted rounded">
-            <X className="w-5 h-5" />
-          </button>
-        </CardHeader>
-        <CardContent className="space-y-4">
+    <Dialog open={!!artwork} onOpenChange={(open) => { if (!open) onClose(); }}>
+      <DialogContent className="w-full max-w-2xl max-h-[80vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>{artwork.title || t("dashboard_page.scans_report.unknown_artwork")}</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-4">
           <div className="text-sm text-muted-foreground">
             <p><strong>{t("dashboard_page.scans_report.total_matches")}:</strong> {artwork.matches}</p>
             <p><strong>{t("dashboard_page.scans_report.most_recent_source")}:</strong> {artwork.mostRecentSource}</p>
@@ -61,8 +62,8 @@ export function ScansReportModal({ artwork, onClose }: ScansReportModalProps) {
           ) : (
             <p className="text-center text-muted-foreground py-8">{t("dashboard_page.scans_report.no_matches_for_artwork")}</p>
           )}
-        </CardContent>
-      </Card>
-    </div>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }
