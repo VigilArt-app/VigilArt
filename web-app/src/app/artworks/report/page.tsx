@@ -1,6 +1,8 @@
 "use client";
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { getAuthToken } from "../../../utils/auth/getAuthToken";
+import { getUserIdFromToken } from "../../../utils/auth/getUserIdFromToken";
 
 interface ReportData {
   id: string;
@@ -29,22 +31,6 @@ type MatchingPage = {
   firstDetectedAt: string;
 };
 
-const getAuthToken = (): string | null => {
-  if (typeof window === "undefined") return null;
-  return localStorage.getItem("auth_token") || sessionStorage.getItem("auth_token");
-};
-
-const getUserIdFromToken = (token: string): string | null => {
-  try {
-    const parts = token.split(".");
-    if (parts.length !== 3) return null;
-    const decoded = JSON.parse(atob(parts[1]));
-    return decoded.sub || decoded.userId || decoded.id || null;
-  } catch {
-    return null;
-  }
-};
-
 export default function ReportPage() {
   const { t, i18n } = useTranslation();
   const [loading, setLoading] = useState(false);
@@ -64,7 +50,7 @@ export default function ReportPage() {
       return;
     }
 
-    const userId = getUserIdFromToken(token);
+    const userId = getUserIdFromToken();
     if (!userId) {
       setMessage(t("artworks_report_page.cannot_resolve_user"));
       setLoading(false);
