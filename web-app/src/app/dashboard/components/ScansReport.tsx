@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "../../../components/ui/card";
 import { Input } from "../../../components/ui/input";
 import { Label } from "../../../components/ui/label";
@@ -60,6 +60,14 @@ export default function ScansReport() {
   }, [scans, searchQuery, sortField, sortDirection, sortByDate, selectedDate, onlyUncredited]);
 
   const totalPages = Math.max(1, Math.ceil(filteredAndSortedScans.length / rowsPerPage));
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, sortField, sortDirection, sortByDate, selectedDate, onlyUncredited]);
+
+  useEffect(() => {
+    setCurrentPage((prev) => Math.min(prev, totalPages));
+  }, [totalPages]);
 
   return (
     <Card className="lg:col-span-2 w-full">

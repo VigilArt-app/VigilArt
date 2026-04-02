@@ -1,7 +1,7 @@
 {
   "version": "1.0",
   "generatorVersion": "0.1.0",
-  "generatedAt": "2026-03-16T01:55:11.478Z",
+  "generatedAt": "2026-04-02T03:53:24.068Z",
   "outputPath": "/app/shared/src/generated/zod",
   "files": [
     "index.ts"
