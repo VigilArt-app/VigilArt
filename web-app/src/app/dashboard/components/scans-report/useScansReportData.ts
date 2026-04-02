@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { getAuthToken } from "../../../../utils/auth/getAuthToken";
 import { getUserIdFromToken } from "../../../../utils/auth/getUserIdFromToken";
+import { authenticatedFetch } from "../../../../utils/auth/authenticatedFetch";
 import {
   Artwork,
   ArtworksReportDetails,
@@ -23,12 +23,6 @@ export function useScansReportData(): UseScansReportDataResult {
 
   useEffect(() => {
     const fetchData = async () => {
-      const token = getAuthToken();
-      if (!token) {
-        setLoading(false);
-        return;
-      }
-
       const userId = getUserIdFromToken();
       if (!userId) {
         setLoading(false);
@@ -39,9 +33,7 @@ export function useScansReportData(): UseScansReportDataResult {
         const API_BASE = process.env.NEXT_PUBLIC_API_URL || "";
         const base = API_BASE.replace(/\/+$/, "");
 
-        const artworksRes = await fetch(`${base}/artworks/user/${userId}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const artworksRes = await authenticatedFetch(`${base}/artworks/user/${userId}`);
 
         if (!artworksRes.ok) {
           throw new Error(`Failed to fetch artworks list (${artworksRes.status})`);
@@ -52,9 +44,7 @@ export function useScansReportData(): UseScansReportDataResult {
           ? artworksResponse
           : artworksResponse.data || [];
 
-        const reportRes = await fetch(`${base}/reports/user/${userId}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const reportRes = await authenticatedFetch(`${base}/reports/user/${userId}`);
 
         if (!reportRes.ok) {
           throw new Error(`Failed to fetch reports list (${reportRes.status})`);
@@ -86,9 +76,7 @@ export function useScansReportData(): UseScansReportDataResult {
         const reportDetailsResults = await Promise.all(
           reports.map(async (report) => {
             try {
-              const detailsRes = await fetch(`${base}/reports/details/${report.id}`, {
-                headers: { Authorization: `Bearer ${token}` },
-              });
+              const detailsRes = await authenticatedFetch(`${base}/reports/details/${report.id}`);
 
               if (!detailsRes.ok) {
                 return null;
@@ -117,12 +105,8 @@ export function useScansReportData(): UseScansReportDataResult {
 
         let downloadUrlsByStorageKey: Record<string, string> = {};
         if (artworkStorageKeys.length > 0) {
-          const downloadUrlsRes = await fetch(`${base}/storage/artworks/download-urls`, {
+          const downloadUrlsRes = await authenticatedFetch(`${base}/storage/artworks/download-urls`, {
             method: "POST",
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
             body: JSON.stringify({ storageKeys: artworkStorageKeys }),
           });
 
