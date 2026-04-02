@@ -106,8 +106,20 @@ export default function ReportPage() {
       setReport(reportData);
       const matchCount = reportData.matchingPages?.length || 0;
       setMessage(`${t("artworks_report_page.report_created")}: ${matchCount} ${t("artworks_report_page.detections_found")}.`);
-    } catch (e: any) {
-      setMessage(`${t("artworks_report_page.error")}: ${e?.message || String(e)}`);
+    } catch (e: unknown) {
+      let errorMessage: string;
+      if (e instanceof Error) {
+        errorMessage = e.message;
+      } else if (typeof e === "string") {
+        errorMessage = e;
+      } else {
+        try {
+          errorMessage = JSON.stringify(e);
+        } catch {
+          errorMessage = String(e);
+        }
+      }
+      setMessage(`${t("artworks_report_page.error")}: ${errorMessage}`);
     } finally {
       setLoading(false);
     }

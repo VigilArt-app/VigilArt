@@ -9,7 +9,7 @@ interface ArtworkDetailsProps {
 }
 
 export function ArtworkDetails({ artwork }: ArtworkDetailsProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const status = getArtworkStatus(artwork);
   const totalMatches = artwork.reportInsights?.totalMatches || 0;
   const mostRecentSource = artwork.reportInsights?.mostRecentSource;
@@ -69,7 +69,7 @@ export function ArtworkDetails({ artwork }: ArtworkDetailsProps) {
           <div>
             <p className="font-semibold">{t("artwork_gallery_page.upload_date")}</p>
             <p className="text-muted-foreground">
-              {new Date(artwork.createdAt).toLocaleString()}
+              {new Date(artwork.createdAt).toLocaleString(i18n.language)}
             </p>
           </div>
 
@@ -104,7 +104,7 @@ export function ArtworkDetails({ artwork }: ArtworkDetailsProps) {
           {mostRecentDate && (
             <div>
               <p className="font-semibold">{t("artwork_gallery_page.last_detected")}</p>
-              <p className="text-muted-foreground">{new Date(mostRecentDate).toLocaleString()}</p>
+              <p className="text-muted-foreground">{new Date(mostRecentDate).toLocaleString(i18n.language)}</p>
             </div>
           )}
         </div>
@@ -127,7 +127,7 @@ export function ArtworkDetails({ artwork }: ArtworkDetailsProps) {
                 >
                   <p className="font-semibold truncate">{page.websiteName || page.pageTitle || page.url}</p>
                   <p className="text-muted-foreground truncate">{page.url}</p>
-                  <p className="text-muted-foreground">{new Date(page.firstDetectedAt).toLocaleString()}</p>
+                  <p className="text-muted-foreground">{new Date(page.firstDetectedAt).toLocaleString(i18n.language)}</p>
                 </a>
               ))}
             </div>
