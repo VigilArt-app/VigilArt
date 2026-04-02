@@ -112,6 +112,14 @@ export function ScansReportTable({
                     key={`${scan.artworkId}-${scan.title}-${scan.mostRecentDate}`}
                     className="border-b hover:bg-muted/50 cursor-pointer"
                     onClick={() => onSelectArtwork(scan)}
+                    tabIndex={0}
+                    role="button"
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        onSelectArtwork(scan);
+                      }
+                    }}
                   >
                     <td className={`${TABLE_ROW_CELL_CLASS} text-gray-500`}>{(scan.title || t("dashboard_page.scans_report.unknown_artwork")).substring(0, 20)}</td>
                     <td className={TABLE_ROW_CELL_CLASS}>
