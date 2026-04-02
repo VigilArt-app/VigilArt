@@ -42,6 +42,11 @@ export function useScansReportData(): UseScansReportDataResult {
         const artworksRes = await fetch(`${base}/artworks/user/${userId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
+
+        if (!artworksRes.ok) {
+          throw new Error(`Failed to fetch artworks list (${artworksRes.status})`);
+        }
+
         const artworksResponse = await artworksRes.json();
         const artworks: Artwork[] = Array.isArray(artworksResponse)
           ? artworksResponse
