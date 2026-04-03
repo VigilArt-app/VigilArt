@@ -24,8 +24,8 @@ export function ScansReportModal({ artwork, onClose }: ScansReportModalProps) {
         </DialogHeader>
         <div className="space-y-4">
           <div className="text-sm text-muted-foreground">
-            <p><strong>{t("dashboard_page.scans_report.total_matches")}:</strong> {artwork.matches}</p>
-            <p><strong>{t("dashboard_page.scans_report.most_recent_source")}:</strong> {artwork.mostRecentSource}</p>
+            <p><span className="font-bold">{t("dashboard_page.scans_report.total_matches")}:</span> {artwork.matches}</p>
+            <p><span className="font-bold">{t("dashboard_page.scans_report.most_recent_source")}:</span> {artwork.mostRecentSource}</p>
           </div>
 
           {artwork.matchingPages.length > 0 ? (
@@ -42,10 +42,10 @@ export function ScansReportModal({ artwork, onClose }: ScansReportModalProps) {
                       />
                     )}
                     <div className="flex-grow text-sm">
-                      <p><strong>{t("dashboard_page.scans_report.category")}:</strong> {page.category}</p>
-                      <p><strong>{t("dashboard_page.scans_report.website")}:</strong> {page.websiteName}</p>
-                      <p><strong>{t("dashboard_page.scans_report.title")}:</strong> {page.pageTitle}</p>
-                      <p><strong>{t("dashboard_page.scans_report.found")}:</strong> {new Date(page.firstDetectedAt).toLocaleString(i18n.language)}</p>
+                      <p><span className="font-bold">{t("dashboard_page.scans_report.category")}:</span> {page.category}</p>
+                      <p><span className="font-bold">{t("dashboard_page.scans_report.website")}:</span> {page.websiteName}</p>
+                      <p><span className="font-bold">{t("dashboard_page.scans_report.title")}:</span> {page.pageTitle}</p>
+                      <p><span className="font-bold">{t("dashboard_page.scans_report.found")}:</span> {new Date(page.firstDetectedAt).toLocaleString(i18n.language)}</p>
                       <a
                         href={page.url}
                         target="_blank"
