@@ -135,7 +135,8 @@
             "title": "Title",
             "found": "Found",
             "visit": "Visit",
-            "no_matches_for_artwork": "No matches found for this artwork"
+            "no_matches_for_artwork": "No matches found for this artwork",
+            "failed_to_load": "Failed to load scans report. Please try again."
         }
     },
     "sidebar": {

@@ -12,6 +12,7 @@ import {
 interface UseScansReportDataResult {
   scans: ScanRow[];
   loading: boolean;
+  error: boolean;
   selectedDate: string;
   setSelectedDate: (date: string) => void;
 }
@@ -19,17 +20,20 @@ interface UseScansReportDataResult {
 export function useScansReportData(): UseScansReportDataResult {
   const [scans, setScans] = useState<ScanRow[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   const [selectedDate, setSelectedDate] = useState("");
 
   useEffect(() => {
     const fetchData = async () => {
       const userId = getUserIdFromToken();
       if (!userId) {
+        setError(true);
         setLoading(false);
         return;
       }
 
       try {
+        setError(false);
         const API_BASE = process.env.NEXT_PUBLIC_API_URL || "";
         const base = API_BASE.replace(/\/+$/, "");
 
@@ -167,7 +171,8 @@ export function useScansReportData(): UseScansReportDataResult {
           setSelectedDate(new Date().toISOString().split("T")[0]);
         }
       } catch (err) {
-        console.error("Failed to fetch report data:", err);
+        setScans([]);
+        setError(true);
       } finally {
         setLoading(false);
       }
@@ -176,5 +181,5 @@ export function useScansReportData(): UseScansReportDataResult {
     fetchData();
   }, []);
 
-  return { scans, loading, selectedDate, setSelectedDate };
+  return { scans, loading, error, selectedDate, setSelectedDate };
 }

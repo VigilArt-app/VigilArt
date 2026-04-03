@@ -1,35 +1,20 @@
 "use client";
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
+import type { MatchingPage as SharedMatchingPage } from "@vigilart/shared/types";
 import { getAuthToken } from "../../../utils/auth/getAuthToken";
 import { getUserIdFromToken } from "../../../utils/auth/getUserIdFromToken";
+
+type MatchingPage = Omit<SharedMatchingPage, "firstDetectedAt"> & {
+  firstDetectedAt: string;
+};
 
 interface ReportData {
   id: string;
   userId: string;
   detectionDate: string;
-  matchingPages: Array<{
-    id: string;
-    artworkId: string;
-    category: string;
-    url: string;
-    websiteName: string;
-    imageUrl: string;
-    pageTitle: string;
-    firstDetectedAt: string;
-  }>;
+  matchingPages: MatchingPage[];
 }
-
-type MatchingPage = {
-  id: string;
-  artworkId: string;
-  category: string;
-  url: string;
-  websiteName: string;
-  imageUrl: string;
-  pageTitle: string;
-  firstDetectedAt: string;
-};
 
 export default function ReportPage() {
   const { t, i18n } = useTranslation();
