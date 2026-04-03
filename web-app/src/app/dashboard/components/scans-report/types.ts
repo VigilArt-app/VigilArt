@@ -1,13 +1,8 @@
-export interface MatchingPage {
-  id: string;
-  artworkId: string;
-  category: string;
-  url: string;
-  websiteName: string;
-  imageUrl: string;
-  pageTitle: string;
+import type { MatchingPage as SharedMatchingPage } from "@vigilart/shared/types";
+
+export type MatchingPage = Omit<SharedMatchingPage, "firstDetectedAt"> & {
   firstDetectedAt: string;
-}
+};
 
 export interface Artwork {
   id: string;
