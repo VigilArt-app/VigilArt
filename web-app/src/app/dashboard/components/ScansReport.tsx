@@ -13,7 +13,7 @@ import { ScanRow, SortDirection, SortField } from "./scans-report/types";
 
 export default function ScansReport() {
   const { t } = useTranslation();
-  const { scans, loading, selectedDate, setSelectedDate } = useScansReportData();
+  const { scans, loading, error, selectedDate, setSelectedDate } = useScansReportData();
 
   const [searchQuery, setSearchQuery] = useState("");
   const [sortField, setSortField] = useState<SortField | null>(null);
@@ -105,6 +105,11 @@ export default function ScansReport() {
           onPrevPage={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
           onNextPage={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
         />
+        {error && (
+          <p className="text-sm text-destructive" role="alert">
+            {t("dashboard_page.scans_report.failed_to_load")}
+          </p>
+        )}
         </CardContent>
 
       <ScansReportModal artwork={selectedArtwork} onClose={() => setSelectedArtwork(null)} />

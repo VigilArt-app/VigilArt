@@ -135,7 +135,8 @@
             "title": "Titre",
             "found": "Détecté le",
             "visit": "Visiter",
-            "no_matches_for_artwork": "Aucune correspondance trouvée pour cette œuvre"
+            "no_matches_for_artwork": "Aucune correspondance trouvée pour cette œuvre",
+            "failed_to_load": "Impossible de charger le rapport de scans. Veuillez réessayer."
         }
     },
     "sidebar": {
