@@ -20,6 +20,7 @@ class _LoginPageState extends State<LoginPage> {
   final _passwordController = TextEditingController();
 
   final ApiService apiService = ApiService();
+  
   @override
   void dispose() {
     _emailController.dispose();
@@ -175,7 +176,7 @@ class _LoginPageState extends State<LoginPage> {
                   CustomButton(
                     text: 'Continue with Google',
                     onPressed: _handleGoogleSignIn,
-                    icon: FontAwesomeIcons.google,
+                    icon: const FaIcon(FontAwesomeIcons.google),
                     showIcon: true,
                     isOutlined: true,
                     backgroundColor: Colors.black87,

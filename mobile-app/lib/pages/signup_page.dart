@@ -232,7 +232,7 @@ class _SignupPageState extends State<SignupPage> {
                     onPressed: () {
                       print('Google Sign-In pressed');
                     },
-                    icon: FontAwesomeIcons.google,
+                    icon: const FaIcon(FontAwesomeIcons.google), 
                     showIcon: true,
                     isOutlined: true,
                     backgroundColor: Colors.black87,
