@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'dart:io';
-
 import '../../../(api)/auth.dart';
-import '../../../(api)/upload_artworks.dart'; 
+import '../../../(api)/upload_artworks_api.dart'; 
 import 'package:VigilArt/pages/dashboard/upload_picture/dragDropUploadZone.dart';
 import 'package:VigilArt/pages/dashboard/upload_picture/fileUploadCard.dart';
 
 class UploadPhotosPage extends StatefulWidget {
-  const UploadPhotosPage({Key? key}) : super(key: key);
+  const UploadPhotosPage({super.key});
 
   @override
   State<UploadPhotosPage> createState() => _UploadPhotosPageState();
