@@ -1,10 +1,8 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 
 class ScanResultCard extends StatelessWidget {
-  final int id;
-  final String imageUrl;
+  final String id; 
+  final String? imageUrl;
   final String sourceUrl;
   final int matchCount;
   final String credibility;
@@ -100,7 +98,7 @@ class ScanResultCard extends StatelessWidget {
           ),
           child: Text(
             credibility.toUpperCase(),
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w700,
               color: Colors.white,
@@ -116,6 +114,8 @@ class ScanResultCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    String displayId = id.length > 4 ? id.substring(0, 4) : id;
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -126,7 +126,7 @@ class ScanResultCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: Colors.black,
+              color: Colors.black.withOpacity(0.05),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),
@@ -143,7 +143,7 @@ class ScanResultCard extends StatelessWidget {
               ),
               child: Center(
                 child: Text(
-                  '#${id.toString().padLeft(2, '0')}',
+                  '#$displayId',
                   style: const TextStyle(
                     fontWeight: FontWeight.w600,
                     fontSize: 12,
@@ -159,11 +159,17 @@ class ScanResultCard extends StatelessWidget {
               height: 50,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(8),
-                image: DecorationImage(
-                  image: NetworkImage(imageUrl),
-                  fit: BoxFit.cover,
-                ),
+                color: Colors.grey.shade100, 
+                image: (imageUrl != null && imageUrl!.isNotEmpty)
+                    ? DecorationImage(
+                        image: NetworkImage(imageUrl!),
+                        fit: BoxFit.cover,
+                      )
+                    : null,
               ),
+              child: (imageUrl == null || imageUrl!.isEmpty)
+                  ? Icon(Icons.image_not_supported, color: Colors.grey.shade400, size: 24)
+                  : null,
             ),
             const SizedBox(width: 12),
             Expanded(child: _buildDynamicContent()),
