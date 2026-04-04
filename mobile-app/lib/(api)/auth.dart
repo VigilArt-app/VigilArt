@@ -4,17 +4,18 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class ApiService {
   final FlutterSecureStorage secureStorage = const FlutterSecureStorage();
-  final String serverUrl = "http://10.0.2.2:3000/api";
+  final String serverUrl = "https://dev-api.vigilart.app/api/v1";
 
   static const String keyAccessToken = 'accessToken';
   static const String keyUserId = 'userId';
   static const String keyUserFirstName = 'userFirstName';
   static const String keyUserLastName = 'userLastName';
   static const String keyUserEmail = 'userEmail';
+  static const String keyUserAvatar = 'userAvatar';
 
   Future<http.Response> login(String email, String password) async {
     final url = Uri.parse('$serverUrl/auth/login');
-    
+    print('👉 MON URL EXACTE EST : >>>$url<<');
     final response = await http.post(
       url,
       headers: {'Content-Type': 'application/json'},
@@ -37,6 +38,7 @@ class ApiService {
       await secureStorage.write(key: keyUserFirstName, value: user['firstName'].toString());
       await secureStorage.write(key: keyUserLastName, value: user['lastName'].toString());
       await secureStorage.write(key: keyUserEmail, value: user['email'].toString());
+      await secureStorage.write(key: keyUserAvatar, value: user['avatar']?.toString() ?? '');
     }
     return response; 
   }
