@@ -1,7 +1,8 @@
 import { Search } from "lucide-react";
 import { Input } from "../../../components/ui/input";
 import { Button } from "../../../components/ui/button";
-import { FilterStatus } from "./types";
+import { FILTER_STATUS_TRANSLATION_KEYS, FilterStatus } from "./types";
+import { useTranslation } from "react-i18next";
 
 interface SearchAndFiltersProps {
   searchQuery: string;
@@ -18,12 +19,13 @@ export function SearchAndFilters({
   onFilterChange,
   filteredCount,
 }: SearchAndFiltersProps) {
+  const { t } = useTranslation();
   return (
     <div className="mb-6 space-y-4">
       <div className="relative">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
         <Input
-          placeholder="Search by ID, date..."
+          placeholder={t("artwork_gallery_page.search_id")}
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
           className="pl-10"
@@ -31,34 +33,34 @@ export function SearchAndFilters({
       </div>
 
       <div className="flex items-center gap-2">
-        <span className="text-sm font-medium mr-2">{filteredCount} images</span>
+        <span className="text-sm font-medium mr-2">{filteredCount} {t("artwork_gallery_page.images")}</span>
         <Button
           variant={selectedFilter === "All" ? "default" : "outline"}
           size="sm"
           onClick={() => onFilterChange("All")}
         >
-          All
+          {t(FILTER_STATUS_TRANSLATION_KEYS.All)}
         </Button>
         <Button
           variant={selectedFilter === "Scanning" ? "default" : "outline"}
           size="sm"
           onClick={() => onFilterChange("Scanning")}
         >
-          Scanning
+          {t(FILTER_STATUS_TRANSLATION_KEYS.Scanning)}
         </Button>
         <Button
           variant={selectedFilter === "Scanned" ? "default" : "outline"}
           size="sm"
           onClick={() => onFilterChange("Scanned")}
         >
-          Scanned
+          {t(FILTER_STATUS_TRANSLATION_KEYS.Scanned)}
         </Button>
         <Button
           variant={selectedFilter === "Protected" ? "default" : "outline"}
           size="sm"
           onClick={() => onFilterChange("Protected")}
         >
-          Protected
+          {t(FILTER_STATUS_TRANSLATION_KEYS.Protected)}
         </Button>
       </div>
     </div>

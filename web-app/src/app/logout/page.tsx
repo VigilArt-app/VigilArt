@@ -3,9 +3,11 @@
 import { useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { deleteCookie } from "../cookies"
+import { useTranslation } from "react-i18next"
 
 export default function LogoutPage() {
   const router = useRouter()
+  const { t } = useTranslation()
 
   useEffect(() => {
     try {
@@ -19,7 +21,8 @@ export default function LogoutPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center">
-      <p>Logging out…</p>
+      
+      <p>{t("logout_page.logging_out")}</p>
     </div>
   )
 }

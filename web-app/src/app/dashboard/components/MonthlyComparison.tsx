@@ -1,6 +1,7 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "../../../components/ui/card";
+import { useTranslation } from "react-i18next";
 
 const monthlyData = [
   { month: "Jan", lastMonth: 3004, thisMonth: 4504 },
@@ -12,10 +13,11 @@ const monthlyData = [
 ];
 
 export default function MonthlyComparison() {
+  const { t } = useTranslation();
   return (
     <Card className="w-full">
       <CardHeader>
-        <CardTitle className="text-xl">Monthly Comparison Graphs</CardTitle>
+        <CardTitle className="text-xl">{t("dashboard_page.graphs.monthly_comparison")}</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="w-full h-72">
@@ -82,8 +84,8 @@ export default function MonthlyComparison() {
           </svg>
 
           <div className="flex items-center gap-6 mt-3 text-sm text-muted-foreground flex-wrap">
-            <div className="flex items-center gap-2"><span className="w-3 h-3 rounded bg-blue-500 inline-block"></span> <span>Last Month Average</span> <span className="font-semibold ml-2">3,004 credited matches</span></div>
-            <div className="flex items-center gap-2"><span className="w-3 h-3 rounded bg-green-500 inline-block"></span> <span>This Month Average</span> <span className="font-semibold ml-2">4,504 credited matches</span></div>
+            <div className="flex items-center gap-2"><span className="w-3 h-3 rounded bg-blue-500 inline-block"></span> <span>{t("dashboard_page.graphs.last_month")}</span> <span className="font-semibold ml-2">3,004 {t("dashboard_page.graphs.credit_matches")}</span></div>
+            <div className="flex items-center gap-2"><span className="w-3 h-3 rounded bg-green-500 inline-block"></span> <span>{t("dashboard_page.graphs.this_month")}</span> <span className="font-semibold ml-2">4,504 {t("dashboard_page.graphs.credit_matches")}</span></div>
           </div>
         </div>
       </CardContent>

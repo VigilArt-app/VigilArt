@@ -3,6 +3,7 @@
 import Link from "next/link"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import { useTranslation } from "react-i18next"
 import { Button } from "../../components/ui/button"
 import { Input } from "../../components/ui/input"
 import { Label } from "../../components/ui/label"
@@ -10,6 +11,7 @@ import { Switch } from "../../components/ui/switch"
 import { setCookie } from "../cookies"
 
 export default function LoginPage() {
+    const { t } = useTranslation()
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const [remember, setRemember] = useState(false)
@@ -37,13 +39,13 @@ export default function LoginPage() {
             })
             if (!res.ok) {
                 const data = await res.json().catch(() => null)
-                const message = data?.message || "Login failed"
+                const message = data?.message || t("login_page.error_login_failed")
                 throw new Error(Array.isArray(message) ? message.join(", ") : message)
             }
             const data = await res.json()
             const accessToken = data?.data?.accessToken
             if (!accessToken) {
-                throw new Error("No access token in response")
+                throw new Error(t("login_page.error_no_token"))
             }
             
             try {
@@ -57,7 +59,7 @@ export default function LoginPage() {
             
             router.push("/dashboard")
         } catch (err: any) {
-            setError(err.message || "Unexpected error")
+            setError(err.message || t("login_page.error_unexpected"))
         } finally {
             setIsLoading(false)
         }
@@ -69,8 +71,8 @@ export default function LoginPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2">
                     <div className="relative flex items-center justify-start p-12 bg-white dark:bg-neutral-900/30">
                         <div className="relative z-10 max-w-xs md:max-w-md">
-                            <p className="text-3xl md:text-4xl text-foreground">Bienvenue</p>
-                            <p className="text-2xl md:text-3xl text-foreground">sur</p>
+                            <p className="text-3xl md:text-4xl text-foreground">{t("login_page.welcome")}</p>
+                            <p className="text-2xl md:text-3xl text-foreground">{t("login_page.on")}</p>
                             <h1 className="text-6xl md:text-9xl font-giaza tracking-tight text-foreground">VigilArt</h1>
                         </div>
                     </div>
@@ -80,27 +82,27 @@ export default function LoginPage() {
                             <div className="mb-4 flex items-center gap-3 justify-between">
                                 <img src="/vigilart_b.png" alt="VigilArt logo" className="h-20 w-auto dark:hidden" />
                                 <img src="/vigilart_w.png" alt="VigilArt logo" className="h-20 w-auto hidden dark:block" />
-                                <div className="text-l text-muted-foreground">Nice to see you again</div>
+                                <div className="text-l text-muted-foreground">{t("login_page.greetings")}</div>
                             </div>
 
                             <form onSubmit={onSubmit} className="space-y-4">
                                 <div>
-                                    <Label htmlFor="email" className="mb-2">Login</Label>
-                                    <Input id="email" type="email" placeholder="johndoe@example.eu" value={email} onChange={(e) => setEmail(e.target.value)}/>
+                                    <Label htmlFor="email" className="mb-2">{t("login_page.login")}</Label>
+                                    <Input id="email" type="email" placeholder={t("login_page.placeholder_email")} value={email} onChange={(e) => setEmail(e.target.value)}/>
                                 </div>
 
                                 <div>
-                                    <Label htmlFor="password" className="mb-2">Password</Label>
-                                    <Input id="password" type="password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)}/>
+                                    <Label htmlFor="password" className="mb-2">{t("login_page.password")}</Label>
+                                    <Input id="password" type="password" placeholder={t("login_page.placeholder_password")} value={password} onChange={(e) => setPassword(e.target.value)}/>
                                 </div>
 
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-3">
                                         <Switch checked={remember} onCheckedChange={(val) => setRemember(Boolean(val))} aria-label="Remember me" />
-                                        <span className="text-sm">Remember me</span>
+                                        <span className="text-sm">{t("login_page.remember_me")}</span>
                                     </div>
                                     <Link href="#" className="text-sm text-primary">
-                                        Forgot password?
+                                        {t("login_page.forgot_password")}
                                     </Link>
                                 </div>
 
@@ -109,13 +111,13 @@ export default function LoginPage() {
                                 )}
                                 <div>
                                     <Button type="submit" className="w-full" disabled={isLoading}>
-                                        {isLoading ? "Signing in..." : "Sign in"}
+                                        {isLoading ? t("login_page.signing_in") : t("login_page.sign_in")}
                                     </Button>
                                 </div>
 
                                 <div className="flex items-center gap-3">
                                     <div className="flex-1 h-px bg-muted-foreground/30" />
-                                    <div className="text-sm text-muted-foreground">or</div>
+                                    <div className="text-sm text-muted-foreground">{t("login_page.or")}</div>
                                     <div className="flex-1 h-px bg-muted-foreground/30" />
                                 </div>
 
@@ -127,13 +129,13 @@ export default function LoginPage() {
                                             <path d="M6.92 13.05A6.99 6.99 0 0 1 6.6 12c0-.35.05-.7.12-1.05V8.6H3.28A9.98 9.98 0 0 0 2 12c0 1.6.38 3.08 1.05 4.4l3.87-3.35z" />
                                             <path d="M12 6.5c1.46 0 2.77.5 3.8 1.48l2.85-2.85C16.94 3.6 14.7 2.5 12 2.5 8.24 2.5 4.92 4.55 3.28 7.55l3.84 2.9C7.64 8.1 9.64 6.5 12 6.5z" />
                                         </svg>
-                                        Or Sign in with Google
+                                        {t("login_page.sign_in_with_google")}
                                     </Button>
                                 </div>
                             </form>
 
                             <div className="mt-4 text-center text-sm">
-                                Don&apos;t have an account? <Link href="/sign-up" className="text-primary underline underline-offset-2">Sign up now</Link>
+                                {t("login_page.no_account")} <Link href="/sign-up" className="text-primary underline underline-offset-2">{t("login_page.sign_up")}</Link>
                             </div>
                         </div>
                     </div>

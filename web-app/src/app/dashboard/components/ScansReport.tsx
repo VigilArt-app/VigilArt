@@ -6,6 +6,7 @@ import { Input } from "../../../components/ui/input";
 import { Label } from "../../../components/ui/label";
 import { Switch } from "../../../components/ui/switch";
 import { Image as ImageIcon, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 const mockScans = [
   { id: "#01", image: "/placeholder-art-1.jpg", matches: 46, creditedMatches: 46, source: "https://google.com", color: "orange", date: "2025-08-15" },
@@ -18,6 +19,7 @@ type SortField = 'id' | 'matches' | 'creditedMatches' | 'date';
 type SortDirection = 'asc' | 'desc' | null;
 
 export default function ScansReport() {
+  const { t } = useTranslation();
   const [searchQuery, setSearchQuery] = useState("");
   const [sortField, setSortField] = useState<SortField | null>(null);
   const [sortDirection, setSortDirection] = useState<SortDirection>(null);
@@ -79,21 +81,21 @@ export default function ScansReport() {
   return (
     <Card className="lg:col-span-2 w-full">
       <CardHeader>
-        <CardTitle className="text-2xl">Scans Report</CardTitle>
+        <CardTitle className="text-2xl">{t("dashboard_page.scans_report.scan_report")}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex flex-wrap gap-4 items-center justify-between">
           <div className="flex gap-4 items-center">
             <Input type="date" value={selectedDate} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSelectedDate(e.target.value)} className="w-auto" />
-            <Input type="text" placeholder="Search by ID or source..." className="w-48" value={searchQuery} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)} />
+            <Input type="text" placeholder={t("dashboard_page.scans_report.Search_by_name")} className="w-48" value={searchQuery} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)} />
           </div>
           <div className="flex gap-4 items-center">
             <div className="flex items-center gap-2">
-              <Label htmlFor="sort-by-date">Sort by date</Label>
+              <Label htmlFor="sort-by-date">{t("dashboard_page.scans_report.sort_date")}</Label>
               <Switch id="sort-by-date" checked={sortByDate} onCheckedChange={setSortByDate} />
             </div>
             <div className="flex items-center gap-2">
-              <Label htmlFor="only-uncredited">Only uncredited</Label>
+              <Label htmlFor="only-uncredited">{t("dashboard_page.scans_report.only_uncredited")}</Label>
               <Switch id="only-uncredited" checked={onlyUncredited} onCheckedChange={setOnlyUncredited} />
             </div>
           </div>
@@ -104,21 +106,21 @@ export default function ScansReport() {
             <thead>
               <tr className="border-b">
                 <th className="text-left py-3 px-2 cursor-pointer hover:bg-muted/50" onClick={() => handleSort('id')}>
-                  <div className="flex items-center">ID<SortIcon field="id" /></div>
+                  <div className="flex items-center">{t("dashboard_page.scans_report.name")}<SortIcon field="id" /></div>
                 </th>
-                <th className="text-left py-3 px-2">Image</th>
+                <th className="text-left py-3 px-2">{t("dashboard_page.scans_report.image")}</th>
                 <th className="text-left py-3 px-2 cursor-pointer hover:bg-muted/50" onClick={() => handleSort('matches')}>
-                  <div className="flex items-center">Number of Matches<SortIcon field="matches" /></div>
+                  <div className="flex items-center">{t("dashboard_page.scans_report.matches")}<SortIcon field="matches" /></div>
                 </th>
                 <th className="text-left py-3 px-2 cursor-pointer hover:bg-muted/50" onClick={() => handleSort('creditedMatches')}>
-                  <div className="flex items-center">Credited Matches<SortIcon field="creditedMatches" /></div>
+                  <div className="flex items-center">{t("dashboard_page.scans_report.credited_matches")}<SortIcon field="creditedMatches" /></div>
                 </th>
-                <th className="text-left py-3 px-2">Most recent source</th>
+                <th className="text-left py-3 px-2">{t("dashboard_page.scans_report.most_recent")}</th>
               </tr>
             </thead>
             <tbody>
               {filteredAndSortedScans.length === 0 ? (
-                <tr><td colSpan={5} className="text-center py-8 text-muted-foreground">No scans found</td></tr>
+                <tr><td colSpan={5} className="text-center py-8 text-muted-foreground">{t("dashboard_page.scans_report.no_scans")}</td></tr>
               ) : (
                 filteredAndSortedScans.map((scan) => (
                   <tr key={scan.id} className="border-b hover:bg-muted/50">
