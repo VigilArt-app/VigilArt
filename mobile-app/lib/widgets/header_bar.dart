@@ -93,7 +93,6 @@ class _VigilArtHeaderBarState extends State<VigilArtHeaderBar>
               ),
             ),
 
-            // CENTER: BRAND TEXT
             Text(
               'VigilArt',
               style: TextStyle(
@@ -190,9 +189,13 @@ class _VigilArtHeaderBarState extends State<VigilArtHeaderBar>
                         ],
                       ),
                       child: CircleAvatar(
-                        backgroundImage: AssetImage(widget.avatar),
                         radius: 18,
                         backgroundColor: Colors.grey[200],
+                        backgroundImage: widget.avatar.isEmpty
+                            ? const AssetImage('assets/images/default_avatar.jpg') as ImageProvider
+                            : (widget.avatar.startsWith('http')
+                                ? NetworkImage(widget.avatar)
+                                : AssetImage(widget.avatar) as ImageProvider),
                       ),
                     ),
                   ),

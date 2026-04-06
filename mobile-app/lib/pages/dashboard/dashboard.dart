@@ -18,8 +18,8 @@ class _DashboardPageState extends State<DashboardPage> {
   int _selectedTabIndex = 1;
   int _bottomNavIndex = 1;
 
-  String _userAvatarUrl = '';
-
+  String _userAvatarUrl = 'assets/images/default_avatar.jpg';
+  
   @override
   void initState() {
     super.initState();
