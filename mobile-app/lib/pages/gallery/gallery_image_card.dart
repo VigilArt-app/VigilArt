@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 class GalleryImageCard extends StatelessWidget {
   final String id;
+  final String title;
   final String imageUrl;
   final String uploadDate;
   final String status;
@@ -11,6 +12,7 @@ class GalleryImageCard extends StatelessWidget {
   const GalleryImageCard({
     Key? key,
     required this.id,
+    required this.title,
     required this.imageUrl,
     required this.uploadDate,
     required this.status,
@@ -19,28 +21,20 @@ class GalleryImageCard extends StatelessWidget {
   }) : super(key: key);
 
   Color _getStatusColor() {
-    switch (status) {
-      case 'scanning':
-        return const Color(0xFF5E3B7D);
-      case 'scanned':
-        return const Color(0xFF22C55E);
-      case 'protected':
-        return const Color(0xFF3B82F6);
-      default:
-        return Colors.grey;
+    switch (status.toLowerCase()) {
+      case 'scanning': return const Color(0xFF5E3B7D);
+      case 'scanned': return const Color(0xFFEAB308); 
+      case 'protected': return const Color(0xFF22C55E); 
+      default: return Colors.grey;
     }
   }
 
   IconData _getStatusIcon() {
-    switch (status) {
-      case 'scanning':
-        return Icons.hourglass_top;
-      case 'scanned':
-        return Icons.check_circle;
-      case 'protected':
-        return Icons.shield_rounded;
-      default:
-        return Icons.image;
+    switch (status.toLowerCase()) {
+      case 'scanning': return Icons.hourglass_top;
+      case 'scanned': return Icons.warning_rounded;
+      case 'protected': return Icons.shield_rounded;
+      default: return Icons.image;
     }
   }
 
@@ -52,116 +46,85 @@ class GalleryImageCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.06),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
+          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.06), blurRadius: 10, offset: const Offset(0, 4))],
         ),
         child: Stack(
           children: [
             ClipRRect(
               borderRadius: BorderRadius.circular(12),
-              child: Image.network(
-                imageUrl,
-                fit: BoxFit.cover,
-                width: double.infinity,
-                height: double.infinity,
-              ),
+              child: imageUrl.isNotEmpty 
+                ? Image.network(
+                    imageUrl,
+                    fit: BoxFit.cover,
+                    width: double.infinity,
+                    height: double.infinity,
+                    loadingBuilder: (context, child, loadingProgress) {
+                      if (loadingProgress == null) return child;
+                      return Center(child: CircularProgressIndicator(
+                        color: const Color(0xFF5E3B7D),
+                        value: loadingProgress.expectedTotalBytes != null
+                            ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
+                            : null,
+                      ));
+                    },
+                    errorBuilder: (context, error, stackTrace) => Container(
+                      color: Colors.grey[200],
+                      child: const Center(child: Icon(Icons.broken_image, color: Colors.grey)),
+                    ),
+                  )
+                : Container(
+                    color: Colors.grey[200],
+                    child: const Center(child: Icon(Icons.image, color: Colors.grey)),
+                  ),
             ),
 
             Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(12),
                 gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Colors.transparent,
-                    Colors.black.withOpacity(0.6),
-                  ],
+                  begin: Alignment.topCenter, end: Alignment.bottomCenter,
+                  colors: [Colors.black.withOpacity(0.2), Colors.black.withOpacity(0.8)],
                 ),
               ),
             ),
 
             Positioned(
-              top: 8,
-              left: 8,
+              top: 8, right: 8,
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.7),
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: Text(
-                  '#$id',
-                  style: const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.white,
-                    letterSpacing: 0.5,
-                  ),
-                ),
-              ),
-            ),
-
-            Positioned(
-              top: 8,
-              right: 8,
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                decoration: BoxDecoration(
-                  color: _getStatusColor(),
-                  borderRadius: BorderRadius.circular(6),
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(color: _getStatusColor(), borderRadius: BorderRadius.circular(6)),
                 child: Row(
                   children: [
-                    Icon(_getStatusIcon(), color: Colors.white, size: 14),
+                    Icon(_getStatusIcon(), color: Colors.white, size: 12),
                     const SizedBox(width: 4),
-                    Text(
-                      status.toUpperCase(),
-                      style: const TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                        letterSpacing: 0.3,
-                      ),
-                    ),
+                    Text(status.toUpperCase(), style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: Colors.white)),
                   ],
                 ),
               ),
             ),
 
             Positioned(
-              bottom: 0,
-              left: 0,
-              right: 0,
+              bottom: 0, left: 0, right: 0,
               child: Padding(
                 padding: const EdgeInsets.all(10),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Uploaded',
-                            style: TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w400,
-                              color: Colors.white.withOpacity(0.8),
-                            ),
+                            title,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Colors.white),
                           ),
+                          const SizedBox(height: 2),
                           Text(
                             uploadDate,
-                            style: const TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.white,
-                            ),
+                            style: TextStyle(fontSize: 11, color: Colors.white.withOpacity(0.8)),
                           ),
                         ],
                       ),
@@ -170,15 +133,8 @@ class GalleryImageCard extends StatelessWidget {
                       onTap: onDelete,
                       child: Container(
                         padding: const EdgeInsets.all(6),
-                        decoration: BoxDecoration(
-                          color: Colors.red.withOpacity(0.8),
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: const Icon(
-                          Icons.delete_outline,
-                          color: Colors.white,
-                          size: 16,
-                        ),
+                        decoration: BoxDecoration(color: Colors.red.withOpacity(0.8), borderRadius: BorderRadius.circular(6)),
+                        child: const Icon(Icons.delete_outline, color: Colors.white, size: 16),
                       ),
                     ),
                   ],
