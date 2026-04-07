@@ -5,6 +5,7 @@ import 'package:VigilArt/widgets/header_bar.dart';
 import 'package:VigilArt/widgets/slideMenuBar.dart';
 import 'package:VigilArt/widgets/slideTabsBar.dart';
 import '../../(api)/auth.dart';
+import '../../(api)/user.dart';
 
 class DashboardPage extends StatefulWidget {
 
@@ -19,7 +20,7 @@ class _DashboardPageState extends State<DashboardPage> {
   int _bottomNavIndex = 1;
 
   String _userAvatarUrl = 'assets/images/default_avatar.jpg';
-  
+
   @override
   void initState() {
     super.initState();
@@ -28,15 +29,30 @@ class _DashboardPageState extends State<DashboardPage> {
 
   Future<void> _loadUserData() async {
     final apiService = ApiService();
-    final avatar = await apiService.secureStorage.read(key: ApiService.keyUserAvatar);
+    final avatarKey = await apiService.secureStorage.read(key: ApiService.keyUserAvatar);
     
+    String finalAvatarUrl = 'assets/images/default_avatar.jpg';
+
+    if (avatarKey != null && avatarKey.isNotEmpty && avatarKey != 'null') {
+      if (avatarKey.startsWith('http')) {
+        finalAvatarUrl = avatarKey;
+      } else if (avatarKey.startsWith('profiles/')) {
+        try {
+          final downloadUrl = await apiService.getAvatarDownloadUrl(avatarKey);
+          if (downloadUrl != null && downloadUrl.isNotEmpty) {
+            finalAvatarUrl = downloadUrl;
+          }
+        } catch (e) {
+          print("Erreur chargement avatar dashboard: $e");
+        }
+      } else {
+        finalAvatarUrl = avatarKey;
+      }
+    }
+
     if (mounted) {
       setState(() {
-        if (avatar != null && avatar.isNotEmpty && avatar != 'null') {
-          _userAvatarUrl = avatar;
-        } else {
-          _userAvatarUrl = 'assets/images/default_avatar.jpg';
-        }
+        _userAvatarUrl = finalAvatarUrl;
       });
     }
   }
