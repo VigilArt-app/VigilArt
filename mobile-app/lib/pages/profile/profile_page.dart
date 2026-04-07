@@ -5,7 +5,9 @@ import 'package:VigilArt/widgets/header_bar.dart';
 import 'package:VigilArt/widgets/slideMenuBar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:VigilArt/(api)/user.dart'; // Ton extension UserProfileApi
+import 'package:VigilArt/(api)/user.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:typed_data';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({Key? key}) : super(key: key);
@@ -37,48 +39,115 @@ class _ProfilePageState extends State<ProfilePage> {
     'password': '••••••••',
     'country': 'France',
     'language': 'French',
-    'avatar': 'https://i.pinimg.com/736x/03/f3/00/03f3001fb8b4abe101d2f72cc61c0904.jpg',
+    'avatar': 'assets/images/default_avatar.jpg',
   };
 
   @override
   void initState() {
     super.initState();
-    _initializeControllers();
-    _loadRemoteUserData(); // Chargement initial depuis le backend
-  }
-
-  void _initializeControllers() {
     _firstNameController = TextEditingController(text: _userData['firstName']);
     _lastNameController = TextEditingController(text: _userData['lastName']);
     _emailController = TextEditingController(text: _userData['email']);
     _passwordController = TextEditingController(text: _userData['password']);
     _countryController = TextEditingController(text: _userData['country']);
     _languageController = TextEditingController(text: _userData['language']);
+    _loadRemoteUserData();
   }
 
-  // --- LOGIQUE API : CHARGEMENT ---
+  void _updateControllersText() {
+    _firstNameController.text = _userData['firstName']!;
+    _lastNameController.text = _userData['lastName']!;
+    _emailController.text = _userData['email']!;
+    _passwordController.text = _userData['password']!;
+    _countryController.text = _userData['country']!;
+    _languageController.text = _userData['language']!;
+  }
+
+  
   Future<void> _loadRemoteUserData() async {
+    print("🔵 DEBUG 1: Démarrage de la récupération du profil...");
     setState(() => _isLoading = true);
+    
     try {
       final profile = await _apiService.fetchUserProfile();
+      
       if (profile != null) {
-        setState(() {
-          _userData = {
-            'firstName': profile['firstName'] ?? '',
-            'lastName': profile['lastName'] ?? '',
-            'email': profile['email'] ?? '',
-            'password': '••••••••',
-            'country': profile['country'] ?? 'France',
-            'language': profile['language'] ?? 'French',
-            'avatar': profile['avatarUrl'] ?? _userData['avatar']!,
-          };
-          _initializeControllers();
-        });
+        String avatarDisplayUrl = _userData['avatar']!; 
+        final String? avatarKey = profile['avatar']?.toString(); 
+
+        if (avatarKey != null && avatarKey.isNotEmpty) {
+          if (avatarKey.startsWith('http')) {
+            avatarDisplayUrl = avatarKey;
+          } else if (avatarKey.startsWith('profiles/')) {
+            final String? downloadUrl = await _apiService.getAvatarDownloadUrl(avatarKey);
+            print("🔵 DEBUG 4: Lien Cloudflare R2 généré = $downloadUrl");
+            if (downloadUrl != null && downloadUrl.isNotEmpty) {
+              avatarDisplayUrl = downloadUrl;
+            }
+          }
+        }
+
+        if (mounted) {
+          setState(() {
+            _userData = {
+              'firstName': profile['firstName']?.toString() ?? 'Prénom introuvable',
+              'lastName': profile['lastName']?.toString() ?? 'Nom introuvable',
+              'email': profile['email']?.toString() ?? 'Email introuvable',
+              'password': '••••••••',
+              'country': profile['country']?.toString() ?? 'France',
+              'language': profile['language']?.toString() ?? 'French',
+              'avatar': avatarDisplayUrl,
+            };
+            
+            print("🔵 DEBUG 5: _userData final préparé pour l'affichage = $_userData");
+            _updateControllersText();
+          });
+        }
       }
     } catch (e) {
-      _showSnackBar('Erreur lors du chargement : $e', Colors.red);
+      if (mounted) _showSnackBar('Erreur lors du chargement : $e', Colors.red);
     } finally {
-      setState(() => _isLoading = false);
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _handleAvatarUpload() async {
+    try {
+      final ImagePicker picker = ImagePicker();
+      final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+      
+      if (image == null) return;
+
+      setState(() => _isLoading = true);
+
+      final Uint8List fileBytes = await image.readAsBytes();
+      final String filename = image.name;
+      final String mimeType = filename.toLowerCase().endsWith('.png') ? 'image/png' : 'image/jpeg';
+
+      final uploadData = await _apiService.getAvatarUploadUrl(filename);
+      
+      if (uploadData != null) {
+        final String presignedUrl = uploadData['presignedUrl'];
+        final String storageKey = uploadData['storageKey']; 
+
+        final bool uploadSuccess = await _apiService.uploadAvatarToR2(fileBytes, mimeType, presignedUrl);
+
+        if (uploadSuccess) {
+          final updatedProfile = await _apiService.updateUserProfile({'avatar': storageKey});
+          
+          if (updatedProfile != null) {
+            if (mounted) _showSnackBar('✓ Photo de profil mise à jour !', const Color(0xFF22C55E));
+            await _loadRemoteUserData(); 
+            return;
+          }
+        }
+      }
+      
+      if (mounted) _showSnackBar('Échec du téléchargement de l\'image', Colors.red);
+    } catch (e) {
+      if (mounted) _showSnackBar('Erreur : $e', Colors.red);
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
@@ -137,7 +206,7 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   void _processLogout() async {
-    await _secureStorage.deleteAll(); // Sécurité : on efface les tokens [cite: 11]
+    await _secureStorage.deleteAll(); 
     if (mounted) {
       Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
     }
@@ -150,7 +219,7 @@ class _ProfilePageState extends State<ProfilePage> {
     switch (index) {
       case 0: Navigator.pushReplacementNamed(context, '/gallery'); break;
       case 1: Navigator.pushReplacementNamed(context, '/dashboard'); break;
-      case 2: break; // Déjà sur profil
+      case 2: break;
     }
   }
 
@@ -181,8 +250,10 @@ class _ProfilePageState extends State<ProfilePage> {
           child: VigilArtHeaderBar(
             onLogoTap: () => Navigator.pushNamed(context, '/dashboard'),
             onNotificationsTap: () => Navigator.pushNamed(context, '/notifications'),
-            onProfileTap: () {}, // Actuel
-            avatar: 'assets/images/avatar.jpeg',
+            onProfileTap: () {},
+            avatar: _userData['avatar']?.isNotEmpty == true 
+                ? _userData['avatar']! 
+                : 'assets/images/default_avatar.jpg',          
           ),
         ),
       ),
@@ -197,7 +268,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   avatarUrl: _userData['avatar']!,
                   isEditMode: _isEditMode,
                   onEditTap: _handleEditToggle,
-                  onAvatarTap: () => _showSnackBar('Fonctionnalité d\'upload bientôt disponible', Colors.blue),
+                  onAvatarTap: _handleAvatarUpload, 
                 ),
                 const SizedBox(height: 24),
                 Padding(
@@ -212,14 +283,14 @@ class _ProfilePageState extends State<ProfilePage> {
                             label: 'Prénom', 
                             controller: _firstNameController, 
                             isReadOnly: !_isEditMode,
-                            validator: (v) => v!.isEmpty ? 'Requis' : null, initialValue: '',
+                            validator: (v) => v!.isEmpty ? 'Requis' : null,
                           ),
                           const SizedBox(height: 16),
                           EditableFormField(
                             label: 'Nom', 
                             controller: _lastNameController, 
                             isReadOnly: !_isEditMode,
-                            validator: (v) => v!.isEmpty ? 'Requis' : null, initialValue: '',
+                            validator: (v) => v!.isEmpty ? 'Requis' : null,
                           ),
                         ]),
                         const SizedBox(height: 24),
@@ -229,22 +300,22 @@ class _ProfilePageState extends State<ProfilePage> {
                             label: 'Email', 
                             controller: _emailController, 
                             isReadOnly: !_isEditMode,
-                            validator: (v) => !v!.contains('@') ? 'Email invalide' : null, initialValue: '',
+                            validator: (v) => !v!.contains('@') ? 'Email invalide' : null,
                           ),
                           const SizedBox(height: 16),
                           EditableFormField(
                             label: 'Mot de passe', 
                             controller: _passwordController, 
                             isPassword: true, 
-                            isReadOnly: true, initialValue: '', // Sécurité : changement via procédure dédiée
+                            isReadOnly: true, 
                           ),
                         ]),
                         const SizedBox(height: 24),
                         _buildSectionHeader('Localisation & Préférences'),
                         _buildSectionCard([
-                          EditableFormField(label: 'Pays', controller: _countryController, isReadOnly: !_isEditMode, initialValue: '',),
+                          EditableFormField(label: 'Pays', controller: _countryController, isReadOnly: !_isEditMode,),
                           const SizedBox(height: 16),
-                          EditableFormField(label: 'Langue', controller: _languageController, isReadOnly: !_isEditMode, initialValue: '',),
+                          EditableFormField(label: 'Langue', controller: _languageController, isReadOnly: !_isEditMode,),
                         ]),
                         const SizedBox(height: 32),
                         SizedBox(

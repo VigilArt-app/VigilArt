@@ -91,4 +91,50 @@ extension UserProfile on ApiService {
       return null;
     }
   }
+
+  Future<Map<String, dynamic>?> getAvatarUploadUrl(String filename) async {
+    try {
+      final token = await getAccessToken();
+      final url = Uri.parse('$serverUrl/storage/artworks/upload-urls');
+      
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode({
+          'filenames': [filename],
+          'prefix': 'profiles',
+        }),
+      );
+
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final urls = data['data'] ?? data;
+        return urls[filename]; 
+      }
+      return null;
+    } catch (e) {
+      print('Error getting avatar upload URL: $e');
+      return null;
+    }
+  }
+
+  Future<bool> uploadAvatarToR2(List<int> fileBytes, String mimeType, String presignedUrl) async {
+    try {
+      final response = await http.put(
+        Uri.parse(presignedUrl),
+        headers: {
+          'Content-Type': mimeType,
+        },
+        body: fileBytes,
+      );
+
+      return response.statusCode == 200;
+    } catch (e) {
+      print('Failed to upload avatar to R2: $e');
+      return false;
+    }
+  }
 }
