@@ -77,7 +77,6 @@ export default function ScansReport() {
       <CardContent className="space-y-4">
         <div className="flex flex-wrap gap-4 items-center justify-between">
           <div className="flex gap-4 items-center">
-            <Input type="date" value={selectedDate} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSelectedDate(e.target.value)} className="w-auto" />
             <Input type="text" placeholder={t("dashboard_page.scans_report.Search_by_name")} className="w-48" value={searchQuery} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)} />
           </div>
           <div className="flex gap-4 items-center">
