@@ -3,6 +3,7 @@ import { Artwork, ArtworkReportInsights, MatchingPage } from "./types";
 import { getUserIdFromToken } from "../../../utils/auth/getUserIdFromToken";
 import { authenticatedFetch } from "../../../utils/auth/authenticatedFetch";
 import i18next from "i18next";
+import { API_BASE_URL } from "@/src/config";
 
 const t = (key: string, defaultValue: string) =>
   i18next.t(key, { defaultValue });
@@ -15,7 +16,7 @@ export const fetchArtworks = async (): Promise<Artwork[]> => {
   }
 
   try {
-    const API_BASE = process.env.NEXT_PUBLIC_API_URL;
+    const API_BASE = API_BASE_URL;
     const response = await authenticatedFetch(`${API_BASE}/artworks/user/${userId}`);
 
     if (!response.ok) {
@@ -47,7 +48,7 @@ export const fetchArtworkReportInsights = async (): Promise<Record<string, Artwo
   }
 
   try {
-    const API_BASE = process.env.NEXT_PUBLIC_API_URL;
+    const API_BASE = API_BASE_URL;
     const reportsRes = await authenticatedFetch(`${API_BASE}/reports/user/${userId}`);
 
     if (!reportsRes.ok) {
@@ -122,7 +123,7 @@ export const fetchArtworkReportInsights = async (): Promise<Record<string, Artwo
 
 export const deleteArtwork = async (id: string): Promise<void> => {
   try {
-    const API_BASE = process.env.NEXT_PUBLIC_API_URL;
+    const API_BASE = API_BASE_URL;
     const response = await authenticatedFetch(`${API_BASE}/artworks/${id}`, {
       method: "DELETE",
     });

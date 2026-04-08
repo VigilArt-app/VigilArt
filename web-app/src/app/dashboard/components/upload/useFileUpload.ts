@@ -4,6 +4,7 @@ import { getUserIdFromToken } from "../../../../utils/auth/getUserIdFromToken";
 import type { UploadUrlsGetDTO } from "@vigilart/shared";
 import { getImageDimensions } from "./imageUtils";
 import { useTranslation } from "react-i18next";
+import { API_BASE_URL } from "@/src/config";
 
 interface UploadedFile {
   file: File;
@@ -78,7 +79,7 @@ export function useFileUpload() {
     let uploadedCount = 0;
     let failedCount = 0;
     const uploadedNames: string[] = [];
-    const API_BASE = process.env.NEXT_PUBLIC_API_URL;
+    const API_BASE = API_BASE_URL;
 
     toast.loading(`${t("dashboard_page.upload.uploading_toatser")} ${totalFiles} image${totalFiles > 1 ? "s" : ""}...`, {
       id: "upload-progress",

@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import type { MatchingPage as SharedMatchingPage } from "@vigilart/shared/types";
 import { getAuthToken } from "../../../utils/auth/getAuthToken";
 import { getUserIdFromToken } from "../../../utils/auth/getUserIdFromToken";
+import { API_BASE_URL } from "@/src/config";
 
 type MatchingPage = Omit<SharedMatchingPage, "firstDetectedAt"> & {
   firstDetectedAt: string;
@@ -43,8 +44,7 @@ export default function ReportPage() {
     }
 
     try {
-      const API_BASE = process.env.NEXT_PUBLIC_API_URL || "";
-      const base = API_BASE.replace(/\/+$/, "");
+      const base = API_BASE_URL;
       
       const reportRes = await fetch(`${base}/reports/user/${userId}`, {
         method: "POST",
