@@ -1,4 +1,5 @@
 import 'package:VigilArt/pages/dashboard/scan_report/scanResultPage.dart'; // Ensure this matches your actual file name
+import 'package:VigilArt/pages/dashboard/statistics/statistics_page.dart';
 import 'package:VigilArt/pages/dashboard/upload_picture/uploadPhotos_page.dart';
 import 'package:flutter/material.dart';
 import 'package:VigilArt/widgets/header_bar.dart';
@@ -110,22 +111,14 @@ class _DashboardPageState extends State<DashboardPage> {
   Widget _buildTabContent() {
     switch (_selectedTabIndex) {
       case 0:
-        return const Center(child: Text("Statistics Coming Soon"));
+        return StatisticsPage();
       case 1:
-        return _buildScanReportContent();
+        return ScanResultsPage();
       case 2:
-        return _buildUploadContent();
+        return const UploadPhotosPage(); 
       default:
-        return _buildScanReportContent();
+        return ScanResultsPage();
     }
-  }
-
-  Widget _buildScanReportContent() {
-    return ScanResultsPage();
-  }
-
-  Widget _buildUploadContent() {
-    return const UploadPhotosPage(); 
   }
 
   void _handleBottomNavigation(int index) {
