@@ -43,11 +43,12 @@ import {
 export default function DmcaPage() {
   const { t } = useTranslation();
   const searchParams = useSearchParams();
+  const artworkPrefillParam = searchParams.get("prefill") ?? "";
   const artworkPrefill = useMemo(
-    () => parseArtworkPrefill(searchParams.get("prefill")),
-    [searchParams],
+    () => parseArtworkPrefill(artworkPrefillParam),
+    [artworkPrefillParam],
   );
-  const initializedPlatformRef = useRef<string | null>(null);
+  const initializedPayloadKeyRef = useRef<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
 
   const [platforms, setPlatforms] = useState<DmcaPlatformGet[]>([]);
@@ -161,7 +162,9 @@ export default function DmcaPage() {
   useEffect(() => {
     if (!selectedPlatform || !dataLoaded) return;
 
-    if (initializedPlatformRef.current === selectedPlatform.slug) {
+    const initializationKey = `${selectedPlatform.slug}::${artworkPrefillParam}`;
+
+    if (initializedPayloadKeyRef.current === initializationKey) {
       return;
     }
 
@@ -169,11 +172,9 @@ export default function DmcaPage() {
 
     if (savedNotice && savedNotice.payload) {
       setActiveNotice(savedNotice);
-      setFormPayload(
-        clearPreselectedInfringingUrls(savedNotice.payload as JsonLike, infringingRepeaters),
-      );
+      setFormPayload(deepClone(savedNotice.payload as JsonLike));
       setGeneratedContent(null);
-      initializedPlatformRef.current = selectedPlatform.slug;
+      initializedPayloadKeyRef.current = initializationKey;
       return;
     }
 
@@ -186,8 +187,9 @@ export default function DmcaPage() {
         infringingRepeaters,
       ),
     );
-    initializedPlatformRef.current = selectedPlatform.slug;
+    initializedPayloadKeyRef.current = initializationKey;
   }, [
+    artworkPrefillParam,
     artworkPrefill,
     dataLoaded,
     infringingRepeaters,
@@ -264,7 +266,7 @@ export default function DmcaPage() {
             dmcaPlatformSlug: selectedPlatform.slug,
             payload: formPayload,
             userId,
-            artworkId: null,
+            artworkId: artworkPrefill.artworkId ?? null,
           });
 
       setActiveNotice(prepared);

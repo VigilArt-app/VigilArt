@@ -32,20 +32,68 @@ export function DmcaSchemaForm({
   onUpdatePath,
   t,
 }: DmcaSchemaFormProps) {
+  const getFieldLabel = (field: DmcaFormField) =>
+    t(`dmca_page.core.${field.key}`, field.title);
+
+  const getFieldDescription = (field: DmcaFormField) => {
+    if (!field.description) {
+      return "";
+    }
+
+    return t(`dmca_page.core.${field.key}_hint`, field.description);
+  };
+
+  const getFieldPlaceholder = (field: DmcaFormField) =>
+    t(`dmca_page.core.${field.key}_placeholder`, field.placeholder || "");
+
+  const shouldUseDetectedUrlDropdown = (field: DmcaFormField, path: PathPart[]) => {
+    if (detectedInfringingUrls.length === 0) {
+      return false;
+    }
+
+    const key = field.key.toLowerCase();
+    const title = (field.title || "").toLowerCase();
+    const pathText = path.map((part) => String(part)).join(".").toLowerCase();
+
+    if (key.includes("original") || pathText.includes("original_work")) {
+      return false;
+    }
+
+    if (key === "infringing_url") {
+      return true;
+    }
+
+    if (field.type !== "url") {
+      return false;
+    }
+
+    return (
+      key === "link" ||
+      key === "url" ||
+      key.includes("infring") ||
+      key.includes("report") ||
+      title.includes("link") ||
+      title.includes("url")
+    );
+  };
+
   const renderField = (field: DmcaFormField, path: PathPart[]) => {
     const currentValue = getAtPath(payload, path);
+    const fieldLabel = getFieldLabel(field);
+    const fieldDescription = getFieldDescription(field);
+    const fieldPlaceholder = getFieldPlaceholder(field);
 
     if (field.type === "textarea") {
       return (
         <div key={path.join("-")} className="space-y-2">
-          <Label>{field.title}{field.required ? " *" : ""}</Label>
-          {field.description && (
-            <p className="text-xs text-muted-foreground">{field.description}</p>
+          <Label>{fieldLabel}{field.required ? " *" : ""}</Label>
+          {fieldDescription && (
+            <p className="text-xs text-muted-foreground">{fieldDescription}</p>
           )}
           <textarea
             value={typeof currentValue === "string" ? currentValue : ""}
             onChange={(event) => onUpdatePath(path, event.target.value)}
-            placeholder={field.placeholder || ""}
+            placeholder={fieldPlaceholder}
             required={Boolean(field.required)}
             className="w-full min-h-28 rounded-md border border-input bg-transparent px-3 py-2 text-sm"
           />
@@ -53,12 +101,12 @@ export function DmcaSchemaForm({
       );
     }
 
-    if (field.key === "infringing_url" && detectedInfringingUrls.length > 0) {
+    if (shouldUseDetectedUrlDropdown(field, path)) {
       return (
         <div key={path.join("-")} className="space-y-2">
-          <Label>{field.title}{field.required ? " *" : ""}</Label>
-          {field.description && (
-            <p className="text-xs text-muted-foreground">{field.description}</p>
+          <Label>{fieldLabel}{field.required ? " *" : ""}</Label>
+          {fieldDescription && (
+            <p className="text-xs text-muted-foreground">{fieldDescription}</p>
           )}
           <select
             value={typeof currentValue === "string" ? currentValue : ""}
@@ -66,7 +114,7 @@ export function DmcaSchemaForm({
             required={Boolean(field.required)}
             className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground shadow-sm"
           >
-            <option value="">{t("dmca_page.detected_urls_dropdown_placeholder", "Select a detected URL")}</option>
+            <option value="">{t("dmca_page.detected_urls_dropdown_placeholder")}</option>
             {detectedInfringingUrls.map((url) => (
               <option key={url} value={url} className="bg-background text-foreground">
                 {url}
@@ -79,9 +127,9 @@ export function DmcaSchemaForm({
 
     return (
       <div key={path.join("-")} className="space-y-2">
-        <Label>{field.title}{field.required ? " *" : ""}</Label>
-        {field.description && (
-          <p className="text-xs text-muted-foreground">{field.description}</p>
+        <Label>{fieldLabel}{field.required ? " *" : ""}</Label>
+        {fieldDescription && (
+          <p className="text-xs text-muted-foreground">{fieldDescription}</p>
         )}
         <Input
           type={inputTypeFromField(field)}
@@ -95,7 +143,7 @@ export function DmcaSchemaForm({
 
             onUpdatePath(path, event.target.value);
           }}
-          placeholder={field.placeholder || ""}
+          placeholder={fieldPlaceholder}
           required={Boolean(field.required)}
         />
       </div>

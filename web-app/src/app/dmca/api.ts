@@ -8,9 +8,9 @@ import type {
   DmcaProfileGet,
   DmcaProfileUpdate,
 } from "@vigilart/shared/types";
+import { API_BASE_URL } from "@/src/config";
 import { authenticatedFetch } from "../../utils/auth/authenticatedFetch";
-
-const getApiBase = () => (process.env.NEXT_PUBLIC_API_URL || "").replace(/\/+$/, "");
+const getApiBase = () => API_BASE_URL;
 
 const extractData = <T>(raw: unknown): T => {
   if (raw && typeof raw === "object" && "data" in raw) {

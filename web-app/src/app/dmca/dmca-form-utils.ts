@@ -9,6 +9,7 @@ export type ArtworkPrefill = {
   artworkTitle?: string;
   artworkDescription?: string;
   mostRecentSource?: string;
+  originalWorkUrl?: string;
   infringingUrls?: string[];
 };
 
@@ -107,7 +108,7 @@ const createDefaultValueForItem = (
     }
 
     if (item.key === "original_work_url") {
-      return "";
+      return prefill.originalWorkUrl ?? "";
     }
 
     return createDefaultValueForField(item);

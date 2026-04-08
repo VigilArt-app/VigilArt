@@ -34,7 +34,6 @@ export function ArtworkCard({
       artworkId: artwork.id,
       artworkTitle: artwork.originalFilename || artwork.description || artwork.id,
       artworkDescription: artwork.description || "",
-      originalWorkUrl: imageUrl || "",
       mostRecentSource: artwork.reportInsights?.mostRecentSource || "",
       infringingUrls: matchingPages.map((page) => page.url),
     };
