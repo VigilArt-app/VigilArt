@@ -56,11 +56,13 @@ export const fetchArtworkReportInsights = async (): Promise<Record<string, Artwo
     }
 
     const reportsData = await reportsRes.json();
-    const reports: ReportSummary[] = Array.isArray(reportsData?.data)
-      ? reportsData.data
-      : Array.isArray(reportsData)
-      ? reportsData
-      : [];
+    let reports: ReportSummary[] = [];
+
+    if (Array.isArray(reportsData?.data)) {
+      reports = reportsData.data;
+    } else if (Array.isArray(reportsData)) {
+      reports = reportsData;
+    }
 
     if (reports.length === 0) {
       return {};
