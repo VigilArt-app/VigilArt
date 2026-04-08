@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'scanResultCard.dart';
-import 'package:VigilArt/widgets/column_view_selector.dart';
-import 'package:VigilArt/widgets/toggleFilterSwitch.dart';
-import 'package:VigilArt/widgets/date_picket_widget.dart';
-
+import 'components/scan_filter_bar.dart';
+import 'components/scan_table_header.dart';
+import 'components/scan_empty_state.dart';
+import 'components/artwork_details_sheet.dart';
 import '../../../(api)/auth.dart';
 import '../../../(api)/scan_reports_api.dart';
 
@@ -15,19 +15,18 @@ class ScanResultsPage extends StatefulWidget {
 }
 
 class _ScanResultsPageState extends State<ScanResultsPage> {
-  DateTime? _selectedDate;
-  bool _filterUncredited = false;
-  bool _filterRecent = false;
-  String _selectedView = 'Number of Matches'; 
   
   final TextEditingController _searchController = TextEditingController();
+  final ApiService apiService = ApiService();
+  
+  List<Map<String, dynamic>> _allResults = []; 
+  bool _isLoading = true;
+
   String _searchQuery = "";
+  bool _filterUncredited = false;
+  bool _sortByDateToggle = false; 
   String? _sortField; 
   bool _isAscending = true;
-
-  final ApiService apiService = ApiService();
-  bool _isLoading = true;
-  List<Map<String, dynamic>> _allResults = []; 
 
   @override
   void initState() {
@@ -44,11 +43,7 @@ class _ScanResultsPageState extends State<ScanResultsPage> {
   Future<void> _fetchRealScanResults() async {
     try {
       final matches = await apiService.getMasterScanReportMatches();
-      if (matches != null && mounted) {
-        setState(() {
-          _allResults = matches;
-        });
-      }
+      if (matches != null && mounted) setState(() => _allResults = matches);
     } catch (e) {
       if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red));
     } finally {
@@ -58,8 +53,9 @@ class _ScanResultsPageState extends State<ScanResultsPage> {
 
   void _handleSort(String field) {
     setState(() {
+      _sortByDateToggle = false; 
       if (_sortField == field) {
-        if (_isAscending) _isAscending = false;
+        if (_isAscending) { _isAscending = false; } 
         else { _sortField = null; _isAscending = true; }
       } else {
         _sortField = field;
@@ -73,27 +69,33 @@ class _ScanResultsPageState extends State<ScanResultsPage> {
       if (_searchQuery.isNotEmpty) {
         final query = _searchQuery.toLowerCase();
         if (!result['title'].toString().toLowerCase().contains(query) && 
-            !result['mostRecentSource'].toString().toLowerCase().contains(query)) {
-          return false;
-        }
+            !result['mostRecentSource'].toString().toLowerCase().contains(query)) return false;
       }
-      if (_selectedDate != null && result['mostRecentDate'] != null) {
-        try {
-          DateTime matchDate = DateTime.parse(result['mostRecentDate']);
-          if (matchDate.year != _selectedDate!.year || matchDate.month != _selectedDate!.month || matchDate.day != _selectedDate!.day) return false;
-        } catch (e) {}
+      
+      if (_filterUncredited) {
+        final creditedMatches = result['creditedMatches'] ?? 0;
+        final totalMatches = result['matchesCount'] ?? 0;
+        if (creditedMatches == totalMatches && totalMatches > 0) return false;
       }
       return true;
     }).toList();
 
-    if (_sortField != null) {
+    String? currentSortField = _sortField;
+    bool currentIsAscending = _isAscending;
+
+    if (_sortByDateToggle) {
+       currentSortField = 'mostRecentDate';
+       currentIsAscending = false;
+    }
+
+    if (currentSortField != null) {
       results.sort((a, b) {
-        var valA = a[_sortField]; var valB = b[_sortField];
+        var valA = a[currentSortField]; var valB = b[currentSortField];
         if (valA == null && valB == null) return 0;
-        if (valA == null) return _isAscending ? 1 : -1;
-        if (valB == null) return _isAscending ? -1 : 1;
-        if (valA is String && valB is String) return _isAscending ? valA.compareTo(valB) : valB.compareTo(valA);
-        if (valA is num && valB is num) return _isAscending ? valA.compareTo(valB) : valB.compareTo(valA);
+        if (valA == null) return currentIsAscending ? 1 : -1;
+        if (valB == null) return currentIsAscending ? -1 : 1;
+        if (valA is String && valB is String) return currentIsAscending ? valA.compareTo(valB) : valB.compareTo(valA);
+        if (valA is num && valB is num) return currentIsAscending ? valA.compareTo(valB) : valB.compareTo(valA);
         return 0;
       });
     }
@@ -101,138 +103,11 @@ class _ScanResultsPageState extends State<ScanResultsPage> {
   }
 
   void _showArtworkDetailsSheet(Map<String, dynamic> artwork) {
-    List<dynamic> matchingPages = artwork['matchingPages'] ?? [];
-
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) {
-        return Container(
-          height: MediaQuery.of(context).size.height * 0.85,
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-          ),
-          child: Column(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(24),
-                decoration: const BoxDecoration(color: Colors.black, borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(child: Text(artwork['title'], style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold, height: 1.2), maxLines: 2, overflow: TextOverflow.ellipsis)),
-                    IconButton(icon: const Icon(Icons.close, color: Colors.white, size: 28), onPressed: () => Navigator.pop(context)),
-                  ],
-                ),
-              ),
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Total Matches: ${artwork['matchesCount']}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-                      const SizedBox(height: 4),
-                      Text('Most Recent Source: ${artwork['mostRecentSource']}', style: const TextStyle(color: Colors.grey, fontSize: 13)),
-                      const Padding(padding: EdgeInsets.symmetric(vertical: 20), child: Divider()),
-                      const Text('All detected reposts:', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Colors.black)),
-                      const SizedBox(height: 16),
-                      if (matchingPages.isEmpty)
-                        const Center(child: Padding(padding: EdgeInsets.all(20), child: Text("No matches found for this artwork.")))
-                      else
-                        ...matchingPages.map((page) {
-                          return Container(
-                            margin: const EdgeInsets.only(bottom: 12),
-                            padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.grey[300]!)),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                if (page['imageUrl'] != null)
-                                  ClipRRect(borderRadius: BorderRadius.circular(8), child: Image.network(page['imageUrl'], width: 60, height: 60, fit: BoxFit.cover)),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text('Category: ${page['category'] ?? 'N/A'}', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-                                      Text('Website: ${page['websiteName'] ?? 'Unknown'}', style: const TextStyle(fontSize: 12)),
-                                      Text('Title: ${page['pageTitle'] ?? 'N/A'}', style: const TextStyle(fontSize: 12), maxLines: 1, overflow: TextOverflow.ellipsis),
-                                      Text('Found: ${page['firstDetectedAt']?.toString().split('T')[0] ?? ''}', style: const TextStyle(fontSize: 12, color: Colors.grey)),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          );
-                        }).toList(),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildEmptyState() {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 32.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(28),
-              decoration: BoxDecoration(color: const Color(0xFF5E3B7D).withOpacity(0.08), shape: BoxShape.circle),
-              child: const Icon(Icons.image_search_rounded, size: 72, color: Color(0xFF5E3B7D)),
-            ),
-            const SizedBox(height: 24),
-            const Text('No scan reports yet', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700, color: Colors.black87)),
-            const SizedBox(height: 36),
-            ElevatedButton.icon(
-              onPressed: () {Navigator.pushNamed(context, '/upload');}, 
-              icon: const Icon(Icons.cloud_upload_outlined, color: Colors.white, size: 20),
-              label: const Text('Upload Pictures', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Colors.white)),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF5E3B7D),
-                padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 16),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTableHeader() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-      decoration: BoxDecoration(
-        color: Colors.white, 
-        borderRadius: BorderRadius.circular(12), 
-        border: Border.all(color: Colors.grey.withOpacity(0.2)),
-      ),
-      child: Row(
-        children: [
-          GestureDetector(
-            onTap: () => _handleSort('title'), 
-            child: Row(children: [const Text('Name', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)), Icon(_sortField == 'title' ? (_isAscending ? Icons.arrow_upward : Icons.arrow_downward) : Icons.swap_vert, size: 14)])
-          ),
-          const Spacer(),
-          GestureDetector(
-            onTap: () => _handleSort('matchesCount'), 
-            child: Row(children: [const Text('Matches', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)), Icon(_sortField == 'matchesCount' ? (_isAscending ? Icons.arrow_upward : Icons.arrow_downward) : Icons.swap_vert, size: 14)])
-          ),
-          const SizedBox(width: 20),
-          const Text('Recent', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-        ],
-      ),
+      builder: (context) => ArtworkDetailsSheet(artwork: artwork),
     );
   }
 
@@ -243,58 +118,30 @@ class _ScanResultsPageState extends State<ScanResultsPage> {
       body: _isLoading 
         ? const Center(child: CircularProgressIndicator(color: Color(0xFF5E3B7D)))
         : _allResults.isEmpty 
-            ? _buildEmptyState()
+            ? ScanEmptyState(onUploadPressed: () => Navigator.pushNamed(context, '/upload'))
             : SingleChildScrollView(
                 child: Padding(
                   padding: const EdgeInsets.all(16),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      TextField(
-                        controller: _searchController,
-                        onChanged: (val) => setState(() => _searchQuery = val),
-                        decoration: InputDecoration(
-                          hintText: 'Search by Artwork name...',
-                          prefixIcon: const Icon(Icons.search, color: Colors.grey),
-                          filled: true,
-                          fillColor: Colors.white,
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.grey[300]!)),
-                          enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.grey[300]!)),
-                        ),
+                      ScanFilterBar(
+                        searchController: _searchController,
+                        onSearchChanged: (val) => setState(() => _searchQuery = val),
+                        sortByDateValue: _sortByDateToggle,
+                        onSortByDateChanged: (val) => setState(() => _sortByDateToggle = val),
+                        onlyUncreditedValue: _filterUncredited,
+                        onOnlyUncreditedChanged: (val) => setState(() => _filterUncredited = val),
                       ),
-                      const SizedBox(height: 16),
                       
-                      DatePickerField(
-                        label: 'Date', 
-                        onDateSelected: (date) => setState(() => _selectedDate = date), 
-                        firstDate: DateTime(2020), 
-                        lastDate: DateTime.now()
-                      ),
-                      const SizedBox(height: 15),
-                      
-                      Row(
-                        children: [
-                          Expanded(child: ToggleFilterSwitch(label: 'Only uncredited', initialValue: _filterUncredited, onChanged: (v) => setState(() => _filterUncredited = v))),
-                          const SizedBox(width: 12),
-                          Expanded(child: ToggleFilterSwitch(label: 'Recent source', initialValue: _filterRecent, onChanged: (v) => setState(() => _filterRecent = v))),
-                        ],
-                      ),
                       const SizedBox(height: 24),
                       
-                      const Text('View by:', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF62636D))),
-                      const SizedBox(height: 8),
-                      
-                      ColumnViewSelector(
-                        selectedView: _selectedView,
-                        onViewChanged: (newView) {
-                          setState(() {
-                            _selectedView = newView;
-                          });
-                        },
+                      ScanTableHeader(
+                        sortField: _sortField,
+                        isAscending: _isAscending,
+                        onSortTap: _handleSort,
                       ),
-                      const SizedBox(height: 24),
                       
-                      _buildTableHeader(),
                       const SizedBox(height: 12),
                       
                       if (_filteredResults.isEmpty)
