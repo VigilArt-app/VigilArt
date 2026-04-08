@@ -30,7 +30,7 @@ export class VisionService implements OnModuleDestroy {
   getImageUrl = (
     matchingImages: WebImage[] | null | undefined
   ): string | null => {
-    if (!matchingImages || matchingImages.length == 0) {
+    if (!matchingImages || matchingImages.length === 0) {
       return null;
     }
     return matchingImages[0].url ?? null;
