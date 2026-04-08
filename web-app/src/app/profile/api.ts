@@ -4,6 +4,7 @@ import type { UploadUrlGet, UploadUrlsGetDTO } from "@vigilart/shared";
 import { authenticatedFetch } from "../../utils/auth/authenticatedFetch";
 import { getUserIdFromToken } from "../../utils/auth/getUserIdFromToken";
 import i18next from "i18next";
+import { API_BASE_URL } from "@/src/config";
 
 const t = (key: string, defaultValue: string) =>
   i18next.t(key, { defaultValue });
@@ -19,7 +20,7 @@ export const fetchUserProfile = async (): Promise<UserGet> => {
   }
 
   try {
-    const API_BASE = process.env.NEXT_PUBLIC_API_URL;
+    const API_BASE = API_BASE_URL;
     const response = await authenticatedFetch(`${API_BASE}/users/${userId}`);
 
     if (!response.ok) {
@@ -39,7 +40,7 @@ export const fetchUserProfile = async (): Promise<UserGet> => {
  */
 export const getAvatarUploadUrl = async (filename: string): Promise<UploadUrlGet> => {
   try {
-    const API_BASE = process.env.NEXT_PUBLIC_API_URL;
+    const API_BASE = API_BASE_URL;
     const response = await authenticatedFetch(`${API_BASE}/storage/artworks/upload-urls`, {
       method: "POST",
       body: JSON.stringify({
@@ -91,7 +92,7 @@ export const uploadAvatarToR2 = async (
  */
 export const getAvatarDownloadUrl = async (storageKey: string): Promise<string> => {
   try {
-    const API_BASE = process.env.NEXT_PUBLIC_API_URL;
+    const API_BASE = API_BASE_URL;
     const response = await authenticatedFetch(`${API_BASE}/storage/artworks/download-urls`, {
       method: "POST",
       body: JSON.stringify({
@@ -124,7 +125,7 @@ export const updateUserProfile = async (
   }
 
   try {
-    const API_BASE = process.env.NEXT_PUBLIC_API_URL;
+    const API_BASE = API_BASE_URL;
     const response = await authenticatedFetch(`${API_BASE}/users/${userId}`, {
       method: "PATCH",
       body: JSON.stringify(updateData),

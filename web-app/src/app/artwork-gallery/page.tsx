@@ -2,9 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
-import type { Artwork } from "@vigilart/shared/types";
-import { FilterStatus, getArtworkStatus } from "./components/types";
-import { fetchArtworks, deleteArtwork } from "./components/api";
+import { ArtworkWithInsights, FilterStatus, getArtworkStatus } from "./components/types";
+import { fetchArtworks, fetchArtworkReportInsights, deleteArtwork } from "./components/api";
 import { SearchAndFilters } from "./components/SearchAndFilters";
 import { ArtworkCard } from "./components/ArtworkCard";
 import { ArtworkDetails } from "./components/ArtworkDetails";
@@ -14,12 +13,12 @@ import { useTranslation } from "react-i18next";
 
 export default function ArtworkGalleryPage() {
   const { t } = useTranslation();
-  const [artworks, setArtworks] = useState<Artwork[]>([]);
-  const [filteredArtworks, setFilteredArtworks] = useState<Artwork[]>([]);
+  const [artworks, setArtworks] = useState<ArtworkWithInsights[]>([]);
+  const [filteredArtworks, setFilteredArtworks] = useState<ArtworkWithInsights[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedFilter, setSelectedFilter] = useState<FilterStatus>("All");
-  const [selectedArtwork, setSelectedArtwork] = useState<Artwork | null>(null);
+  const [selectedArtwork, setSelectedArtwork] = useState<ArtworkWithInsights | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [artworkToDelete, setArtworkToDelete] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -27,9 +26,18 @@ export default function ArtworkGalleryPage() {
   useEffect(() => {
     const loadArtworks = async () => {
       try {
-        const data = await fetchArtworks();
-        setArtworks(data);
-        setFilteredArtworks(data);
+        const [data, insightsByArtwork] = await Promise.all([
+          fetchArtworks(),
+          fetchArtworkReportInsights(),
+        ]);
+
+        const enrichedArtworks: ArtworkWithInsights[] = data.map((artwork) => ({
+          ...artwork,
+          reportInsights: insightsByArtwork[artwork.id],
+        }));
+
+        setArtworks(enrichedArtworks);
+        setFilteredArtworks(enrichedArtworks);
       } finally {
         setIsLoading(false);
       }
@@ -48,6 +56,7 @@ export default function ArtworkGalleryPage() {
           artwork.id.toLowerCase().includes(query) ||
           artwork.originalFilename?.toLowerCase().includes(query) ||
           artwork.description?.toLowerCase().includes(query) ||
+          artwork.reportInsights?.mostRecentSource?.toLowerCase().includes(query) ||
           new Date(artwork.createdAt).toLocaleDateString().includes(searchQuery)
       );
     }
@@ -94,7 +103,7 @@ export default function ArtworkGalleryPage() {
 
   return (
     <div className="flex h-screen overflow-hidden">
-      <div className="flex-1 p-8 overflow-y-auto">
+      <div className="flex-1 p-8 overflow-y-auto scrollbar-soft">
         <div className="bg-black text-white rounded-lg p-6 mb-6">
           <h1 className="text-3xl font-bold">{t("artwork_gallery_page.artwork_gallery")}</h1>
         </div>

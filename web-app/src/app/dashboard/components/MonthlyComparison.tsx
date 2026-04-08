@@ -20,6 +20,11 @@ export default function MonthlyComparison() {
         <CardTitle className="text-xl">{t("dashboard_page.graphs.monthly_comparison")}</CardTitle>
       </CardHeader>
       <CardContent>
+        <div className="rounded-lg border border-dashed p-8 text-center text-muted-foreground">
+          Coming soon
+        </div>
+
+        <div className="hidden" aria-hidden="true">
         <div className="w-full h-72">
           <svg viewBox="0 0 600 160" preserveAspectRatio="none" className="w-full">
             <defs>
@@ -87,6 +92,7 @@ export default function MonthlyComparison() {
             <div className="flex items-center gap-2"><span className="w-3 h-3 rounded bg-blue-500 inline-block"></span> <span>{t("dashboard_page.graphs.last_month")}</span> <span className="font-semibold ml-2">3,004 {t("dashboard_page.graphs.credit_matches")}</span></div>
             <div className="flex items-center gap-2"><span className="w-3 h-3 rounded bg-green-500 inline-block"></span> <span>{t("dashboard_page.graphs.this_month")}</span> <span className="font-semibold ml-2">4,504 {t("dashboard_page.graphs.credit_matches")}</span></div>
           </div>
+        </div>
         </div>
       </CardContent>
     </Card>

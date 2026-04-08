@@ -1,15 +1,14 @@
 "use client";
 
 import { Trash2 } from "lucide-react";
-import type { Artwork } from "@vigilart/shared/types";
-import { FILTER_STATUS_TRANSLATION_KEYS, getArtworkStatus } from "./types";
+import { ArtworkWithInsights, FILTER_STATUS_TRANSLATION_KEYS, getArtworkStatus } from "./types";
 import { useArtworkImageUrl } from "./hooks/useArtworkImageUrl";
 import { useTranslation } from "react-i18next";
 
 interface ArtworkCardProps {
-  artwork: Artwork;
+  artwork: ArtworkWithInsights;
   isSelected: boolean;
-  onSelect: (artwork: Artwork) => void;
+  onSelect: (artwork: ArtworkWithInsights) => void;
   onDelete: (id: string, e: React.MouseEvent) => void;
 }
 
@@ -22,6 +21,7 @@ export function ArtworkCard({
   const { t } = useTranslation();
   const status = getArtworkStatus(artwork);
   const statusLabel = t(FILTER_STATUS_TRANSLATION_KEYS[status]);
+  const mostRecentSource = artwork.reportInsights?.mostRecentSource;
   const { imageUrl, isLoading } = useArtworkImageUrl(artwork.storageKey);
 
   return (
@@ -87,6 +87,11 @@ export function ArtworkCard({
             year: "numeric",
           })}
         </p>
+        {mostRecentSource && (
+          <p className="text-white/80 text-xs truncate mt-1">
+            {t("artwork_gallery_page.last_source")}: {mostRecentSource}
+          </p>
+        )}
       </div>
     </div>
   );
