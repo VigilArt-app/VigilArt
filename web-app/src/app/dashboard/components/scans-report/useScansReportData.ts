@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { getUserIdFromToken } from "../../../../utils/auth/getUserIdFromToken";
 import { authenticatedFetch } from "../../../../utils/auth/authenticatedFetch";
+import { API_BASE_URL } from "@/src/config";
 import {
   Artwork,
   ArtworksReportDetails,
@@ -34,8 +35,7 @@ export function useScansReportData(): UseScansReportDataResult {
 
       try {
         setError(false);
-        const API_BASE = process.env.NEXT_PUBLIC_API_URL || "";
-        const base = API_BASE.replace(/\/+$/, "");
+        const base = API_BASE_URL;
 
         const artworksRes = await authenticatedFetch(`${base}/artworks/user/${userId}`);
 

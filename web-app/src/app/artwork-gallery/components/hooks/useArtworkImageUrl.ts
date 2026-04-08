@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { API_BASE_URL } from "@/src/config";
 
 export function useArtworkImageUrl(storageKey: string | undefined) {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
@@ -15,7 +16,7 @@ export function useArtworkImageUrl(storageKey: string | undefined) {
     const fetchImageUrl = async () => {
       try {
         setIsLoading(true);
-        const API_BASE = process.env.NEXT_PUBLIC_API_URL;
+        const API_BASE = API_BASE_URL;
         
         const authToken = 
           typeof window !== 'undefined' 

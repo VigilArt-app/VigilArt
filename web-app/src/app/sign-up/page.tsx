@@ -7,6 +7,7 @@ import { Button } from "../../components/ui/button"
 import { Input } from "../../components/ui/input"
 import { Label } from "../../components/ui/label"
 import { useTranslation } from "react-i18next"
+import { API_BASE_URL } from "@/src/config"
 
 export default function SignUpPage() {
   const [email, setEmail] = useState("")
@@ -29,7 +30,7 @@ export default function SignUpPage() {
     }
     setIsLoading(true)
     try {
-      const API_BASE = process.env.NEXT_PUBLIC_API_URL
+      const API_BASE = API_BASE_URL
       const res = await fetch(`${API_BASE}/auth/signup`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
