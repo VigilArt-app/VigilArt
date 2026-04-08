@@ -12,7 +12,7 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 
-import { Palette, User, LayoutDashboard, LogOut } from "lucide-react"
+import { Palette, User, LayoutDashboard, LogOut, ShieldAlert } from "lucide-react"
 import { useTranslation } from "react-i18next";
 
 
@@ -33,6 +33,11 @@ export function AppSidebar() {
       title: t("sidebar.artwork_gallery"),
       url: "/artwork-gallery",
       icon: Palette,
+    },
+    {
+      title: t("sidebar.dmca"),
+      url: "/dmca",
+      icon: ShieldAlert,
     },
   ]
   
