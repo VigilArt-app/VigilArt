@@ -94,7 +94,7 @@ jobs:
           echo "✅ Migrations successful"
 
           echo "Starting backend and frontend..."
-          if ! doppler run --docker compose -f docker-compose.prod.yml up -d --wait backend frontend; then
+          if ! doppler run -- docker compose -f docker-compose.prod.yml up -d --wait backend frontend; then
             echo "CONTAINER FAILED TO BECOME HEALTHY ! DUMPING FRONTEND LOGS:"
             docker compose -f docker-compose.prod.yml logs frontend
             exit 1
