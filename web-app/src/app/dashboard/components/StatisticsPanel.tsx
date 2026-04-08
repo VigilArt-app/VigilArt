@@ -12,6 +12,11 @@ export default function StatisticsPanel() {
         <CardTitle className="text-2xl">{t("dashboard_page.statistics.statistics")}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
+        <div className="rounded-lg border border-dashed p-8 text-center text-muted-foreground">
+          Coming soon
+        </div>
+
+        <div className="hidden" aria-hidden="true">
         <div className="bg-pink-500 text-white rounded-xl p-4">
           <p className="text-sm mb-2">{t("dashboard_page.statistics.reported_posts")}</p>
           <div className="flex items-center gap-2">
@@ -34,6 +39,7 @@ export default function StatisticsPanel() {
             <span className="text-3xl font-bold">16</span>
             <TrendingUp className="w-5 h-5" />
           </div>
+        </div>
         </div>
       </CardContent>
     </Card>

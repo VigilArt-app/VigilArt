@@ -9,6 +9,7 @@ import { Input } from "../../components/ui/input"
 import { Label } from "../../components/ui/label"
 import { Switch } from "../../components/ui/switch"
 import { setCookie } from "../cookies"
+import { API_BASE_URL } from "@/src/config"
 
 export default function LoginPage() {
     const { t } = useTranslation()
@@ -31,7 +32,7 @@ export default function LoginPage() {
                 sessionStorage.removeItem("auth_token")
             } catch {}
             
-            const API_BASE = process.env.NEXT_PUBLIC_API_URL
+            const API_BASE = API_BASE_URL
             const res = await fetch(`${API_BASE}/auth/login`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
