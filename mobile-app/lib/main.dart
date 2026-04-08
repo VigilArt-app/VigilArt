@@ -1,4 +1,5 @@
 import 'package:VigilArt/pages/dashboard/dashboard.dart';
+import 'package:VigilArt/pages/dashboard/upload_picture/uploadPhotos_page.dart';
 import 'package:VigilArt/pages/gallery/gallery_page.dart';
 import 'package:VigilArt/pages/profile/profile_page.dart';
 import 'package:flutter/material.dart';
@@ -82,6 +83,7 @@ class VigilArtApp extends StatelessWidget {
         '/dashboard': (context) => const DashboardPage(),
         '/gallery': (context) => const GalleryPage(),
         '/profile': (context) => const ProfilePage(),
+        '/upload': (context) => const UploadPhotosPage(),
       },
     );
   }

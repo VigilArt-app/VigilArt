@@ -78,8 +78,11 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                     ],
                   ),
                   child: CircleAvatar(
-                    backgroundImage: NetworkImage(widget.avatarUrl),
+                    backgroundImage: widget.avatarUrl.startsWith('http')
+                        ? NetworkImage(widget.avatarUrl)
+                        : AssetImage(widget.avatarUrl) as ImageProvider,
                     radius: 60,
+                    backgroundColor: Colors.grey[200],
                   ),
                 ),
               ),

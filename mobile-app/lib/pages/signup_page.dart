@@ -53,24 +53,17 @@ class _SignupPageState extends State<SignupPage> {
       }
 
       try {
-        final response = await apiService.signup(context, email, password, firstName, lastName);
+        final response = await apiService.signup(email, password, firstName, lastName);
 
         if (response.statusCode == 201) {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => const LoginPage()),
           );
-        } else if (response.statusCode == 409) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Email already in use'),
-              backgroundColor: Colors.red,
-            ),
-          );
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Signup failed with status: ${response.statusCode}'),
+              content: Text('Signup failed: ${response.statusCode} + ${response.body}'),
               backgroundColor: Colors.red,
             ),
           );
@@ -239,7 +232,7 @@ class _SignupPageState extends State<SignupPage> {
                     onPressed: () {
                       print('Google Sign-In pressed');
                     },
-                    icon: FontAwesomeIcons.google,
+                    icon: const FaIcon(FontAwesomeIcons.google), 
                     showIcon: true,
                     isOutlined: true,
                     backgroundColor: Colors.black87,
