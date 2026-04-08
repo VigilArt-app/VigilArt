@@ -1,7 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { Trash2, ShieldAlert } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import { ArtworkWithInsights, FILTER_STATUS_TRANSLATION_KEYS, getArtworkStatus } from "./types";
 import { useArtworkImageUrl } from "./hooks/useArtworkImageUrl";
 import { useTranslation } from "react-i18next";
@@ -20,27 +19,10 @@ export function ArtworkCard({
   onDelete,
 }: ArtworkCardProps) {
   const { t } = useTranslation();
-  const router = useRouter();
   const status = getArtworkStatus(artwork);
   const statusLabel = t(FILTER_STATUS_TRANSLATION_KEYS[status]);
   const mostRecentSource = artwork.reportInsights?.mostRecentSource;
   const { imageUrl, isLoading } = useArtworkImageUrl(artwork.storageKey);
-
-  const openDmcaPage = (e: React.MouseEvent) => {
-    e.stopPropagation();
-
-    const matchingPages = artwork.reportInsights?.matchingPages ?? [];
-    const prefill = {
-      artworkId: artwork.id,
-      artworkTitle: artwork.originalFilename || artwork.description || artwork.id,
-      artworkDescription: artwork.description || "",
-      originalWorkUrl: imageUrl || "",
-      mostRecentSource: artwork.reportInsights?.mostRecentSource || "",
-      infringingUrls: matchingPages.map((page) => page.url),
-    };
-
-    router.push(`/dmca?prefill=${encodeURIComponent(JSON.stringify(prefill))}`);
-  };
 
   return (
     <div
@@ -68,22 +50,12 @@ export function ArtworkCard({
         </div>
       </div>
 
-      <div className="absolute top-2 right-2 z-10 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-        <button
-          onClick={openDmcaPage}
-          className="bg-slate-900 hover:bg-slate-800 text-white p-2 rounded-full"
-          title={t("sidebar.dmca")}
-        >
-          <ShieldAlert className="w-4 h-4" />
-        </button>
-        <button 
-          onClick={(e) => onDelete(artwork.id, e)}
-          className="bg-red-500 hover:bg-red-600 text-white p-2 rounded-full"
-          title={t("artwork_gallery_page.delete_artwork")}
-        >
-          <Trash2 className="w-4 h-4" />
-        </button>
-      </div>
+      <button 
+        onClick={(e) => onDelete(artwork.id, e)}
+        className="absolute top-2 right-2 z-10 bg-red-500 hover:bg-red-600 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+      >
+        <Trash2 className="w-4 h-4" />
+      </button>
 
       <div className="aspect-square bg-muted relative overflow-hidden">
         {isLoading && (
