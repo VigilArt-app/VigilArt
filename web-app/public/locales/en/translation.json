@@ -248,6 +248,7 @@
         "platform_email": "DMCA email",
         "not_available": "Not available",
         "add_entry": "Add",
+        "detected_urls_dropdown_placeholder": "Select a detected URL",
         "no_entries": "No entries added yet.",
         "entry_number": "Entry {{index}}",
         "prepare_notice": "Prepare notice",
