@@ -1,10 +1,11 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-//comment
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
 class ApiService {
   final FlutterSecureStorage secureStorage = const FlutterSecureStorage();
-  final String serverUrl = "https://dev-api.vigilart.app/api/v1";
+  final String? serverUrl = dotenv.env['API_BASE_URL'];
 
   static const String keyAccessToken = 'accessToken';
   static const String keyUserId = 'userId';
@@ -15,7 +16,6 @@ class ApiService {
 
   Future<http.Response> login(String email, String password) async {
     final url = Uri.parse('$serverUrl/auth/login');
-    print('👉 MON URL EXACTE EST : >>>$url<<');
     final response = await http.post(
       url,
       headers: {'Content-Type': 'application/json'},
@@ -59,9 +59,12 @@ class ApiService {
 
     if (response.statusCode == 201) {
       final responseData = jsonDecode(response.body);
-      final accessToken = responseData['accessToken'];
       
-      await secureStorage.write(key: keyAccessToken, value: accessToken);
+      final accessToken = responseData['data']['accessToken'];
+      
+      if (accessToken != null) {
+        await secureStorage.write(key: keyAccessToken, value: accessToken);
+      }
     }
     return response;
   }

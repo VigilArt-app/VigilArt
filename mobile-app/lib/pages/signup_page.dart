@@ -56,25 +56,42 @@ class _SignupPageState extends State<SignupPage> {
         final response = await apiService.signup(email, password, firstName, lastName);
 
         if (response.statusCode == 201) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const LoginPage()),
-          );
+          if (mounted) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const LoginPage()),
+            );
+          }
         } else {
+          String ErrorMessage = 'Signup failed. Please try again.';
+          
+          if (response.statusCode == 409) {
+            ErrorMessage = 'An account with this email address already exists.';
+          } else if (response.statusCode == 400) {
+            ErrorMessage = 'Invalid information provided. Please check your details.';
+          } else if (response.statusCode >= 500) {
+            ErrorMessage = 'Server error. Please try again later.';
+          }
+
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(ErrorMessage),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+        }
+      } catch (e) {
+        debugPrint('Signup Exception: $e');
+        if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Signup failed: ${response.statusCode} + ${response.body}'),
+            const SnackBar(
+              content: Text('A network error occurred. Please check your connection.'),
               backgroundColor: Colors.red,
             ),
           );
         }
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error occurred: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
       }
     }
   }
@@ -230,7 +247,7 @@ class _SignupPageState extends State<SignupPage> {
                   CustomButton(
                     text: 'Continue with Google',
                     onPressed: () {
-                      print('Google Sign-In pressed');
+                      debugPrint('Google Sign-In pressed');
                     },
                     icon: const FaIcon(FontAwesomeIcons.google), 
                     showIcon: true,

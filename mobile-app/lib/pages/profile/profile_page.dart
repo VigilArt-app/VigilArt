@@ -4,7 +4,6 @@ import 'package:VigilArt/widgets/editable_from_field.dart';
 import 'package:VigilArt/widgets/header_bar.dart';
 import 'package:VigilArt/widgets/slideMenuBar.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:VigilArt/(api)/user.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:typed_data';
@@ -23,7 +22,6 @@ class _ProfilePageState extends State<ProfilePage> {
   final _formKey = GlobalKey<FormState>();
   
   final ApiService _apiService = ApiService(); 
-  final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
 
   late TextEditingController _firstNameController;
   late TextEditingController _lastNameController;
@@ -63,16 +61,13 @@ class _ProfilePageState extends State<ProfilePage> {
     _languageController.text = _userData['language']!;
   }
 
-  
   Future<void> _loadRemoteUserData() async {
-    print("🔵 DEBUG 1: Démarrage de la récupération du profil...");
     setState(() => _isLoading = true);
-    
     try {
       final profile = await _apiService.fetchUserProfile();
       
       if (profile != null) {
-        String avatarDisplayUrl = _userData['avatar']!; 
+        String avatarDisplayUrl = 'assets/images/default_avatar.jpg'; 
         final String? avatarKey = profile['avatar']?.toString(); 
 
         if (avatarKey != null && avatarKey.isNotEmpty) {
@@ -80,7 +75,6 @@ class _ProfilePageState extends State<ProfilePage> {
             avatarDisplayUrl = avatarKey;
           } else if (avatarKey.startsWith('profiles/')) {
             final String? downloadUrl = await _apiService.getAvatarDownloadUrl(avatarKey);
-            print("🔵 DEBUG 4: Lien Cloudflare R2 généré = $downloadUrl");
             if (downloadUrl != null && downloadUrl.isNotEmpty) {
               avatarDisplayUrl = downloadUrl;
             }
@@ -90,16 +84,14 @@ class _ProfilePageState extends State<ProfilePage> {
         if (mounted) {
           setState(() {
             _userData = {
-              'firstName': profile['firstName']?.toString() ?? 'Prénom introuvable',
-              'lastName': profile['lastName']?.toString() ?? 'Nom introuvable',
-              'email': profile['email']?.toString() ?? 'Email introuvable',
+              'firstName': profile['firstName']?.toString() ?? '',
+              'lastName': profile['lastName']?.toString() ?? '',
+              'email': profile['email']?.toString() ?? '',
               'password': '••••••••',
               'country': profile['country']?.toString() ?? 'France',
               'language': profile['language']?.toString() ?? 'French',
               'avatar': avatarDisplayUrl,
             };
-            
-            print("🔵 DEBUG 5: _userData final préparé pour l'affichage = $_userData");
             _updateControllersText();
           });
         }
@@ -136,6 +128,8 @@ class _ProfilePageState extends State<ProfilePage> {
           final updatedProfile = await _apiService.updateUserProfile({'avatar': storageKey});
           
           if (updatedProfile != null) {
+            await _apiService.secureStorage.write(key: ApiService.keyUserAvatar, value: storageKey);
+
             if (mounted) _showSnackBar('✓ Photo de profil mise à jour !', const Color(0xFF22C55E));
             await _loadRemoteUserData(); 
             return;
@@ -157,14 +151,17 @@ class _ProfilePageState extends State<ProfilePage> {
         setState(() => _isLoading = true);
         
         final Map<String, dynamic> updateData = {
-          'firstName': _firstNameController.text,
-          'lastName': _lastNameController.text,
-          'email': _emailController.text,
-          'country': _countryController.text,
-          'language': _languageController.text,
+          'firstName': _firstNameController.text.trim(),
+          'lastName': _lastNameController.text.trim(),
+          'email': _emailController.text.trim(),
+          'country': _countryController.text.trim(),
+          'language': _languageController.text.trim(),
         };
-
+        
         final result = await _apiService.updateUserProfile(updateData);
+        
+        if (!mounted) return;
+  
         setState(() => _isLoading = false);
 
         if (result != null) {
@@ -206,7 +203,7 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   void _processLogout() async {
-    await _secureStorage.deleteAll(); 
+    await _apiService.logout(); 
     if (mounted) {
       Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
     }
@@ -251,9 +248,7 @@ class _ProfilePageState extends State<ProfilePage> {
             onLogoTap: () => Navigator.pushNamed(context, '/dashboard'),
             onNotificationsTap: () => Navigator.pushNamed(context, '/notifications'),
             onProfileTap: () {},
-            avatar: _userData['avatar']?.isNotEmpty == true 
-                ? _userData['avatar']! 
-                : 'assets/images/default_avatar.jpg',          
+            avatar: _userData['avatar'] ?? 'assets/images/default_avatar.jpg',          
           ),
         ),
       ),
@@ -283,14 +278,14 @@ class _ProfilePageState extends State<ProfilePage> {
                             label: 'Prénom', 
                             controller: _firstNameController, 
                             isReadOnly: !_isEditMode,
-                            validator: (v) => v!.isEmpty ? 'Requis' : null,
+                            validator: (v) => (v == null || v.isEmpty) ? 'Requis' : null,
                           ),
                           const SizedBox(height: 16),
                           EditableFormField(
                             label: 'Nom', 
                             controller: _lastNameController, 
                             isReadOnly: !_isEditMode,
-                            validator: (v) => v!.isEmpty ? 'Requis' : null,
+                            validator: (v) => (v == null || v.isEmpty) ? 'Requis' : null,
                           ),
                         ]),
                         const SizedBox(height: 24),
@@ -300,7 +295,11 @@ class _ProfilePageState extends State<ProfilePage> {
                             label: 'Email', 
                             controller: _emailController, 
                             isReadOnly: !_isEditMode,
-                            validator: (v) => !v!.contains('@') ? 'Email invalide' : null,
+                            validator: (v) {
+                              if (v == null || v.isEmpty) return 'Requis';
+                              if (!v.contains('@')) return 'Email invalide';
+                              return null;
+                            },
                           ),
                           const SizedBox(height: 16),
                           EditableFormField(
