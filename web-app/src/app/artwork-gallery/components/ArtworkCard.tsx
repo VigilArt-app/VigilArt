@@ -24,6 +24,21 @@ export function ArtworkCard({
   const mostRecentSource = artwork.reportInsights?.mostRecentSource;
   const { imageUrl, isLoading } = useArtworkImageUrl(artwork.storageKey);
 
+  const openDmcaPage = (e: React.MouseEvent) => {
+    e.stopPropagation();
+
+    const matchingPages = artwork.reportInsights?.matchingPages ?? [];
+    const prefill = {
+      artworkId: artwork.id,
+      artworkTitle: artwork.originalFilename || artwork.description || artwork.id,
+      artworkDescription: artwork.description || "",
+      mostRecentSource: artwork.reportInsights?.mostRecentSource || "",
+      infringingUrls: matchingPages.map((page) => page.url),
+    };
+
+    router.push(`/dmca?prefill=${encodeURIComponent(JSON.stringify(prefill))}`);
+  };
+
   return (
     <div
       className={`group relative rounded-lg overflow-hidden cursor-pointer transition-all border-2 ${
