@@ -7,8 +7,11 @@ import {
   ArtworkWebEntity,
   MatchingPageGet
 } from "@vigilart/shared";
-import { WebDetection, WebEntity, WebLabel, WebPage } from "./types";
-import { classifyWebsite, extractRootDomain, getImageUrl } from "./utils";
+import { WebDetection, WebEntity, WebImage, WebLabel, WebPage } from "./types";
+import {
+  classifyWebsite,
+  extractRootDomain
+} from "../common/utils/website-class";
 
 @Injectable()
 export class VisionService implements OnModuleDestroy {
@@ -23,6 +26,15 @@ export class VisionService implements OnModuleDestroy {
       await this.client.close();
     }
   }
+
+  getImageUrl = (
+    matchingImages: WebImage[] | null | undefined
+  ): string | null => {
+    if (!matchingImages || matchingImages.length === 0) {
+      return null;
+    }
+    return matchingImages[0].url ?? null;
+  };
 
   getArtworkReportMetadata(
     bestGuessLabels: WebLabel[] | null | undefined,
@@ -83,10 +95,10 @@ export class VisionService implements OnModuleDestroy {
         let imageUrl;
 
         if (hasFullMatches) {
-          imageUrl = getImageUrl(page.fullMatchingImages);
+          imageUrl = this.getImageUrl(page.fullMatchingImages);
         }
-        if (hasPartialMatches) {
-          imageUrl = getImageUrl(page.partialMatchingImages);
+        if (!imageUrl && hasPartialMatches) {
+          imageUrl = this.getImageUrl(page.partialMatchingImages);
         }
         if (page.url && (hasFullMatches || hasPartialMatches)) {
           const validItem: MatchingPageGet = {

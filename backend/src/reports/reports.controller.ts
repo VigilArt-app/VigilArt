@@ -92,7 +92,7 @@ export class ReportsController {
     name: "reportId",
     required: false,
     type: String,
-    description: "Optional: get matches from a specific report"
+    description: "Optional: get matches from a specific report, by default it is set to the latest report"
   })
   @ApiQuery({
     name: "userId",
@@ -127,7 +127,7 @@ export class ReportsController {
     name: "reportId",
     required: false,
     type: String,
-    description: "Optional: get matches from a specific report"
+    description: "Optional: get matches from a specific report, by default it is set to the latest report"
   })
   async getGlobalStatistics(
     @Param("userId", ParseUUIDPipe) userId: string,
@@ -157,7 +157,7 @@ export class ReportsController {
     name: "reportId",
     required: false,
     type: String,
-    description: "Optional: get matches from a specific report"
+    description: "Optional: get matches from a specific report, by default it is set to the latest report"
   })
   async getArtworkStatistics(
     @Param("artworkId", ParseUUIDPipe) artworkId: string,

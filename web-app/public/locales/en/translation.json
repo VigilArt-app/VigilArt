@@ -79,6 +79,7 @@
             "unknown_error": "Unknown error",
             "server_error": "Server error: ",
             "failed_create": "Failed to create artworks:",
+            "scan_report_failed": "Failed to generate the scan report.",
             "error_upload": "An error occurred during upload"
         },
         "graphs": {

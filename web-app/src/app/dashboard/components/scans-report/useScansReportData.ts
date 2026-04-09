@@ -18,7 +18,7 @@ interface UseScansReportDataResult {
   setSelectedDate: (date: string) => void;
 }
 
-export function useScansReportData(): UseScansReportDataResult {
+export function useScansReportData(refreshKey: number): UseScansReportDataResult {
   const [scans, setScans] = useState<ScanRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -26,6 +26,7 @@ export function useScansReportData(): UseScansReportDataResult {
 
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true);
       const userId = getUserIdFromToken();
       if (!userId) {
         setError(true);
@@ -179,7 +180,7 @@ export function useScansReportData(): UseScansReportDataResult {
     };
 
     fetchData();
-  }, []);
+  }, [refreshKey]);
 
   return { scans, loading, error, selectedDate, setSelectedDate };
 }

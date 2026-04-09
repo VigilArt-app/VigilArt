@@ -79,6 +79,7 @@
             "unknown_error": "Erreur inconnue",
             "server_error": "Erreur serveur : ",
             "failed_create": "Échec de la création des œuvres :",
+            "scan_report_failed": "Échec de la génération du scan report.",
             "error_upload": "Une erreur s'est produite pendant le téléchargement"
         },
         "graphs": {
