@@ -60,6 +60,7 @@ class DmcaSchemaForm extends StatelessWidget {
             if (description != null) Padding(padding: const EdgeInsets.only(top: 4), child: Text(description, style: const TextStyle(fontSize: 12, color: Color(0xFFA3A3A3)))),
             const SizedBox(height: 8),
             DropdownButtonFormField<String>(
+              key: ValueKey('${path.join('.')}_dropdown_$currentValue'),
               value: currentValue.isEmpty ? null : currentValue,
               dropdownColor: const Color(0xFF262626),
               style: const TextStyle(color: Colors.white, fontSize: 14),
@@ -81,6 +82,7 @@ class DmcaSchemaForm extends StatelessWidget {
           if (description != null) Padding(padding: const EdgeInsets.only(top: 4), child: Text(description, style: const TextStyle(fontSize: 12, color: Color(0xFFA3A3A3)))),
           const SizedBox(height: 8),
           TextFormField(
+            key: ValueKey('${path.join('.')}_$currentValue'),
             initialValue: currentValue,
             maxLines: field['type'] == 'textarea' ? 4 : 1,
             style: const TextStyle(color: Colors.white, fontSize: 14),

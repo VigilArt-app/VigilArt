@@ -38,14 +38,10 @@ class _DashboardPageState extends State<DashboardPage> {
       if (avatarKey.startsWith('http')) {
         finalAvatarUrl = avatarKey;
       } else if (avatarKey.startsWith('profiles/')) {
-        try {
           final downloadUrl = await apiService.getAvatarDownloadUrl(avatarKey);
           if (downloadUrl != null && downloadUrl.isNotEmpty) {
             finalAvatarUrl = downloadUrl;
           }
-        } catch (e) {
-          print("Erreur chargement avatar dashboard: $e");
-        }
       } else {
         finalAvatarUrl = avatarKey;
       }

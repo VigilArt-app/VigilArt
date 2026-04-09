@@ -144,9 +144,9 @@ class _GalleryPageState extends State<GalleryPage> {
               Text(artwork['originalFilename'] ?? 'Untitled', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700)),
               const SizedBox(height: 20),
               _buildDetailRow('ID', artwork['id'].toString().split('-').first.toUpperCase(), Icons.fingerprint),
-              _buildDetailRow('Upload Date', _formatDate(artwork['createdAt']), Icons.calendar_today),
+              _buildDetailRow('Upload Date', _formatDate(artwork['date']), Icons.calendar_today),
               _buildDetailRow('Status', (artwork['status'] ?? 'UNKNOWN').toString().toUpperCase(), _getStatusIcon(artwork['status'] ?? '')),
-              _buildDetailRow('Matches Found', '${artwork['reportInsights']?['matchesCount'] ?? 0} pages', Icons.search),
+              _buildDetailRow('Matches Found', '${artwork['matchesCount'] ?? 0} pages', Icons.search),
               const SizedBox(height: 28),
               Row(
                 children: [
@@ -282,17 +282,15 @@ class _GalleryPageState extends State<GalleryPage> {
                         id: artwork['id'].toString(),
                         title: artwork['originalFilename'] ?? 'Untitled',
                         imageUrl: artwork['imageUrl'] ?? artwork['url'] ?? artwork['storageKey'] ?? '',
-                        uploadDate: _formatDate(artwork['createdAt']),
+                        uploadDate: _formatDate(artwork['date']),
                         status: artwork['status'] ?? 'Unknown',
                         onTap: () => _openArtworkDetails(artwork),
                         onDelete: () => _handleDelete(artwork['id']),
                         onDmcaTap: () {
-                          final reportInsights = artwork['reportInsights'] as Map<String, dynamic>?;
-                          final matchingPages = reportInsights?['matchingPages'] as List<dynamic>? ?? [];
                           final prefill = {
                             'artworkId': artwork['id'],
                             'artworkTitle': artwork['originalFilename'] ?? artwork['title'] ?? artwork['id'],
-                            'infringingUrls': matchingPages.map((p) => p['url']).toList(),
+                            'infringingUrls': artwork['infringingUrls'] ?? [], 
                           };
                           Navigator.push(context, MaterialPageRoute(builder: (context) => DmcaPage(artworkPrefill: prefill)));
                         },

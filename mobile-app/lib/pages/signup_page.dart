@@ -63,20 +63,20 @@ class _SignupPageState extends State<SignupPage> {
             );
           }
         } else {
-          String ErrorMessage = 'Signup failed. Please try again.';
+          String errorMessage = 'Signup failed. Please try again.';
           
           if (response.statusCode == 409) {
-            ErrorMessage = 'An account with this email address already exists.';
+            errorMessage = 'An account with this email address already exists.';
           } else if (response.statusCode == 400) {
-            ErrorMessage = 'Invalid information provided. Please check your details.';
+            errorMessage = 'Invalid information provided. Please check your details.';
           } else if (response.statusCode >= 500) {
-            ErrorMessage = 'Server error. Please try again later.';
+            errorMessage = 'Server error. Please try again later.';
           }
 
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text(ErrorMessage),
+                content: Text(errorMessage),
                 backgroundColor: Colors.red,
               ),
             );

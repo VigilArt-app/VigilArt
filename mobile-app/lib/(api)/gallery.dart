@@ -42,10 +42,18 @@ extension GalleryApi on ApiService {
       }
 
       Map<String, int> matchesCountByArtwork = {};
+      Map<String, List<String>> urlsByArtwork = {}; 
+      
       for (var page in allMatchingPages) {
         final artId = page['artworkId']?.toString();
+        final url = page['url']?.toString();
+        
         if (artId != null) {
           matchesCountByArtwork[artId] = (matchesCountByArtwork[artId] ?? 0) + 1;
+          
+          if (url != null) {
+            urlsByArtwork.putIfAbsent(artId, () => []).add(url);
+          }
         }
       }
 
@@ -85,6 +93,8 @@ extension GalleryApi on ApiService {
           'date': art['createdAt'] ?? DateTime.now().toIso8601String(),
           'status': status,
           'matchesCount': matchesCount,
+          // FIXED: Map the stored URLs directly into the output payload
+          'infringingUrls': urlsByArtwork[artId] ?? [], 
         };
       }).toList();
 

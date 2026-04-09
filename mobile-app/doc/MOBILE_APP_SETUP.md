@@ -49,7 +49,7 @@ flutter run
 
 🆘 Troubleshooting
 
-Use the newt commands:
+Use the next commands:
 ```bash
 flutter clean
 flutter pub get

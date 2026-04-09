@@ -137,7 +137,6 @@ class _UploadPhotosPageState extends State<UploadPhotosPage> {
                               ),
                             ),
                             onChanged: (value) {
-                              // FIXED: Mapped to 'description'
                               file['description'] = value; 
                             },
                           ),
@@ -275,6 +274,8 @@ class _UploadPhotosPageState extends State<UploadPhotosPage> {
     );
   }
 
+  // ... imports stay the same ...
+
   void _handleUpload() async {
     if (_uploadingFiles.isEmpty) return;
 
@@ -294,6 +295,7 @@ class _UploadPhotosPageState extends State<UploadPhotosPage> {
       }
 
       List<Map<String, dynamic>> artworksToCreate = [];
+      List<String> failedFiles = []; // Track files that failed validation
 
       for (int i = 0; i < _uploadingFiles.length; i++) {
         final file = _uploadingFiles[i];
@@ -302,12 +304,20 @@ class _UploadPhotosPageState extends State<UploadPhotosPage> {
         final description = file['description'] as String;
         
         final uploadInfo = uploadUrlsMap[fileName];
-        if (uploadInfo == null) continue; 
+        
+        // FIXED: Validate and cast keys from the dynamic map
+        final String? presignedUrl = uploadInfo?['presignedUrl']?.toString();
+        final String? storageKey = uploadInfo?['storageKey']?.toString();
 
-        final presignedUrl = uploadInfo['presignedUrl'];
-        final storageKey = uploadInfo['storageKey'];
+        if (presignedUrl == null || storageKey == null) {
+          failedFiles.add(fileName);
+          debugPrint("❌ Missing upload metadata for $fileName");
+          continue; 
+        }
+
         final contentType = apiService.getContentType(filePath);
 
+        // Pass validated non-null strings
         bool success = await apiService.uploadFileToCloud(presignedUrl, filePath, contentType);
         
         if (success) {
@@ -343,6 +353,11 @@ class _UploadPhotosPageState extends State<UploadPhotosPage> {
         }
       }
 
+      // Show alert if some files failed metadata validation
+      if (failedFiles.isNotEmpty && mounted) {
+        _showSnackBar('Metadata error for: ${failedFiles.join(", ")}', Colors.orange);
+      }
+
       if (artworksToCreate.isNotEmpty) {
         bool recordsCreated = await apiService.createArtworkRecords(artworksToCreate);
         
@@ -356,39 +371,14 @@ class _UploadPhotosPageState extends State<UploadPhotosPage> {
              _uploadingFiles.removeWhere((f) => f['progress'] == 1.0);
           });
           
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: const Row(
-                children: [
-                  Icon(Icons.check_circle, color: Colors.white),
-                  SizedBox(width: 12),
-                  Text('Artworks uploaded successfully!', style: TextStyle(fontWeight: FontWeight.w600)),
-                ],
-              ),
-              backgroundColor: const Color(0xFF22C55E),
-              behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-              margin: const EdgeInsets.all(16),
-            ),
-          );
+          _showSnackBar('Artworks uploaded successfully!', const Color(0xFF22C55E), icon: Icons.check_circle);
         }
-      } else {
+      } else if (failedFiles.isEmpty) {
         throw Exception("Failed to upload any files to the cloud.");
       }
 
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Upload Error: $e'),
-            backgroundColor: Colors.red.shade600,
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-            margin: const EdgeInsets.all(16),
-            duration: const Duration(seconds: 4),
-          ),
-        );
-      }
+      if (mounted) _showSnackBar('Upload Error: $e', Colors.red.shade600);
     } finally {
       if (mounted) {
         setState(() {
@@ -396,5 +386,23 @@ class _UploadPhotosPageState extends State<UploadPhotosPage> {
         });
       }
     }
+  }
+
+  // Helper to reduce code duplication for snackbars
+  void _showSnackBar(String message, Color color, {IconData? icon}) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            if (icon != null) ...[Icon(icon, color: Colors.white), const SizedBox(width: 12)],
+            Expanded(child: Text(message, style: const TextStyle(fontWeight: FontWeight.w600))),
+          ],
+        ),
+        backgroundColor: color,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        margin: const EdgeInsets.all(16),
+      ),
+    );
   }
 }

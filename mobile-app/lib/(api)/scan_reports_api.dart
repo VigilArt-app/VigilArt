@@ -70,8 +70,13 @@ extension ScanReportsApi on ApiService {
         final artId = art['id'].toString();
         final matches = matchesByArtwork[artId] ?? [];
         
+        int creditedCount = 0;
+        
         if (matches.isNotEmpty) {
           matches.sort((a, b) => DateTime.parse(b['firstDetectedAt']).compareTo(DateTime.parse(a['firstDetectedAt'])));
+          
+          // FIXED: Dynamically calculate how many matches have proper credit
+          creditedCount = matches.where((m) => m['isCredited'] == true).length;
         }
         
         final mostRecentMatch = matches.isNotEmpty ? matches.first : null;
@@ -83,7 +88,7 @@ extension ScanReportsApi on ApiService {
           'title': art['title'] ?? art['originalFilename']?.split('.').first ?? 'Unknown Artwork',
           'imageUrl': imageUrl,
           'matchesCount': matches.length,
-          'creditedMatches': 0, 
+          'creditedMatches': creditedCount, 
           'mostRecentSource': mostRecentMatch != null ? mostRecentMatch['websiteName'] : 'N/A',
           'mostRecentDate': mostRecentMatch != null ? mostRecentMatch['firstDetectedAt'] : null,
           'matchingPages': matches, 
