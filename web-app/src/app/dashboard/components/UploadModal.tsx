@@ -18,9 +18,10 @@ import { useTranslation } from "react-i18next";
 interface UploadModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onUploadComplete?: () => void;
 }
 
-export function UploadModal({ open, onOpenChange }: UploadModalProps) {
+export function UploadModal({ open, onOpenChange, onUploadComplete }: UploadModalProps) {
   const {
     uploadedFiles,
     isUploading,
@@ -30,7 +31,7 @@ export function UploadModal({ open, onOpenChange }: UploadModalProps) {
     updateDescription,
     uploadFiles,
     setUploadResult,
-  } = useFileUpload();
+  } = useFileUpload({ onUploadComplete });
   const { t } = useTranslation();
 
   useEffect(() => {
