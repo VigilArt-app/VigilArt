@@ -8,6 +8,7 @@ class GalleryImageCard extends StatelessWidget {
   final String status;
   final VoidCallback onTap;
   final VoidCallback onDelete;
+  final VoidCallback onDmcaTap;
 
   const GalleryImageCard({
     Key? key,
@@ -18,6 +19,7 @@ class GalleryImageCard extends StatelessWidget {
     required this.status,
     required this.onTap,
     required this.onDelete,
+    required this.onDmcaTap, 
   }) : super(key: key);
 
   Color _getStatusColor() {
@@ -52,25 +54,24 @@ class GalleryImageCard extends StatelessWidget {
           children: [
             ClipRRect(
               borderRadius: BorderRadius.circular(12),
-              child: imageUrl.isNotEmpty 
+              child: imageUrl.isNotEmpty && imageUrl.startsWith('http')
                 ? Image.network(
                     imageUrl,
                     fit: BoxFit.cover,
                     width: double.infinity,
                     height: double.infinity,
+                    cacheWidth: 350, 
+                    gaplessPlayback: true, // Prevents flickering when scrolling
                     loadingBuilder: (context, child, loadingProgress) {
                       if (loadingProgress == null) return child;
-                      return Center(child: CircularProgressIndicator(
-                        color: const Color(0xFF5E3B7D),
-                        value: loadingProgress.expectedTotalBytes != null
-                            ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
-                            : null,
-                      ));
+                      return const Center(child: CircularProgressIndicator(color: Color(0xFF5E3B7D)));
                     },
-                    errorBuilder: (context, error, stackTrace) => Container(
-                      color: Colors.grey[200],
-                      child: const Center(child: Icon(Icons.broken_image, color: Colors.grey)),
-                    ),
+                    errorBuilder: (context, error, stackTrace) {
+                      return Container(
+                        color: Colors.grey[200],
+                        child: const Center(child: Icon(Icons.broken_image, color: Colors.grey)),
+                      );
+                    },
                   )
                 : Container(
                     color: Colors.grey[200],
@@ -129,13 +130,26 @@ class GalleryImageCard extends StatelessWidget {
                         ],
                       ),
                     ),
-                    GestureDetector(
-                      onTap: onDelete,
-                      child: Container(
-                        padding: const EdgeInsets.all(6),
-                        decoration: BoxDecoration(color: Colors.red.withOpacity(0.8), borderRadius: BorderRadius.circular(6)),
-                        child: const Icon(Icons.delete_outline, color: Colors.white, size: 16),
-                      ),
+                    Row(
+                      children: [
+                        GestureDetector(
+                          onTap: onDmcaTap,
+                          child: Container(
+                            padding: const EdgeInsets.all(6),
+                            decoration: BoxDecoration(color: Colors.black87, borderRadius: BorderRadius.circular(6)),
+                            child: const Icon(Icons.security, color: Colors.white, size: 16),
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        GestureDetector(
+                          onTap: onDelete,
+                          child: Container(
+                            padding: const EdgeInsets.all(6),
+                            decoration: BoxDecoration(color: Colors.red.withOpacity(0.8), borderRadius: BorderRadius.circular(6)),
+                            child: const Icon(Icons.delete_outline, color: Colors.white, size: 16),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),

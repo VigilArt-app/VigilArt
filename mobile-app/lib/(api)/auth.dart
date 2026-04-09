@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-//comment
+
 class ApiService {
   final FlutterSecureStorage secureStorage = const FlutterSecureStorage();
   final String serverUrl = "https://dev-api.vigilart.app/api/v1";
