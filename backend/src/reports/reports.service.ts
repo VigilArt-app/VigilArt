@@ -21,11 +21,13 @@ import { ArtworksService } from "../artworks/artworks.service";
 import { StorageService } from "../storage/storage.service";
 import { PrismaService } from "../prisma/prisma.service";
 import { MatchingPagesService } from "./matchingPage.service";
+import { GoogleLensService } from "../googlelens/googlelens.service";
 
 @Injectable()
 export class ReportsService {
   constructor(
     private readonly visionService: VisionService,
+    private readonly googleLensService: GoogleLensService,
     private readonly artworksService: ArtworksService,
     private readonly storageService: StorageService,
     private readonly matchingPagesService: MatchingPagesService,
@@ -35,10 +37,12 @@ export class ReportsService {
   private readonly logger = new Logger(ReportsService.name);
 
   async aggregateVisualSearchResults(
-    imageBuffer: Buffer
+    imageBuffer: Buffer,
+    imageDownloadUrl: string
   ): Promise<MatchingPageGet[]> {
     const visualSearchResults = await Promise.all([
-      this.visionService.searchImage(imageBuffer)
+      this.visionService.searchImage(imageBuffer),
+      // this.googleLensService.searchImage(imageDownloadUrl)
     ]);
     const matchingPages = visualSearchResults.reduce<MatchingPageGet[]>(
       (acc: MatchingPageGet[], value: VisualSearchResult | null) => {
@@ -54,7 +58,13 @@ export class ReportsService {
 
   async findArtworkMatches(artwork: Artwork): Promise<MatchingPageCreateMany> {
     const imageBuffer = await this.storageService.getImage(artwork.storageKey);
-    const matchingPages = await this.aggregateVisualSearchResults(imageBuffer);
+    const imageDownloadUrl = await this.storageService.getDownloadUrl(
+      artwork.storageKey
+    );
+    const matchingPages = await this.aggregateVisualSearchResults(
+      imageBuffer,
+      imageDownloadUrl
+    );
     const matchingPagesData = matchingPages.map((match) => ({
       artworkId: artwork.id,
       ...match

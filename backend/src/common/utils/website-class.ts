@@ -2,7 +2,6 @@ import {
   WebsiteCategory,
   type WebsiteCategory as WebsiteCategoryType
 } from "@vigilart/shared/enums";
-import { WebImage } from "./types";
 
 const DOMAIN_PATTERNS: Record<WebsiteCategoryType, RegExp[]> = {
   SOCIAL: [
@@ -92,11 +91,48 @@ export const extractRootDomain = (url: string): string => {
   return rootDomain;
 };
 
-export const getImageUrl = (
-  matchingImages: WebImage[] | null | undefined
-): string | null => {
-  if (!matchingImages || matchingImages.length == 0) {
-    return null;
-  }
-  return matchingImages[0].url ?? null;
-};
+export const BLACKLISTED_DOMAINS: string[] = [
+  'gelbooru.com',
+  'danbooru.donmai.us',
+  'rule34.xxx',
+  'rule34.paheal.net',
+  'e621.net',
+  'e926.net',
+  'konachan.com',
+  'konachan.net',
+  'yande.re',
+  'sankakucomplex.com',
+  'chan.sankakucomplex.com',
+  'tbib.org',
+  'xbooru.com',
+  'safebooru.org',
+  'lolibooru.moe',
+  'hypnohub.net',
+  'nhentai.net',
+  'hentai-foundry.com',
+  'fantia.jp',
+  'joyreactor.cc',
+  'reactor.cc',
+  'pikabu.ru',
+  'buhitter.com',
+];
+
+export const FLAGGED_DOMAINS: string[] = [
+  'pixiv.net',
+  'twitter.com',
+  'x.com',
+];
+
+export function isBlacklisted(url: string): boolean {
+  const domain = extractRootDomain(url);
+  return BLACKLISTED_DOMAINS.some(
+    (blocked) => domain === blocked || domain.endsWith(`.${blocked}`),
+  );
+}
+
+export function isFlagged(url: string): boolean {
+  const domain = extractRootDomain(url);
+  return FLAGGED_DOMAINS.some(
+    (flagged) => domain === flagged || domain.endsWith(`.${flagged}`),
+  );
+}
