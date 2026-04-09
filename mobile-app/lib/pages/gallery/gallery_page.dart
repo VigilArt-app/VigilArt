@@ -77,7 +77,7 @@ class _GalleryPageState extends State<GalleryPage> {
       final matchesTab = _selectedTab == 'All' || 
           (art['status']?.toString().toLowerCase() == _selectedTab.toLowerCase());
       
-      final title = (art['originalFilename'] ?? art['title'] ?? '').toString().toLowerCase();
+      final title = (art['title'] ?? art['originalFilename'] ?? '').toString().toLowerCase();
       final matchesSearch = _searchQuery.isEmpty || title.contains(_searchQuery.toLowerCase());
       
       return matchesTab && matchesSearch;
@@ -141,7 +141,7 @@ class _GalleryPageState extends State<GalleryPage> {
             children: [
               Center(child: Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(2)))),
               const SizedBox(height: 20),
-              Text(artwork['originalFilename'] ?? 'Untitled', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700)),
+              Text(artwork['title'] ?? artwork['originalFilename'] ?? 'Untitled', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700)),
               const SizedBox(height: 20),
               _buildDetailRow('ID', artwork['id'].toString().split('-').first.toUpperCase(), Icons.fingerprint),
               _buildDetailRow('Upload Date', _formatDate(artwork['date']), Icons.calendar_today),
@@ -280,7 +280,8 @@ class _GalleryPageState extends State<GalleryPage> {
                       final artwork = _filteredArtworks[index];
                       return GalleryImageCard(
                         id: artwork['id'].toString(),
-                        title: artwork['originalFilename'] ?? 'Untitled',
+                        // FIXED: Use title (description) mapping
+                        title: artwork['title'] ?? artwork['originalFilename'] ?? 'Untitled',
                         imageUrl: artwork['imageUrl'] ?? artwork['url'] ?? artwork['storageKey'] ?? '',
                         uploadDate: _formatDate(artwork['date']),
                         status: artwork['status'] ?? 'Unknown',
@@ -289,7 +290,8 @@ class _GalleryPageState extends State<GalleryPage> {
                         onDmcaTap: () {
                           final prefill = {
                             'artworkId': artwork['id'],
-                            'artworkTitle': artwork['originalFilename'] ?? artwork['title'] ?? artwork['id'],
+                            // FIXED: Use title here too
+                            'artworkTitle': artwork['title'] ?? artwork['originalFilename'] ?? artwork['id'],
                             'infringingUrls': artwork['infringingUrls'] ?? [], 
                           };
                           Navigator.push(context, MaterialPageRoute(builder: (context) => DmcaPage(artworkPrefill: prefill)));
