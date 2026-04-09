@@ -1,9 +1,9 @@
 "use client";
-
 import { Trash2 } from "lucide-react";
 import { ArtworkWithInsights, FILTER_STATUS_TRANSLATION_KEYS, getArtworkStatus } from "./types";
 import { useArtworkImageUrl } from "./hooks/useArtworkImageUrl";
 import { useTranslation } from "react-i18next";
+import router from 'next/router';
 
 interface ArtworkCardProps {
   artwork: ArtworkWithInsights;
