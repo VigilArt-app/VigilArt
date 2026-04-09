@@ -57,3 +57,10 @@ To avoid CPU spikes, **always launch the emulator before starting your app**.
    ```bash
    flutter run
    ```
+
+# OR Launch the emulator via terminal
+
+ ```bash
+   flutter emulators --launch <name_of_emulator>
+   flutter run
+   ```
