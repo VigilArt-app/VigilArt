@@ -1,15 +1,22 @@
 import 'dart:convert';
-import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class ApiService {
   final FlutterSecureStorage secureStorage = const FlutterSecureStorage();
-  String serverUrl = "http://10.0.2.2:3001/api/v1";
+  final String serverUrl = dotenv.env['API_BASE_URL'] ?? 
+      (throw Exception('CRITICAL: API_BASE_URL is not set in the .env file.'));
 
+  static const String keyAccessToken = 'accessToken';
+  static const String keyUserId = 'userId';
+  static const String keyUserFirstName = 'userFirstName';
+  static const String keyUserLastName = 'userLastName';
+  static const String keyUserEmail = 'userEmail';
+  static const String keyUserAvatar = 'userAvatar';
 
-  Future<http.Response> login(BuildContext context, String email, String password) async {
-    final url = Uri.parse('${serverUrl}/auth/login');
+  Future<http.Response> login(String email, String password) async {
+    final url = Uri.parse('$serverUrl/auth/login');
     final response = await http.post(
       url,
       headers: {'Content-Type': 'application/json'},
@@ -18,22 +25,28 @@ class ApiService {
         'password': password,
       }),
     );
+
     if (response.statusCode == 200) {
       final responseData = jsonDecode(response.body);
-      final accessToken = responseData['accessToken'];
-      final user = responseData['user'];
-      await secureStorage.write(key: 'accessToken', value: accessToken);
-      await secureStorage.write(key: 'userId', value: user['id'].toString());
-      await secureStorage.write(key: 'userFirstName', value: user['firstName'].toString());
-      await secureStorage.write(key: 'userLastName', value: user['lastName'].toString());
-      await secureStorage.write(key: 'userEmail', value: user['email'].toString());
-
+      
+      final data = responseData['data'];
+      
+      final accessToken = data['accessToken'];
+      final user = data['user'];
+      
+      await secureStorage.write(key: keyAccessToken, value: accessToken);
+      await secureStorage.write(key: keyUserId, value: user['id'].toString());
+      await secureStorage.write(key: keyUserFirstName, value: user['firstName'].toString());
+      await secureStorage.write(key: keyUserLastName, value: user['lastName'].toString());
+      await secureStorage.write(key: keyUserEmail, value: user['email'].toString());
+      await secureStorage.write(key: keyUserAvatar, value: user['avatar']?.toString() ?? '');
     }
-    return response;
+    return response; 
   }
 
-  Future<http.Response> signup(BuildContext context, String email, String password, String firstName, String lastName) async {
-    final url = Uri.parse('${serverUrl}/auth/signup');
+  Future<http.Response> signup(String email, String password, String firstName, String lastName) async {
+    final url = Uri.parse('$serverUrl/auth/signup');
+    
     final response = await http.post(
       url,
       headers: {'Content-Type': 'application/json'},
@@ -44,17 +57,24 @@ class ApiService {
         'lastName': lastName,
       }),
     );
+
     if (response.statusCode == 201) {
       final responseData = jsonDecode(response.body);
-      final accessToken = responseData['accessToken'];
-      final user = responseData['user'];
-      await secureStorage.write(key: 'accessToken', value: accessToken);
-      await secureStorage.write(key: 'userId', value: user['id'].toString());
+      
+      final accessToken = responseData['data']['accessToken'];
+      
+      if (accessToken != null) {
+        await secureStorage.write(key: keyAccessToken, value: accessToken);
+      }
     }
     return response;
   }
 
   Future<String?> getAccessToken() async {
-    return await secureStorage.read(key: 'accessToken');
+    return await secureStorage.read(key: keyAccessToken);
+  }
+  
+  Future<void> logout() async {
+    await secureStorage.deleteAll();
   }
 }

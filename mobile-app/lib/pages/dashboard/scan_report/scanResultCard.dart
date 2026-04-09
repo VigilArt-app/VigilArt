@@ -1,175 +1,89 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 
 class ScanResultCard extends StatelessWidget {
-  final int id;
-  final String imageUrl;
-  final String sourceUrl;
-  final int matchCount;
-  final String credibility;
-  final String displayMode;
+  final String title;
+  final String? imageUrl;
+  final int matchesCount;
+  final String mostRecentSource;
   final VoidCallback onTap;
 
   const ScanResultCard({
     Key? key,
-    required this.id,
-    required this.imageUrl,
-    required this.sourceUrl,
-    required this.matchCount,
-    required this.credibility,
-    required this.displayMode,
+    required this.title,
+    this.imageUrl,
+    required this.matchesCount,
+    required this.mostRecentSource,
     required this.onTap,
   }) : super(key: key);
-
-  Color _getCredibilityColor() {
-    switch (credibility.toLowerCase()) {
-      case 'high':
-        return const Color(0xFF22C55E);
-      case 'medium':
-        return const Color(0xFFF59E0B);
-      case 'low':
-        return const Color(0xFFEF4444);
-      default:
-        return Colors.grey;
-    }
-  }
-
-  Widget _buildDynamicContent() {
-    switch (displayMode) {
-      case 'matches':
-        return Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          decoration: BoxDecoration(
-            color: const Color(0xFF5E3B7D).withOpacity(0.1),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                matchCount.toString(),
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 18,
-                  color: Color(0xFF5E3B7D),
-                ),
-              ),
-              const Text(
-                'Matches',
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w500,
-                  color: Color(0xFF5E3B7D),
-                ),
-              ),
-            ],
-          ),
-        );
-
-      case 'source':
-        return Expanded(
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            decoration: BoxDecoration(
-              color: const Color(0xFF5E3B7D),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Center(
-              child: Text(
-                sourceUrl,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-          ),
-        );
-
-      case 'credited':
-        return Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          decoration: BoxDecoration(
-            color: _getCredibilityColor(),
-            border: Border.all(color: _getCredibilityColor(), width: 1.5),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Text(
-            credibility.toUpperCase(),
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-              color: Colors.white,
-              letterSpacing: 0.5,
-            ),
-          ),
-        );
-
-      default:
-        return const SizedBox.shrink();
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        margin: const EdgeInsets.only(bottom: 12),
+        margin: const EdgeInsets.only(bottom: 8),
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.grey.withOpacity(0.1)),
           boxShadow: [
             BoxShadow(
-              color: Colors.black,
-              blurRadius: 8,
+              color: Colors.black.withOpacity(0.02),
+              blurRadius: 4,
               offset: const Offset(0, 2),
             ),
           ],
         ),
         child: Row(
           children: [
-            Container(
-              width: 50,
-              height: 50,
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.grey[300]!, width: 1),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Center(
-                child: Text(
-                  '#${id.toString().padLeft(2, '0')}',
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 12,
-                    color: Color(0xFF62636D),
-                  ),
-                ),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: imageUrl != null 
+                  ? Image.network(imageUrl!, width: 48, height: 48, fit: BoxFit.cover)
+                  : Container(
+                      width: 48, 
+                      height: 48, 
+                      color: Colors.grey[200], 
+                      child: const Icon(Icons.image, size: 24, color: Colors.grey),
+                    ),
+            ),
+            const SizedBox(width: 16),
+            
+            Expanded(
+              child: Text(
+                title, 
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14), 
+                maxLines: 1, 
+                overflow: TextOverflow.ellipsis,
               ),
             ),
-            const SizedBox(width: 12),
-
+            
             Container(
-              width: 50,
-              height: 50,
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(8),
-                image: DecorationImage(
-                  image: NetworkImage(imageUrl),
-                  fit: BoxFit.cover,
-                ),
+                color: matchesCount > 5 ? Colors.red : (matchesCount > 0 ? Colors.orange : Colors.grey[400]), 
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Text(
+                matchesCount.toString(), 
+                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
               ),
             ),
-            const SizedBox(width: 12),
-            Expanded(child: _buildDynamicContent()),
+            const SizedBox(width: 16),
+            
+            SizedBox(
+              width: 80, 
+              child: Text(
+                mostRecentSource, 
+                style: const TextStyle(fontSize: 11, color: Colors.blue), 
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.right,
+              ),
+            ),
           ],
         ),
       ),
-    );     
+    );
   }
 }

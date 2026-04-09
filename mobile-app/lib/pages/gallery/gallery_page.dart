@@ -1,8 +1,13 @@
+import 'package:VigilArt/(api)/auth.dart'; 
+import 'package:VigilArt/(api)/gallery.dart';
+import 'package:VigilArt/(api)/user.dart';
+import 'package:VigilArt/pages/dmca/dmca_page.dart';
 import 'package:VigilArt/pages/gallery/gallery_image_card.dart';
 import 'package:VigilArt/pages/gallery/gallery_tab_selector.dart';
 import 'package:VigilArt/widgets/header_bar.dart';
 import 'package:VigilArt/widgets/slideMenuBar.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class GalleryPage extends StatefulWidget {
   const GalleryPage({Key? key}) : super(key: key);
@@ -12,192 +17,144 @@ class GalleryPage extends StatefulWidget {
 }
 
 class _GalleryPageState extends State<GalleryPage> {
+  final ApiService _apiService = ApiService();
   String _selectedTab = 'All';
-  int _bottomNavIndex = 0;
+  String _searchQuery = '';
+  final int _bottomNavIndex = 0;
+  bool _isLoading = true;
 
-  final List<Map<String, String>> _allImages = [
-    {
-      'id': 'IMG-2025-001',
-      'url':
-          'https://i.pinimg.com/1200x/a1/32/64/a13264ffd83cebafc6189e1356db9f21.jpg',
-      'date': 'Nov 16, 2025',
-      'status': 'protected',
-    },
-    {
-      'id': 'IMG-2025-002',
-      'url':
-          'https://i.pinimg.com/1200x/c8/1c/08/c81c08cf20f0887b6886c611e1acd806.jpg',
-      'date': 'Nov 15, 2025',
-      'status': 'scanned',
-    },
-    {
-      'id': 'IMG-2025-003',
-      'url':
-          'https://i.pinimg.com/736x/a4/a9/d1/a4a9d10812cf2c019860c6a3f019dfb4.jpg',
-      'date': 'Nov 14, 2025',
-      'status': 'scanning',
-    },
-    {
-      'id': 'IMG-2025-004',
-      'url':
-          'https://i.pinimg.com/736x/2a/33/cf/2a33cf5201ead7e0758ca6f003ea34ba.jpg',
-      'date': 'Nov 13, 2025',
-      'status': 'protected',
-    },
-    {
-      'id': 'IMG-2025-005',
-      'url':
-          'https://i.pinimg.com/736x/44/c9/48/44c9480c1c6c203f95f91d5ff8afd6b4.jpg',
-      'date': 'Nov 12, 2025',
-      'status': 'scanned',
-    },
-    {
-      'id': 'IMG-2025-006',
-      'url':
-          'https://i.pinimg.com/1200x/28/b3/8d/28b38d3b90c7313396680769bb3bc4ad.jpg',
-      'date': 'Nov 11, 2025',
-      'status': 'protected',
-    },
-    {
-      'id': 'IMG-2025-007',
-      'url':
-          'https://i.pinimg.com/1200x/51/c5/39/51c5399860ef1aabc7318d3b8f8fd599.jpg',
-      'date': 'Nov 10, 2025',
-      'status': 'scanned',
-    },
-    {
-      'id': 'IMG-2025-008',
-      'url':
-          'https://i.pinimg.com/736x/c3/61/c9/c361c9783b094db6e113c48571af33ff.jpg',
-      'date': 'Nov 09, 2025',
-      'status': 'scanning',
-    },
-  ];
+  String _userAvatarUrl = 'assets/images/default_avatar.jpg';
+  List<Map<String, dynamic>> _allArtworks = [];
 
-  List<Map<String, String>> get _filteredImages {
-    if (_selectedTab == 'All') {
-      return _allImages;
+  @override
+  void initState() {
+    super.initState();
+    _loadUserAvatar(); 
+    _loadArtworks();
+  }
+
+  Future<void> _loadUserAvatar() async {
+    final avatarKey = await _apiService.secureStorage.read(key: ApiService.keyUserAvatar);
+    String finalAvatarUrl = 'assets/images/default_avatar.jpg';
+
+    if (avatarKey != null && avatarKey.isNotEmpty && avatarKey != 'null') {
+      if (avatarKey.startsWith('http')) {
+        finalAvatarUrl = avatarKey;
+      } else if (avatarKey.startsWith('profiles/')) {
+        try {
+          final downloadUrl = await _apiService.getAvatarDownloadUrl(avatarKey);
+          if (downloadUrl != null && downloadUrl.isNotEmpty) {
+            finalAvatarUrl = downloadUrl;
+          }
+        } catch (e) {
+          debugPrint("Avatar load error: $e");
+        }
+      } else {
+        finalAvatarUrl = avatarKey;
+      }
     }
-    return _allImages
-        .where((img) =>
-            img['status']!.toLowerCase() == _selectedTab.toLowerCase())
-        .toList();
+
+    if (mounted) setState(() => _userAvatarUrl = finalAvatarUrl);
+  }
+
+  Future<void> _loadArtworks() async {
+    setState(() => _isLoading = true);
+    try {
+      final data = await _apiService.fetchGalleryArtworks();
+      if (mounted) {
+        setState(() {
+          _allArtworks = data ?? [];
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  List<Map<String, dynamic>> get _filteredArtworks {
+    return _allArtworks.where((art) {
+      final matchesTab = _selectedTab == 'All' || 
+          (art['status']?.toString().toLowerCase() == _selectedTab.toLowerCase());
+      
+      final title = (art['title'] ?? art['originalFilename'] ?? '').toString().toLowerCase();
+      final matchesSearch = _searchQuery.isEmpty || title.contains(_searchQuery.toLowerCase());
+      
+      return matchesTab && matchesSearch;
+    }).toList();
   }
 
   void _handleDelete(String id) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          title: const Text('Delete Image'),
-          content: Text('Are you sure you want to delete image $id?'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-                setState(() {
-                  _allImages.removeWhere((img) => img['id'] == id);
-                });
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('Image $id deleted'),
-                    backgroundColor: Colors.red[400],
-                    duration: const Duration(seconds: 2),
-                  ),
-                );
-              },
-              child: const Text(
-                'Delete',
-                style: TextStyle(color: Colors.red),
-              ),
-            ),
-          ],
+        bool isDeleting = false;
+        return StatefulBuilder(
+          builder: (context, setStateDialog) {
+            return AlertDialog(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              title: const Text('Delete Image'),
+              content: const Text('Are you sure you want to permanently delete this artwork?'),
+              actions: [
+                TextButton(
+                  onPressed: isDeleting ? null : () => Navigator.pop(context),
+                  child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
+                ),
+                TextButton(
+                  onPressed: isDeleting ? null : () async {
+                    setStateDialog(() => isDeleting = true);
+                    final success = await _apiService.deleteArtwork(id);
+                    
+                    if (mounted) {
+                      Navigator.pop(context);
+                      if (success) {
+                        setState(() => _allArtworks.removeWhere((img) => img['id'] == id));
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Artwork deleted'), backgroundColor: Colors.green),
+                        );
+                      }
+                    }
+                  },
+                  child: isDeleting 
+                    ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
+                    : const Text('Delete', style: TextStyle(color: Colors.red)),
+                ),
+              ],
+            );
+          }
         );
       },
     );
   }
 
-  void _handleImageTap(Map<String, String> image) {
+  void _openArtworkDetails(Map<String, dynamic> artwork) {
     showModalBottomSheet(
       context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(24),
-          topRight: Radius.circular(24),
-        ),
-      ),
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
       builder: (BuildContext context) {
-        return Container(
+        return Padding(
           padding: const EdgeInsets.all(24),
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(24),
-              topRight: Radius.circular(24),
-            ),
-          ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Center(
-                child: Container(
-                  width: 40,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: Colors.grey[300],
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-              ),
+              Center(child: Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(2)))),
               const SizedBox(height: 20),
-
-              Text(
-                'Image Details',
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w700,
-                  color: Colors.black,
-                ),
-              ),
+              Text(artwork['title'] ?? artwork['originalFilename'] ?? 'Untitled', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700)),
               const SizedBox(height: 20),
-
-              _buildDetailRow('ID', image['id']!, Icons.image),
-              _buildDetailRow('Upload Date', image['date']!, Icons.calendar_today),
-              _buildDetailRow(
-                'Status',
-                image['status']!.toUpperCase(),
-                _getStatusIcon(image['status']!),
-              ),
-
+              _buildDetailRow('ID', artwork['id'].toString().split('-').first.toUpperCase(), Icons.fingerprint),
+              _buildDetailRow('Upload Date', _formatDate(artwork['date']), Icons.calendar_today),
+              _buildDetailRow('Status', (artwork['status'] ?? 'UNKNOWN').toString().toUpperCase(), _getStatusIcon(artwork['status'] ?? '')),
+              _buildDetailRow('Matches Found', '${artwork['matchesCount'] ?? 0} pages', Icons.search),
               const SizedBox(height: 28),
-
               Row(
                 children: [
                   Expanded(
-                    child: ElevatedButton(
+                    child: OutlinedButton(
                       onPressed: () => Navigator.pop(context),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.grey[100],
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        elevation: 0,
-                      ),
-                      child: const Text(
-                        'Close',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.black87,
-                        ),
-                      ),
+                      style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 14), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
+                      child: const Text('Close', style: TextStyle(color: Colors.black87)),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -205,30 +162,10 @@ class _GalleryPageState extends State<GalleryPage> {
                     child: ElevatedButton(
                       onPressed: () {
                         Navigator.pop(context);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content:
-                                Text('View scan results for ${image['id']}'),
-                            backgroundColor: const Color(0xFF5E3B7D),
-                          ),
-                        );
+                        Navigator.pushReplacementNamed(context, '/dashboard'); 
                       },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF5E3B7D),
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        elevation: 0,
-                      ),
-                      child: const Text(
-                        'View Results',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white,
-                        ),
-                      ),
+                      style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF5E3B7D), padding: const EdgeInsets.symmetric(vertical: 14), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
+                      child: const Text('View Reports', style: TextStyle(color: Colors.white)),
                     ),
                   ),
                 ],
@@ -240,16 +177,22 @@ class _GalleryPageState extends State<GalleryPage> {
     );
   }
 
+  String _formatDate(dynamic isoDate) {
+    if (isoDate == null) return 'N/A';
+    try {
+      final date = DateTime.parse(isoDate.toString());
+      return DateFormat('MMM dd, yyyy').format(date);
+    } catch (e) {
+      return 'Unknown Date';
+    }
+  }
+
   IconData _getStatusIcon(String status) {
     switch (status.toLowerCase()) {
-      case 'protected':
-        return Icons.shield_rounded;
-      case 'scanned':
-        return Icons.check_circle;
-      case 'scanning':
-        return Icons.hourglass_top;
-      default:
-        return Icons.image;
+      case 'protected': return Icons.shield_rounded;
+      case 'scanned': return Icons.warning_rounded;
+      case 'scanning': return Icons.hourglass_top;
+      default: return Icons.image;
     }
   }
 
@@ -260,37 +203,15 @@ class _GalleryPageState extends State<GalleryPage> {
         children: [
           Container(
             padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: const Color(0xFF5E3B7D).withOpacity(0.1),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Icon(
-              icon,
-              color: const Color(0xFF5E3B7D),
-              size: 20,
-            ),
+            decoration: BoxDecoration(color: const Color(0xFF5E3B7D).withOpacity(0.1), borderRadius: BorderRadius.circular(10)),
+            child: Icon(icon, color: const Color(0xFF5E3B7D), size: 20),
           ),
           const SizedBox(width: 14),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                label,
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.grey[600],
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                value,
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.black,
-                ),
-              ),
+              Text(label, style: TextStyle(fontSize: 12, color: Colors.grey[600])),
+              Text(value, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
             ],
           ),
         ],
@@ -298,195 +219,95 @@ class _GalleryPageState extends State<GalleryPage> {
     );
   }
 
-  void _handleBottomNavigation(int index) {
-    setState(() {
-      _bottomNavIndex = index;
-    });
-
-    switch (index) {
-      case 0:
-        break;
-      case 1:
-        Navigator.pushNamed(context, '/dashboard');
-        break;
-      case 2:
-        Navigator.pushNamed(context, '/profile');
-        break;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[50],
-      
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(60),
         child: SafeArea(
           child: VigilArtHeaderBar(
-            onLogoTap: () {
-              Navigator.pushNamed(context, '/dashboard');
-            },
-            onNotificationsTap: () {
-              Navigator.pushNamed(context, '/notifications');
-            },
-            onProfileTap: () {
-              Navigator.pushNamed(context, '/profile');
-            },
-            avatar: 'assets/images/avatar.jpeg',
-            notificationCount: 0,
+            onLogoTap: () => Navigator.pushNamed(context, '/dashboard'),
+            onNotificationsTap: () => Navigator.pushNamed(context, '/notifications'),
+            onProfileTap: () => Navigator.pushNamed(context, '/profile'),
+            avatar: _userAvatarUrl,
           ),
         ),
       ),
-
-      body: Column(
+      body: _isLoading 
+        ? const Center(child: CircularProgressIndicator(color: Color(0xFF5E3B7D)))
+        : Column(
         children: [
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 24, 16, 0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF5E3B7D).withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: const Icon(
-                        Icons.image_rounded,
-                        color: Color(0xFF5E3B7D),
-                        size: 24,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Text(
-                      'Gallery',
-                      style: const TextStyle(
-                        fontSize: 28,
-                        fontWeight: FontWeight.w800,
-                        color: Colors.black,
-                        letterSpacing: 0.3,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  '${_filteredImages.length} image${_filteredImages.length != 1 ? 's' : ''}',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.grey[600],
+                const Text('Gallery', style: TextStyle(fontSize: 28, fontWeight: FontWeight.w800)),
+                const SizedBox(height: 16),
+                TextField(
+                  onChanged: (val) => setState(() => _searchQuery = val),
+                  decoration: InputDecoration(
+                    hintText: 'Search artworks...',
+                    prefixIcon: const Icon(Icons.search),
+                    filled: true,
+                    fillColor: Colors.white,
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.grey[300]!)),
                   ),
                 ),
               ],
             ),
           ),
-
           const SizedBox(height: 20),
-
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: GalleryTabSelector(
               selectedTab: _selectedTab,
-              onTabChanged: (tab) {
-                setState(() {
-                  _selectedTab = tab;
-                });
-              },
+              onTabChanged: (tab) => setState(() => _selectedTab = tab),
             ),
           ),
-
-          const SizedBox(height: 24),
-
+          const SizedBox(height: 20),
           Expanded(
-            child: _filteredImages.isEmpty
-                ? Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(24),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF5E3B7D).withOpacity(0.1),
-                            shape: BoxShape.circle,
-                          ),
-                          child: Icon(
-                            Icons.image_not_supported_outlined,
-                            size: 64,
-                            color: const Color(0xFF5E3B7D),
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-                        Text(
-                          'No images in $_selectedTab',
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.black,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'Try selecting a different tab',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.grey[600],
-                          ),
-                        ),
-                      ],
-                    ),
-                  )
-                : Padding(
+            child: _filteredArtworks.isEmpty
+                ? const Center(child: Text('No artworks found'))
+                : GridView.builder(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: GridView.builder(
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        crossAxisSpacing: 12,
-                        mainAxisSpacing: 12,
-                        childAspectRatio: 1,
-                      ),
-                      itemCount: _filteredImages.length,
-                      itemBuilder: (context, index) {
-                        final image = _filteredImages[index];
-                        return GalleryImageCard(
-                          id: image['id']!,
-                          imageUrl: image['url']!,
-                          uploadDate: image['date']!,
-                          status: image['status']!,
-                          onTap: () => _handleImageTap(image),
-                          onDelete: () => _handleDelete(image['id']!),
-                        );
-                      },
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2, crossAxisSpacing: 12, mainAxisSpacing: 12, childAspectRatio: 0.85,
                     ),
+                    itemCount: _filteredArtworks.length,
+                    itemBuilder: (context, index) {
+                      final artwork = _filteredArtworks[index];
+                      return GalleryImageCard(
+                        id: artwork['id'].toString(),
+                        // FIXED: Use title (description) mapping
+                        title: artwork['title'] ?? artwork['originalFilename'] ?? 'Untitled',
+                        imageUrl: artwork['imageUrl'] ?? artwork['url'] ?? artwork['storageKey'] ?? '',
+                        uploadDate: _formatDate(artwork['date']),
+                        status: artwork['status'] ?? 'Unknown',
+                        onTap: () => _openArtworkDetails(artwork),
+                        onDelete: () => _handleDelete(artwork['id']),
+                        onDmcaTap: () {
+                          final prefill = {
+                            'artworkId': artwork['id'],
+                            // FIXED: Use title here too
+                            'artworkTitle': artwork['title'] ?? artwork['originalFilename'] ?? artwork['id'],
+                            'infringingUrls': artwork['infringingUrls'] ?? [], 
+                          };
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => DmcaPage(artworkPrefill: prefill)));
+                        },
+                      );
+                    },
                   ),
           ),
-
-          const SizedBox(height: 16),
         ],
       ),
-
-      bottomNavigationBar: SafeArea(
-        child: Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.05),
-                blurRadius: 10,
-                offset: const Offset(0, -2),
-              ),
-            ],
-          ),
-          child: SlideMenuBar(
-            selectedIndex: _bottomNavIndex,
-            onTabChange: _handleBottomNavigation,
-          ),
-        ),
+      bottomNavigationBar: SlideMenuBar(
+        selectedIndex: _bottomNavIndex, 
+        onTabChange: (i) {
+          if (i == 1) Navigator.pushReplacementNamed(context, '/dashboard');
+          if (i == 2) Navigator.pushReplacementNamed(context, '/profile');
+        }
       ),
     );
   }
