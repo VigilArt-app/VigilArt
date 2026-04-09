@@ -1,0 +1,178 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider     = "prisma-client"
+  output       = "../../shared/src/generated/prisma"
+  engineType   = "client"
+  moduleFormat = "cjs"
+}
+
+generator zod {
+  provider = "prisma-zod-generator"
+  output   = "../../shared/src/generated/zod"
+  config   = "../zod-generator.config.json"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// User Models & Enums
+
+model User {
+  id               String           @id @default(uuid())
+  email            String           @unique @db.VarChar(254)
+  password         String
+  firstName        String           @db.VarChar(64)
+  lastName         String           @db.VarChar(64)
+  avatar           String?
+  subscriptionTier SubscriptionTier @default(FREE)
+
+  createdAt        DateTime         @default(now())
+  artworks         Artwork[]
+  artworksReport   ArtworksReport[]
+  updatedAt        DateTime         @updatedAt @default(now())
+
+  dmcaProfile      DmcaProfile?
+  dmcaNotices      DmcaNotice[]
+}
+
+enum SubscriptionTier {
+  FREE
+  CREATOR
+  PRO
+}
+
+model Artwork {
+  id                String            @id @default(uuid())
+
+  userId            String
+  user              User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  originalFilename  String
+  storageKey        String
+  contentType       String
+  sizeBytes         Int
+  width             Int
+  height            Int
+  description       String?
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  lastScanAt        DateTime?
+  matchingPages     MatchingPage[]
+
+  dmcaNotices       DmcaNotice[]
+}
+
+enum WebsiteCategory {
+  SOCIAL
+  ART_PLATFORMS
+  MARKETPLACES
+  BLOG
+  MEDIA
+  SEARCH
+  OTHER
+}
+
+model MatchingPage {
+  id                String            @id @default(uuid())
+  artworkId         String
+  artwork           Artwork           @relation(fields: [artworkId], references: [id], onDelete: Cascade)
+
+  url               String
+  category          WebsiteCategory
+  websiteName       String
+  imageUrl          String?
+  pageTitle         String?
+  firstDetectedAt   DateTime          @default(now())
+  
+  reports           ArtworksReport[]
+
+  @@unique([url, artworkId])
+}
+
+model ArtworksReport {
+  id                String            @id @default(uuid())
+  userId            String
+  user              User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  detectionDate     DateTime          @default(now())
+  matchingPages     MatchingPage[]
+}
+// DMCA Models & Enums
+
+enum DmcaStatus {
+  DRAFT
+  SUBMITTED
+}
+
+model DmcaPlatform {
+  id            String            @id @default(uuid())
+
+  slug          String            @unique
+  displayName   String
+  domain        String            @unique
+  dmcaUrl       String
+  email         String
+  websiteCategory WebsiteCategory
+  formSchema    Json
+
+  dmcaNotices   DmcaNotice[]
+
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt @default(now())
+}
+
+model DmcaProfile {
+  id           String   @id @default(uuid())
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId       String   @unique
+
+  fullName     String?
+  street       String?
+  aptSuite     String?
+  city         String?
+  postalCode   String?
+  country      String?
+  email        String?
+  phone        String?
+  signature    String?
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt @default(now())
+}
+
+model DmcaNotice {
+  id String @id @default(uuid())
+
+  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userId String?
+
+  dmcaPlatform   DmcaPlatform @relation(fields: [dmcaPlatformSlug], references: [slug], onDelete: Restrict)
+  dmcaPlatformSlug String
+
+  artwork   Artwork? @relation(fields: [artworkId], references: [id], onDelete: SetNull)
+  artworkId String?
+
+  dmcaNoticeData DmcaNoticeData?
+
+  status DmcaStatus @default(DRAFT)
+  payload Json      @default("{}")
+  submittedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt @default(now())
+}
+
+model DmcaNoticeData {
+  id String @id @default(uuid())
+
+  dmcaNotice DmcaNotice @relation(fields: [dmcaNoticeId], references: [id], onDelete: Cascade)
+  dmcaNoticeId String @unique
+
+  generated   Int @default(0)
+}

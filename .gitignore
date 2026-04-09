@@ -1,0 +1,9 @@
+node_modules
+tsconfig.tsbuildinfo
+dist
+.env
+.vscode
+keys/
+infra
+.prisma-zod-generator-manifest.json
+.agent

@@ -1,0 +1,1 @@
+export { ArtworkType as Artwork } from "../../generated/zod";

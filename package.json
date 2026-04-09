@@ -1,0 +1,29 @@
+{
+  "name": "vigilart",
+  "private": true,
+  "version": "0.0.1",
+  "packageManager": "pnpm@10.20.0",
+  "scripts": {
+    "build:backend": "pnpm --filter backend run build",
+    "build:frontend": "pnpm --filter web-app run build",
+    "build:shared": "pnpm --filter shared run build",
+    "dev:backend": "pnpm --filter backend dev",
+    "dev:frontend": "pnpm --filter web-app dev",
+    "dev:shared": "pnpm --filter shared dev",
+    "dev": "pnpm -r --parallel dev",
+    "test": "pnpm --filter backend test",
+    "test:e2e": "pnpm --filter backend test:e2e",
+    "start:backend": "pnpm --filter backend start",
+    "start:frontend": "pnpm --filter web-app start",
+    "dev:db": "docker compose -f docker-compose.dev.yml up db",
+    "dev:seed-db": "docker compose -f docker-compose.dev.yml up seed-db"
+  },
+  "devDependencies": {
+    "dotenv-cli": "^11.0.0"
+  },
+  "pnpm": {
+    "overrides": {
+      "rxjs": "7.8.2"
+    }
+  }
+}

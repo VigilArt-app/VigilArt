@@ -1,0 +1,9 @@
+{
+  "sourceRoot": "src",
+  "compilerOptions": {
+    "tsConfigPath": "tsconfig.build.json",
+    "watchAssets": true,
+    "builder": "webpack",
+    "webpack": true
+  }
+}

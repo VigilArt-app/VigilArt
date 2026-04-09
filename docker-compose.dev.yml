@@ -1,0 +1,98 @@
+services:
+  db:
+    image: postgres:16
+    restart: always
+    env_file:
+      - .env
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - "${DB_PORT}:5432"
+    volumes:
+      - postgres_local_data:/var/lib/postgresql/data
+    networks:
+      - prisma-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    command: postgres -c listen_addresses='*'
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  prisma-studio:
+    image: node:22-alpine
+    working_dir: /app/backend
+    volumes:
+      - .:/app
+    command: >
+      sh -c "
+        corepack enable && corepack prepare pnpm@10.20.0 --activate &&
+        pnpm db:studio
+      "
+    ports:
+      - "5555:5555"
+    env_file:
+      - .env
+    networks:
+      - prisma-network
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: "postgresql://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}?schema=public"
+
+  update-db:
+    image: node:22-alpine
+    working_dir: /app/backend
+    volumes:
+      - .:/app
+    command: >
+      sh -c "
+        corepack enable && corepack prepare pnpm@10.20.0 --activate &&
+        pnpm db:push &&
+        pnpm db:generate
+      "
+    env_file:
+      - .env
+    networks:
+      - prisma-network
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: "postgresql://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}?schema=public"
+
+  seed-db:
+    image: node:22-alpine
+    working_dir: /app/backend
+    volumes:
+      - .:/app
+    command: >
+      sh -c "
+        corepack enable && corepack prepare pnpm@10.20.0 --activate &&
+        pnpm db:seed:dev
+      "
+    env_file:
+      - .env
+    networks:
+      - prisma-network
+    depends_on:
+      db:
+        condition: service_healthy
+      update-db:
+        condition: service_completed_successfully
+    environment:
+      DATABASE_URL: "postgresql://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}?schema=public"
+
+volumes:
+  postgres_local_data:
+
+networks:
+  prisma-network:
+    name: prisma-network

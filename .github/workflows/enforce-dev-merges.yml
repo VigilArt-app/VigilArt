@@ -1,0 +1,16 @@
+name: Enforce dev branch protection by allowing only merges from branches starting with "feature/" and "fix/"
+on:
+  pull_request:
+    branches:
+      - dev
+jobs:
+  check-branch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ensure PR source is feature/** or fix/** or feat/**
+        run: |
+          BRANCH="${{ github.head_ref }}"
+          if [[ ! "$BRANCH" =~ ^(feature|fix|feat)/ ]]; then
+            echo "❌ Only branches starting with 'feature/', 'fix/', or 'feat/' can be merged into 'dev'."
+            exit 1
+          fi
