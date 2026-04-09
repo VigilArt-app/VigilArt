@@ -35,7 +35,8 @@ export const ArtworkMetadataSchema = z.object({
   webEntities: z.array(ArtworkWebEntitySchema, {
     error: (e) =>
       e.input === undefined ? "Web entities array is required." : undefined
-  })
+  }),
+  extensions: z.array(z.string()).optional(),
 });
 export class ArtworkMetadataDTO extends createZodDto(ArtworkMetadataSchema) {}
 
