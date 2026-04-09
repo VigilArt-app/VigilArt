@@ -61,7 +61,7 @@ class GalleryImageCard extends StatelessWidget {
                     width: double.infinity,
                     height: double.infinity,
                     cacheWidth: 350, 
-                    gaplessPlayback: true, // Prevents flickering when scrolling
+                    gaplessPlayback: true,
                     loadingBuilder: (context, child, loadingProgress) {
                       if (loadingProgress == null) return child;
                       return const Center(child: CircularProgressIndicator(color: Color(0xFF5E3B7D)));

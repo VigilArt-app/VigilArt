@@ -21,6 +21,34 @@ extension GalleryApi on ApiService {
       final reportsData = reportsRes.statusCode == 200 ? jsonDecode(reportsRes.body) : {};
       final List<dynamic> reports = reportsData['data'] ?? [];
 
+      List<dynamic> allMatchingPages = [];
+      if (reports.isNotEmpty) {
+        final detailRequests = reports.map((report) {
+          final reportId = report['id']?.toString();
+          return http.get(Uri.parse('$serverUrl/reports/details/$reportId'), headers: headers);
+        });
+
+        final detailResponses = await Future.wait(detailRequests);
+
+        for (var res in detailResponses) {
+          if (res.statusCode == 200) {
+            final detailsData = jsonDecode(res.body);
+            final detailsRaw = detailsData['data'] ?? detailsData;
+            if (detailsRaw['matchingPages'] != null) {
+              allMatchingPages.addAll(detailsRaw['matchingPages']);
+            }
+          }
+        }
+      }
+
+      Map<String, int> matchesCountByArtwork = {};
+      for (var page in allMatchingPages) {
+        final artId = page['artworkId']?.toString();
+        if (artId != null) {
+          matchesCountByArtwork[artId] = (matchesCountByArtwork[artId] ?? 0) + 1;
+        }
+      }
+
       List<String> storageKeys = artworks.map((a) => a['storageKey']?.toString() ?? '').where((k) => k.isNotEmpty).toList();
       Map<String, dynamic> downloadUrls = {};
       
@@ -41,19 +69,18 @@ extension GalleryApi on ApiService {
         final storageKey = art['storageKey'];
         final imageUrl = storageKey != null ? downloadUrls[storageKey] : null;
         
-        final report = reports.firstWhere((r) => r['artworkId'] == artId, orElse: () => null);
+        int matchesCount = matchesCountByArtwork[artId] ?? 0;
         
         String status = 'scanning';
-        int matchesCount = 0;
-        
-        if (report != null) {
-          matchesCount = report['totalMatches'] ?? 0;
-          status = matchesCount > 0 ? 'scanned' : 'protected';
+        if (matchesCount > 0) {
+          status = 'scanned';
+        } else if (reports.isNotEmpty) {
+          status = 'protected';
         }
 
         return {
           'id': artId,
-          'title': art['title'] ?? art['originalFilename'] ?? 'Untitled',
+          'title': art['description'] ?? art['originalFilename'] ?? 'Untitled',          
           'url': imageUrl ?? '',
           'date': art['createdAt'] ?? DateTime.now().toIso8601String(),
           'status': status,
@@ -62,12 +89,10 @@ extension GalleryApi on ApiService {
       }).toList();
 
     } catch (e) {
-      print('Gallery Fetch Error: $e');
       return null;
     }
   }
 
-  // Delete Artwork
   Future<bool> deleteArtwork(String artworkId) async {
     try {
       final token = await getAccessToken();
@@ -78,7 +103,6 @@ extension GalleryApi on ApiService {
       );
       return response.statusCode == 200 || response.statusCode == 204;
     } catch (e) {
-      print('Delete Artwork Error: $e');
       return false;
     }
   }

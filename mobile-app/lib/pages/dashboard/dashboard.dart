@@ -1,4 +1,4 @@
-import 'package:VigilArt/pages/dashboard/scan_report/scanResultPage.dart'; // Ensure this matches your actual file name
+import 'package:VigilArt/pages/dashboard/scan_report/scanResultPage.dart';
 import 'package:VigilArt/pages/dashboard/statistics/statistics_page.dart';
 import 'package:VigilArt/pages/dashboard/upload_picture/uploadPhotos_page.dart';
 import 'package:flutter/material.dart';

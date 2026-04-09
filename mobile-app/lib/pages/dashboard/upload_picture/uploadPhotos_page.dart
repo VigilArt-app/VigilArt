@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:io';
+import 'dart:async';
+import 'dart:ui' as ui;
 import '../../../(api)/auth.dart';
 import '../../../(api)/upload_artworks_api.dart'; 
 import 'package:VigilArt/pages/dashboard/upload_picture/dragDropUploadZone.dart';
@@ -59,7 +61,7 @@ class _UploadPhotosPageState extends State<UploadPhotosPage> {
                         'name': fileName,
                         'path': path,
                         'progress': 0.0,
-                        'customName': '', 
+                        'description': '',
                       });
                     }
                   });
@@ -115,7 +117,7 @@ class _UploadPhotosPageState extends State<UploadPhotosPage> {
                             enabled: !_isUploading,
                             style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
                             decoration: InputDecoration(
-                              hintText: 'Give this artwork a title...',
+                              hintText: 'Add a description for this artwork...',
                               hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 14),
                               prefixIcon: Icon(Icons.edit_outlined, size: 20, color: Colors.grey.shade400),
                               filled: true,
@@ -135,7 +137,8 @@ class _UploadPhotosPageState extends State<UploadPhotosPage> {
                               ),
                             ),
                             onChanged: (value) {
-                              file['customName'] = value; 
+                              // FIXED: Mapped to 'description'
+                              file['description'] = value; 
                             },
                           ),
                         ],
@@ -296,7 +299,7 @@ class _UploadPhotosPageState extends State<UploadPhotosPage> {
         final file = _uploadingFiles[i];
         final fileName = file['name'] as String;
         final filePath = file['path'] as String;
-        final customName = file['customName'] as String; 
+        final description = file['description'] as String;
         
         final uploadInfo = uploadUrlsMap[fileName];
         if (uploadInfo == null) continue; 
@@ -312,7 +315,12 @@ class _UploadPhotosPageState extends State<UploadPhotosPage> {
           final fileBytes = await fileObj.readAsBytes();
           final sizeBytes = fileBytes.length;
 
-          final decodedImage = await decodeImageFromList(fileBytes);
+          final Completer<ui.Image> completer = Completer();
+          ui.decodeImageFromList(fileBytes, (ui.Image img) {
+            completer.complete(img);
+          });
+          final ui.Image decodedImage = await completer.future;
+          
           final width = decodedImage.width;
           final height = decodedImage.height;
 
@@ -321,7 +329,7 @@ class _UploadPhotosPageState extends State<UploadPhotosPage> {
             'originalFilename': fileName, 
             'contentType': contentType,
             'sizeBytes': sizeBytes,
-            'description': customName,    
+            'description': description,
             'storageKey': storageKey,
             'width': width, 
             'height': height,
