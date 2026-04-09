@@ -31,7 +31,7 @@ class SourcePieChart extends StatelessWidget {
                       PieChartSectionData(color: const Color(0xFF5E3B7D), value: 45, title: '45%', radius: 25, titleStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white)),
                       PieChartSectionData(color: const Color(0xFF3B82F6), value: 30, title: '30%', radius: 25, titleStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white)),
                       PieChartSectionData(color: const Color(0xFFEAB308), value: 15, title: '15%', radius: 25, titleStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white)),
-                      PieChartSectionData(color: Colors.grey[400], value: 10, title: '10%', radius: 25, titleStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white)),
+                      PieChartSectionData(color: Colors.grey.shade400, value: 10, title: '10%', radius: 25, titleStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white)),
                     ],
                   ),
                 ),
@@ -47,7 +47,7 @@ class SourcePieChart extends StatelessWidget {
               _buildLegend(const Color(0xFF5E3B7D), 'Pinterest'),
               _buildLegend(const Color(0xFF3B82F6), 'Instagram'),
               _buildLegend(const Color(0xFFEAB308), 'ArtStation'),
-              _buildLegend(Colors.grey[400]!, 'Other'),
+              _buildLegend(Colors.grey.shade400, 'Other'),
             ],
           )
         ],
