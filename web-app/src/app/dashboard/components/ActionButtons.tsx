@@ -6,7 +6,11 @@ import { Image as ImageIcon, Upload } from "lucide-react";
 import { UploadModal } from "./UploadModal";
 import { useTranslation } from "react-i18next";
 
-export default function ActionButtons() {
+interface ActionButtonsProps {
+  onUploadComplete?: () => void;
+}
+
+export default function ActionButtons({ onUploadComplete }: ActionButtonsProps) {
   const [uploadModalOpen, setUploadModalOpen] = useState(false);
   const { t } = useTranslation();
 
@@ -26,7 +30,11 @@ export default function ActionButtons() {
           <Upload className="w-6 h-6" />
         </Button>
       </div>
-      <UploadModal open={uploadModalOpen} onOpenChange={setUploadModalOpen} />
+      <UploadModal
+        open={uploadModalOpen}
+        onOpenChange={setUploadModalOpen}
+        onUploadComplete={onUploadComplete}
+      />
     </>
   );
 }

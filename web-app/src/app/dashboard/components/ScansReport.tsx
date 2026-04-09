@@ -11,9 +11,13 @@ import { ScansReportTable } from "./scans-report/ScansReportTable";
 import { useScansReportData } from "./scans-report/useScansReportData";
 import { ScanRow, SortDirection, SortField } from "./scans-report/types";
 
-export default function ScansReport() {
+interface ScansReportProps {
+  refreshKey: number;
+}
+
+export default function ScansReport({ refreshKey }: ScansReportProps) {
   const { t } = useTranslation();
-  const { scans, loading, error, selectedDate, setSelectedDate } = useScansReportData();
+  const { scans, loading, error, selectedDate, setSelectedDate } = useScansReportData(refreshKey);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [sortField, setSortField] = useState<SortField | null>(null);

@@ -20,7 +20,11 @@ interface UploadResult {
   uploadedNames: string[];
 }
 
-export function useFileUpload() {
+interface UseFileUploadOptions {
+  onUploadComplete?: () => void;
+}
+
+export function useFileUpload({ onUploadComplete }: UseFileUploadOptions = {}) {
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadResult, setUploadResult] = useState<UploadResult | null>(null);
@@ -222,6 +226,20 @@ export function useFileUpload() {
       uploadedNames.push(
         ...(createdArtworks.artworks?.map((a: any) => a.originalFilename) || [])
       );
+
+      const reportResponse = await fetch(`${API_BASE}/reports/user/${userId}`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!reportResponse.ok) {
+        toast.error(t("dashboard_page.upload.scan_report_failed"));
+      } else {
+        onUploadComplete?.();
+      }
 
       toast.dismiss("upload-progress");
       setUploadResult({ uploadedCount, failedCount, uploadedNames });
