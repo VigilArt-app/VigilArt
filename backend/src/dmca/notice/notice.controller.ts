@@ -99,17 +99,17 @@ export class DmcaNoticeController {
             status: HttpStatus.OK,
             type: DmcaNoticeGetDTO
         },
-        errors: [HttpStatus.NOT_FOUND, HttpStatus.CONFLICT],
-        protected: true
+        errors: [HttpStatus.NOT_FOUND, HttpStatus.CONFLICT, HttpStatus.BAD_REQUEST],
+        protected: true,
+        ownerships: [{ data: "userId", userField: "id", type: "body" }]
     })
     @ApiParam({ name: "id", type: String })
     @ApiBody({ type: DmcaNoticeUpdateDTO })
     async updateNotice(
-        @Req() req: AuthenticatedRequest,
         @Param("id") id: string,
         @Body() data: DmcaNoticeUpdateDTO
     ): Promise<DmcaNoticeGet> {
-        return this.noticeService.update(req.user.id, id, data);
+        return this.noticeService.update(id, data);
     }
 
     @Patch("/:id/status/:status")

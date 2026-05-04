@@ -102,11 +102,10 @@ export class DmcaNoticeService {
         });
     }
 
-    async update(userId: string, id: string, data: DmcaNoticeUpdate): Promise<DmcaNoticeGet> {
+    async update(id: string, data: DmcaNoticeUpdate): Promise<DmcaNoticeGet> {
         const oldData = await this.prisma.dmcaNotice.findUniqueOrThrow({
             where: {
-                id,
-                userId
+                id
             }
         });
         if (oldData.status === DmcaStatus.SUBMITTED)

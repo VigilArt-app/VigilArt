@@ -24,7 +24,7 @@ export class DmcaNoticeCreateDTO extends createZodDto(DmcaNoticeCreateSchema) {}
 export const DmcaNoticeUpdateSchema = DmcaNoticeGetSchema.pick({
     dmcaPlatformSlug: true,
     payload: true
-}).extend({
+}).partial().extend({
     userId: z.string()
   }
 );
