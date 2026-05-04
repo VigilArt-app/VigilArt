@@ -7,24 +7,27 @@ export const DmcaNoticeGetSchema = DmcaNoticeSchema.extend({
     payload: z.any(),
     createdAt: dateTimeStringToDate,
     updatedAt: dateTimeStringToDate,
-    submittedAt: dateTimeStringToDate.nullable(),
-    userId: z.string()
+    submittedAt: dateTimeStringToDate.nullable()
 });
 export class DmcaNoticeGetDTO extends createZodDto(DmcaNoticeGetSchema) {}
 
 export const DmcaNoticeCreateSchema = DmcaNoticeGetSchema.pick({
     dmcaPlatformSlug: true,
     payload: true,
-    userId: true,
     artworkId: true
-});
+}).extend({
+    userId: z.string()
+  }
+);
 export class DmcaNoticeCreateDTO extends createZodDto(DmcaNoticeCreateSchema) {}
 
 export const DmcaNoticeUpdateSchema = DmcaNoticeGetSchema.pick({
-    userId: true,
     dmcaPlatformSlug: true,
     payload: true
-});
+}).extend({
+    userId: z.string()
+  }
+);
 export class DmcaNoticeUpdateDTO extends createZodDto(DmcaNoticeUpdateSchema) {}
 
 export const DmcaNoticeEmailResponseSchema = z.object({
