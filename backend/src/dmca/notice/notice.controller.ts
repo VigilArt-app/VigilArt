@@ -5,6 +5,7 @@ import {
     Get,
     HttpStatus,
     Param,
+    ParseUUIDPipe,
     Patch,
     Post,
     Req
@@ -39,7 +40,7 @@ export class DmcaNoticeController {
         return this.noticeService.findAll();
     }
 
-    @Get("/user")
+    @Get("/user/:id")
     @ApiEndpoint({
         summary: "Get all DMCA notices for a user",
         success: {
@@ -47,10 +48,12 @@ export class DmcaNoticeController {
             type: [DmcaNoticeGetDTO]
         },
         errors: [HttpStatus.NOT_FOUND],
+        ownerships: [{ data: "id", userField: "id", type: "params" }],
         protected: true
     })
-    async getNoticesByUserId(@Req() req: AuthenticatedRequest): Promise<DmcaNoticeGet[]> {
-        return this.noticeService.findByUserId(req.user.id);
+    @ApiParam({ name: "id", type: String })
+    async getNoticesByUserId(@Param("id", ParseUUIDPipe) userId: string): Promise<DmcaNoticeGet[]> {
+        return this.noticeService.findByUserId(userId);
     }
 
     @Get("/:id")
@@ -79,6 +82,7 @@ export class DmcaNoticeController {
             type: DmcaNoticeGetDTO
         },
         errors: [HttpStatus.BAD_REQUEST],
+        ownerships: [{ data: "userId", userField: "id", type: "body" }],
         protected: true
     })
     @ApiBody({ type: DmcaNoticeCreateDTO })

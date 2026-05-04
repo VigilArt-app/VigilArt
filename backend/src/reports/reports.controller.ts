@@ -55,7 +55,8 @@ export class ReportsController {
       type: [ArtworksReportDTO]
     },
     protected: true,
-    ownerships: [{ data: "id", userField: "id", type: "params" }]
+    ownerships: [{ data: "id", userField: "id", type: "params" }],
+    errors: [HttpStatus.NOT_FOUND]
   })
   @ApiParam({ name: "id", type: String })
   async getAllArtworksReportsByUser(
@@ -76,9 +77,10 @@ export class ReportsController {
   })
   @ApiParam({ name: "id", type: String })
   async getArtworksReport(
+    @Req() req: AuthenticatedRequest,
     @Param("id", ParseUUIDPipe) id: string
   ): Promise<ArtworksReportGet> {
-    return this.reportsService.findOne(id);
+    return this.reportsService.findOne(req.user.id, id);
   }
 
   @Get("artwork/:artworkId/matches")
@@ -98,20 +100,14 @@ export class ReportsController {
     type: String,
     description: "Optional: get matches from a specific report, by default it is set to the latest report"
   })
-  @ApiQuery({
-    name: "userId",
-    required: true,
-    type: String,
-    description: "User id, temporary" //jwt session should be used instead
-  })
   async getMatchesArtwork(
     @Param("artworkId", ParseUUIDPipe) artworkId: string,
-    @Query("userId", ParseUUIDPipe) userId: string,
+    @Req() req: AuthenticatedRequest,
     @Query("reportId", new ParseUUIDPipe({ optional: true })) reportId?: string
   ): Promise<MatchingPage[]> {
     return this.reportsService.findMatchesByArtwork(
       artworkId,
-      userId,
+      req.user.id,
       reportId
     );
   }
@@ -124,7 +120,8 @@ export class ReportsController {
       type: ArtworksReportGlobalStatisticsDTO
     },
     protected: true,
-    errors: [HttpStatus.FORBIDDEN, HttpStatus.NOT_FOUND]
+    errors: [HttpStatus.NOT_FOUND],
+    ownerships: [{ data: "userId", userField: "id", type: "params" }]
   })
   @ApiParam({ name: "userId", type: String })
   @ApiQuery({
@@ -152,12 +149,6 @@ export class ReportsController {
   })
   @ApiParam({ name: "artworkId", type: String })
   @ApiQuery({
-    name: "userId",
-    required: true,
-    type: String,
-    description: "User id, temporary" //jwt session should be used instead
-  })
-  @ApiQuery({
     name: "reportId",
     required: false,
     type: String,
@@ -165,12 +156,12 @@ export class ReportsController {
   })
   async getArtworkStatistics(
     @Param("artworkId", ParseUUIDPipe) artworkId: string,
-    @Query("userId", ParseUUIDPipe) userId: string,
+    @Req() req: AuthenticatedRequest,
     @Query("reportId", new ParseUUIDPipe({ optional: true })) reportId?: string
   ): Promise<ArtworksReportStatistics> {
     return this.reportsService.getArtworkStatistics(
       artworkId,
-      userId,
+      req.user.id,
       reportId
     );
   }

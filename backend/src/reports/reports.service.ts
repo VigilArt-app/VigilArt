@@ -124,13 +124,13 @@ export class ReportsService {
     this.logger.log(`Finding matches of artwork ${artworkId}`);
     let selectedReportId = "";
 
-    const artwork = await this.artworksService.findOne(artworkId);
+    const artwork = await this.artworksService.findOne(userId, artworkId);
     if (artwork.userId !== userId) {
       throw new ForbiddenException("Access denied to this artwork");
     }
     if (reportId) {
       this.logger.log(`Retrieving report ${reportId}`);
-      const report = await this.findOne(reportId);
+      const report = await this.findOne(userId, reportId);
       if (report.userId !== userId) {
         throw new ForbiddenException("Access denied to this report");
       }
@@ -166,21 +166,15 @@ export class ReportsService {
     });
   }
 
-  async findOne(id: string): Promise<ArtworksReportGet> {
-    try {
-      this.logger.log(`Finding report ${id}`);
-      return await this.prisma.artworksReport.findUniqueOrThrow({
-        where: {
-          id
-        },
-        include: { matchingPages: true }
-      });
-    } catch (e: any) {
-      if (e.code == "P2025") {
-        throw new NotFoundException("Artwork report not found");
-      }
-      throw e;
-    }
+  async findOne(userId: string, id: string): Promise<ArtworksReportGet> {
+    this.logger.log(`Finding report ${id}`);
+    return this.prisma.artworksReport.findUniqueOrThrow({
+      where: {
+        userId,
+        id
+      },
+      include: { matchingPages: true }
+    });
   }
 
   async findLatestReport(userId: string): Promise<ArtworksReport> {
@@ -211,7 +205,7 @@ export class ReportsService {
 
     if (reportId) {
       this.logger.log(`Retrieving report ${reportId}`);
-      const report = await this.findOne(reportId);
+      const report = await this.findOne(userId, reportId);
       if (report.userId !== userId) {
         throw new ForbiddenException("Access denied to this report");
       }
@@ -221,7 +215,7 @@ export class ReportsService {
       const latestReport = await this.findLatestReport(userId);
       selectedReportId = latestReport.id;
     }
-    const { matchingPages } = await this.findOne(selectedReportId);
+    const { matchingPages } = await this.findOne(userId, selectedReportId);
     return matchingPages;
   }
 
