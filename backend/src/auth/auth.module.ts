@@ -16,7 +16,7 @@ import { TokenCleanupService } from "./token-cleanup.service";
     JwtModule.registerAsync({
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
-        secret: config.get<string>("JWT_SECRET"),
+        secret: config.getOrThrow<string>("JWT_SECRET"),
         signOptions: { expiresIn: config.get("JWT_EXPIRES") || "15m" }
       })
     })

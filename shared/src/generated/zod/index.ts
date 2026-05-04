@@ -28,6 +28,18 @@ export const ArtworkScalarFieldEnumSchema = z.enum(['id', 'userId', 'originalFil
 
 export type ArtworkScalarFieldEnum = z.infer<typeof ArtworkScalarFieldEnumSchema>;
 
+// File: MatchingPageScalarFieldEnum.schema.ts
+
+export const MatchingPageScalarFieldEnumSchema = z.enum(['id', 'artworkId', 'url', 'category', 'websiteName', 'imageUrl', 'pageTitle', 'firstDetectedAt'])
+
+export type MatchingPageScalarFieldEnum = z.infer<typeof MatchingPageScalarFieldEnumSchema>;
+
+// File: ArtworksReportScalarFieldEnum.schema.ts
+
+export const ArtworksReportScalarFieldEnumSchema = z.enum(['id', 'userId', 'detectionDate'])
+
+export type ArtworksReportScalarFieldEnum = z.infer<typeof ArtworksReportScalarFieldEnumSchema>;
+
 // File: DmcaPlatformScalarFieldEnum.schema.ts
 
 export const DmcaPlatformScalarFieldEnumSchema = z.enum(['id', 'slug', 'displayName', 'domain', 'dmcaUrl', 'email', 'websiteCategory', 'formSchema', 'createdAt', 'updatedAt'])
@@ -150,6 +162,33 @@ export const ArtworkSchema = z.object({
 });
 
 export type ArtworkType = z.infer<typeof ArtworkSchema>;
+
+
+// File: MatchingPage.schema.ts
+
+export const MatchingPageSchema = z.object({
+  id: z.string(),
+  artworkId: z.string(),
+  url: z.string(),
+  category: WebsiteCategorySchema,
+  websiteName: z.string(),
+  imageUrl: z.string().nullable(),
+  pageTitle: z.string().nullable(),
+  firstDetectedAt: z.coerce.date(),
+});
+
+export type MatchingPageType = z.infer<typeof MatchingPageSchema>;
+
+
+// File: ArtworksReport.schema.ts
+
+export const ArtworksReportSchema = z.object({
+  id: z.string(),
+  userId: z.string(),
+  detectionDate: z.coerce.date(),
+});
+
+export type ArtworksReportType = z.infer<typeof ArtworksReportSchema>;
 
 
 // File: DmcaPlatform.schema.ts

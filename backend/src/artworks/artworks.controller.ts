@@ -103,7 +103,7 @@ export class ArtworksController {
     summary: "Retrieve an artwork by ID",
     success: {
       status: HttpStatus.OK,
-      type: [ArtworkDTO]
+      type: ArtworkDTO
     },
     errors: [HttpStatus.NOT_FOUND],
     protected: true
@@ -121,7 +121,7 @@ export class ArtworksController {
     summary: "Update an artwork by ID",
     success: {
       status: HttpStatus.OK,
-      type: [ArtworkDTO]
+      type: ArtworkDTO
     },
     errors: [HttpStatus.BAD_REQUEST, HttpStatus.NOT_FOUND],
     protected: true
@@ -160,7 +160,7 @@ export class ArtworksController {
     summary: "Delete artworks by ID",
     success: {
       status: HttpStatus.OK,
-      type: [ApiBatchPayloadDTO]
+      type: ApiBatchPayloadDTO
     },
     protected: true
   })
@@ -175,6 +175,4 @@ export class ArtworksController {
     await this.storageService.deleteImages(storageKeys);
     return this.artworksService.removeMany(req.user.id, ids);
   }
-
-  // Faire unit tests pour storage service ?
 }

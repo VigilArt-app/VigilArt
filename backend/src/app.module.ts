@@ -20,6 +20,7 @@ import { StorageModule } from "./storage/storage.module";
 import { DmcaPlatformModule } from "./dmca/platform/platform.module";
 import { DmcaProfileModule } from "./dmca/profile/profile.module";
 import { DmcaNoticeModule } from "./dmca/notice/notice.module";
+import { GoogleLensModule } from "./googlelens/googlelens.module";
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { DmcaNoticeModule } from "./dmca/notice/notice.module";
     DmcaPlatformModule,
     DmcaProfileModule,
     DmcaNoticeModule,
+    GoogleLensModule
   ],
   controllers: [AppController],
   providers: [

@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { toast } from "sonner";
-import type { ArtworkCreateManyResponseDTO, UploadUrlsGetDTO } from "@vigilart/shared";
+import type { UploadUrlsGetDTO } from "@vigilart/shared";
 import { getImageDimensions } from "./imageUtils";
 import { authenticatedFetch } from "@/src/utils/auth/authenticatedFetch";
 import { useAuth } from "@/src/components/contexts/authContext";
+import { useTranslation } from "react-i18next";
 
 interface UploadedFile {
   file: File;
@@ -19,11 +20,16 @@ interface UploadResult {
   uploadedNames: string[];
 }
 
-export function useFileUpload() {
+interface UseFileUploadOptions {
+  onUploadComplete?: () => void;
+}
+
+export function useFileUpload({ onUploadComplete }: UseFileUploadOptions = {}) {
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadResult, setUploadResult] = useState<UploadResult | null>(null);
   const { user } = useAuth();
+  const { t } = useTranslation();
 
   const addFiles = (files: UploadedFile[]) => {
     setUploadedFiles((prev) => [...prev, ...files]);
@@ -53,7 +59,7 @@ export function useFileUpload() {
 
   const uploadFiles = async (): Promise<boolean> => {
     if (uploadedFiles.length === 0) {
-      toast.error("Please select at least one file");
+      toast.error(t("dashboard_page.upload.select_one_file"));
       return false;
     }
     setIsUploading(true);
@@ -62,7 +68,7 @@ export function useFileUpload() {
     let failedCount = 0;
     const uploadedNames: string[] = [];
 
-    toast.loading(`Uploading ${totalFiles} image${totalFiles > 1 ? "s" : ""}...`, {
+    toast.loading(`${t("dashboard_page.upload.uploading_toatser")} ${totalFiles} image${totalFiles > 1 ? "s" : ""}...`, {
       id: "upload-progress",
     });
 
@@ -95,7 +101,7 @@ export function useFileUpload() {
 
           if (!uploadInfo) {
             failedCount++;
-            toast.error(`Failed: ${file.name}`);
+            toast.error(t("dashboard_page.upload.failed_toaster") + ` ${file.name}`);
             continue;
           }
 
@@ -109,30 +115,30 @@ export function useFileUpload() {
 
           if (!uploadResponse.ok) {
             failedCount++;
-            toast.error(`Failed: ${file.name}`);
+            toast.error(t("dashboard_page.upload.failed_toaster") + ` ${file.name}`);
             continue;
           }
 
           storageKeysMap.set(file.name, uploadInfo.storageKey);
           uploadedCount++;
-          toast.loading(`Uploaded ${uploadedCount}/${totalFiles}...`, {
+          toast.loading(t("dashboard_page.upload.uploading_toatser") + ` ${uploadedCount}/${totalFiles}...`, {
             id: "upload-progress",
           });
         } catch (error) {
           failedCount++;
-          toast.error(`Error: ${file.name}`);
+          toast.error(t("dashboard_page.upload.error_toaster") + ` ${file.name}`);
         }
       }
 
       if (uploadedCount === 0) {
         toast.dismiss("upload-progress");
-        toast.error(`Failed to upload any files`);
+        toast.error(t("dashboard_page.upload.failed_to_upload"));
         setIsUploading(false);
         return false;
       }
 
       // Create artwork records
-      toast.loading(`Creating artwork records...`, { id: "upload-progress" });
+      toast.loading(t("dashboard_page.upload.create_records"), { id: "upload-progress" });
       const artworksToCreate: any[] = [];
 
       for (const { file, description } of uploadedFiles) {
@@ -163,7 +169,7 @@ export function useFileUpload() {
 
       if (artworksToCreate.length === 0) {
         toast.dismiss("upload-progress");
-        toast.error(`No artworks to create`);
+        toast.error(t("dashboard_page.upload.no_artworks_to_create"));
         setIsUploading(false);
         return false;
       }
@@ -175,7 +181,7 @@ export function useFileUpload() {
 
       if (!createResponse.ok) {
         const contentType = createResponse.headers.get("content-type");
-        let errorMessage = "Unknown error";
+        let errorMessage = t("dashboard_page.upload.unknown_error");
 
         if (contentType?.includes("application/json")) {
           try {
@@ -183,19 +189,34 @@ export function useFileUpload() {
             errorMessage =
               error.message || error.data?.message || `Error: ${createResponse.status}`;
           } catch {
-            errorMessage = `Server error: ${createResponse.status}`;
+            errorMessage = `${t("dashboard_page.upload.server_error")} ${createResponse.status}`;
           }
         }
 
         throw new Error(`Failed to create artworks: ${errorMessage}`);
       }
 
-      const result: ArtworkCreateManyResponseDTO = await createResponse.json();
-      const createdArtworks = result;
+      const createJson = await createResponse.json().catch(() => null);
+      const createdArtworks = (createJson && (createJson.data || createJson)) || {};
+
       uploadedCount = createdArtworks.count || createdArtworks.artworks?.length || 0;
       uploadedNames.push(
         ...(createdArtworks.artworks?.map((a: any) => a.originalFilename) || [])
       );
+
+      const reportResponse = await fetch(`${API_BASE}/reports/user/${userId}`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!reportResponse.ok) {
+        toast.error(t("dashboard_page.upload.scan_report_failed"));
+      } else {
+        onUploadComplete?.();
+      }
 
       toast.dismiss("upload-progress");
       setUploadResult({ uploadedCount, failedCount, uploadedNames });
@@ -203,7 +224,7 @@ export function useFileUpload() {
       return true;
     } catch (error) {
       toast.dismiss("upload-progress");
-      toast.error(error instanceof Error ? error.message : "An error occurred during upload");
+      toast.error(error instanceof Error ? error.message : t("dashboard_page.upload.error_upload"));
       return false;
     } finally {
       setIsUploading(false);

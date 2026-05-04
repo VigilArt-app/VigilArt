@@ -9,7 +9,7 @@ export class ApiClient {
 
   constructor(private readonly app: INestApplication) {
     this.config = app.get(ConfigService);
-    this.base = this.config.get<string>("API_PREFIX") || "/api/v1";
+    this.base = this.config.getOrThrow<string>("API_PREFIX");
     this.agent = request.agent(this.app.getHttpServer());
   }
 

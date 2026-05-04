@@ -1,17 +1,9 @@
 @import "tailwindcss";
 
-/* Giaza font: place the OTF file in `public/fonts/` (e.g. Giaza-regular.otf) */
-@font-face {
-  font-family: 'Giaza';
-  src: url('/fonts/Giaza-regular.otf') format('opentype');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-/* Utility class to apply Giaza to headings */
+/* Utility class to apply serif font to headings */
 .font-giaza {
-  font-family: 'Giaza', ui-serif, Georgia, 'Times New Roman', Times, serif;
+  font-family: ui-serif, Georgia, 'Times New Roman', Times, serif;
+  font-weight: 700;
 }
 
 @custom-variant dark (&:is(.dark *));
@@ -132,4 +124,31 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+.scrollbar-soft {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in oklab, var(--muted-foreground) 40%, transparent)
+    transparent;
+}
+
+.scrollbar-soft::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+.scrollbar-soft::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-soft::-webkit-scrollbar-thumb {
+  background: color-mix(in oklab, var(--muted-foreground) 45%, transparent);
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+.scrollbar-soft::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in oklab, var(--muted-foreground) 65%, transparent);
+  background-clip: content-box;
 }

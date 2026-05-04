@@ -1,5 +1,6 @@
 import { authenticatedFetch } from "@/src/utils/auth/authenticatedFetch";
 import { useState, useEffect } from "react";
+import { API_BASE_URL } from "@/src/config";
 
 export function useArtworkImageUrl(storageKey: string | undefined) {
   const [imageUrl, setImageUrl] = useState<string | null>(null);

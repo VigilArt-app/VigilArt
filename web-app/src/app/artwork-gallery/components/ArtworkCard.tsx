@@ -1,14 +1,14 @@
 "use client";
-
 import { Trash2 } from "lucide-react";
-import type { Artwork } from "@vigilart/shared/types";
-import { getArtworkStatus } from "./types";
+import { ArtworkWithInsights, FILTER_STATUS_TRANSLATION_KEYS, getArtworkStatus } from "./types";
 import { useArtworkImageUrl } from "./hooks/useArtworkImageUrl";
+import { useTranslation } from "react-i18next";
+import router from 'next/router';
 
 interface ArtworkCardProps {
-  artwork: Artwork;
+  artwork: ArtworkWithInsights;
   isSelected: boolean;
-  onSelect: (artwork: Artwork) => void;
+  onSelect: (artwork: ArtworkWithInsights) => void;
   onDelete: (id: string, e: React.MouseEvent) => void;
 }
 
@@ -18,8 +18,26 @@ export function ArtworkCard({
   onSelect,
   onDelete,
 }: ArtworkCardProps) {
+  const { t } = useTranslation();
   const status = getArtworkStatus(artwork);
+  const statusLabel = t(FILTER_STATUS_TRANSLATION_KEYS[status]);
+  const mostRecentSource = artwork.reportInsights?.mostRecentSource;
   const { imageUrl, isLoading } = useArtworkImageUrl(artwork.storageKey);
+
+  const openDmcaPage = (e: React.MouseEvent) => {
+    e.stopPropagation();
+
+    const matchingPages = artwork.reportInsights?.matchingPages ?? [];
+    const prefill = {
+      artworkId: artwork.id,
+      artworkTitle: artwork.originalFilename || artwork.description || artwork.id,
+      artworkDescription: artwork.description || "",
+      mostRecentSource: artwork.reportInsights?.mostRecentSource || "",
+      infringingUrls: matchingPages.map((page) => page.url),
+    };
+
+    router.push(`/dmca?prefill=${encodeURIComponent(JSON.stringify(prefill))}`);
+  };
 
   return (
     <div
@@ -43,7 +61,7 @@ export function ArtworkCard({
           {status === "Scanned" && "✓ "}
           {status === "Scanning" && "⟳ "}
           {status === "Protected" && "🛡"}
-          {status.toUpperCase()}
+          {statusLabel.toUpperCase()}
         </div>
       </div>
 
@@ -74,16 +92,21 @@ export function ArtworkCard({
 
       <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3">
         <p className="text-white text-sm font-medium truncate">
-          {artwork.originalFilename || "Untitled"}
+          {artwork.originalFilename || t("artwork_gallery_page.untitled")}
         </p>
         <p className="text-white/70 text-xs">
-          Uploaded{" "}
-          {new Date(artwork.createdAt).toLocaleDateString("en-US", {
+          {t("artwork_gallery_page.uploaded")}{" "}
+          {new Date(artwork.createdAt).toLocaleDateString(t("artwork_gallery_page.encod_date"), {
             month: "short",
             day: "numeric",
             year: "numeric",
           })}
         </p>
+        {mostRecentSource && (
+          <p className="text-white/80 text-xs truncate mt-1">
+            {t("artwork_gallery_page.last_source")}: {mostRecentSource}
+          </p>
+        )}
       </div>
     </div>
   );

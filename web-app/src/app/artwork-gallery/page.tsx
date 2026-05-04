@@ -2,23 +2,24 @@
 
 import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
-import type { Artwork } from "@vigilart/shared/types";
-import { FilterStatus } from "./components/types";
-import { fetchArtworks, deleteArtwork } from "./components/api";
+import { ArtworkWithInsights, FilterStatus, getArtworkStatus } from "./components/types";
+import { fetchArtworks, fetchArtworkReportInsights, deleteArtwork } from "./components/api";
 import { SearchAndFilters } from "./components/SearchAndFilters";
 import { ArtworkCard } from "./components/ArtworkCard";
 import { ArtworkDetails } from "./components/ArtworkDetails";
 import { DeleteDialog } from "./components/DeleteDialog";
 import { EmptyState } from "./components/EmptyState";
 import { useAuth } from "@/src/components/contexts/authContext";
+import { useTranslation } from "react-i18next";
 
 export default function ArtworkGalleryPage() {
-  const [artworks, setArtworks] = useState<Artwork[]>([]);
-  const [filteredArtworks, setFilteredArtworks] = useState<Artwork[]>([]);
+  const { t } = useTranslation();
+  const [artworks, setArtworks] = useState<ArtworkWithInsights[]>([]);
+  const [filteredArtworks, setFilteredArtworks] = useState<ArtworkWithInsights[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedFilter, setSelectedFilter] = useState<FilterStatus>("All");
-  const [selectedArtwork, setSelectedArtwork] = useState<Artwork | null>(null);
+  const [selectedArtwork, setSelectedArtwork] = useState<ArtworkWithInsights | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [artworkToDelete, setArtworkToDelete] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -29,9 +30,18 @@ export default function ArtworkGalleryPage() {
       if (loading || !user.id)
         return;
       try {
-        const data = await fetchArtworks(user.id);
-        setArtworks(data);
-        setFilteredArtworks(data);
+        const [data, insightsByArtwork] = await Promise.all([
+          fetchArtworks(user.id),
+          fetchArtworkReportInsights(),
+        ]);
+
+        const enrichedArtworks: ArtworkWithInsights[] = data.map((artwork) => ({
+          ...artwork,
+          reportInsights: insightsByArtwork[artwork.id],
+        }));
+
+        setArtworks(enrichedArtworks);
+        setFilteredArtworks(enrichedArtworks);
       } finally {
         setIsLoading(false);
       }
@@ -50,16 +60,14 @@ export default function ArtworkGalleryPage() {
           artwork.id.toLowerCase().includes(query) ||
           artwork.originalFilename?.toLowerCase().includes(query) ||
           artwork.description?.toLowerCase().includes(query) ||
+          artwork.reportInsights?.mostRecentSource?.toLowerCase().includes(query) ||
           new Date(artwork.createdAt).toLocaleDateString().includes(searchQuery)
       );
     }
 
     if (selectedFilter !== "All") {
       filtered = filtered.filter((artwork) => {
-        const hasScanned = artwork.lastScanAt !== null;
-        if (selectedFilter === "Scanned") return hasScanned;
-        if (selectedFilter === "Scanning") return !hasScanned;
-        return false;
+        return getArtworkStatus(artwork) === selectedFilter;
       });
     }
 
@@ -99,9 +107,9 @@ export default function ArtworkGalleryPage() {
 
   return (
     <div className="flex h-screen overflow-hidden">
-      <div className="flex-1 p-8 overflow-y-auto">
+      <div className="flex-1 p-8 overflow-y-auto scrollbar-soft">
         <div className="bg-black text-white rounded-lg p-6 mb-6">
-          <h1 className="text-3xl font-bold">Artworks Gallery</h1>
+          <h1 className="text-3xl font-bold">{t("artwork_gallery_page.artwork_gallery")}</h1>
         </div>
 
         <SearchAndFilters

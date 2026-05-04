@@ -11,7 +11,7 @@ import {
 } from "@nestjs/common";
 import type { Request, Response } from "express";
 import { LoginDTO, SignUpDTO, UserGetDTO } from "@vigilart/shared/schemas";
-import type { UserGet } from "@vigilart/shared/types";
+import { UserGet } from "@vigilart/shared/types";
 import { AuthService } from "./auth.service";
 import { ApiEndpoint } from "../common/decorators/api-endpoint.decorator";
 import { ApiBody } from "@nestjs/swagger";

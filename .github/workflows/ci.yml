@@ -16,12 +16,13 @@ permissions:
 
 jobs:
   run-tests:
+    if: github.repository != 'EpitechPGE45-2025/G-EIP-700-PAR-7-1-eip-39'
     name: 🧪 Run E2E Tests
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Install pnpm
         uses: pnpm/action-setup@v2
@@ -53,12 +54,13 @@ jobs:
         run: doppler run -- pnpm --filter @vigilart/backend test:e2e
 
   smoke-test:
+    if: github.repository != 'EpitechPGE45-2025/G-EIP-700-PAR-7-1-eip-39'
     name: 🔥 Smoke Test
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Install Doppler CLI
         uses: dopplerhq/cli-action@v3
@@ -94,5 +96,9 @@ jobs:
           echo "✅ Migrations successful"
 
           echo "Starting backend and frontend..."
-          doppler run -- docker compose -f docker-compose.prod.yml up -d --wait backend frontend
+          if ! doppler run -- docker compose -f docker-compose.prod.yml up -d --wait backend frontend; then
+            echo "CONTAINER FAILED TO BECOME HEALTHY ! DUMPING FRONTEND LOGS:"
+            docker compose -f docker-compose.prod.yml logs frontend
+            exit 1
+          fi
           echo "✅ Smoke test passed: build, migrations, and health checks successful."

@@ -13,8 +13,10 @@ import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
 import { Label } from "@/src/components/ui/label";
 import { useAuth } from "@/src/components/contexts/authContext";
+import { useTranslation } from "react-i18next";
 
 export default function ProfilePage() {
+  const { t } = useTranslation();
   const { user, loading: isLoading, refreshUser } = useAuth();
   const [isSaving, setIsSaving] = useState(false);
   const [avatarDisplayUrl, setAvatarDisplayUrl] = useState<string>("");
@@ -142,7 +144,7 @@ export default function ProfilePage() {
       <div className="relative z-10 min-h-screen flex flex-col p-8">
         {user && (
           <div className=" text-4xl font-bold mb-8 pt-4">
-            Welcome, {user.firstName || "User"}
+            {t("profil_page.welcome")}, {user.firstName || "User"}
           </div>
         )}
 
@@ -155,7 +157,7 @@ export default function ProfilePage() {
                     <img src={avatarDisplayUrl} alt="Profile" className="h-24 w-24 rounded-full object-cover border-2 shrink-0" />
                   ) : (
                     <div className="h-24 w-24 rounded-full flex items-center justify-center border-2 shrink-0">
-                      <span className="text-xs">No avatar</span>
+                      <span className="text-xs">{t("profil_page.no_avatar")}</span>
                     </div>
                   )}
 
@@ -170,7 +172,7 @@ export default function ProfilePage() {
 
                 <div className="space-y-6 border-t pt-6">
                   <div>
-                    <Label className="block font-semibold mb-3">Profile Picture</Label>
+                    <Label className="block font-semibold mb-3">{t("profil_page.profile_picture")}</Label>
                     <div className="flex items-center gap-4">
                       {formData.avatar && formData.avatar !== user?.avatar && (
                         <div className="relative">
@@ -186,7 +188,7 @@ export default function ProfilePage() {
                         ) : (
                           <Upload className="h-4 w-4" />
                         )}
-                        <span>{isSaving && formData.avatarFile ? 'Uploading...' : 'Upload Picture'}</span>
+                        <span>{isSaving && formData.avatarFile ? t("profil_page.uploading") : t("profil_page.upload_picture")}</span>
                         <input type="file" accept="image/*" onChange={handleAvatarFileChange} className="hidden" disabled={isSaving} />
                       </label>
                     </div>
@@ -195,29 +197,29 @@ export default function ProfilePage() {
                   <div className="grid grid-cols-2 gap-6">
                     <div>
                       <Label htmlFor="lastName" className="block font-semibold mb-2">
-                        Surname
+                        {t("profil_page.last_name")}
                       </Label>
-                      <Input id="lastName" name="lastName" value={formData.lastName} onChange={handleInputChange} placeholder="Enter surname" type="text" className="w-full" />
+                      <Input id="lastName" name="lastName" value={formData.lastName} onChange={handleInputChange} placeholder={t("profil_page.enter_last_name")} type="text" className="w-full" />
                     </div>
 
                     <div>
                       <Label htmlFor="firstName" className="block font-semibold mb-2">
-                        First Name
+                        {t("profil_page.first_name")}
                       </Label>
-                      <Input id="firstName" name="firstName" value={formData.firstName} onChange={handleInputChange} placeholder="Enter first name" type="text" className="w-full" />
+                      <Input id="firstName" name="firstName" value={formData.firstName} onChange={handleInputChange} placeholder={t("profil_page.enter_first_name")} type="text" className="w-full" />
                     </div>
 
                     <div>
                       <Label htmlFor="email" className="block font-semibold mb-2">
-                        Email Address
+                        {t("profil_page.email")}
                       </Label>
-                      <Input id="email" name="email" value={formData.email} onChange={handleInputChange} placeholder="Enter email" type="email" className="w-full" />
+                      <Input id="email" name="email" value={formData.email} onChange={handleInputChange} placeholder={t("profil_page.enter_email")} type="email" className="w-full" />
                     </div>
 
                     {/* If we want to be able to change the password, we need a route to update it */}
                     <div>
                       <Label className="block font-semibold mb-2">
-                        Password
+                        {t("profil_page.password")}
                       </Label>
                       <Input type="password" value="••••••••••" disabled className="w-full cursor-not-allowed" />
                     </div>
@@ -226,7 +228,7 @@ export default function ProfilePage() {
                   <div className="flex justify-end pt-6">
                     <Button onClick={handleSaveProfile} disabled={isSaving} className="gap-2" >
                       {isSaving && <Loader2 className="h-4 w-4 animate-spin" />}
-                      Save
+                      {t("profil_page.save")}
                     </Button>
                   </div>
                 </div>

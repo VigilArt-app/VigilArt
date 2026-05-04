@@ -13,13 +13,15 @@ import { toast } from "sonner";
 import { useFileUpload } from "./upload/useFileUpload";
 import { FileDropzone } from "./upload/FileDropzone";
 import { FileList } from "./upload/FileList";
+import { useTranslation } from "react-i18next";
 
 interface UploadModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onUploadComplete?: () => void;
 }
 
-export function UploadModal({ open, onOpenChange }: UploadModalProps) {
+export function UploadModal({ open, onOpenChange, onUploadComplete }: UploadModalProps) {
   const {
     uploadedFiles,
     isUploading,
@@ -29,7 +31,8 @@ export function UploadModal({ open, onOpenChange }: UploadModalProps) {
     updateDescription,
     uploadFiles,
     setUploadResult,
-  } = useFileUpload();
+  } = useFileUpload({ onUploadComplete });
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (!open && uploadResult) {
@@ -39,14 +42,14 @@ export function UploadModal({ open, onOpenChange }: UploadModalProps) {
         const namesDisplay =
           uploadedNames.length <= 3
             ? uploadedNames.map((name) => `'${name}'`).join(", ")
-            : `${uploadedNames.length} artworks`;
+            : `${uploadedNames.length} ${t("dashboard_page.upload.artworks")}`;
 
         toast.success(
-          `${namesDisplay} ${uploadedNames.length > 1 ? "have" : "has"} been uploaded, you can see ${uploadedNames.length > 1 ? "them" : "it"} in your artwork gallery`,
+          `${namesDisplay} ${uploadedNames.length > 1 ? t("dashboard_page.upload.have") : t("dashboard_page.upload.has")} ${t("dashboard_page.upload.been_uploaded")} ${uploadedNames.length > 1 ? t("dashboard_page.upload.them") : t("dashboard_page.upload.it")} ${t("dashboard_page.upload.in_your_gallery")}`,
           { duration: 5000 }
         );
       } else if (uploadedCount > 0) {
-        toast.warning(`Uploaded ${uploadedCount}, failed ${failedCount}`, {
+        toast.warning(`${t("dashboard_page.upload.uploaded")} ${uploadedCount}, ${t("dashboard_page.upload.failed")} ${failedCount}`, {
           duration: 5000,
         });
       }
@@ -66,9 +69,9 @@ export function UploadModal({ open, onOpenChange }: UploadModalProps) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
-          <DialogTitle>Upload Pictures</DialogTitle>
+          <DialogTitle>{t("dashboard_page.upload.upload_picture")}</DialogTitle>
           <DialogDescription>
-            Drag & drop files or click to select files to upload
+            {t("dashboard_page.upload.drag_and_drop")}
           </DialogDescription>
         </DialogHeader>
 
@@ -87,13 +90,13 @@ export function UploadModal({ open, onOpenChange }: UploadModalProps) {
               onClick={() => onOpenChange(false)}
               disabled={isUploading}
             >
-              Cancel
+              {t("dashboard_page.upload.cancel")}
             </Button>
             <Button
               onClick={handleUpload}
               disabled={uploadedFiles.length === 0 || isUploading}
             >
-              {isUploading ? "Uploading..." : "Upload Files"}
+              {isUploading ? t("dashboard_page.upload.uploading") : t("dashboard_page.upload.uploaded_files")}
             </Button>
           </div>
         </div>

@@ -2,21 +2,19 @@ import 'package:flutter/material.dart';
 
 class EditableFormField extends StatefulWidget {
   final String label;
-  final String initialValue;
   final TextEditingController controller;
   final bool isPassword;
   final String? Function(String?)? validator;
   final bool isReadOnly;
 
   const EditableFormField({
-    Key? key,
+    super.key,
     required this.label,
-    required this.initialValue,
     required this.controller,
     this.isPassword = false,
     this.validator,
     this.isReadOnly = false,
-  }) : super(key: key);
+  });
 
   @override
   State<EditableFormField> createState() => _EditableFormFieldState();
@@ -29,7 +27,6 @@ class _EditableFormFieldState extends State<EditableFormField> {
   void initState() {
     super.initState();
     _obscureText = widget.isPassword;
-    widget.controller.text = widget.initialValue;
   }
 
   @override

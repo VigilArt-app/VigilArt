@@ -69,7 +69,7 @@ describe("StorageService", () => {
       });
     });
 
-    it("Shouldn't return presigned url for upload - insupported file extension", async () => {
+    it("Shouldn't return presigned url for upload - unsupported file extension", async () => {
       const upload = service.getUploadUrl("grey_haired_woman.exe", "artworks");
 
       await expect(upload).rejects.toThrow(

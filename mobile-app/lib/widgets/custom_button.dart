@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class CustomButton extends StatelessWidget {
   final String text;
   final VoidCallback onPressed;
-  final IconData? icon;
+  final Widget? icon;
   final bool showIcon;
   final Color? backgroundColor;
   final Color? textColor;
@@ -71,10 +71,12 @@ class CustomButton extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         if (showIcon && icon != null) ...[
-          Icon(
-            icon,
-            color: contentColor,
-            size: 20,
+          IconTheme(
+            data: IconThemeData(
+              color: contentColor,
+              size: 20,
+            ),
+            child: icon!,
           ),
           const SizedBox(width: 8),
         ],

@@ -1,11 +1,12 @@
-import 'package:VigilArt/pages/dashboard/dashboard.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'dashboard/dashboard.dart';
 import 'signup_page.dart';
 import '../widgets/logo_header.dart';
 import '../widgets/custom_input_field.dart';
 import '../widgets/custom_button.dart';
 import '../(api)/auth.dart';
+
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
 
@@ -19,6 +20,7 @@ class _LoginPageState extends State<LoginPage> {
   final _passwordController = TextEditingController();
 
   final ApiService apiService = ApiService();
+  
   @override
   void dispose() {
     _emailController.dispose();
@@ -32,20 +34,14 @@ class _LoginPageState extends State<LoginPage> {
       String password = _passwordController.text.trim();
 
       try {
-        final response = await apiService.login(context, email, password);
+        final response = await apiService.login(email, password);
 
         if (response.statusCode == 200) {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => const DashboardPage()),
           );
-        } else if (response.statusCode == 401 || response.statusCode == 403) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Invalid email or password'),
-              backgroundColor: Colors.red,
-            ),
-          );
+
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -180,7 +176,7 @@ class _LoginPageState extends State<LoginPage> {
                   CustomButton(
                     text: 'Continue with Google',
                     onPressed: _handleGoogleSignIn,
-                    icon: FontAwesomeIcons.google,
+                    icon: const FaIcon(FontAwesomeIcons.google),
                     showIcon: true,
                     isOutlined: true,
                     backgroundColor: Colors.black87,

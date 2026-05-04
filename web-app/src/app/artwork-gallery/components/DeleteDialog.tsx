@@ -8,6 +8,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from "../../../components/ui/dialog";
+import { useTranslation } from "react-i18next";
 
 interface DeleteDialogProps {
   open: boolean;
@@ -22,6 +23,7 @@ export function DeleteDialog({
   onConfirm,
   isDeleting,
 }: DeleteDialogProps) {
+  const { t } = useTranslation();
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
@@ -30,11 +32,10 @@ export function DeleteDialog({
             <div className="bg-red-100 dark:bg-red-900/20 p-3 rounded-full">
               <AlertTriangle className="w-6 h-6 text-red-600 dark:text-red-500" />
             </div>
-            <DialogTitle className="text-xl">Delete Artwork</DialogTitle>
+            <DialogTitle className="text-xl">{t("artwork_gallery_page.delete_artwork")}</DialogTitle>
           </div>
           <DialogDescription className="text-base pt-2">
-            Are you sure you want to delete this artwork? This action cannot be
-            undone.
+            {t("artwork_gallery_page.confirm_delete")}
           </DialogDescription>
         </DialogHeader>
         <DialogFooter className="gap-2 sm:gap-0">
@@ -43,7 +44,7 @@ export function DeleteDialog({
             onClick={() => onOpenChange(false)}
             disabled={isDeleting}
           >
-            Cancel
+            {t("artwork_gallery_page.cancel")}
           </Button>
           <Button
             variant="destructive"
@@ -53,12 +54,12 @@ export function DeleteDialog({
             {isDeleting ? (
               <>
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Deleting...
+                {t("artwork_gallery_page.deleting")}
               </>
             ) : (
               <>
                 <Trash2 className="w-4 h-4 mr-2" />
-                Delete
+                {t("artwork_gallery_page.delete")}
               </>
             )}
           </Button>

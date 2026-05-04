@@ -2,6 +2,10 @@ import { toast } from "sonner";
 import type { UserUpdate } from "@vigilart/shared/types";
 import type { UploadUrlGet, UploadUrlsGetDTO, UserGet } from "@vigilart/shared";
 import { authenticatedFetch } from "../../utils/auth/authenticatedFetch";
+import i18next from "i18next";
+
+const t = (key: string, defaultValue: string) =>
+  i18next.t(key, { defaultValue });
 
 /**
  * Get presigned upload URL for avatar from storage service
@@ -24,7 +28,7 @@ export const getAvatarUploadUrl = async (filename: string): Promise<UploadUrlGet
     const uploadUrls: UploadUrlsGetDTO = urlsData.data || urlsData;
     return uploadUrls[filename];
   } catch (error) {
-    toast.error("Failed to prepare avatar upload");
+    toast.error(t("profil_page.failed_prepare_avatar", "Failed to prepare avatar upload"));
     throw error;
   }
 };
@@ -49,7 +53,7 @@ export const uploadAvatarToR2 = async (
       throw new Error(`Upload failed with status ${response.status}`);
     }
   } catch (error) {
-    toast.error("Failed to upload avatar");
+    toast.error(t("profil_page.failed_avatar_upload", "Failed to upload avatar"));
     throw error;
   }
 };
@@ -94,16 +98,18 @@ export const updateUserProfile = async (
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       throw new Error(
-        errorData.message || "Failed to update user profile"
+        errorData.message || t("profil_page.failed_update", "Failed to update user profile")
       );
     }
 
     const data = await response.json();
-    toast.success("Profile updated successfully");
+    toast.success(t("profil_page.profile_updated", "Profile updated successfully"));
     return data.data || data;
   } catch (error) {
     toast.error(
-      error instanceof Error ? error.message : "Failed to update profile"
+      error instanceof Error
+        ? error.message
+        : t("profil_page.failed_update", "Failed to update user profile")
     );
     throw error;
   }

@@ -1,7 +1,9 @@
 import 'package:VigilArt/pages/dashboard/dashboard.dart';
+import 'package:VigilArt/pages/dashboard/upload_picture/uploadPhotos_page.dart';
 import 'package:VigilArt/pages/gallery/gallery_page.dart';
 import 'package:VigilArt/pages/profile/profile_page.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'pages/login_page.dart';
 import 'pages/signup_page.dart';
@@ -10,7 +12,7 @@ void main() async {
 
   WidgetsFlutterBinding.ensureInitialized();
   bool isLoggedIn = await checkLoginStatus();
-  
+  await dotenv.load(fileName: ".env");
   runApp(VigilArtApp(isLoggedIn: isLoggedIn));
 }
 
@@ -82,6 +84,7 @@ class VigilArtApp extends StatelessWidget {
         '/dashboard': (context) => const DashboardPage(),
         '/gallery': (context) => const GalleryPage(),
         '/profile': (context) => const ProfilePage(),
+        '/upload': (context) => const UploadPhotosPage(),
       },
     );
   }

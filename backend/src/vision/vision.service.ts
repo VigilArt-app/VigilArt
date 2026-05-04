@@ -5,10 +5,13 @@ import {
   ArtworkMetadata,
   ArtworkMetadataLabel,
   ArtworkWebEntity,
-  MatchingPage
+  MatchingPageGet
 } from "@vigilart/shared";
-import { WebDetection, WebEntity, WebLabel, WebPage } from "./types";
-import { classifyWebsite, extractRootDomain, getImageUrl } from "./utils";
+import { WebDetection, WebEntity, WebImage, WebLabel, WebPage } from "./types";
+import {
+  classifyWebsite,
+  extractRootDomain
+} from "../common/utils/website-class";
 
 @Injectable()
 export class VisionService implements OnModuleDestroy {
@@ -23,6 +26,15 @@ export class VisionService implements OnModuleDestroy {
       await this.client.close();
     }
   }
+
+  getImageUrl = (
+    matchingImages: WebImage[] | null | undefined
+  ): string | null => {
+    if (!matchingImages || matchingImages.length === 0) {
+      return null;
+    }
+    return matchingImages[0].url ?? null;
+  };
 
   getArtworkReportMetadata(
     bestGuessLabels: WebLabel[] | null | undefined,
@@ -72,24 +84,24 @@ export class VisionService implements OnModuleDestroy {
 
   getArtworkReportMatchingPages(
     pagesWithMatchingImages: WebPage[] | null | undefined
-  ): MatchingPage[] {
+  ): MatchingPageGet[] {
     if (!pagesWithMatchingImages) {
       return [];
     }
-    const matchingPages: MatchingPage[] = pagesWithMatchingImages.reduce(
-      (acc: MatchingPage[], page: WebPage) => {
+    const matchingPages: MatchingPageGet[] = pagesWithMatchingImages.reduce(
+      (acc: MatchingPageGet[], page: WebPage) => {
         const hasFullMatches = (page.fullMatchingImages?.length ?? 0) > 0;
         const hasPartialMatches = (page.partialMatchingImages?.length ?? 0) > 0;
         let imageUrl;
 
         if (hasFullMatches) {
-          imageUrl = getImageUrl(page.fullMatchingImages);
+          imageUrl = this.getImageUrl(page.fullMatchingImages);
         }
-        if (hasPartialMatches) {
-          imageUrl = getImageUrl(page.partialMatchingImages);
+        if (!imageUrl && hasPartialMatches) {
+          imageUrl = this.getImageUrl(page.partialMatchingImages);
         }
         if (page.url && (hasFullMatches || hasPartialMatches)) {
-          const validItem: MatchingPage = {
+          const validItem: MatchingPageGet = {
             url: page.url,
             category: classifyWebsite(page.url),
             websiteName: extractRootDomain(page.url),
