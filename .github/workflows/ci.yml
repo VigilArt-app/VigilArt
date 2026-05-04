@@ -16,6 +16,7 @@ permissions:
 
 jobs:
   run-tests:
+    if: github.repository != 'EpitechPGE45-2025/G-EIP-700-PAR-7-1-eip-39'
     name: 🧪 Run E2E Tests
     runs-on: ubuntu-latest
 
@@ -53,6 +54,7 @@ jobs:
         run: doppler run -- pnpm --filter @vigilart/backend test:e2e
 
   smoke-test:
+    if: github.repository != 'EpitechPGE45-2025/G-EIP-700-PAR-7-1-eip-39'
     name: 🔥 Smoke Test
     runs-on: ubuntu-latest
 
