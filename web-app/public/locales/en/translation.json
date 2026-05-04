@@ -144,6 +144,7 @@
         "profile": "Profile",
         "dashboard": "Dashboard",
         "artwork_gallery": "Artwork Gallery",
+        "dmca": "DMCA",
         "logout": "Logout",
         "upgrade": "Upgrade to Pro"
     },

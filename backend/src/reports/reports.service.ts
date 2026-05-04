@@ -42,7 +42,7 @@ export class ReportsService {
   ): Promise<MatchingPageGet[]> {
     const visualSearchResults = await Promise.all([
       this.visionService.searchImage(imageBuffer),
-      // this.googleLensService.searchImage(imageDownloadUrl)
+      this.googleLensService.searchImage(imageDownloadUrl)
     ]);
     const matchingPages = visualSearchResults.reduce<MatchingPageGet[]>(
       (acc: MatchingPageGet[], value: VisualSearchResult | null) => {
