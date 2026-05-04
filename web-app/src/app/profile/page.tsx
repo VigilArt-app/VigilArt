@@ -91,6 +91,12 @@ export default function ProfilePage() {
   };
 
   const handleSaveProfile = async () => {
+    if (!user?.id) {
+      return;
+    }
+
+    const userId = user.id;
+
     setIsSaving(true);
     try {
       const updatePayload: UserUpdate = {};
@@ -120,7 +126,7 @@ export default function ProfilePage() {
         return;
       }
 
-      await updateUserProfile(user.id, updatePayload);
+      await updateUserProfile(userId, updatePayload);
       await refreshUser();
       setFormData((prev) => ({
         ...prev,

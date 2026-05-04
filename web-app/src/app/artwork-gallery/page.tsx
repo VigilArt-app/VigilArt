@@ -27,12 +27,21 @@ export default function ArtworkGalleryPage() {
 
   useEffect(() => {
     const loadArtworks = async () => {
-      if (loading || !user.id)
+      if (loading) {
         return;
+      }
+
+      if (!user?.id) {
+        setIsLoading(false);
+        return;
+      }
+
+      const userId = user.id;
+
       try {
         const [data, insightsByArtwork] = await Promise.all([
-          fetchArtworks(user.id),
-          fetchArtworkReportInsights(),
+          fetchArtworks(userId),
+          fetchArtworkReportInsights(userId),
         ]);
 
         const enrichedArtworks: ArtworkWithInsights[] = data.map((artwork) => ({
@@ -48,7 +57,7 @@ export default function ArtworkGalleryPage() {
     };
 
     loadArtworks();
-  }, [loading, user.id]);
+  }, [loading, user?.id]);
 
   useEffect(() => {
     let filtered = [...artworks];

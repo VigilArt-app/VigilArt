@@ -28,7 +28,7 @@ export function useFileUpload({ onUploadComplete }: UseFileUploadOptions = {}) {
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadResult, setUploadResult] = useState<UploadResult | null>(null);
-  const { user } = useAuth();
+  const { user, loading: userLoading } = useAuth();
   const { t } = useTranslation();
 
   const addFiles = (files: UploadedFile[]) => {
@@ -58,6 +58,17 @@ export function useFileUpload({ onUploadComplete }: UseFileUploadOptions = {}) {
   };
 
   const uploadFiles = async (): Promise<boolean> => {
+    if (userLoading) {
+      return false;
+    }
+
+    if (!user?.id) {
+      toast.error("Not authenticated");
+      return false;
+    }
+
+    const userId = user.id;
+
     if (uploadedFiles.length === 0) {
       toast.error(t("dashboard_page.upload.select_one_file"));
       return false;
@@ -150,10 +161,8 @@ export function useFileUpload({ onUploadComplete }: UseFileUploadOptions = {}) {
         try {
           const { width, height } = await getImageDimensions(file);
 
-          if (!user)
-            throw new Error("Unauthenticated");
           artworksToCreate.push({
-            userId: user.id,
+            userId,
             originalFilename: file.name,
             contentType: file.type,
             sizeBytes: file.size,
@@ -204,12 +213,8 @@ export function useFileUpload({ onUploadComplete }: UseFileUploadOptions = {}) {
         ...(createdArtworks.artworks?.map((a: any) => a.originalFilename) || [])
       );
 
-      const reportResponse = await fetch(`${API_BASE}/reports/user/${userId}`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${authToken}`,
-          "Content-Type": "application/json",
-        },
+      const reportResponse = await authenticatedFetch(`/reports/user/${userId}`, {
+        method: "POST"
       });
 
       if (!reportResponse.ok) {

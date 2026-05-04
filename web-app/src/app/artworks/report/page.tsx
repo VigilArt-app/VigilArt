@@ -2,9 +2,8 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { MatchingPage as SharedMatchingPage } from "@vigilart/shared/types";
-import { getAuthToken } from "../../../utils/auth/getAuthToken";
-import { getUserIdFromToken } from "../../../utils/auth/getUserIdFromToken";
-import { API_BASE_URL } from "@/src/config";
+import { authenticatedFetch } from "@/src/utils/auth/authenticatedFetch";
+import { useAuth } from "@/src/components/contexts/authContext";
 
 type MatchingPage = Omit<SharedMatchingPage, "firstDetectedAt"> & {
   firstDetectedAt: string;
@@ -23,35 +22,27 @@ export default function ReportPage() {
   const [message, setMessage] = useState<string | null>(null);
   const [report, setReport] = useState<ReportData | null>(null);
   const matchingPages: MatchingPage[] = report?.matchingPages || [];
+  const { user, loading: userLoading } = useAuth();
 
   const handleCreate = async () => {
+    if (userLoading) {
+      return;
+    }
+
+    if (!user?.id) {
+      setMessage(t("artworks_report_page.error"));
+      return;
+    }
+
+    const userId = user.id;
+
     setMessage(null);
     setReport(null);
     setLoading(true);
 
-    const token = getAuthToken();
-    if (!token) {
-      setMessage(t("artworks_report_page.auth_token_not_found"));
-      setLoading(false);
-      return;
-    }
-
-    const userId = getUserIdFromToken();
-    if (!userId) {
-      setMessage(t("artworks_report_page.cannot_resolve_user"));
-      setLoading(false);
-      return;
-    }
-
     try {
-      const base = API_BASE_URL;
-      
-      const reportRes = await fetch(`${base}/reports/user/${userId}`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
+      const reportRes = await authenticatedFetch(`/reports/user/${userId}`, {
+        method: "POST"
       });
 
       if (!reportRes.ok) {
@@ -71,12 +62,8 @@ export default function ReportPage() {
         return;
       }
 
-      const reportDetailsRes = await fetch(`${base}/reports/details/${reportId}`, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
+      const reportDetailsRes = await authenticatedFetch(`/reports/details/${reportId}`, {
+        method: "GET"
       });
 
       if (!reportDetailsRes.ok) {
