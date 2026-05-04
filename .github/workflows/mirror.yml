@@ -4,10 +4,11 @@ on:
   push:
     branches:
       - main
-      - feature/mirror-repo-action
 
 jobs:
   mirror:
+    if: github.repository == 'EpitechPGE45-2025/G-EIP-700-PAR-7-1-eip-39'
+    name: 🔄 Mirror Repository
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
