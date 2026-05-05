@@ -8,19 +8,17 @@ extension ArtworkUpload on ApiService {
 
   Future<Map<String, dynamic>?> getUploadUrls(List<String> filenames) async {
     final url = Uri.parse('$serverUrl/storage/artworks/upload-urls');
-    final token = await getAccessToken();
 
     try {
-      final response = await http.post(
-        url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
-        body: jsonEncode({
-          'filenames': filenames,
-          'prefix': 'artworks',
-        }),
+      final response = await authenticatedRequest(
+        (headers) => http.post(
+          url,
+          headers: headers,
+          body: jsonEncode({
+            'filenames': filenames,
+            'prefix': 'artworks',
+          }),
+        ),
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
@@ -56,16 +54,14 @@ extension ArtworkUpload on ApiService {
 
   Future<bool> createArtworkRecords(List<Map<String, dynamic>> artworks) async {
     final url = Uri.parse('$serverUrl/artworks/batch');
-    final token = await getAccessToken();
 
     try {
-      final response = await http.post(
-        url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
-        body: jsonEncode(artworks),
+      final response = await authenticatedRequest(
+        (headers) => http.post(
+          url,
+          headers: headers,
+          body: jsonEncode(artworks),
+        ),
       );
       
       return response.statusCode == 200 || response.statusCode == 201;
