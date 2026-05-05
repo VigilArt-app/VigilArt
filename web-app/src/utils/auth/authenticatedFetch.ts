@@ -1,3 +1,5 @@
+import { API_BASE_URL } from "../../config";
+
 let refreshTokenPromise: Promise<Response> | null = null;
 
 /**
@@ -11,8 +13,7 @@ export const authenticatedFetch = async (
   options: RequestInit = {},
   noAuth?: boolean
 ): Promise<Response> => {
-  const API_BASE = process.env.NEXT_PUBLIC_API_URL;
-  if (!API_BASE)
+  if (!API_BASE_URL)
     throw new Error("Couldn't request to the API.");
 
   const fetchOptions: RequestInit = {
@@ -29,13 +30,13 @@ export const authenticatedFetch = async (
 
   fetchOptions.headers = headers;
 
-  let response = await fetch(API_BASE + url, fetchOptions);
+  let response = await fetch(API_BASE_URL + url, fetchOptions);
 
   if (noAuth)
     return response;
   if (response.status === 401) {
     if (!refreshTokenPromise) {
-      refreshTokenPromise = fetch(`${API_BASE}/auth/refresh`, {
+      refreshTokenPromise = fetch(`${API_BASE_URL}/auth/refresh`, {
         method: 'POST',
         credentials: 'include',
       });
@@ -45,7 +46,7 @@ export const authenticatedFetch = async (
       const refreshResponse = await refreshTokenPromise;
 
       if (refreshResponse.ok) {
-        response = await fetch(API_BASE + url, fetchOptions);
+        response = await fetch(API_BASE_URL + url, fetchOptions);
       } else {
         if (typeof window !== 'undefined') {
           window.location.href = '/login';
