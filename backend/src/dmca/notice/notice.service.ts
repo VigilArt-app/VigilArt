@@ -18,6 +18,7 @@ import {
     createPayloadSchemaFromPlatform
 } from "@vigilart/shared";
 import PDFDocument from "pdfkit";
+import { assertResourceOwnership } from "../../common/utils/ownership";
 
 interface NecessaryProperties {
     platform: {
@@ -68,12 +69,16 @@ export class DmcaNoticeService {
 
     async findById(userId: string, id: string): Promise<DmcaNoticeGet> {
         this.logger.log(`Finding DMCA notice: ${id}`);
-        return this.prisma.dmcaNotice.findUniqueOrThrow({
+        const notice = await this.prisma.dmcaNotice.findUniqueOrThrow({
             where: {
-                id,
-                userId
+                id
             }
         });
+
+        return assertResourceOwnership(
+            notice,
+            userId
+        );
     }
 
     private async validatePayload(platformSlug: string, payload: unknown) {
@@ -133,12 +138,7 @@ export class DmcaNoticeService {
     }
 
     async updateStatus(userId: string, id: string, status: DmcaStatus): Promise<DmcaNoticeGet> {
-        const notice = await this.prisma.dmcaNotice.findUniqueOrThrow({
-            where: {
-                id,
-                userId
-            }
-        });
+        const notice = await this.findById(userId, id);
         if (notice.status === DmcaStatus.SUBMITTED)
             throw new ConflictException("Cannot change status of a submitted notice");
         if (notice.status === status)
@@ -152,12 +152,7 @@ export class DmcaNoticeService {
     }
 
     async delete(userId: string, id: string): Promise<void> {
-        const notice = await this.prisma.dmcaNotice.findUniqueOrThrow({
-            where: {
-                id,
-                userId
-            }
-        });
+        const notice = await this.findById(userId, id);
         if (notice.status === DmcaStatus.SUBMITTED)
             throw new ConflictException("Cannot delete a submitted notice");
 
@@ -395,8 +390,7 @@ export class DmcaNoticeService {
     async generate(userId: string, id: string): Promise<DmcaNoticeGeneratedContent> {
         const notice = await this.prisma.dmcaNotice.findUniqueOrThrow({
             where: {
-                id,
-                userId
+                id
             },
             include: {
                 dmcaPlatform: {
@@ -411,6 +405,11 @@ export class DmcaNoticeService {
                 }
             }
         });
+
+        assertResourceOwnership(
+            notice,
+            userId
+        );
 
         if (!notice.payload || typeof notice.payload !== "object" || Array.isArray(notice.payload))
             throw new BadRequestException("Invalid payload");
