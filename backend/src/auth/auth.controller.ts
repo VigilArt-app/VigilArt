@@ -1,7 +1,6 @@
 import {
   Body,
   Controller,
-  HttpCode,
   HttpStatus,
   Post,
   Req,
@@ -10,11 +9,14 @@ import {
   Get
 } from "@nestjs/common";
 import type { Request, Response } from "express";
-import { LoginDTO, SignUpDTO, UserGetDTO } from "@vigilart/shared/schemas";
-import { UserGet } from "@vigilart/shared/types";
+import {
+  ApiBody,
+  ApiResponse,
+} from "@nestjs/swagger";
+import { LoginDTO, SignUpDTO, UserGetDTO, AuthSessionDTO, AuthAccessTokenDTO } from "@vigilart/shared/schemas";
+import { AuthResponse, AuthAccessToken, UserGet } from "@vigilart/shared/types";
 import { AuthService } from "./auth.service";
 import { ApiEndpoint } from "../common/decorators/api-endpoint.decorator";
-import { ApiBody } from "@nestjs/swagger";
 import { JwtRefreshAuthGuard } from "../common/guards/jwt-refresh-auth.guard";
 import type { AuthenticatedRequest } from "./auth";
 
@@ -38,10 +40,11 @@ export class AuthController {
 
   @Post("login")
   @ApiEndpoint({
-    summary: "Authenticate a user and obtain JWT tokens via httpOnly cookies",
+    summary: "Authenticate a user and obtain auth via cookies or bearer tokens",
+    protected: false,
     success: {
       status: HttpStatus.OK,
-      type: UserGetDTO
+      oneOf: [UserGetDTO, AuthSessionDTO]
     }
   })
   @ApiBody({ type: LoginDTO })
@@ -49,29 +52,43 @@ export class AuthController {
     @Body() loginDto: LoginDTO,
     @Req() request: Request,
     @Res({ passthrough: true }) response: Response
-  ): Promise<UserGet> {
+  ): Promise<AuthResponse> {
     return this.authService.login(response, request, loginDto);
   }
 
   @Post("refresh")
   @UseGuards(JwtRefreshAuthGuard)
   @ApiEndpoint({
-    summary: "Refresh access token using refresh token from httpOnly cookie",
+    summary: "Refresh access token (web: cookie only, mobile: bearer token response)",
     success: {
       status: HttpStatus.NO_CONTENT
     },
     errors: [HttpStatus.UNAUTHORIZED]
   })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: AuthAccessTokenDTO,
+    description: "Mobile clients (x-client-type: mobile) receive a refreshed access token in the response body."
+  })
   async refresh(
     @Req() req: AuthenticatedRequest,
     @Res({ passthrough: true }) response: Response
-  ): Promise<void> {
-    return this.authService.refreshTokens(
+  ): Promise<AuthAccessToken | void> {
+    const result = await this.authService.refreshTokens(
       response,
+      req,
       req.user.id,
       req.user.email,
       req.user.refreshToken
     );
+
+    if (req.header("x-client-type")?.toLowerCase() === "mobile") {
+      response.status(HttpStatus.OK);
+      return result;
+    }
+
+    response.status(HttpStatus.NO_CONTENT);
+    return;
   }
 
   @Post("logout")

@@ -9,6 +9,14 @@ import { Request } from 'express';
 import * as bcrypt from "bcrypt";
 import type { AuthenticatedRequest } from './auth';
 
+const extractRefreshToken = (request: Request) => {
+  const authorization = request?.headers?.authorization;
+  if (authorization?.startsWith("Bearer "))
+    return authorization.slice(7);
+
+  return request?.cookies?.['refresh_token'] ?? request?.body?.refreshToken ?? null;
+};
+
 @Injectable()
 export class JwtRefreshStrategy extends PassportStrategy(Strategy, 'jwt-refresh') {
   constructor(
@@ -18,9 +26,7 @@ export class JwtRefreshStrategy extends PassportStrategy(Strategy, 'jwt-refresh'
   ) {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
-        (request: Request) => {
-          return request?.cookies?.['refresh_token'];
-        },
+        extractRefreshToken,
       ]),
       ignoreExpiration: false,
       secretOrKey: config.getOrThrow<string>("JWT_REFRESH_SECRET"),
@@ -29,7 +35,7 @@ export class JwtRefreshStrategy extends PassportStrategy(Strategy, 'jwt-refresh'
   }
 
   async validate(req: Request, payload: JwtPayload): Promise<AuthenticatedRequest["user"]> {
-    const refreshToken = req.cookies?.['refresh_token'];
+    const refreshToken = extractRefreshToken(req);
     if (!refreshToken)
       throw new UnauthorizedException('Refresh token is required');
 

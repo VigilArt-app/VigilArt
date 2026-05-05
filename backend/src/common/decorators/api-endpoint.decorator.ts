@@ -1,11 +1,13 @@
 import { applyDecorators, HttpCode, HttpStatus, Type, UseGuards } from "@nestjs/common";
-import { ApiOperation, ApiResponse, ApiBearerAuth } from "@nestjs/swagger";
+import { ApiOperation, ApiResponse, ApiBearerAuth, ApiExtraModels, getSchemaPath } from "@nestjs/swagger";
 import { ApiResponseGeneric } from "./api-ok-response-generic.decorator";
 import { CheckOwnership, type Ownerships } from "./check-ownership.decorator";
 import { JwtAuthGuard } from "../guards/jwt-auth.guard";
 import { OwnershipGuard } from "../guards/ownership.guard";
 import {
   BadRequestErrorDTO,
+  ApiSuccessDTO,
+  ApiCreatedDTO,
   UnauthorizedErrorDTO,
   ForbiddenErrorDTO,
   NotFoundErrorDTO,
@@ -44,6 +46,7 @@ type ApiEndpointOptions200 = BaseApiEndpointOptions & ProtectionOptions & {
   success: {
     status: HttpStatus.OK;
     type?: Type<unknown> | [Type<unknown>];
+    oneOf?: [Type<unknown>, ...Type<unknown>[]];
     nullable?: boolean;
   };
 };
@@ -52,6 +55,7 @@ type ApiEndpointOptions201 = BaseApiEndpointOptions & ProtectionOptions & {
   success: {
     status: HttpStatus.CREATED;
     type?: Type<unknown> | [Type<unknown>];
+    oneOf?: [Type<unknown>, ...Type<unknown>[]];
     nullable?: boolean;
   };
 };
@@ -74,7 +78,26 @@ export function ApiEndpoint(options: ApiEndpointOptions) {
 
     decorators.push(ApiOperation({ summary: options.summary }));
     decorators.push(HttpCode(options.success.status));
-    if (options.success.status !== HttpStatus.NO_CONTENT)
+    if (options.success.status !== HttpStatus.NO_CONTENT && options.success.oneOf?.length) {
+        const ResponseDto = options.success.status === HttpStatus.OK ? ApiSuccessDTO : ApiCreatedDTO;
+
+        decorators.push(ApiExtraModels(ResponseDto, ...options.success.oneOf));
+        decorators.push(ApiResponse({
+          status: options.success.status,
+          schema: {
+            allOf: [
+              { $ref: getSchemaPath(ResponseDto) },
+              {
+                properties: {
+                  data: {
+                    oneOf: options.success.oneOf.map((dto) => ({ $ref: getSchemaPath(dto) }))
+                  }
+                }
+              }
+            ]
+          }
+        }));
+    } else if (options.success.status !== HttpStatus.NO_CONTENT)
         decorators.push(ApiResponseGeneric(options.success.status, options.success.type, options.success.nullable));
     if (options.success.status === HttpStatus.NO_CONTENT)
         decorators.push(ApiResponseGeneric(options.success.status));

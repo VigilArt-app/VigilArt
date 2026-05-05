@@ -7,6 +7,14 @@ import { UsersService } from "../users/users.service";
 import type { AuthenticatedRequest, JwtPayload } from './auth';
 import { Request } from 'express';
 
+const extractAuthToken = (request: Request) => {
+  const bearerToken = request
+    ? ExtractJwt.fromAuthHeaderAsBearerToken()(request)
+    : null;
+
+  return request?.cookies?.['auth_token'] ?? bearerToken;
+};
+
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(
@@ -15,9 +23,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   ) {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
-        (request: Request) => {
-          return request?.cookies?.['auth_token'];
-        },
+        extractAuthToken,
       ]),
       ignoreExpiration: false,
       secretOrKey: config.getOrThrow<string>("JWT_SECRET"),

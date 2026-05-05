@@ -3,7 +3,15 @@ import {
   Injectable,
   UnauthorizedException
 } from "@nestjs/common";
-import type { Login, SignUp, AuthTokens, UserGet } from "@vigilart/shared/types";
+import type {
+  AuthAccessToken,
+  AuthResponse,
+  AuthSessionResponse,
+  AuthTokens,
+  Login,
+  SignUp,
+  UserGet
+} from "@vigilart/shared/types";
 import { UsersService } from "../users/users.service";
 import { JwtService } from "@nestjs/jwt";
 import * as bcrypt from "bcrypt";
@@ -33,6 +41,21 @@ export class AuthService {
     };
   }
 
+  private isMobileClient(request?: Request): boolean {
+    return request?.header("x-client-type")?.toLowerCase() === "mobile";
+  }
+
+  private buildAuthSessionResponse(
+    user: UserGet,
+    tokens: AuthTokens
+  ): AuthSessionResponse {
+    return {
+      accessToken: tokens.accessToken,
+      refreshToken: tokens.refreshToken,
+      user
+    };
+  }
+
   private async generateAccessToken(
     userId: string,
     email: string
@@ -53,8 +76,7 @@ export class AuthService {
     request?: Request
   ): Promise<AuthTokens> {
     const accessTokenExpiry = this.config.get("JWT_EXPIRES") || "15m";
-    const refreshTokenExpiry = this.config.get("JWT_REFRESH_EXPIRES") || "7d";
-    const saltRounds = Number(this.config.get<number>("SALT_ROUNDS") || 10);
+    const refreshTokenExpiry = this.getRefreshTokenExpiry(request);
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(
         { sub: userId, email },
@@ -71,20 +93,37 @@ export class AuthService {
         }
       )
     ]);
+    await this.persistRefreshToken(userId, refreshToken, request);
+    return { accessToken, refreshToken, expiresIn: accessTokenExpiry };
+  }
+
+  private async persistRefreshToken(
+    userId: string,
+    refreshToken: string,
+    request?: Request
+  ): Promise<void> {
+    const refreshTokenExpiry = this.getRefreshTokenExpiry(request);
     const refreshTokenExpiryMs = this.parseExpiryToMs(refreshTokenExpiry);
-    const refreshTokenExpiryDate = new Date(Date.now() + refreshTokenExpiryMs);
-    const hashedRefreshToken = await bcrypt.hash(refreshToken, saltRounds);
+    const hashedRefreshToken = await bcrypt.hash(
+      refreshToken,
+      Number(this.config.get<number>("SALT_ROUNDS") || 10)
+    );
 
     await this.prisma.refreshToken.create({
       data: {
         userId,
         token: hashedRefreshToken,
-        expiresAt: refreshTokenExpiryDate,
+        expiresAt: new Date(Date.now() + refreshTokenExpiryMs),
         deviceInfo: request ? this.extractDeviceInfo(request) : null,
         ipAddress: request ? this.extractIpAddress(request) : null
       }
     });
-    return { accessToken, refreshToken, expiresIn: accessTokenExpiry };
+  }
+
+  private getRefreshTokenExpiry(request?: Request) {
+    if (request && this.isMobileClient(request))
+      return this.config.get("JWT_MOBILE_REFRESH_EXPIRES") || "3650d";
+    return this.config.get("JWT_REFRESH_EXPIRES") || "7d";
   }
 
   private extractDeviceInfo(request: Request): string {
@@ -148,7 +187,7 @@ export class AuthService {
     response: Response,
     request: Request,
     { email, password }: Login
-  ): Promise<UserGet> {
+  ): Promise<AuthResponse> {
     const user = await this.usersService.findByEmail(email);
     if (!user) throw new UnauthorizedException("Invalid credentials");
 
@@ -160,7 +199,9 @@ export class AuthService {
     const { password: hashedPassword, ...userProfile } = user;
 
     this.setAuthCookies(response, tokens);
-    return userProfile;
+    return this.isMobileClient(request)
+      ? this.buildAuthSessionResponse(userProfile, tokens)
+      : userProfile;
   }
 
   async signUp({
@@ -184,16 +225,23 @@ export class AuthService {
 
   async refreshTokens(
     response: Response,
+    request: Request,
     userId: string,
     email: string,
     oldRefreshToken?: string
-  ): Promise<void> {
+  ): Promise<AuthAccessToken | void> {
     if (!oldRefreshToken)
       throw new UnauthorizedException("User is not logged in.");
 
     const accessToken = await this.generateAccessToken(userId, email);
 
     this.setAccessTokenCookie(response, accessToken);
+    if (!this.isMobileClient(request))
+      return;
+    return {
+      accessToken,
+      expiresIn: this.config.get("JWT_EXPIRES") || "15m"
+    };
   }
 
   async logout(
