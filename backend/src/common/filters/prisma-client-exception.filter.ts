@@ -32,8 +32,8 @@ export class PrismaClientExceptionFilter implements ExceptionFilter {
                 errorBody.error = errorLabels[HttpStatus.BAD_REQUEST];
                 break;
             case "P2025":
-                errorBody.statusCode = HttpStatus.NOT_FOUND;
-                errorBody.error = errorLabels[HttpStatus.NOT_FOUND];
+                errorBody.statusCode = HttpStatus.FORBIDDEN;
+                errorBody.error = errorLabels[HttpStatus.FORBIDDEN];
                 break;
             default:
                 errorBody.statusCode = HttpStatus.INTERNAL_SERVER_ERROR;

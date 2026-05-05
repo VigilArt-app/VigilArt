@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation"
 import { Button } from "../../components/ui/button"
 import { Input } from "../../components/ui/input"
 import { Label } from "../../components/ui/label"
+import { authenticatedFetch } from "@/src/utils/auth/authenticatedFetch"
 import { useTranslation } from "react-i18next"
 import { API_BASE_URL } from "@/src/config"
 
@@ -30,12 +31,10 @@ export default function SignUpPage() {
     }
     setIsLoading(true)
     try {
-      const API_BASE = API_BASE_URL
-      const res = await fetch(`${API_BASE}/auth/signup`, {
+      const res = await authenticatedFetch(`/auth/signup`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password, firstName, lastName })
-      })
+      }, true);
       if (!res.ok) {
         const data = await res.json().catch(() => null)
         const message = data?.message || t("signup_page.error_signup_failed")

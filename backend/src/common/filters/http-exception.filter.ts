@@ -6,7 +6,7 @@ import {
     Logger,
     ExceptionFilter
 } from "@nestjs/common";
-import { Response } from "express";
+import { Request, Response } from "express";
 import { ApiErrorData } from "@vigilart/shared/types";
 import { errorLabels } from "@vigilart/shared/constants";
 
@@ -14,9 +14,21 @@ import { errorLabels } from "@vigilart/shared/constants";
 export class HttpExceptionFilter implements ExceptionFilter {
     private readonly logger = new Logger(HttpExceptionFilter.name);
 
+    private getCookieOptions() {
+        const isProduction = process.env.NODE_ENV === "production";
+
+        return {
+            httpOnly: true,
+            secure: isProduction,
+            sameSite: "strict" as const,
+            path: "/"
+        };
+    }
+
     catch(exception: HttpException, host: ArgumentsHost) {
         const ctx = host.switchToHttp();
         const response = ctx.getResponse<Response>();
+        const request = ctx.getRequest<Request>();
         const errorBody: ApiErrorData = {
             success: false,
             statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
@@ -37,6 +49,11 @@ export class HttpExceptionFilter implements ExceptionFilter {
         } else {
             errorBody.message = res;
             errorBody.error = exception.name;
+        }
+        if (errorBody.statusCode === HttpStatus.UNAUTHORIZED &&
+            (request.path.includes('/auth/refresh') || request.path.includes('/auth/logout'))) {
+            response.clearCookie('auth_token', this.getCookieOptions());
+            response.clearCookie('refresh_token', this.getCookieOptions());
         }
         response.status(errorBody.statusCode).json(errorBody);
     }

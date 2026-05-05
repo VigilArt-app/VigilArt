@@ -2,6 +2,7 @@ import 'package:VigilArt/pages/dashboard/dashboard.dart';
 import 'package:VigilArt/pages/dashboard/upload_picture/uploadPhotos_page.dart';
 import 'package:VigilArt/pages/gallery/gallery_page.dart';
 import 'package:VigilArt/pages/profile/profile_page.dart';
+import 'package:VigilArt/(api)/auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -11,15 +12,43 @@ import 'pages/signup_page.dart';
 void main() async {
 
   WidgetsFlutterBinding.ensureInitialized();
-  bool isLoggedIn = await checkLoginStatus();
   await dotenv.load(fileName: ".env");
+  bool isLoggedIn = await checkLoginStatus();
   runApp(VigilArtApp(isLoggedIn: isLoggedIn));
 }
 
 Future<bool> checkLoginStatus() async {
+  final apiService = ApiService();
   SharedPreferences prefs = await SharedPreferences.getInstance();
   bool? loginStatus = prefs.getBool('isLoggedIn');
-  return loginStatus ?? false;
+
+  if (loginStatus != true) {
+    return false;
+  }
+
+  final refreshToken = await apiService.getRefreshToken();
+  if (refreshToken == null) {
+    await prefs.setBool('isLoggedIn', false);
+    return false;
+  }
+
+  try {
+    final response = await apiService.refreshAccessToken();
+    if (response.statusCode == 200) {
+      await prefs.setBool('isLoggedIn', true);
+      return true;
+    }
+
+    if (response.statusCode == 401) {
+      await prefs.setBool('isLoggedIn', false);
+      await apiService.clearLocalSession();
+      return false;
+    }
+
+    return true;
+  } catch (_) {
+    return true;
+  }
 }
 
 class VigilArtApp extends StatelessWidget {

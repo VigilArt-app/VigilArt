@@ -20,7 +20,6 @@ import {
   updateDmcaNotice,
   updateDmcaProfile,
 } from "./api";
-import { getUserIdFromToken } from "../../utils/auth/getUserIdFromToken";
 import { DmcaSchemaForm } from "./DmcaSchemaForm";
 import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
@@ -39,6 +38,7 @@ import {
   type PathPart,
   type ProfileFormState,
 } from "./dmca-form-utils";
+import { useAuth } from "@/src/components/contexts/authContext";
 
 export default function DmcaPage() {
   const { t } = useTranslation();
@@ -68,6 +68,7 @@ export default function DmcaPage() {
   const [generating, setGenerating] = useState(false);
   const [copiedField, setCopiedField] = useState<"subject" | "body" | null>(null);
   const [dataLoaded, setDataLoaded] = useState(false);
+  const { user, loading: authLoading } = useAuth();
 
   const selectedPlatform = useMemo(
     () => platforms.find((platform) => platform.slug === selectedPlatformSlug) ?? null,
@@ -88,22 +89,25 @@ export default function DmcaPage() {
   }, [selectedPlatform]);
 
   useEffect(() => {
-    const currentUserId = getUserIdFromToken();
+    if (authLoading) {
+      return;
+    }
 
-    if (!currentUserId) {
+    if (!user?.id) {
       toast.error(t("dmca_page.not_authenticated"));
       setLoading(false);
       return;
     }
 
-    setUserId(currentUserId);
+    const resolvedUserId = user.id;
+    setUserId(resolvedUserId);
 
     const loadData = async () => {
       try {
         const [allPlatforms, profile, userNotices] = await Promise.all([
           fetchDmcaPlatforms(),
-          fetchDmcaProfile(currentUserId),
-          fetchUserDmcaNotices(currentUserId),
+          fetchDmcaProfile(resolvedUserId),
+          fetchUserDmcaNotices(resolvedUserId),
         ]);
 
         setPlatforms(allPlatforms);
@@ -157,7 +161,7 @@ export default function DmcaPage() {
     };
 
     loadData();
-  }, [t]);
+  }, [authLoading, t, user?.id]);
 
   useEffect(() => {
     if (!selectedPlatform || !dataLoaded) return;
@@ -221,9 +225,9 @@ export default function DmcaPage() {
       };
 
       if (profileExists) {
-        await updateDmcaProfile(userId, payload);
+        await updateDmcaProfile(payload, userId);
       } else {
-        await createDmcaProfile(userId, payload);
+        await createDmcaProfile(payload, userId);
         setProfileExists(true);
       }
 
@@ -261,6 +265,7 @@ export default function DmcaPage() {
         ? await updateDmcaNotice(currentNotice.id, {
             dmcaPlatformSlug: selectedPlatform.slug,
             payload: formPayload,
+            userId
           })
         : await createDmcaNotice({
             dmcaPlatformSlug: selectedPlatform.slug,

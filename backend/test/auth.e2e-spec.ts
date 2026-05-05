@@ -44,19 +44,14 @@ describe("Auth E2E", () => {
         statusCode: HttpStatus.CREATED,
         message: "Created",
         data: {
-          accessToken: expect.any(String),
-          refreshToken: expect.any(String),
-          expiresIn: expect.any(String),
-          user: {
-            id: expect.any(String),
-            email: "emma.dao@mail.com",
-            firstName: "Emma",
-            lastName: "Dao",
-            avatar: null,
-            subscriptionTier: SubscriptionTier.FREE,
-            createdAt: expect.any(String),
-            updatedAt: expect.any(String)
-          },
+          id: expect.any(String),
+          email: "emma.dao@mail.com",
+          firstName: "Emma",
+          lastName: "Dao",
+          avatar: null,
+          subscriptionTier: SubscriptionTier.FREE,
+          createdAt: expect.any(String),
+          updatedAt: expect.any(String)
         },
       });
     });
@@ -77,19 +72,14 @@ describe("Auth E2E", () => {
         statusCode: HttpStatus.CREATED,
         message: "Created",
         data: {
-          accessToken: expect.any(String),
-          refreshToken: expect.any(String),
-          expiresIn: expect.any(String),
-          user: {
-            id: expect.any(String),
-            email: "emma.dao@mail.com",
-            firstName: "Emma",
-            lastName: "Dao",
-            avatar: null,
-            subscriptionTier: SubscriptionTier.FREE,
-            createdAt: expect.any(String),
-            updatedAt: expect.any(String)
-          },
+          id: expect.any(String),
+          email: "emma.dao@mail.com",
+          firstName: "Emma",
+          lastName: "Dao",
+          avatar: null,
+          subscriptionTier: SubscriptionTier.FREE,
+          createdAt: expect.any(String),
+          updatedAt: expect.any(String)
         },
       });
     });
@@ -192,19 +182,14 @@ describe("Auth E2E", () => {
         statusCode: HttpStatus.OK,
         message: "OK",
         data: {
-          accessToken: expect.any(String),
-          refreshToken: expect.any(String),
-          expiresIn: expect.any(String),
-          user: {
-            id: expect.any(String),
-            email: "emma.dao@mail.com",
-            firstName: "Emma",
-            lastName: "Dao",
-            subscriptionTier: SubscriptionTier.FREE,
-            avatar: null,
-            createdAt: expect.any(String),
-            updatedAt: expect.any(String)
-          },
+          id: expect.any(String),
+          email: "emma.dao@mail.com",
+          firstName: "Emma",
+          lastName: "Dao",
+          subscriptionTier: SubscriptionTier.FREE,
+          avatar: null,
+          createdAt: expect.any(String),
+          updatedAt: expect.any(String)
         },
       });
     });

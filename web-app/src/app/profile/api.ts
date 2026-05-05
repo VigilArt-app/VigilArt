@@ -1,47 +1,18 @@
 import { toast } from "sonner";
-import type { UserGet, UserUpdate } from "@vigilart/shared/types";
-import type { UploadUrlGet, UploadUrlsGetDTO } from "@vigilart/shared";
+import type { UserUpdate } from "@vigilart/shared/types";
+import type { UploadUrlGet, UploadUrlsGetDTO, UserGet } from "@vigilart/shared";
 import { authenticatedFetch } from "../../utils/auth/authenticatedFetch";
-import { getUserIdFromToken } from "../../utils/auth/getUserIdFromToken";
 import i18next from "i18next";
-import { API_BASE_URL } from "@/src/config";
 
 const t = (key: string, defaultValue: string) =>
   i18next.t(key, { defaultValue });
-
-/**
- * Fetch current user profile
- */
-export const fetchUserProfile = async (): Promise<UserGet> => {
-  const userId = getUserIdFromToken();
-  if (!userId) {
-    toast.error(t("profil_page.not_authenticated", "User not authenticated. Please login."));
-    throw new Error("Not authenticated");
-  }
-
-  try {
-    const API_BASE = API_BASE_URL;
-    const response = await authenticatedFetch(`${API_BASE}/users/${userId}`);
-
-    if (!response.ok) {
-      throw new Error("Failed to fetch user profile");
-    }
-
-    const data = await response.json();
-    return data.data || data;
-  } catch (error) {
-    toast.error(t("profil_page.failed_to_load", "Failed to load user profile"));
-    throw error;
-  }
-};
 
 /**
  * Get presigned upload URL for avatar from storage service
  */
 export const getAvatarUploadUrl = async (filename: string): Promise<UploadUrlGet> => {
   try {
-    const API_BASE = API_BASE_URL;
-    const response = await authenticatedFetch(`${API_BASE}/storage/artworks/upload-urls`, {
+    const response = await authenticatedFetch(`/storage/artworks/upload-urls`, {
       method: "POST",
       body: JSON.stringify({
         filenames: [filename],
@@ -92,8 +63,7 @@ export const uploadAvatarToR2 = async (
  */
 export const getAvatarDownloadUrl = async (storageKey: string): Promise<string> => {
   try {
-    const API_BASE = API_BASE_URL;
-    const response = await authenticatedFetch(`${API_BASE}/storage/artworks/download-urls`, {
+    const response = await authenticatedFetch(`/storage/artworks/download-urls`, {
       method: "POST",
       body: JSON.stringify({
         storageKeys: [storageKey],
@@ -116,17 +86,11 @@ export const getAvatarDownloadUrl = async (storageKey: string): Promise<string> 
  * Update user profile information
  */
 export const updateUserProfile = async (
+  userId: string,
   updateData: UserUpdate
 ): Promise<UserGet> => {
-  const userId = getUserIdFromToken();
-  if (!userId) {
-    toast.error(t("profil_page.not_authenticated", "User not authenticated. Please login."));
-    throw new Error("Not authenticated");
-  }
-
   try {
-    const API_BASE = API_BASE_URL;
-    const response = await authenticatedFetch(`${API_BASE}/users/${userId}`, {
+    const response = await authenticatedFetch(`/users/${userId}`, {
       method: "PATCH",
       body: JSON.stringify(updateData),
     });

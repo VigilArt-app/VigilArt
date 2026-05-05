@@ -6,18 +6,13 @@ extension UserProfile on ApiService {
   
   Future<Map<String, dynamic>?> fetchUserProfile() async {
     try {
-      final token = await getAccessToken();
       final userId = await secureStorage.read(key: ApiService.keyUserId);
       
       if (userId == null) throw Exception('User ID not found');
 
       final url = Uri.parse('$serverUrl/users/$userId');
-      final response = await http.get(
-        url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
+      final response = await authenticatedRequest(
+        (headers) => http.get(url, headers: headers),
       );
 
       if (response.statusCode != 200) {
@@ -35,19 +30,17 @@ extension UserProfile on ApiService {
 
   Future<Map<String, dynamic>?> updateUserProfile(Map<String, dynamic> updateData) async {
     try {
-      final token = await getAccessToken();
       final userId = await secureStorage.read(key: ApiService.keyUserId);
       
       if (userId == null) throw Exception('User ID not found');
 
       final url = Uri.parse('$serverUrl/users/$userId');
-      final response = await http.patch(
-        url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
-        body: jsonEncode(updateData),
+      final response = await authenticatedRequest(
+        (headers) => http.patch(
+          url,
+          headers: headers,
+          body: jsonEncode(updateData),
+        ),
       );
 
       if (response.statusCode != 200) {
@@ -66,18 +59,16 @@ extension UserProfile on ApiService {
 
   Future<String?> getAvatarDownloadUrl(String storageKey) async {
     try {
-      final token = await getAccessToken();
       final url = Uri.parse('$serverUrl/storage/artworks/download-urls');
       
-      final response = await http.post(
-        url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
-        body: jsonEncode({
-          'storageKeys': [storageKey],
-        }),
+      final response = await authenticatedRequest(
+        (headers) => http.post(
+          url,
+          headers: headers,
+          body: jsonEncode({
+            'storageKeys': [storageKey],
+          }),
+        ),
       );
 
       if (response.statusCode == 201 || response.statusCode == 200) {
@@ -94,19 +85,17 @@ extension UserProfile on ApiService {
 
   Future<Map<String, dynamic>?> getAvatarUploadUrl(String filename) async {
     try {
-      final token = await getAccessToken();
       final url = Uri.parse('$serverUrl/storage/artworks/upload-urls');
       
-      final response = await http.post(
-        url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
-        body: jsonEncode({
-          'filenames': [filename],
-          'prefix': 'profiles',
-        }),
+      final response = await authenticatedRequest(
+        (headers) => http.post(
+          url,
+          headers: headers,
+          body: jsonEncode({
+            'filenames': [filename],
+            'prefix': 'profiles',
+          }),
+        ),
       );
 
       if (response.statusCode == 201 || response.statusCode == 200) {

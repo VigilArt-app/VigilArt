@@ -1,3 +1,4 @@
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:VigilArt/(api)/auth.dart';
 import 'package:VigilArt/pages/profile/profile_header.dart';
 import 'package:VigilArt/widgets/editable_from_field.dart';
@@ -203,7 +204,9 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   void _processLogout() async {
-    await _apiService.logout(); 
+    await _apiService.logout();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('isLoggedIn', false);
     if (mounted) {
       Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
     }

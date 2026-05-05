@@ -22,6 +22,7 @@ import { StorageService } from "../storage/storage.service";
 import { PrismaService } from "../prisma/prisma.service";
 import { MatchingPagesService } from "./matchingPage.service";
 import { GoogleLensService } from "../googlelens/googlelens.service";
+import { assertResourceOwnership } from "../common/utils/ownership";
 
 @Injectable()
 export class ReportsService {
@@ -97,23 +98,16 @@ export class ReportsService {
 
   async generate(userId: string): Promise<ArtworksReport> {
     this.logger.log(`Generate new report for user ${userId}`);
-    try {
-      const matchingPagesIds = await this.findArtworksMatches(userId);
+    const matchingPagesIds = await this.findArtworksMatches(userId);
 
-      return await this.prisma.artworksReport.create({
-        data: {
-          userId,
-          matchingPages: {
-            connect: matchingPagesIds.map((id) => ({ id }))
-          }
+    return this.prisma.artworksReport.create({
+      data: {
+        userId,
+        matchingPages: {
+          connect: matchingPagesIds.map((id) => ({ id }))
         }
-      });
-    } catch (e: any) {
-      if (e.code === "P2003") {
-        throw new NotFoundException("User does not exist");
       }
-      throw e;
-    }
+    });
   }
 
   async findMatchesByArtwork(
@@ -124,16 +118,9 @@ export class ReportsService {
     this.logger.log(`Finding matches of artwork ${artworkId}`);
     let selectedReportId = "";
 
-    const artwork = await this.artworksService.findOne(artworkId);
-    if (artwork.userId !== userId) {
-      throw new ForbiddenException("Access denied to this artwork");
-    }
     if (reportId) {
       this.logger.log(`Retrieving report ${reportId}`);
-      const report = await this.findOne(reportId);
-      if (report.userId !== userId) {
-        throw new ForbiddenException("Access denied to this report");
-      }
+      await this.findOne(userId, reportId);
       selectedReportId = reportId;
     } else {
       this.logger.log("Retrieving latest report");
@@ -166,63 +153,49 @@ export class ReportsService {
     });
   }
 
-  async findOne(id: string): Promise<ArtworksReportGet> {
-    try {
-      this.logger.log(`Finding report ${id}`);
-      return await this.prisma.artworksReport.findUniqueOrThrow({
-        where: {
-          id
-        },
-        include: { matchingPages: true }
-      });
-    } catch (e: any) {
-      if (e.code == "P2025") {
-        throw new NotFoundException("Artwork report not found");
-      }
-      throw e;
-    }
+  async findOne(userId: string, id: string): Promise<ArtworksReportGet> {
+    this.logger.log(`Finding report ${id}`);
+    const report = await this.prisma.artworksReport.findUniqueOrThrow({
+      where: {
+        id
+      },
+      include: { matchingPages: true }
+    });
+
+    return assertResourceOwnership(
+      report,
+      userId
+    );
   }
 
   async findLatestReport(userId: string): Promise<ArtworksReport> {
-    try {
-      this.logger.log(`Finding latest report for user ${userId}`);
-      return await this.prisma.artworksReport.findFirstOrThrow({
-        where: {
-          userId
-        },
-        orderBy: {
-          detectionDate: "desc"
-        }
-      });
-    } catch (e: any) {
-      if (e.code == "P2025") {
-        throw new NotFoundException("Latest report not found");
+    this.logger.log(`Finding latest report for user ${userId}`);
+    return this.prisma.artworksReport.findFirstOrThrow({
+      where: {
+        userId
+      },
+      orderBy: {
+        detectionDate: "desc"
       }
-      throw e;
-    }
+    });
   }
 
   async findMatchesByUser(
     userId: string,
     reportId?: string
   ): Promise<MatchingPage[]> {
-    this.logger.log(`Finding matches for user ${userId}`);
-    let selectedReportId = "";
+    let selectedReport: ArtworksReportGet;
 
+    this.logger.log(`Finding matches for user ${userId}`);
     if (reportId) {
       this.logger.log(`Retrieving report ${reportId}`);
-      const report = await this.findOne(reportId);
-      if (report.userId !== userId) {
-        throw new ForbiddenException("Access denied to this report");
-      }
-      selectedReportId = reportId;
+      selectedReport = await this.findOne(userId, reportId);
     } else {
       this.logger.log("Retrieving latest report");
       const latestReport = await this.findLatestReport(userId);
-      selectedReportId = latestReport.id;
+      selectedReport = await this.findOne(userId, latestReport.id);
     }
-    const { matchingPages } = await this.findOne(selectedReportId);
-    return matchingPages;
+    return selectedReport.matchingPages;
   }
 
   async getGlobalStatistics(
@@ -254,18 +227,11 @@ export class ReportsService {
 
   async remove(id: string): Promise<void> {
     this.logger.log(`Removing artworks report ${id}`);
-    try {
-      await this.prisma.artworksReport.delete({
-        where: {
-          id
-        }
-      });
-    } catch (e: any) {
-      if (e.code == "P2025") {
-        throw new NotFoundException("Artworks report not found");
+    await this.prisma.artworksReport.delete({
+      where: {
+        id
       }
-      throw e;
-    }
+    });
   }
 
   async removeMany(ids: string[]): Promise<ApiBatchPayload> {
