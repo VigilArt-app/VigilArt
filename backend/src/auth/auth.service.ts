@@ -21,6 +21,18 @@ export class AuthService {
     private readonly prisma: PrismaService
   ) {}
 
+  private getCookieOptions(maxAge?: number) {
+    const isProduction = process.env.NODE_ENV === "production";
+
+    return {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: "strict" as const,
+      path: "/",
+      ...(typeof maxAge === "number" ? { maxAge } : {})
+    };
+  }
+
   private async generateAccessToken(
     userId: string,
     email: string
@@ -102,42 +114,34 @@ export class AuthService {
   }
 
   private setAccessTokenCookie(response: Response, accessToken: string): void {
-    const isProduction = process.env.NODE_ENV === 'production';
     const accessTokenExpiry = this.config.get("JWT_EXPIRES") || "15m";
 
-    response.cookie('auth_token', accessToken, {
-      httpOnly: true,
-      secure: isProduction,
-      sameSite: 'strict',
-      maxAge: this.parseExpiryToMs(accessTokenExpiry),
-      path: '/'
-    });
+    response.cookie(
+      "auth_token",
+      accessToken,
+      this.getCookieOptions(this.parseExpiryToMs(accessTokenExpiry))
+    );
   }
 
   private setAuthCookies(response: Response, tokens: AuthTokens): void {
-    const isProduction = process.env.NODE_ENV === 'production';
     const accessTokenExpiry = this.config.get("JWT_EXPIRES") || "15m";
     const refreshTokenExpiry = this.config.get("JWT_REFRESH_EXPIRES") || "7d";
 
-    response.cookie('auth_token', tokens.accessToken, {
-      httpOnly: true,
-      secure: isProduction,
-      sameSite: 'strict',
-      maxAge: this.parseExpiryToMs(accessTokenExpiry),
-      path: '/'
-    });
-    response.cookie('refresh_token', tokens.refreshToken, {
-      httpOnly: true,
-      secure: isProduction,
-      sameSite: 'strict',
-      maxAge: this.parseExpiryToMs(refreshTokenExpiry),
-      path: '/'
-    });
+    response.cookie(
+      "auth_token",
+      tokens.accessToken,
+      this.getCookieOptions(this.parseExpiryToMs(accessTokenExpiry))
+    );
+    response.cookie(
+      "refresh_token",
+      tokens.refreshToken,
+      this.getCookieOptions(this.parseExpiryToMs(refreshTokenExpiry))
+    );
   }
 
   private clearAuthCookies(response: Response): void {
-    response.clearCookie('auth_token', { path: '/' });
-    response.clearCookie('refresh_token', { path: '/' });
+    response.clearCookie("auth_token", this.getCookieOptions());
+    response.clearCookie("refresh_token", this.getCookieOptions());
   }
 
   async login(

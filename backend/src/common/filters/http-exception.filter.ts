@@ -14,6 +14,17 @@ import { errorLabels } from "@vigilart/shared/constants";
 export class HttpExceptionFilter implements ExceptionFilter {
     private readonly logger = new Logger(HttpExceptionFilter.name);
 
+    private getCookieOptions() {
+        const isProduction = process.env.NODE_ENV === "production";
+
+        return {
+            httpOnly: true,
+            secure: isProduction,
+            sameSite: "strict" as const,
+            path: "/"
+        };
+    }
+
     catch(exception: HttpException, host: ArgumentsHost) {
         const ctx = host.switchToHttp();
         const response = ctx.getResponse<Response>();
@@ -41,8 +52,8 @@ export class HttpExceptionFilter implements ExceptionFilter {
         }
         if (errorBody.statusCode === HttpStatus.UNAUTHORIZED &&
             (request.path.includes('/auth/refresh') || request.path.includes('/auth/logout'))) {
-            response.clearCookie('auth_token', { path: '/' });
-            response.clearCookie('refresh_token', { path: '/' });
+            response.clearCookie('auth_token', this.getCookieOptions());
+            response.clearCookie('refresh_token', this.getCookieOptions());
         }
         response.status(errorBody.statusCode).json(errorBody);
     }
