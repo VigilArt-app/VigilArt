@@ -107,12 +107,8 @@ export class DmcaNoticeService {
         });
     }
 
-    async update(id: string, data: DmcaNoticeUpdate): Promise<DmcaNoticeGet> {
-        const oldData = await this.prisma.dmcaNotice.findUniqueOrThrow({
-            where: {
-                id
-            }
-        });
+    async update(userId: string, id: string, data: DmcaNoticeUpdate): Promise<DmcaNoticeGet> {
+        const oldData = await this.findById(userId, id);
         if (oldData.status === DmcaStatus.SUBMITTED)
             throw new ConflictException("Cannot update a submitted notice");
 

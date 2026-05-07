@@ -106,10 +106,11 @@ export class DmcaNoticeController {
     @ApiParam({ name: "id", type: String })
     @ApiBody({ type: DmcaNoticeUpdateDTO })
     async updateNotice(
+        @Req() req: AuthenticatedRequest,
         @Param("id") id: string,
         @Body() data: DmcaNoticeUpdateDTO
     ): Promise<DmcaNoticeGet> {
-        return this.noticeService.update(id, data);
+        return this.noticeService.update(req.user.id, id, data);
     }
 
     @Patch("/:id/status/:status")
