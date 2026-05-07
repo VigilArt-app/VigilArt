@@ -28,7 +28,7 @@ export const setupApp = (app: INestApplication) => {
     }
   }));
   app.enableCors({
-    origin: corsOrigins?.length ? corsOrigins : false
+    origin: corsOrigins?.length ? corsOrigins : !isProd
   });
   app.setGlobalPrefix(apiPrefix);
   app.useGlobalFilters(
