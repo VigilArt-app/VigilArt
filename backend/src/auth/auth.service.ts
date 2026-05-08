@@ -19,6 +19,7 @@ import { ConfigService } from "@nestjs/config";
 import { PrismaService } from "../prisma/prisma.service";
 import type { Request, Response } from "express";
 import type { AuthenticatedRequest } from "./auth";
+import { getCookieOptions } from "../common/utils/get-cookie-options";
 
 @Injectable()
 export class AuthService {
@@ -28,18 +29,6 @@ export class AuthService {
     private readonly config: ConfigService,
     private readonly prisma: PrismaService
   ) {}
-
-  private getCookieOptions(maxAge?: number) {
-    const isProduction = process.env.NODE_ENV === "production";
-
-    return {
-      httpOnly: true,
-      secure: isProduction,
-      sameSite: "strict" as const,
-      path: "/",
-      ...(typeof maxAge === "number" ? { maxAge } : {})
-    };
-  }
 
   private isMobileClient(request?: Request): boolean {
     return request?.header("x-client-type")?.toLowerCase() === "mobile";
@@ -152,35 +141,44 @@ export class AuthService {
     }
   }
 
-  private setAccessTokenCookie(response: Response, accessToken: string): void {
+  private setAccessTokenCookie(
+    response: Response,
+    accessToken: string,
+    request?: Request
+  ): void {
     const accessTokenExpiry = this.config.get("JWT_EXPIRES") || "15m";
 
     response.cookie(
       "auth_token",
       accessToken,
-      this.getCookieOptions(this.parseExpiryToMs(accessTokenExpiry))
+      getCookieOptions(this.parseExpiryToMs(accessTokenExpiry), request)
     );
   }
 
-  private setAuthCookies(response: Response, tokens: AuthTokens): void {
+  private setAuthCookies(
+    response: Response,
+    tokens: AuthTokens,
+    request?: Request
+  ): void {
     const accessTokenExpiry = this.config.get("JWT_EXPIRES") || "15m";
     const refreshTokenExpiry = this.config.get("JWT_REFRESH_EXPIRES") || "7d";
 
     response.cookie(
       "auth_token",
       tokens.accessToken,
-      this.getCookieOptions(this.parseExpiryToMs(accessTokenExpiry))
+      getCookieOptions(this.parseExpiryToMs(accessTokenExpiry), request)
     );
     response.cookie(
       "refresh_token",
       tokens.refreshToken,
-      this.getCookieOptions(this.parseExpiryToMs(refreshTokenExpiry))
+      getCookieOptions(this.parseExpiryToMs(refreshTokenExpiry), request)
     );
   }
 
-  private clearAuthCookies(response: Response): void {
-    response.clearCookie("auth_token", this.getCookieOptions());
-    response.clearCookie("refresh_token", this.getCookieOptions());
+  private clearAuthCookies(response: Response, request?: Request): void {
+    const cookieOptions = getCookieOptions(undefined, request);
+    response.clearCookie("auth_token", cookieOptions);
+    response.clearCookie("refresh_token", cookieOptions);
   }
 
   async login(
@@ -198,7 +196,7 @@ export class AuthService {
     const tokens = await this.generateTokens(user.id, user.email, request);
     const { password: hashedPassword, ...userProfile } = user;
 
-    this.setAuthCookies(response, tokens);
+    this.setAuthCookies(response, tokens, request);
     return this.isMobileClient(request)
       ? this.buildAuthSessionResponse(userProfile, tokens)
       : userProfile;
@@ -235,7 +233,7 @@ export class AuthService {
 
     const accessToken = await this.generateAccessToken(userId, email);
 
-    this.setAccessTokenCookie(response, accessToken);
+    this.setAccessTokenCookie(response, accessToken, request);
     if (!this.isMobileClient(request))
       return;
     return {
@@ -246,6 +244,7 @@ export class AuthService {
 
   async logout(
     response: Response,
+    request: Request,
     userId: string,
     refreshToken?: string
   ): Promise<void> {
@@ -264,14 +263,18 @@ export class AuthService {
       }
     }
 
-    this.clearAuthCookies(response);
+    this.clearAuthCookies(response, request);
   }
 
-  async logoutAllDevices(response: Response, userId: string): Promise<void> {
+  async logoutAllDevices(
+    response: Response,
+    request: Request,
+    userId: string
+  ): Promise<void> {
     await this.prisma.refreshToken.deleteMany({
       where: { userId }
     });
-    this.clearAuthCookies(response);
+    this.clearAuthCookies(response, request);
   }
 
   async me(auth: AuthenticatedRequest["user"]): Promise<UserGet> {
