@@ -4,12 +4,13 @@ import { AppModule } from "../src/app.module";
 import { PrismaService } from "../src/prisma/prisma.service";
 import { setupApp } from "../src/app.setup";
 import { ApiClient } from "./api-client";
-import { SubscriptionTier } from "@vigilart/shared/enums";
+import { SubscriptionTier, type UserGet } from "@vigilart/shared";
 
 describe("Users E2E", () => {
   let app: INestApplication;
   let prismaService: PrismaService;
   let api: ApiClient;
+  let testUser: { email: string; password: string, id?: string };
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -24,7 +25,23 @@ describe("Users E2E", () => {
     api = new ApiClient(app);
   });
 
+  beforeEach(async () => {
+    testUser = {
+      email: "test.auth@mail.com",
+      password: "Secure_P4ssword"
+    };
+    await api.signup(
+      testUser.email,
+      testUser.password,
+      "Test",
+      "User"
+    );
+    const user: UserGet = (await api.login(testUser.email, testUser.password)).body.data;
+    testUser.id = user.id;
+  });
+
   afterEach(async () => {
+    await api.logout();
     await prismaService.user.deleteMany();
   });
 
@@ -143,6 +160,16 @@ describe("Users E2E", () => {
       const expectedUsers = [
         {
           id: expect.any(String),
+          email: "test.auth@mail.com",
+          firstName: "Test",
+          lastName: "User",
+          subscriptionTier: SubscriptionTier.FREE,
+          avatar: null,
+          createdAt: expect.any(String),
+          updatedAt: expect.any(String)
+        },
+        {
+          id: expect.any(String),
           email: "emma.dao@mail.com",
           firstName: "Emma",
           lastName: "Dao",
@@ -172,34 +199,20 @@ describe("Users E2E", () => {
     });
   });
 
-  describe("GET /users/:id", () => {
+  describe("GET /users/:id (basic user)", () => {
     it("Should get specific user with ID", async () => {
-      await prismaService.user.create({
-        data: {
-          email: "emma.dao@mail.com",
-          password: "Hashed_P4ssword",
-          firstName: "Emma",
-          lastName: "Dao",
-          subscriptionTier: SubscriptionTier.FREE
-        }
-      });
-      const user = await prismaService.user.findUniqueOrThrow({
-        where: {
-          email: "emma.dao@mail.com"
-        }
-      });
-      const res = await api.get(`/users/${user.id}`).expect(HttpStatus.OK);
+      const res = await api.get(`/users/${testUser.id}`).expect(HttpStatus.OK);
       expect(res.body).toEqual({
         success: true,
         statusCode: HttpStatus.OK,
         message: "OK",
         data: {
           id: expect.any(String),
-          email: "emma.dao@mail.com",
-          firstName: "Emma",
-          lastName: "Dao",
-          avatar: null,
+          email: "test.auth@mail.com",
+          firstName: "Test",
+          lastName: "User",
           subscriptionTier: SubscriptionTier.FREE,
+          avatar: null,
           createdAt: expect.any(String),
           updatedAt: expect.any(String)
         },
@@ -209,41 +222,32 @@ describe("Users E2E", () => {
     it("Shouldn't get user with non-existent ID", async () => {
       const res = await api
         .get("/users/123e4567-e89b-12d3-a456-426614174000")
-        .expect(HttpStatus.NOT_FOUND);
+        .expect(HttpStatus.FORBIDDEN);
 
       expect(res.body).toEqual({
         success: false,
-        statusCode: HttpStatus.NOT_FOUND,
+        statusCode: HttpStatus.FORBIDDEN,
         message: expect.any(String),
-        error: "Not Found"
+        error: "Forbidden"
       });
     });
 
     it("Should expect an UUID", async () => {
-      const res = await api.get("/users/1").expect(HttpStatus.BAD_REQUEST);
+      const res = await api.get("/users/1").expect(HttpStatus.FORBIDDEN);
 
       expect(res.body).toEqual({
         success: false,
-        statusCode: HttpStatus.BAD_REQUEST,
+        statusCode: HttpStatus.FORBIDDEN,
         message: expect.any(String),
-        error: "Bad Request"
+        error: "Forbidden"
       });
     });
   });
 
-  describe("PATCH /users/:id", () => {
+  describe("PATCH /users/:id (basic user)", () => {
     it("Should update specific user with ID", async () => {
-      const user = await prismaService.user.create({
-        data: {
-          email: "amanda.rawles@mail.com",
-          password: "Hashed_P4ssword_",
-          firstName: "Amanda",
-          lastName: "Rawles",
-          subscriptionTier: SubscriptionTier.FREE
-        }
-      });
       const res = await api
-        .patch(`/users/${user.id}`)
+        .patch(`/users/${testUser.id}`)
         .send({
           avatar: "new_url"
         })
@@ -255,11 +259,11 @@ describe("Users E2E", () => {
         message: "OK",
         data: {
           id: expect.any(String),
-          email: "amanda.rawles@mail.com",
-          firstName: "Amanda",
-          lastName: "Rawles",
-          avatar: "new_url",
+          email: "test.auth@mail.com",
+          firstName: "Test",
+          lastName: "User",
           subscriptionTier: SubscriptionTier.FREE,
+          avatar: "new_url",
           createdAt: expect.any(String),
           updatedAt: expect.any(String)
         },
@@ -272,13 +276,13 @@ describe("Users E2E", () => {
         .send({
           avatar: "new_url"
         })
-        .expect(HttpStatus.NOT_FOUND);
+        .expect(HttpStatus.FORBIDDEN);
 
       expect(res.body).toEqual({
         success: false,
-        statusCode: HttpStatus.NOT_FOUND,
+        statusCode: HttpStatus.FORBIDDEN,
         message: expect.any(String),
-        error: "Not Found"
+        error: "Forbidden"
       });
     });
 
@@ -288,79 +292,21 @@ describe("Users E2E", () => {
         .send({
           avatar: "new_url"
         })
-        .expect(HttpStatus.BAD_REQUEST);
+        .expect(HttpStatus.FORBIDDEN);
 
       expect(res.body).toEqual({
         success: false,
-        statusCode: HttpStatus.BAD_REQUEST,
+        statusCode: HttpStatus.FORBIDDEN,
         message: expect.any(String),
-        error: "Bad Request"
+        error: "Forbidden"
       });
     });
   });
 
-  describe("DELETE /users/:id", () => {
+  describe("DELETE /users/:id (basic user)", () => {
     it("Should remove specific user with ID", async () => {
-      const user = await prismaService.user.create({
-        data: {
-          email: "amanda.rawles@mail.com",
-          password: "Hashed_P4ssword_",
-          firstName: "Amanda",
-          lastName: "Rawles",
-          subscriptionTier: SubscriptionTier.FREE
-        },
-      });
       const res = await api
-        .delete(`/users/${user.id}`)
-        .expect(HttpStatus.NO_CONTENT);
-      expect(res.body).toEqual({});
-    });
-    it("Shouldn't update specific user with non-existent ID", async () => {
-      const res = await api
-        .patch("/users/123e4567-e89b-12d3-a456-426614174000")
-        .send({
-          avatar: "new_url",
-        })
-        .expect(HttpStatus.NOT_FOUND);
-
-      expect(res.body).toEqual({
-        success: false,
-        statusCode: HttpStatus.NOT_FOUND,
-        message: expect.any(String),
-        error: "Not Found"
-      });
-    });
-
-    it("Should expect an UUID", async () => {
-      const res = await api
-        .patch("/users/1")
-        .send({
-          avatar: "new_url"
-        })
-        .expect(HttpStatus.BAD_REQUEST);
-
-      expect(res.body).toEqual({
-        success: false,
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: expect.any(String),
-        error: "Bad Request"
-      });
-    });
-  });
-
-  describe("DELETE /users/:id", () => {
-    it("Should remove specific user with ID", async () => {
-      const user = await prismaService.user.create({
-        data: {
-          email: "amanda.rawles@mail.com",
-          password: "Hashed_P4ssword_",
-          firstName: "Amanda",
-          lastName: "Rawles",
-          subscriptionTier: SubscriptionTier.FREE
-        }
-      });
-      const res = await api
-        .delete(`/users/${user.id}`)
+        .delete(`/users/${testUser.id}`)
         .expect(HttpStatus.NO_CONTENT);
       expect(res.body).toEqual({});
     });
@@ -368,49 +314,24 @@ describe("Users E2E", () => {
     it("Shouldn't remove user with non-existent ID", async () => {
       const res = await api
         .delete("/users/123e4567-e89b-12d3-a456-426614174000")
-        .expect(HttpStatus.NOT_FOUND);
+        .expect(HttpStatus.FORBIDDEN);
 
       expect(res.body).toEqual({
         success: false,
-        statusCode: HttpStatus.NOT_FOUND,
+        statusCode: HttpStatus.FORBIDDEN,
         message: expect.any(String),
-        error: "Not Found"
+        error: "Forbidden"
       });
     });
 
     it("Should expect an UUID", async () => {
-      const res = await api
-        .delete("/users/1")
-        .expect(HttpStatus.BAD_REQUEST);
+      const res = await api.delete("/users/1").expect(HttpStatus.FORBIDDEN);
 
       expect(res.body).toEqual({
         success: false,
-        statusCode: HttpStatus.BAD_REQUEST,
+        statusCode: HttpStatus.FORBIDDEN,
         message: expect.any(String),
-        error: "Bad Request"
-      });
-    });
-    it("Shouldn't remove user with non-existent ID", async () => {
-      const res = await api
-        .delete("/users/123e4567-e89b-12d3-a456-426614174000")
-        .expect(HttpStatus.NOT_FOUND);
-
-      expect(res.body).toEqual({
-        success: false,
-        statusCode: HttpStatus.NOT_FOUND,
-        message: expect.any(String),
-        error: "Not Found"
-      });
-    });
-
-    it("Should expect an UUID", async () => {
-      const res = await api.delete("/users/1").expect(HttpStatus.BAD_REQUEST);
-
-      expect(res.body).toEqual({
-        success: false,
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: expect.any(String),
-        error: "Bad Request"
+        error: "Forbidden"
       });
     });
   });

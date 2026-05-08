@@ -8,9 +8,7 @@ import type {
   DmcaProfileGet,
   DmcaProfileUpdate,
 } from "@vigilart/shared/types";
-import { API_BASE_URL } from "@/src/config";
 import { authenticatedFetch } from "../../utils/auth/authenticatedFetch";
-const getApiBase = () => API_BASE_URL;
 
 const extractData = <T>(raw: unknown): T => {
   if (raw && typeof raw === "object" && "data" in raw) {
@@ -43,7 +41,7 @@ const parseErrorMessage = async (response: Response) => {
 };
 
 export const fetchDmcaPlatforms = async (): Promise<DmcaPlatformGet[]> => {
-  const response = await authenticatedFetch(`${getApiBase()}/dmca/platform/`);
+  const response = await authenticatedFetch(`/dmca/platform`);
 
   if (!response.ok) {
     throw new Error(await parseErrorMessage(response));
@@ -53,7 +51,7 @@ export const fetchDmcaPlatforms = async (): Promise<DmcaPlatformGet[]> => {
 };
 
 export const fetchDmcaProfile = async (userId: string): Promise<DmcaProfileGet | null> => {
-  const response = await authenticatedFetch(`${getApiBase()}/dmca/profile/${userId}`);
+  const response = await authenticatedFetch(`/dmca/profile/${userId}`);
 
   if (response.status === 404) {
     return null;
@@ -67,10 +65,10 @@ export const fetchDmcaProfile = async (userId: string): Promise<DmcaProfileGet |
 };
 
 export const createDmcaProfile = async (
-  userId: string,
-  payload: DmcaProfileCreate
+  payload: DmcaProfileCreate,
+  userId: string
 ): Promise<DmcaProfileGet> => {
-  const response = await authenticatedFetch(`${getApiBase()}/dmca/profile/${userId}`, {
+  const response = await authenticatedFetch(`/dmca/profile/${userId}`, {
     method: "POST",
     body: JSON.stringify(payload),
   });
@@ -83,10 +81,10 @@ export const createDmcaProfile = async (
 };
 
 export const updateDmcaProfile = async (
-  userId: string,
-  payload: DmcaProfileUpdate
+  payload: DmcaProfileUpdate,
+  userId: string
 ): Promise<DmcaProfileGet> => {
-  const response = await authenticatedFetch(`${getApiBase()}/dmca/profile/${userId}`, {
+  const response = await authenticatedFetch(`/dmca/profile/${userId}`, {
     method: "PATCH",
     body: JSON.stringify(payload),
   });
@@ -99,7 +97,7 @@ export const updateDmcaProfile = async (
 };
 
 export const fetchUserDmcaNotices = async (userId: string): Promise<DmcaNoticeGet[]> => {
-  const response = await authenticatedFetch(`${getApiBase()}/dmca/notice/user/${userId}`);
+  const response = await authenticatedFetch(`/dmca/notice/user/${userId}`);
 
   if (!response.ok) {
     throw new Error(await parseErrorMessage(response));
@@ -109,7 +107,7 @@ export const fetchUserDmcaNotices = async (userId: string): Promise<DmcaNoticeGe
 };
 
 export const createDmcaNotice = async (payload: DmcaNoticeCreate): Promise<DmcaNoticeGet> => {
-  const response = await authenticatedFetch(`${getApiBase()}/dmca/notice/`, {
+  const response = await authenticatedFetch(`/dmca/notice`, {
     method: "POST",
     body: JSON.stringify(payload),
   });
@@ -125,7 +123,7 @@ export const updateDmcaNotice = async (
   noticeId: string,
   payload: DmcaNoticeUpdate
 ): Promise<DmcaNoticeGet> => {
-  const response = await authenticatedFetch(`${getApiBase()}/dmca/notice/${noticeId}`, {
+  const response = await authenticatedFetch(`/dmca/notice/${noticeId}`, {
     method: "PATCH",
     body: JSON.stringify(payload),
   });
@@ -138,7 +136,7 @@ export const updateDmcaNotice = async (
 };
 
 export const generateDmcaNotice = async (noticeId: string): Promise<DmcaNoticeGeneratedContent> => {
-  const response = await authenticatedFetch(`${getApiBase()}/dmca/notice/${noticeId}/generate`, {
+  const response = await authenticatedFetch(`/dmca/notice/${noticeId}/generate`, {
     method: "POST",
   });
 

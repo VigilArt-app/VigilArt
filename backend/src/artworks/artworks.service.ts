@@ -13,6 +13,7 @@ import {
   ArtworkCreateManyResponseDTO,
   ApiBatchPayload
 } from "@vigilart/shared";
+import { assertResourceOwnership } from "../common/utils/ownership";
 
 @Injectable()
 export class ArtworksService {
@@ -74,24 +75,22 @@ export class ArtworksService {
     });
   }
 
-  async findOne(id: string): Promise<Artwork> {
-    try {
-      this.logger.log(`Finding artwork ${id}`);
-      return await this.prisma.artwork.findUniqueOrThrow({
-        where: {
-          id
-        }
-      });
-    } catch (e: any) {
-      if (e.code == "P2025") {
-        throw new NotFoundException("Artwork not found");
+  async findOne(userId: string, id: string): Promise<Artwork> {
+    this.logger.log(`Finding artwork ${id}`);
+    const artwork = await this.prisma.artwork.findUniqueOrThrow({
+      where: {
+        id
       }
-      throw e;
-    }
+    });
+
+    return assertResourceOwnership(
+      artwork,
+      userId
+    );
   }
 
-  async findMany(ids: string[]): Promise<Artwork[]> {
-    this.logger.log(`Finding artworks ${ids.join(",")}`);
+  async findMany(userId: string, ids: string[]): Promise<Artwork[]> {
+    this.logger.log(`Finding artworks ${ids.join(",")} for user ${userId}`);
     return this.prisma.artwork.findMany({
       where: {
         id: {
@@ -102,48 +101,38 @@ export class ArtworksService {
   }
 
   async update(
+    userId: string,
     id: string,
     updateArtworkDto: ArtworkUpdateDTO
   ): Promise<Artwork> {
     this.logger.log(`Updating artwork ${id}`);
-    try {
-      return await this.prisma.artwork.update({
-        where: {
-          id
-        },
-        data: updateArtworkDto
-      });
-    } catch (e: any) {
-      if (e.code == "P2025") {
-        throw new NotFoundException("Artwork not found");
-      }
-      throw e;
-    }
+    await this.findOne(userId, id);
+    return this.prisma.artwork.update({
+      where: {
+        id
+      },
+      data: updateArtworkDto
+    });
   }
 
-  async remove(id: string): Promise<void> {
+  async remove(userId: string, id: string): Promise<void> {
     this.logger.log(`Removing artwork ${id}`);
-    try {
-      await this.prisma.artwork.delete({
-        where: {
-          id
-        }
-      });
-    } catch (e: any) {
-      if (e.code == "P2025") {
-        throw new NotFoundException("Artwork not found");
+    await this.findOne(userId, id);
+    await this.prisma.artwork.delete({
+      where: {
+        id
       }
-      throw e;
-    }
+    });
   }
 
-  async removeMany(ids: string[]): Promise<ApiBatchPayload> {
-    this.logger.log(`Removing artworks ${ids.join(",")}`);
-    return await this.prisma.artwork.deleteMany({
+  async removeMany(userId: string, ids: string[]): Promise<ApiBatchPayload> {
+    this.logger.log(`Removing artworks ${ids.join(",")} for user ${userId}`);
+    return this.prisma.artwork.deleteMany({
       where: {
         id: {
           in: ids
-        }
+        },
+        userId
       }
     });
   }

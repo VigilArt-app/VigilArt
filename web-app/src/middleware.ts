@@ -16,14 +16,15 @@ export async function middleware(req: NextRequest) {
   }
 
   const token = req.cookies.get('auth_token')?.value;
-
+  const refreshToken = req.cookies.get('refresh_token')?.value;
   const unprotectedRoutes = ['/login', '/sign-up'];
+  const hasPossibleAuth = !!token || !!refreshToken;
 
-  if (!token && !unprotectedRoutes.includes(pathname)) {
+  if (!hasPossibleAuth && !unprotectedRoutes.includes(pathname)) {
     return NextResponse.redirect(new URL('/login', origin));
   }
 
-  if (token && unprotectedRoutes.includes(pathname)) {
+  if (hasPossibleAuth && unprotectedRoutes.includes(pathname)) {
     return NextResponse.redirect(new URL('/dashboard', origin));
   }
 
