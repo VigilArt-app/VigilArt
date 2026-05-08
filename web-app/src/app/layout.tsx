@@ -7,9 +7,9 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const cookieStore = cookies();
-  const hasAuthToken = (await cookieStore).has("auth_token");
-  const hasRefreshToken = (await cookieStore).has("refresh_token");
+  const cookieStore = await cookies();
+  const hasAuthToken = cookieStore.has("auth_token");
+  const hasRefreshToken = cookieStore.has("refresh_token");
 
   return (
     <html lang="en" suppressHydrationWarning>

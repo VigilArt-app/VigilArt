@@ -5,15 +5,15 @@ export function getCookieDomain(): string | undefined {
 }
 
 export function getCookieOptions(maxAge?: number) {
-    const isProduction = process.env.NODE_ENV === "production";
-    const domain = getCookieDomain();
+  const isProduction = process.env.NODE_ENV === "production";
+  const domain = getCookieDomain();
 
-    return {
-      httpOnly: true,
-      secure: isProduction,
-      sameSite: "lax" as const,
-      path: "/",
-      ...(domain ? { domain } : {}),
-      ...(typeof maxAge === "number" ? { maxAge } : {})
-    };
-  }
+  return {
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: "lax" as const,
+    path: "/",
+    ...(domain ? { domain } : {}),
+    ...(typeof maxAge === "number" ? { maxAge } : {})
+  };
+}
