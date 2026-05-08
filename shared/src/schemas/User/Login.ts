@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { createZodDto } from "nestjs-zod";
-import { UserSchema } from "./User";
+import { UserGetSchema } from "./User";
 
 export const LoginSchema = z.object({
   email: z
@@ -13,10 +13,22 @@ export const LoginSchema = z.object({
 });
 export class LoginDTO extends createZodDto(LoginSchema) {}
 
-export const AuthResponseSchema = z.object({
-  user: UserSchema.omit({ password: true }),
+export const AuthTokensSchema = z.object({
   accessToken: z.string(),
   refreshToken: z.string(),
-  expiresIn: z.string(),
+  expiresIn: z.string()
 });
-export class AuthResponseDTO extends createZodDto(AuthResponseSchema) {}
+export class AuthTokensDTO extends createZodDto(AuthTokensSchema) {}
+
+export const AuthSessionSchema = z.object({
+  accessToken: z.string(),
+  refreshToken: z.string(),
+  user: UserGetSchema
+});
+export class AuthSessionDTO extends createZodDto(AuthSessionSchema) {}
+
+export const AuthAccessTokenSchema = z.object({
+  accessToken: z.string(),
+  expiresIn: z.string()
+});
+export class AuthAccessTokenDTO extends createZodDto(AuthAccessTokenSchema) {}

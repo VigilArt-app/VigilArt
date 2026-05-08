@@ -7,7 +7,8 @@ import {
   Param,
   ParseUUIDPipe,
   Patch,
-  Post
+  Post,
+  Req
 } from "@nestjs/common";
 import { ArtworksService } from "./artworks.service";
 import { StorageService } from "../storage/storage.service";
@@ -24,6 +25,7 @@ import {
 } from "@vigilart/shared";
 import { ApiEndpoint } from "../common/decorators/api-endpoint.decorator";
 import { ApiBody, ApiParam } from "@nestjs/swagger";
+import type { AuthenticatedRequest } from "../auth/auth";
 
 @Controller("artworks")
 export class ArtworksController {
@@ -40,11 +42,12 @@ export class ArtworksController {
       type: ArtworkDTO
     },
     errors: [HttpStatus.BAD_REQUEST, HttpStatus.NOT_FOUND],
-    protected: true
+    protected: true,
+    ownerships: [{ data: "userId", userField: "id", type: "body" }]
   })
   @ApiBody({ type: ArtworkCreateDTO })
   async create(@Body() createArtworkDto: ArtworkCreateDTO): Promise<Artwork> {
-    return await this.artworksService.create(createArtworkDto);
+    return this.artworksService.create(createArtworkDto);
   }
 
   @Post("batch")
@@ -55,7 +58,8 @@ export class ArtworksController {
       type: [ArtworkDTO]
     },
     errors: [HttpStatus.BAD_REQUEST, HttpStatus.NOT_FOUND],
-    protected: true
+    protected: true,
+    ownerships: [{ data: "[].userId", userField: "id", type: "body" }]
   })
   @ApiBody({ type: ArtworkCreateManyDTO })
   async createMany(
@@ -84,7 +88,8 @@ export class ArtworksController {
       status: HttpStatus.OK,
       type: [ArtworkDTO]
     },
-    protected: true
+    protected: true,
+    ownerships: [{ data: "id", userField: "id", type: "params" }]
   })
   @ApiParam({ name: "id", type: String })
   async findAllPerUser(
@@ -104,8 +109,11 @@ export class ArtworksController {
     protected: true
   })
   @ApiParam({ name: "id", type: String })
-  async findOne(@Param("id", ParseUUIDPipe) id: string): Promise<Artwork> {
-    return this.artworksService.findOne(id);
+  async findOne(
+    @Req() req: AuthenticatedRequest,
+    @Param("id", ParseUUIDPipe) id: string
+  ): Promise<Artwork> {
+    return this.artworksService.findOne(req.user.id, id);
   }
 
   @Patch(":id")
@@ -120,10 +128,11 @@ export class ArtworksController {
   })
   @ApiBody({ type: ArtworkUpdateDTO })
   async update(
+    @Req() req: AuthenticatedRequest,
     @Param("id", ParseUUIDPipe) id: string,
     @Body() updateArtworkDto: ArtworkUpdateDTO
   ): Promise<Artwork> {
-    return this.artworksService.update(id, updateArtworkDto);
+    return this.artworksService.update(req.user.id, id, updateArtworkDto);
   }
 
   @Delete(":id")
@@ -136,11 +145,14 @@ export class ArtworksController {
     protected: true
   })
   @ApiParam({ name: "id", type: String })
-  async remove(@Param("id", ParseUUIDPipe) id: string): Promise<void> {
-    const artwork = await this.artworksService.findOne(id);
+  async remove(
+    @Req() req: AuthenticatedRequest,
+    @Param("id", ParseUUIDPipe) id: string
+  ): Promise<void> {
+    const artwork = await this.artworksService.findOne(req.user.id, id);
 
     await this.storageService.deleteImage(artwork.storageKey);
-    return this.artworksService.remove(id);
+    return this.artworksService.remove(req.user.id, id);
   }
 
   @Post("delete/batch")
@@ -154,12 +166,13 @@ export class ArtworksController {
   })
   @ApiBody({ type: ArtworkRemoveManyDTO })
   async removeMany(
+    @Req() req: AuthenticatedRequest,
     @Body() { ids }: ArtworkRemoveManyDTO
   ): Promise<ApiBatchPayload> {
-    const artworks = await this.artworksService.findMany(ids);
+    const artworks = await this.artworksService.findMany(req.user.id, ids);
     const storageKeys = artworks.map((artwork) => artwork.storageKey);
 
     await this.storageService.deleteImages(storageKeys);
-    return this.artworksService.removeMany(ids);
+    return this.artworksService.removeMany(req.user.id, ids);
   }
 }

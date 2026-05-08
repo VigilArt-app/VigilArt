@@ -1,23 +1,16 @@
 import { toast } from "sonner";
 import { Artwork, ArtworkReportInsights, MatchingPage } from "./types";
-import { getUserIdFromToken } from "../../../utils/auth/getUserIdFromToken";
 import { authenticatedFetch } from "../../../utils/auth/authenticatedFetch";
 import i18next from "i18next";
-import { API_BASE_URL } from "@/src/config";
 
 const t = (key: string, defaultValue: string) =>
   i18next.t(key, { defaultValue });
 
-export const fetchArtworks = async (): Promise<Artwork[]> => {
-  const userId = getUserIdFromToken();
-  if (!userId) {
-    toast.error(t("artwork_gallery_page.not_authenticated", "User not authenticated. Please login."));
-    throw new Error("Not authenticated");
-  }
-
+export const fetchArtworks = async (
+  userId: string
+): Promise<Artwork[]> => {
   try {
-    const API_BASE = API_BASE_URL;
-    const response = await authenticatedFetch(`${API_BASE}/artworks/user/${userId}`);
+    const response = await authenticatedFetch(`/artworks/user/${userId}`);
 
     if (!response.ok) {
       throw new Error("Failed to fetch artworks");
@@ -41,15 +34,9 @@ interface ReportDetails {
   matchingPages: MatchingPage[];
 }
 
-export const fetchArtworkReportInsights = async (): Promise<Record<string, ArtworkReportInsights>> => {
-  const userId = getUserIdFromToken();
-  if (!userId) {
-    return {};
-  }
-
+export const fetchArtworkReportInsights = async (userId: string): Promise<Record<string, ArtworkReportInsights>> => {
   try {
-    const API_BASE = API_BASE_URL;
-    const reportsRes = await authenticatedFetch(`${API_BASE}/reports/user/${userId}`);
+    const reportsRes = await authenticatedFetch(`/reports/user/${userId}`);
 
     if (!reportsRes.ok) {
       throw new Error("Failed to fetch reports");
@@ -71,7 +58,7 @@ export const fetchArtworkReportInsights = async (): Promise<Record<string, Artwo
     const detailsResults = await Promise.all(
       reports.map(async (report) => {
         try {
-          const detailsRes = await authenticatedFetch(`${API_BASE}/reports/details/${report.id}`);
+          const detailsRes = await authenticatedFetch(`/reports/details/${report.id}`);
           if (!detailsRes.ok) return null;
 
           const detailsData = await detailsRes.json();
@@ -125,8 +112,7 @@ export const fetchArtworkReportInsights = async (): Promise<Record<string, Artwo
 
 export const deleteArtwork = async (id: string): Promise<void> => {
   try {
-    const API_BASE = API_BASE_URL;
-    const response = await authenticatedFetch(`${API_BASE}/artworks/${id}`, {
+    const response = await authenticatedFetch(`/artworks/${id}`, {
       method: "DELETE",
     });
 

@@ -6,6 +6,7 @@ import { InternalServerErrorDTO, API_PREFIX, API_DOCS_PATH } from "@vigilart/sha
 import { HttpExceptionFilter } from "./common/filters/http-exception.filter";
 import { PrismaClientExceptionFilter } from "./common/filters/prisma-client-exception.filter";
 import { ZodExceptionFilter } from "./common/filters/zod-exception.filter";
+import cookieParser from "cookie-parser";
 import helmet from "helmet";
 
 export const setupApp = (app: INestApplication) => {
@@ -30,6 +31,7 @@ export const setupApp = (app: INestApplication) => {
   app.enableCors({
     origin: corsOrigins?.length ? corsOrigins : !isProd
   });
+  app.use(cookieParser());
   app.setGlobalPrefix(apiPrefix);
   app.useGlobalFilters(
     new PrismaClientExceptionFilter(),

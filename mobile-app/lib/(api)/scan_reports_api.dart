@@ -6,18 +6,19 @@ extension ScanReportsApi on ApiService {
   
   Future<List<Map<String, dynamic>>?> getMasterScanReportMatches() async {
     try {
-      final token = await getAccessToken();
       final userId = await secureStorage.read(key: ApiService.keyUserId);
       if (userId == null) throw Exception('User ID not found');
 
-      final headers = {'Content-Type': 'application/json', 'Authorization': 'Bearer $token'};
-
-      final artworksRes = await http.get(Uri.parse('$serverUrl/artworks/user/$userId'), headers: headers);
+      final artworksRes = await authenticatedRequest(
+        (headers) => http.get(Uri.parse('$serverUrl/artworks/user/$userId'), headers: headers),
+      );
       if (artworksRes.statusCode != 200) return null;
       final artworksData = jsonDecode(artworksRes.body);
       final List<dynamic> artworks = artworksData['data'] ?? artworksData;
 
-      final reportsRes = await http.get(Uri.parse('$serverUrl/reports/user/$userId'), headers: headers);
+      final reportsRes = await authenticatedRequest(
+        (headers) => http.get(Uri.parse('$serverUrl/reports/user/$userId'), headers: headers),
+      );
       if (reportsRes.statusCode != 200) return null;
       final reportsData = jsonDecode(reportsRes.body);
       final List<dynamic> reports = reportsData['data'] ?? reportsData;
@@ -26,7 +27,9 @@ extension ScanReportsApi on ApiService {
       if (reports.isNotEmpty) {
         final detailRequests = reports.map((report) {
           final reportId = report['id']?.toString();
-          return http.get(Uri.parse('$serverUrl/reports/details/$reportId'), headers: headers);
+          return authenticatedRequest(
+            (headers) => http.get(Uri.parse('$serverUrl/reports/details/$reportId'), headers: headers),
+          );
         });
 
         final detailResponses = await Future.wait(detailRequests);
@@ -46,10 +49,12 @@ extension ScanReportsApi on ApiService {
       
       Map<String, dynamic> downloadUrls = {};
       if (storageKeys.isNotEmpty) {
-        final urlsRes = await http.post(
-          Uri.parse('$serverUrl/storage/artworks/download-urls'),
-          headers: headers,
-          body: jsonEncode({'storageKeys': storageKeys}),
+        final urlsRes = await authenticatedRequest(
+          (headers) => http.post(
+            Uri.parse('$serverUrl/storage/artworks/download-urls'),
+            headers: headers,
+            body: jsonEncode({'storageKeys': storageKeys}),
+          ),
         );
         
         if (urlsRes.statusCode == 200 || urlsRes.statusCode == 201) {
