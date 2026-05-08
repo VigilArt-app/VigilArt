@@ -15,8 +15,8 @@ import { getCookieOptions } from "../utils/get-cookie-options";
 export class HttpExceptionFilter implements ExceptionFilter {
     private readonly logger = new Logger(HttpExceptionFilter.name);
 
-    private clearAuthCookies(response: Response, request: Request) {
-        const cookieOptions = getCookieOptions(undefined, request);
+    private clearAuthCookies(response: Response) {
+        const cookieOptions = getCookieOptions();
         response.clearCookie('auth_token', cookieOptions);
         response.clearCookie('refresh_token', cookieOptions);
     }
@@ -47,7 +47,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
             errorBody.error = exception.name;
         }
         if (errorBody.statusCode === HttpStatus.UNAUTHORIZED && (request.path.includes('/auth/refresh') || request.path.includes('/auth/logout')))
-            this.clearAuthCookies(response, request);
+            this.clearAuthCookies(response);
         response.status(errorBody.statusCode).json(errorBody);
     }
 }

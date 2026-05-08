@@ -143,22 +143,20 @@ export class AuthService {
 
   private setAccessTokenCookie(
     response: Response,
-    accessToken: string,
-    request?: Request
+    accessToken: string
   ): void {
     const accessTokenExpiry = this.config.get("JWT_EXPIRES") || "15m";
 
     response.cookie(
       "auth_token",
       accessToken,
-      getCookieOptions(this.parseExpiryToMs(accessTokenExpiry), request)
+      getCookieOptions(this.parseExpiryToMs(accessTokenExpiry))
     );
   }
 
   private setAuthCookies(
     response: Response,
-    tokens: AuthTokens,
-    request?: Request
+    tokens: AuthTokens
   ): void {
     const accessTokenExpiry = this.config.get("JWT_EXPIRES") || "15m";
     const refreshTokenExpiry = this.config.get("JWT_REFRESH_EXPIRES") || "7d";
@@ -166,17 +164,17 @@ export class AuthService {
     response.cookie(
       "auth_token",
       tokens.accessToken,
-      getCookieOptions(this.parseExpiryToMs(accessTokenExpiry), request)
+      getCookieOptions(this.parseExpiryToMs(accessTokenExpiry))
     );
     response.cookie(
       "refresh_token",
       tokens.refreshToken,
-      getCookieOptions(this.parseExpiryToMs(refreshTokenExpiry), request)
+      getCookieOptions(this.parseExpiryToMs(refreshTokenExpiry))
     );
   }
 
-  private clearAuthCookies(response: Response, request?: Request): void {
-    const cookieOptions = getCookieOptions(undefined, request);
+  private clearAuthCookies(response: Response): void {
+    const cookieOptions = getCookieOptions();
     response.clearCookie("auth_token", cookieOptions);
     response.clearCookie("refresh_token", cookieOptions);
   }
@@ -196,7 +194,7 @@ export class AuthService {
     const tokens = await this.generateTokens(user.id, user.email, request);
     const { password: hashedPassword, ...userProfile } = user;
 
-    this.setAuthCookies(response, tokens, request);
+    this.setAuthCookies(response, tokens);
     return this.isMobileClient(request)
       ? this.buildAuthSessionResponse(userProfile, tokens)
       : userProfile;
@@ -233,7 +231,7 @@ export class AuthService {
 
     const accessToken = await this.generateAccessToken(userId, email);
 
-    this.setAccessTokenCookie(response, accessToken, request);
+    this.setAccessTokenCookie(response, accessToken);
     if (!this.isMobileClient(request))
       return;
     return {
@@ -244,7 +242,6 @@ export class AuthService {
 
   async logout(
     response: Response,
-    request: Request,
     userId: string,
     refreshToken?: string
   ): Promise<void> {
@@ -263,18 +260,17 @@ export class AuthService {
       }
     }
 
-    this.clearAuthCookies(response, request);
+    this.clearAuthCookies(response);
   }
 
   async logoutAllDevices(
     response: Response,
-    request: Request,
     userId: string
   ): Promise<void> {
     await this.prisma.refreshToken.deleteMany({
       where: { userId }
     });
-    this.clearAuthCookies(response, request);
+    this.clearAuthCookies(response);
   }
 
   async me(auth: AuthenticatedRequest["user"]): Promise<UserGet> {

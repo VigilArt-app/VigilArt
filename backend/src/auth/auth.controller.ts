@@ -104,7 +104,7 @@ export class AuthController {
     @Req() req: AuthenticatedRequest,
     @Res({ passthrough: true }) response: Response
   ): Promise<void> {
-    return this.authService.logout(response, req, req.user.id, req.user.refreshToken);
+    return this.authService.logout(response, req.user.id, req.user.refreshToken);
   }
 
   @Post("logout-all")
@@ -119,7 +119,7 @@ export class AuthController {
     @Req() req: AuthenticatedRequest,
     @Res({ passthrough: true }) response: Response
   ): Promise<void> {
-    return this.authService.logoutAllDevices(response, req, req.user.id);
+    return this.authService.logoutAllDevices(response, req.user.id);
   }
 
   @Get("me")
