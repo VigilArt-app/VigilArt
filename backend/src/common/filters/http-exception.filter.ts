@@ -9,20 +9,16 @@ import {
 import { Request, Response } from "express";
 import { ApiErrorData } from "@vigilart/shared/types";
 import { errorLabels } from "@vigilart/shared/constants";
+import { getCookieOptions } from "../utils/get-cookie-options";
 
 @Catch(HttpException)
 export class HttpExceptionFilter implements ExceptionFilter {
     private readonly logger = new Logger(HttpExceptionFilter.name);
 
-    private getCookieOptions() {
-        const isProduction = process.env.NODE_ENV === "production";
-
-        return {
-            httpOnly: true,
-            secure: isProduction,
-            sameSite: "strict" as const,
-            path: "/"
-        };
+    private clearAuthCookies(response: Response) {
+        const cookieOptions = getCookieOptions();
+        response.clearCookie('auth_token', cookieOptions);
+        response.clearCookie('refresh_token', cookieOptions);
     }
 
     catch(exception: HttpException, host: ArgumentsHost) {
@@ -50,11 +46,8 @@ export class HttpExceptionFilter implements ExceptionFilter {
             errorBody.message = res;
             errorBody.error = exception.name;
         }
-        if (errorBody.statusCode === HttpStatus.UNAUTHORIZED &&
-            (request.path.includes('/auth/refresh') || request.path.includes('/auth/logout'))) {
-            response.clearCookie('auth_token', this.getCookieOptions());
-            response.clearCookie('refresh_token', this.getCookieOptions());
-        }
+        if (errorBody.statusCode === HttpStatus.UNAUTHORIZED && (request.path.includes('/auth/refresh') || request.path.includes('/auth/logout')))
+            this.clearAuthCookies(response);
         response.status(errorBody.statusCode).json(errorBody);
     }
 }

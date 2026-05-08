@@ -19,6 +19,7 @@ import { ConfigService } from "@nestjs/config";
 import { PrismaService } from "../prisma/prisma.service";
 import type { Request, Response } from "express";
 import type { AuthenticatedRequest } from "./auth";
+import { getCookieOptions } from "../common/utils/get-cookie-options";
 
 @Injectable()
 export class AuthService {
@@ -28,18 +29,6 @@ export class AuthService {
     private readonly config: ConfigService,
     private readonly prisma: PrismaService
   ) {}
-
-  private getCookieOptions(maxAge?: number) {
-    const isProduction = process.env.NODE_ENV === "production";
-
-    return {
-      httpOnly: true,
-      secure: isProduction,
-      sameSite: "strict" as const,
-      path: "/",
-      ...(typeof maxAge === "number" ? { maxAge } : {})
-    };
-  }
 
   private isMobileClient(request?: Request): boolean {
     return request?.header("x-client-type")?.toLowerCase() === "mobile";
@@ -152,35 +141,42 @@ export class AuthService {
     }
   }
 
-  private setAccessTokenCookie(response: Response, accessToken: string): void {
+  private setAccessTokenCookie(
+    response: Response,
+    accessToken: string
+  ): void {
     const accessTokenExpiry = this.config.get("JWT_EXPIRES") || "15m";
 
     response.cookie(
       "auth_token",
       accessToken,
-      this.getCookieOptions(this.parseExpiryToMs(accessTokenExpiry))
+      getCookieOptions(this.parseExpiryToMs(accessTokenExpiry))
     );
   }
 
-  private setAuthCookies(response: Response, tokens: AuthTokens): void {
+  private setAuthCookies(
+    response: Response,
+    tokens: AuthTokens
+  ): void {
     const accessTokenExpiry = this.config.get("JWT_EXPIRES") || "15m";
     const refreshTokenExpiry = this.config.get("JWT_REFRESH_EXPIRES") || "7d";
 
     response.cookie(
       "auth_token",
       tokens.accessToken,
-      this.getCookieOptions(this.parseExpiryToMs(accessTokenExpiry))
+      getCookieOptions(this.parseExpiryToMs(accessTokenExpiry))
     );
     response.cookie(
       "refresh_token",
       tokens.refreshToken,
-      this.getCookieOptions(this.parseExpiryToMs(refreshTokenExpiry))
+      getCookieOptions(this.parseExpiryToMs(refreshTokenExpiry))
     );
   }
 
   private clearAuthCookies(response: Response): void {
-    response.clearCookie("auth_token", this.getCookieOptions());
-    response.clearCookie("refresh_token", this.getCookieOptions());
+    const cookieOptions = getCookieOptions();
+    response.clearCookie("auth_token", cookieOptions);
+    response.clearCookie("refresh_token", cookieOptions);
   }
 
   async login(
@@ -267,7 +263,10 @@ export class AuthService {
     this.clearAuthCookies(response);
   }
 
-  async logoutAllDevices(response: Response, userId: string): Promise<void> {
+  async logoutAllDevices(
+    response: Response,
+    userId: string
+  ): Promise<void> {
     await this.prisma.refreshToken.deleteMany({
       where: { userId }
     });
