@@ -1,62 +1,22 @@
-"use client";
-
 import "./globals.css";
-import { usePathname } from "next/navigation";
-import { SidebarProvider, SidebarTrigger } from "../components/ui/sidebar";
-import { AppSidebar } from "../components/app-sidebar";
-import { ThemeProvider } from "../components/theme-provider";
-import { ThemeToggle } from "../components/toggle-theme";
-import { LanguageToggle } from "../components/ui/languageToggle";
-import I18nProvider from './i18n/I18nProvider';
-import { Toaster } from "sonner";
-import { AuthProvider } from "../components/contexts/authContext";
+import { cookies } from "next/headers";
+import { LayoutClient } from "./layout-client";
 
-function ClientWrapper({ children }: { children: React.ReactNode }) {
-  const pathname = usePathname();
-  const noSidebarRoutes = ["/login", "/sign-up"];
-  const showSidebar = !noSidebarRoutes.includes(pathname || "");
-
-  return (
-    <I18nProvider>
-      <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-        <Toaster position="top-right" richColors />
-          {showSidebar ? (
-            <AuthProvider>
-              <SidebarProvider>
-                <AppSidebar />
-                <main className="w-full min-h-screen overflow-x-hidden">
-                  <SidebarTrigger className="fixed top-4 left-4 z-50" />
-                  <div className="fixed top-4 right-4 flex justify-evenly space-x-4 z-50">
-                    <ThemeToggle />
-                    <LanguageToggle />
-                  </div>
-                  {children}
-                </main>
-              </SidebarProvider>
-            </AuthProvider>
-          ) : (
-            <main className="w-full min-h-screen overflow-x-hidden">
-              <div className="fixed top-4 right-4 flex justify-evenly space-x-4 z-50">
-                <ThemeToggle />
-                <LanguageToggle />
-              </div>
-              {children}
-            </main>
-          )}
-      </ThemeProvider>
-    </I18nProvider>
-  );
-}
-
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const cookieStore = await cookies();
+  const hasAuthToken = cookieStore.has("auth_token");
+  const hasRefreshToken = cookieStore.has("refresh_token");
+
   return (
     <html lang="en" suppressHydrationWarning>
       <body>
-        <ClientWrapper>{children}</ClientWrapper>
+        <LayoutClient hasAuthToken={hasAuthToken} hasRefreshToken={hasRefreshToken}>
+          {children}
+        </LayoutClient>
       </body>
     </html>
   );
