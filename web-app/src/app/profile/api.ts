@@ -114,3 +114,30 @@ export const updateUserProfile = async (
     throw error;
   }
 };
+
+/**
+ * Delete user account permanently
+ */
+export const deleteAccount = async (userId: string): Promise<void> => {
+  try {
+    const response = await authenticatedFetch(`/users/${userId}`, {
+      method: "DELETE",
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(
+        errorData.message || t("profil_page.failed_delete", "Failed to delete account")
+      );
+    }
+
+    toast.success(t("profil_page.account_deleted", "Account deleted successfully"));
+  } catch (error) {
+    toast.error(
+      error instanceof Error
+        ? error.message
+        : t("profil_page.failed_delete", "Failed to delete account")
+    );
+    throw error;
+  }
+};

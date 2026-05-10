@@ -170,7 +170,15 @@
         "failed_to_load": "Failed to load profile information. Please try again.",
         "failed_prepare_avatar": "Failed to prepare avatar for upload. Please try again.",
         "failed_avatar_upload": "Failed to upload avatar. Please try again.",
-        "failed_update": "Failed to update profile. Please try again."
+        "failed_update": "Failed to update profile. Please try again.",
+        "delete_account": "Delete Account",
+        "delete_account_confirm": "Delete Account Permanently",
+        "delete_account_warning": "This action will permanently delete your account and all associated data. You will not be able to recover your account.",
+        "delete_account_irreversible": "This action is irreversible. Please make sure you want to proceed.",
+        "cancel": "Cancel",
+        "delete_permanently": "Delete Permanently",
+        "failed_delete": "Failed to delete account. Please try again.",
+        "account_deleted": "Account deleted successfully."
     },
     "artwork_gallery_page": {
         "artwork_gallery": "Artwork Gallery",

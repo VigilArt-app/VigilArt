@@ -170,7 +170,15 @@
         "failed_to_load": "Échec du chargement des informations de profil. Veuillez réessayer.",
         "failed_prepare_avatar": "Échec de la préparation de l'avatar pour le téléchargement. Veuillez réessayer.",
         "failed_avatar_upload": "Échec du téléchargement de l'avatar. Veuillez réessayer.",
-        "failed_update": "Échec de la mise à jour du profil. Veuillez réessayer."
+        "failed_update": "Échec de la mise à jour du profil. Veuillez réessayer.",
+        "delete_account": "Supprimer le compte",
+        "delete_account_confirm": "Supprimer le compte définitivement",
+        "delete_account_warning": "Cette action supprimera définitivement votre compte et toutes les données associées. Vous ne pourrez pas récupérer votre compte.",
+        "delete_account_irreversible": "Cette action est irréversible. Veuillez vous assurer que vous voulez continuer.",
+        "cancel": "Annuler",
+        "delete_permanently": "Supprimer définitivement",
+        "failed_delete": "Échec de la suppression du compte. Veuillez réessayer.",
+        "account_deleted": "Compte supprimé avec succès."
     },
     "artwork_gallery_page": {
         "artwork_gallery": "Galerie d'œuvres",
