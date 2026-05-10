@@ -46,7 +46,10 @@ export function ArtworkCard({
           ? "border-primary shadow-lg"
           : "border-transparent hover:border-primary/50"
       }`}
-      onClick={() => onSelect(artwork)}
+      onClick={(e) => {
+        e.stopPropagation();
+        onSelect(artwork);
+      }}
     >
       <div className="absolute top-2 left-2 z-10">
         <div
