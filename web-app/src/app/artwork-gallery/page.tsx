@@ -9,10 +9,12 @@ import { ArtworkCard } from "./components/ArtworkCard";
 import { ArtworkDetails } from "./components/ArtworkDetails";
 import { DeleteDialog } from "./components/DeleteDialog";
 import { EmptyState } from "./components/EmptyState";
+import EditArtworkModal from "./components/EditArtworkModal";
 import { Button } from "@/src/components/ui/button";
 import { UploadModal } from "../dashboard/components/UploadModal";
 import { useAuth } from "@/src/components/contexts/authContext";
 import { useTranslation } from "react-i18next";
+import React from "react";
 
 export default function ArtworkGalleryPage() {
   const { t } = useTranslation();
@@ -26,6 +28,8 @@ export default function ArtworkGalleryPage() {
   const [artworkToDelete, setArtworkToDelete] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [uploadModalOpen, setUploadModalOpen] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [artworkToEdit, setArtworkToEdit] = useState<ArtworkWithInsights | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
   const { user, loading } = useAuth();
 
@@ -93,6 +97,22 @@ export default function ArtworkGalleryPage() {
     setDeleteDialogOpen(true);
   };
 
+  const handleEditArtwork = (artwork: ArtworkWithInsights, e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    setArtworkToEdit(artwork);
+    setEditModalOpen(true);
+  };
+
+  React.useEffect(() => {
+    const listener = (ev: any) => {
+      setArtworkToEdit(ev.detail);
+      setEditModalOpen(true);
+    };
+
+    window.addEventListener("openEditArtwork", listener as EventListener);
+    return () => window.removeEventListener("openEditArtwork", listener as EventListener);
+  }, []);
+
   const confirmDelete = async () => {
     if (!artworkToDelete) return;
 
@@ -153,6 +173,7 @@ export default function ArtworkGalleryPage() {
                 artwork={artwork}
                 isSelected={selectedArtwork?.id === artwork.id}
                 onSelect={setSelectedArtwork}
+                onEdit={handleEditArtwork}
                 onDelete={handleDeleteArtwork}
               />
             ))}
@@ -172,6 +193,19 @@ export default function ArtworkGalleryPage() {
         open={uploadModalOpen}
         onOpenChange={setUploadModalOpen}
         onUploadComplete={() => setRefreshKey((value) => value + 1)} />
+      <EditArtworkModal
+        open={editModalOpen}
+        onOpenChange={setEditModalOpen}
+        artwork={artworkToEdit}
+        onSaved={(updated) => {
+          if (!updated) return;
+          setArtworks((prev) => prev.map((a) => (a.id === updated.id ? { ...a, ...updated } : a)));
+          setFilteredArtworks((prev) => prev.map((a) => (a.id === updated.id ? { ...a, ...updated } : a)));
+          if (selectedArtwork?.id === updated.id) {
+            setSelectedArtwork((s) => (s ? { ...s, ...updated } : s));
+          }
+        }}
+      />
     </div>
   );
 }

@@ -10,6 +10,7 @@ interface ArtworkCardProps {
   isSelected: boolean;
   onSelect: (artwork: ArtworkWithInsights) => void;
   onDelete: (id: string, e: React.MouseEvent) => void;
+  onEdit?: (artwork: ArtworkWithInsights, e: React.MouseEvent) => void;
 }
 
 export function ArtworkCard({
@@ -17,6 +18,7 @@ export function ArtworkCard({
   isSelected,
   onSelect,
   onDelete,
+  onEdit,
 }: ArtworkCardProps) {
   const { t } = useTranslation();
   const status = getArtworkStatus(artwork);
@@ -68,12 +70,27 @@ export function ArtworkCard({
         </div>
       </div>
 
-      <button 
-        onClick={(e) => onDelete(artwork.id, e)}
-        className="absolute top-2 right-2 z-10 bg-red-500 hover:bg-red-600 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-      >
-        <Trash2 className="w-4 h-4" />
-      </button>
+      <div className="absolute top-2 right-2 z-10 flex gap-2">
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onEdit?.(artwork, e);
+          }}
+          className="bg-white text-black p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-md border"
+          aria-label="Modifier la description"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" d="M4 20h4l10-10a2.5 2.5 0 00-3.5-3.5L4 16v4z" />
+          </svg>
+        </button>
+
+        <button 
+          onClick={(e) => onDelete(artwork.id, e)}
+          className="bg-red-500 hover:bg-red-600 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+        >
+          <Trash2 className="w-4 h-4" />
+        </button>
+      </div>
 
       <div className="aspect-square bg-muted relative overflow-hidden">
         {isLoading && (

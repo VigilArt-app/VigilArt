@@ -126,3 +126,24 @@ export const deleteArtwork = async (id: string): Promise<void> => {
     throw error;
   }
 };
+
+export const updateArtwork = async (id: string, payload: { originalFilename?: string; description?: string; }): Promise<any> => {
+  try {
+    const response = await authenticatedFetch(`/artworks/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to update artwork");
+    }
+
+    const data = await response.json();
+    toast.success(t("artwork_gallery_page.success_update", "Artwork updated"));
+    return data?.data || data;
+  } catch (error) {
+    toast.error(t("artwork_gallery_page.failed_update", "Failed to update artwork"));
+    throw error;
+  }
+};
