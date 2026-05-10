@@ -27,6 +27,7 @@
         "first_name": "First name",
         "last_name": "Last name",
         "email": "Email address",
+        "placeholder_email": "john.doe@example.com",
         "password": "Password",
         "confirm_password": "Confirm password",
         "passwords_do_not_match": "Passwords do not match",
