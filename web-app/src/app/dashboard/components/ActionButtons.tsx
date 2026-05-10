@@ -17,10 +17,6 @@ export default function ActionButtons({ onUploadComplete }: ActionButtonsProps) 
   return (
     <>
       <div className="space-y-4 w-full">
-        <Button variant="outline" className="w-full h-20 flex items-center justify-between px-6">
-          <span className="font-bold text-lg">{t("dashboard_page.upload.see_gallery")}</span>
-          <ImageIcon className="w-6 h-6" />
-        </Button>
         <Button 
           variant="outline" 
           className="w-full h-20 flex items-center justify-between px-6"
