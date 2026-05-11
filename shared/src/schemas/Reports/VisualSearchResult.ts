@@ -1,9 +1,7 @@
 import { z } from "zod";
 import { createZodDto } from "nestjs-zod";
 import { MatchingPageSchema as base } from "../../generated/zod";
-import {
-  MATCHING_PAGE_CREATE_BATCH_MAX_SIZE
-} from "../../constants";
+import { MATCHING_PAGE_CREATE_BATCH_MAX_SIZE } from "../../constants";
 import { dateTimeStringToDate } from "../../functions";
 
 export const ArtworkMetadataLabelSchema = z.object({
@@ -36,7 +34,7 @@ export const ArtworkMetadataSchema = z.object({
     error: (e) =>
       e.input === undefined ? "Web entities array is required." : undefined
   }),
-  extensions: z.array(z.string()).optional(),
+  extensions: z.array(z.string()).optional()
 });
 export class ArtworkMetadataDTO extends createZodDto(ArtworkMetadataSchema) {}
 
@@ -98,7 +96,7 @@ export class MatchingPageCreateManyResponseDTO extends createZodDto(
 
 export const MatchingPageGetSchema = MatchingPageSchema.extend({
   pageTitle: z.string().optional(),
-  imageUrl: z.string().optional()
+  imageUrl: z.string().optional(),
 }).omit({
   id: true,
   artworkId: true,

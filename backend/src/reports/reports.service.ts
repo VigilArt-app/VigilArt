@@ -118,6 +118,7 @@ export class ReportsService {
     this.logger.log(`Finding matches of artwork ${artworkId}`);
     let selectedReportId = "";
 
+    await this.artworksService.findOne(userId, artworkId);
     if (reportId) {
       this.logger.log(`Retrieving report ${reportId}`);
       await this.findOne(userId, reportId);
@@ -162,10 +163,7 @@ export class ReportsService {
       include: { matchingPages: true }
     });
 
-    return assertResourceOwnership(
-      report,
-      userId
-    );
+    return assertResourceOwnership(report, userId);
   }
 
   async findLatestReport(userId: string): Promise<ArtworksReport> {
