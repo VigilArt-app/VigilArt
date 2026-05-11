@@ -61,11 +61,12 @@ export class GoogleLensService {
     }
     const matchingPages: MatchingPageGet[] = googleLensExactMatches.reduce(
       (acc: MatchingPageGet[], match: GoogleLensExactResult) => {
-        if (match.link && !isBlacklisted(match.link)) {
+        if (match.link) {
           const validItem: MatchingPageGet = {
             url: match.link,
             category: classifyWebsite(match.link),
             websiteName: extractRootDomain(match.link),
+            unsafeDomain: isBlacklisted(match.link),
             imageUrl: match.image_url ?? undefined,
             pageTitle: match.title
           };

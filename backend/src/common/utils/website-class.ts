@@ -130,9 +130,3 @@ export function isBlacklisted(url: string): boolean {
   );
 }
 
-export function isFlagged(url: string): boolean {
-  const domain = extractRootDomain(url);
-  return FLAGGED_DOMAINS.some(
-    (flagged) => domain === flagged || domain.endsWith(`.${flagged}`),
-  );
-}

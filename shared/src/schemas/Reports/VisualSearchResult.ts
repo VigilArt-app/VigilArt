@@ -51,6 +51,7 @@ export const MatchingPageCreateSchema = MatchingPageSchema.pick({
   url: true,
   category: true,
   websiteName: true,
+  unsafeDomain: true,
   imageUrl: true,
   pageTitle: true
 }).extend({
