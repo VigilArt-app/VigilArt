@@ -7,25 +7,31 @@ import { HttpExceptionFilter } from "./common/filters/http-exception.filter";
 import { PrismaClientExceptionFilter } from "./common/filters/prisma-client-exception.filter";
 import { ZodExceptionFilter } from "./common/filters/zod-exception.filter";
 import cookieParser from "cookie-parser";
+import helmet from "helmet";
 
 export const setupApp = (app: INestApplication) => {
   const configService = app.get(ConfigService);
   const apiPrefix = configService.get<string>("API_PREFIX") || API_PREFIX;
-  const corsOrigins = configService.get<string>("CORS_ORIGINS");
-  const origin =
-    corsOrigins && corsOrigins.trim().length > 0
-      ? corsOrigins
-          .split(",")
-          .map((o) => o.trim())
-          .filter((o) => o.length > 0)
-      : true;
+  const nodeEnv = configService.get<string>("NODE_ENV");
+  const corsOrigins = configService.get<string>("CORS_ORIGINS")
+    ?.split(",")
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+  const isProd = nodeEnv === "production";
 
-  app.use(cookieParser());
+  app.use(helmet({
+    hsts: isProd,
+    contentSecurityPolicy: {
+      directives: {
+        ...helmet.contentSecurityPolicy.getDefaultDirectives(),
+        'upgrade-insecure-requests': isProd ? [] : null,
+      }
+    }
+  }));
   app.enableCors({
-    origin,
-    credentials: true,
+    origin: corsOrigins?.length ? corsOrigins : !isProd
   });
-
+  app.use(cookieParser());
   app.setGlobalPrefix(apiPrefix);
   app.useGlobalFilters(
     new PrismaClientExceptionFilter(),
@@ -34,8 +40,8 @@ export const setupApp = (app: INestApplication) => {
   );
 
   if (
-    process.env.NODE_ENV !== "production" &&
-    process.env.NODE_ENV !== "test"
+    !isProd &&
+    nodeEnv !== "test"
   ) {
     const swaggerConfig = new DocumentBuilder()
       .setTitle("VigilArt API")
