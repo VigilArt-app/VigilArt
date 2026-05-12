@@ -29,7 +29,8 @@ export const setupApp = (app: INestApplication) => {
     }
   }));
   app.enableCors({
-    origin: corsOrigins?.length ? corsOrigins : !isProd
+    origin: corsOrigins?.length ? corsOrigins : !isProd,
+    credentials: true
   });
   app.use(cookieParser());
   app.setGlobalPrefix(apiPrefix);
