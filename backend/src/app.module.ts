@@ -10,6 +10,7 @@ import { APP_PIPE, APP_INTERCEPTOR } from "@nestjs/core";
 
 import { UsersModule } from "./users/users.module";
 import { ConfigModule } from "@nestjs/config";
+import { ScheduleModule } from "@nestjs/schedule";
 import { AuthModule } from "./auth/auth.module";
 import { VisionModule } from "./vision/vision.module";
 import { ArtworksModule } from "./artworks/artworks.module";
@@ -27,6 +28,7 @@ import { GoogleLensModule } from "./googlelens/googlelens.module";
       isGlobal: true,
       envFilePath: "../.env"
     }),
+    ScheduleModule.forRoot(),
     UsersModule,
     AuthModule,
     VisionModule,

@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { toast } from "sonner";
-import { getUserIdFromToken } from "../../../../utils/auth/getUserIdFromToken";
 import type { UploadUrlsGetDTO } from "@vigilart/shared";
 import { getImageDimensions } from "./imageUtils";
+import { authenticatedFetch } from "@/src/utils/auth/authenticatedFetch";
+import { useAuth } from "@/src/components/contexts/authContext";
 import { useTranslation } from "react-i18next";
-import { API_BASE_URL } from "@/src/config";
 
 interface UploadedFile {
   file: File;
@@ -28,6 +28,7 @@ export function useFileUpload({ onUploadComplete }: UseFileUploadOptions = {}) {
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadResult, setUploadResult] = useState<UploadResult | null>(null);
+  const { user, loading: userLoading } = useAuth();
   const { t } = useTranslation();
 
   const addFiles = (files: UploadedFile[]) => {
@@ -57,33 +58,26 @@ export function useFileUpload({ onUploadComplete }: UseFileUploadOptions = {}) {
   };
 
   const uploadFiles = async (): Promise<boolean> => {
+    if (userLoading) {
+      return false;
+    }
+
+    if (!user?.id) {
+      toast.error("Not authenticated");
+      return false;
+    }
+
+    const userId = user.id;
+
     if (uploadedFiles.length === 0) {
       toast.error(t("dashboard_page.upload.select_one_file"));
       return false;
     }
-
-    const userId = getUserIdFromToken();
-    if (!userId) {
-      toast.error(t("dashboard_page.upload.not_authenticated"));
-      return false;
-    }
-
-    const authToken =
-      typeof window !== "undefined"
-        ? localStorage.getItem("auth_token") || sessionStorage.getItem("auth_token")
-        : null;
-
-    if (!authToken) {
-      toast.error(t("dashboard_page.upload.token_expired"));
-      return false;
-    }
-
     setIsUploading(true);
     const totalFiles = uploadedFiles.length;
     let uploadedCount = 0;
     let failedCount = 0;
     const uploadedNames: string[] = [];
-    const API_BASE = API_BASE_URL;
 
     toast.loading(`${t("dashboard_page.upload.uploading_toatser")} ${totalFiles} image${totalFiles > 1 ? "s" : ""}...`, {
       id: "upload-progress",
@@ -93,12 +87,8 @@ export function useFileUpload({ onUploadComplete }: UseFileUploadOptions = {}) {
       // Get presigned URLs
       const filenames = uploadedFiles.map((f) => f.file.name);
 
-      const uploadUrlsResponse = await fetch(`${API_BASE}/storage/artworks/upload-urls`, {
+      const uploadUrlsResponse = await authenticatedFetch(`/storage/artworks/upload-urls`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${authToken}`,
-        },
         body: JSON.stringify({
           filenames,
           prefix: "artworks",
@@ -181,7 +171,7 @@ export function useFileUpload({ onUploadComplete }: UseFileUploadOptions = {}) {
             width,
             height,
           });
-        } catch (error) {
+        } catch (_) {
           failedCount++;
         }
       }
@@ -193,12 +183,8 @@ export function useFileUpload({ onUploadComplete }: UseFileUploadOptions = {}) {
         return false;
       }
 
-      const createResponse = await fetch(`${API_BASE}/artworks/batch`, {
+      const createResponse = await authenticatedFetch(`/artworks/batch`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${authToken}`,
-        },
         body: JSON.stringify(artworksToCreate),
       });
 
@@ -227,12 +213,8 @@ export function useFileUpload({ onUploadComplete }: UseFileUploadOptions = {}) {
         ...(createdArtworks.artworks?.map((a: any) => a.originalFilename) || [])
       );
 
-      const reportResponse = await fetch(`${API_BASE}/reports/user/${userId}`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${authToken}`,
-          "Content-Type": "application/json",
-        },
+      const reportResponse = await authenticatedFetch(`/reports/user/${userId}`, {
+        method: "POST"
       });
 
       if (!reportResponse.ok) {

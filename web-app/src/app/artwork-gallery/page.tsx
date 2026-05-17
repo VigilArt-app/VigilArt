@@ -9,6 +9,7 @@ import { ArtworkCard } from "./components/ArtworkCard";
 import { ArtworkDetails } from "./components/ArtworkDetails";
 import { DeleteDialog } from "./components/DeleteDialog";
 import { EmptyState } from "./components/EmptyState";
+import { useAuth } from "@/src/components/contexts/authContext";
 import { useTranslation } from "react-i18next";
 
 export default function ArtworkGalleryPage() {
@@ -22,13 +23,25 @@ export default function ArtworkGalleryPage() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [artworkToDelete, setArtworkToDelete] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const { user, loading } = useAuth();
 
   useEffect(() => {
     const loadArtworks = async () => {
+      if (loading) {
+        return;
+      }
+
+      if (!user?.id) {
+        setIsLoading(false);
+        return;
+      }
+
+      const userId = user.id;
+
       try {
         const [data, insightsByArtwork] = await Promise.all([
-          fetchArtworks(),
-          fetchArtworkReportInsights(),
+          fetchArtworks(userId),
+          fetchArtworkReportInsights(userId),
         ]);
 
         const enrichedArtworks: ArtworkWithInsights[] = data.map((artwork) => ({
@@ -44,7 +57,7 @@ export default function ArtworkGalleryPage() {
     };
 
     loadArtworks();
-  }, []);
+  }, [loading, user?.id]);
 
   useEffect(() => {
     let filtered = [...artworks];

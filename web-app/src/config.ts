@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 const schema = z.object({
-  apiUrl: z.string().url(),
+  apiUrl: z.url(),
   featureFlag: z.coerce.boolean().default(false),
 });
 

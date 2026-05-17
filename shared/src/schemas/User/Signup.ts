@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { createZodDto } from "nestjs-zod";
+import { UserGetSchema } from "./User";
 import {
   MIN_PASSWORD_LENGTH,
   MIN_PASSWORD_LOWERCASE,
@@ -60,3 +61,10 @@ export const SignUpSchema = z.object({
     .min(1),
 });
 export class SignUpDTO extends createZodDto(SignUpSchema) {}
+
+export const SignupAuthSessionSchema = z.object({
+  accessToken: z.string(),
+  refreshToken: z.string(),
+  user: UserGetSchema
+});
+export class SignupAuthSessionDTO extends createZodDto(SignupAuthSessionSchema) {}

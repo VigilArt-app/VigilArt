@@ -14,15 +14,20 @@ export class DmcaNoticeGetDTO extends createZodDto(DmcaNoticeGetSchema) {}
 export const DmcaNoticeCreateSchema = DmcaNoticeGetSchema.pick({
     dmcaPlatformSlug: true,
     payload: true,
-    userId: true,
     artworkId: true
-});
+}).extend({
+    userId: z.string()
+  }
+);
 export class DmcaNoticeCreateDTO extends createZodDto(DmcaNoticeCreateSchema) {}
 
 export const DmcaNoticeUpdateSchema = DmcaNoticeGetSchema.pick({
     dmcaPlatformSlug: true,
     payload: true
-}).partial();
+}).partial().extend({
+    userId: z.string()
+  }
+);
 export class DmcaNoticeUpdateDTO extends createZodDto(DmcaNoticeUpdateSchema) {}
 
 export const DmcaNoticeEmailResponseSchema = z.object({
