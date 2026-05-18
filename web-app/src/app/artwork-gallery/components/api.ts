@@ -17,7 +17,7 @@ export const fetchArtworks = async (
     }
 
     const data = await response.json();
-    return data.data || [];
+    return data.data;
   } catch (error) {
     toast.error(t("artwork_gallery_page.failed_load", "Failed to load artworks"));
     throw error;
@@ -43,13 +43,7 @@ export const fetchArtworkReportInsights = async (userId: string): Promise<Record
     }
 
     const reportsData = await reportsRes.json();
-    let reports: ReportSummary[] = [];
-
-    if (Array.isArray(reportsData?.data)) {
-      reports = reportsData.data;
-    } else if (Array.isArray(reportsData)) {
-      reports = reportsData;
-    }
+    const reports: ReportSummary[] = reportsData.data || [];
 
     if (reports.length === 0) {
       return {};
@@ -62,7 +56,7 @@ export const fetchArtworkReportInsights = async (userId: string): Promise<Record
           if (!detailsRes.ok) return null;
 
           const detailsData = await detailsRes.json();
-          const reportDetails = (detailsData?.data || detailsData) as ReportDetails;
+          const reportDetails = detailsData.data as ReportDetails;
 
           if (!reportDetails || !Array.isArray(reportDetails.matchingPages)) {
             return null;
@@ -131,7 +125,6 @@ export const updateArtwork = async (id: string, payload: { originalFilename?: st
   try {
     const response = await authenticatedFetch(`/artworks/${id}`, {
       method: "PATCH",
-      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
     });
 
@@ -141,7 +134,7 @@ export const updateArtwork = async (id: string, payload: { originalFilename?: st
 
     const data = await response.json();
     toast.success(t("artwork_gallery_page.success_update", "Artwork updated"));
-    return data?.data || data;
+    return data.data;
   } catch (error) {
     toast.error(t("artwork_gallery_page.failed_update", "Failed to update artwork"));
     throw error;
