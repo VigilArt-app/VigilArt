@@ -213,15 +213,7 @@ export function useFileUpload({ onUploadComplete }: UseFileUploadOptions = {}) {
         ...(createdArtworks.artworks?.map((a: any) => a.originalFilename) || [])
       );
 
-      const reportResponse = await authenticatedFetch(`/reports/user/${userId}`, {
-        method: "POST"
-      });
-
-      if (!reportResponse.ok) {
-        toast.error(t("dashboard_page.upload.scan_report_failed"));
-      } else {
-        onUploadComplete?.();
-      }
+      onUploadComplete?.();
 
       toast.dismiss("upload-progress");
       setUploadResult({ uploadedCount, failedCount, uploadedNames });
