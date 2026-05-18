@@ -1,5 +1,22 @@
 services:
 
+  redis:
+    image: redis:7-alpine
+    restart: always
+    volumes:
+      - redis_prod_data:/data
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "3"
+
   migrator:
     image: ghcr.io/${REPO_OWNER:-vigilart-app}/vigilart-backend:${IMAGE_TAG}
     depends_on:
@@ -25,6 +42,8 @@ services:
       - "${SERVER_PORT}:${SERVER_PORT}"
     depends_on:
       db:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     networks:
       - app-network
@@ -110,6 +129,7 @@ services:
 
 volumes:
   postgres_prod_data:
+  redis_prod_data:
 
 networks:
   app-network:

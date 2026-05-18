@@ -1,4 +1,23 @@
 services:
+  redis:
+    image: redis:7-alpine
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_local_data:/data
+    networks:
+      - prisma-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "3"
+
   db:
     image: postgres:16
     restart: always
@@ -55,7 +74,6 @@ services:
     command: >
       sh -c "
         corepack enable && corepack prepare pnpm@10.20.0 --activate &&
-        pnpm db:push &&
         pnpm db:generate
       "
     env_file:
@@ -92,6 +110,7 @@ services:
 
 volumes:
   postgres_local_data:
+  redis_local_data:
 
 networks:
   prisma-network:
