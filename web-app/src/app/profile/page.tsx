@@ -1,24 +1,37 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Loader2, Upload, X } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Loader2, Upload, X, AlertTriangle } from "lucide-react";
 import type { UserUpdate } from "@vigilart/shared/types";
 import {
   updateUserProfile,
   getAvatarUploadUrl,
   uploadAvatarToR2,
   getAvatarDownloadUrl,
+  deleteAccount,
 } from "./api";
+import { logout } from "@/src/utils/auth/auth";
 import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
 import { Label } from "@/src/components/ui/label";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/src/components/ui/dialog";
 import { useAuth } from "@/src/components/contexts/authContext";
 import { useTranslation } from "react-i18next";
 
 export default function ProfilePage() {
   const { t } = useTranslation();
+  const router = useRouter();
   const { user, loading: isLoading, refreshUser } = useAuth();
   const [isSaving, setIsSaving] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [avatarDisplayUrl, setAvatarDisplayUrl] = useState<string>("");
 
   const [formData, setFormData] = useState({
@@ -137,6 +150,23 @@ export default function ProfilePage() {
     }
   };
 
+  const handleConfirmDeleteAccount = async () => {
+    if (!user?.id) {
+      return;
+    }
+
+    setIsDeleting(true);
+    try {
+      await deleteAccount(user.id);
+      await logout();
+      setDeleteDialogOpen(false);
+      router.push("/login");
+    } catch (error) {
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -231,7 +261,16 @@ export default function ProfilePage() {
                     </div>
                   </div>
 
-                  <div className="flex justify-end pt-6">
+                  <div className="flex justify-between pt-6 border-t">
+                    <Button
+                      variant="destructive"
+                      onClick={() => setDeleteDialogOpen(true)}
+                      disabled={isDeleting || isSaving}
+                      className="gap-2"
+                    >
+                      {isDeleting && <Loader2 className="h-4 w-4 animate-spin" />}
+                      {t("profil_page.delete_account")}
+                    </Button>
                     <Button onClick={handleSaveProfile} disabled={isSaving} className="gap-2" >
                       {isSaving && <Loader2 className="h-4 w-4 animate-spin" />}
                       {t("profil_page.save")}
@@ -242,6 +281,41 @@ export default function ProfilePage() {
           )}
         </div>
       </div>
+
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-red-600">
+              <AlertTriangle className="h-5 w-5" />
+              {t("profil_page.delete_account_confirm")}
+            </DialogTitle>
+            <DialogDescription>
+              {t("profil_page.delete_account_warning")}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="my-4 p-4 bg-red-50 border border-red-200 rounded-md">
+            <p className="text-sm text-red-700">{t("profil_page.delete_account_irreversible")}</p>
+          </div>
+          <div className="flex gap-3 justify-end">
+            <Button
+              variant="outline"
+              onClick={() => setDeleteDialogOpen(false)}
+              disabled={isDeleting}
+            >
+              {t("profil_page.cancel")}
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleConfirmDeleteAccount}
+              disabled={isDeleting}
+              className="gap-2"
+            >
+              {isDeleting && <Loader2 className="h-4 w-4 animate-spin" />}
+              {t("profil_page.delete_permanently")}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
