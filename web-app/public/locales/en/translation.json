@@ -145,7 +145,13 @@
             "visit": "Visit",
             "no_matches_for_artwork": "No matches found for this artwork",
             "failed_to_load": "Failed to load scans report. Please try again."
-        }
+        },
+        "dmca_notices_history": "DMCA Notices History",
+        "no_dmca_notices": "No DMCA notices yet",
+        "create_dmca_notice": "Create DMCA notice",
+        "submitted": "Submitted",
+        "all": "All",
+        "dmca_notices_load_error": "Failed to load DMCA notices"
     },
     "sidebar": {
         "profile": "Profile",
@@ -317,6 +323,17 @@
             "email": "Email",
             "phone": "Phone",
             "signature": "Signature"
-        }
+        },
+        "notices_history": "Previous DMCA Notices",
+        "notice_loaded": "Notice loaded successfully",
+        "previous_notices_subtitle": "Click 'Load' to restore a previous notice and continue editing",
+        "download_profile": "Download Profile",
+        "next": "Next",
+        "back": "Back",
+        "select_platform": "Select a platform",
+        "email_to": "To",
+        "email_subject": "Subject",
+        "generate_notice_first": "Generate the email and PDF first to see the content.",
+        "load": "Load"
     }
 }
