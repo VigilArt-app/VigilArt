@@ -1,8 +1,7 @@
 import {
   ForbiddenException,
   Injectable,
-  Logger,
-  NotFoundException
+  Logger
 } from "@nestjs/common";
 import { VisionService } from "../vision/vision.service";
 import {
@@ -96,11 +95,27 @@ export class ReportsService {
     return foundMatchesIds;
   }
 
-  async generate(userId: string): Promise<ArtworksReport> {
-    this.logger.log(`Generate new report for user ${userId}`);
-    const matchingPagesIds = await this.findArtworksMatches(userId);
+  async checkLastScan(userId: string) {
+    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+    const recentArtwork = await this.prisma.artwork.findFirst({
+      where: {
+        userId,
+        lastScanAt: {
+          gt: thirtyDaysAgo
+        }
+      }
+    });
 
-    return this.prisma.artworksReport.create({
+    if (recentArtwork)
+      throw new ForbiddenException("One or more artworks were scanned less than 30 days ago. Please wait before generating a new report.");
+  }
+
+  async generate(userId: string): Promise<ArtworksReport> {
+    await this.checkLastScan(userId);
+    this.logger.log(`Generate new report for user ${userId}`);
+
+    const matchingPagesIds = await this.findArtworksMatches(userId);
+    const report = await this.prisma.artworksReport.create({
       data: {
         userId,
         matchingPages: {
@@ -108,6 +123,12 @@ export class ReportsService {
         }
       }
     });
+
+    await this.prisma.artwork.updateMany({
+      where: { userId },
+      data: { lastScanAt: new Date() }
+    });
+    return report;
   }
 
   async findMatchesByArtwork(
