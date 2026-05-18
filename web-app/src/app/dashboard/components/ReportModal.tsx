@@ -139,7 +139,7 @@ export function ReportModal({
         ) : null}
 
         <div className="flex gap-3 justify-end pt-4 border-t">
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
+          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={loading}>
             {error || report
               ? t("dashboard_page.upload.cancel")
               : t("artworks_report_page.processing")}

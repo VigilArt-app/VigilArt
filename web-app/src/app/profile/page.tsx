@@ -162,6 +162,7 @@ export default function ProfilePage() {
       setDeleteDialogOpen(false);
       router.push("/login");
     } catch (error) {
+    } finally {
       setIsDeleting(false);
     }
   };
