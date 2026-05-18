@@ -30,7 +30,6 @@ export function EditArtworkModal({ open, onOpenChange, artwork, onSaved }: Props
       const updated = await updateArtwork(artwork.id, { description });
       onSaved?.(updated);
       onOpenChange(false);
-    } catch (e) {
     } finally {
       setIsSaving(false);
     }
