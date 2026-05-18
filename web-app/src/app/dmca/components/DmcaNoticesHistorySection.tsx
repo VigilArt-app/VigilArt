@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import type { TFunction } from "i18next";
 import type { DmcaNoticeGet } from "@vigilart/shared/types";
 import { ExternalLink } from "lucide-react";

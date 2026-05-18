@@ -40,12 +40,18 @@ export function DmcaSubmissionStep({
       {selectedPlatform && (
         <div className="space-y-4">
           <div className="rounded-lg border p-4 space-y-3">
-            <Button asChild className="w-full">
-              <a href={selectedPlatform.dmcaUrl || "#"} target="_blank" rel="noopener noreferrer">
-                <ExternalLink className="h-4 w-4 mr-2" />
-                {t("dmca_page.open_platform_form")}
-              </a>
-            </Button>
+            {selectedPlatform.dmcaUrl ? (
+              <Button asChild className="w-full">
+                <a href={selectedPlatform.dmcaUrl} target="_blank" rel="noopener noreferrer">
+                  <ExternalLink className="h-4 w-4 mr-2" />
+                  {t("dmca_page.open_platform_form")}
+                </a>
+              </Button>
+            ) : (
+              <div className="p-3 bg-muted rounded-md">
+                <p className="text-sm text-muted-foreground">{t("dmca_page.platform_form_url_unavailable")}</p>
+              </div>
+            )}
           </div>
 
           {generatedContent ? (

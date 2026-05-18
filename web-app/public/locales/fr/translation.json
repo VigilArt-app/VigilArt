@@ -287,6 +287,7 @@
         "send_title": "3) Envoi manuel",
         "send_subtitle": "Utilisez les éléments générés, puis envoyez la demande directement sur la plateforme.",
         "open_platform_form": "Ouvrir le formulaire DMCA externe",
+        "platform_form_url_unavailable": "L'URL du formulaire de la plateforme n'est pas disponible pour ce service",
         "no_platform_url": "Cette plateforme n'a pas d'URL DMCA renseignée.",
         "copy_subject": "Copier l'objet",
         "copy_body": "Copier le corps",
