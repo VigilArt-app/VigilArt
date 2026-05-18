@@ -6,7 +6,6 @@ import { Button } from "@/src/components/ui/button";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { updateArtwork } from "./api";
-import { toast } from "sonner";
 
 interface Props {
   open: boolean;
@@ -32,7 +31,6 @@ export function EditArtworkModal({ open, onOpenChange, artwork, onSaved }: Props
       onSaved?.(updated);
       onOpenChange(false);
     } catch (e) {
-      toast.error("Unable to update artwork");
     } finally {
       setIsSaving(false);
     }

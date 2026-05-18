@@ -77,7 +77,7 @@ export function ArtworkCard({
             onEdit?.(artwork, e);
           }}
           className="bg-white text-black p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-md border"
-          aria-label="Modifier la description"
+          aria-label={t("artwork_gallery_page.edit_description")}
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
             <path strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" d="M4 20h4l10-10a2.5 2.5 0 00-3.5-3.5L4 16v4z" />
@@ -87,6 +87,7 @@ export function ArtworkCard({
         <button 
           onClick={(e) => onDelete(artwork.id, e)}
           className="bg-red-500 hover:bg-red-600 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+          aria-label={t("artwork_gallery_page.delete_artwork")}
         >
           <Trash2 className="w-4 h-4" />
         </button>
