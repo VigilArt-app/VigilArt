@@ -5,11 +5,14 @@ import { PrismaService } from "../src/prisma/prisma.service";
 import { setupApp } from "../src/app.setup";
 import { ApiClient } from "./api-client";
 import { SubscriptionTier } from "@vigilart/shared/enums";
+import { CACHE_MANAGER } from "@nestjs/cache-manager";
+import type { Cache } from "cache-manager";
 
 describe("Auth E2E", () => {
   let app: INestApplication;
   let prismaService: PrismaService;
   let api: ApiClient;
+  let cacheManager: Cache;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -21,10 +24,12 @@ describe("Auth E2E", () => {
     await app.init();
     prismaService = app.get(PrismaService);
     api = new ApiClient(app);
+    cacheManager = app.get(CACHE_MANAGER);
   });
 
   afterEach(async () => {
     await prismaService.user.deleteMany();
+    await cacheManager.clear();
   });
 
   describe("POST /signup", () => {

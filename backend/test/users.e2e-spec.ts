@@ -5,12 +5,15 @@ import { PrismaService } from "../src/prisma/prisma.service";
 import { setupApp } from "../src/app.setup";
 import { ApiClient } from "./api-client";
 import { SubscriptionTier, type UserGet } from "@vigilart/shared";
+import { CACHE_MANAGER } from "@nestjs/cache-manager";
+import type { Cache } from "cache-manager";
 
 describe("Users E2E", () => {
   let app: INestApplication;
   let prismaService: PrismaService;
   let api: ApiClient;
   let testUser: { email: string; password: string, id?: string };
+  let cacheManager: Cache;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -23,6 +26,7 @@ describe("Users E2E", () => {
     await app.init();
     prismaService = app.get(PrismaService);
     api = new ApiClient(app);
+    cacheManager = app.get(CACHE_MANAGER);
   });
 
   beforeEach(async () => {
@@ -43,6 +47,7 @@ describe("Users E2E", () => {
   afterEach(async () => {
     await api.logout();
     await prismaService.user.deleteMany();
+    await cacheManager.clear();
   });
 
   describe("POST /users", () => {

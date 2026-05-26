@@ -46,10 +46,8 @@ export class UsersService {
       id = by.id;
     if (id) {
       const cached = await this.cacheManager.get<User>(USER_KEY(id));
-      if (cached) {
-        console.log("cc ici")
+      if (cached)
         return cached;
-      }
     }
 
     this.logger.log(`Finding user ${"id" in by ? by.id : by.email}`);
