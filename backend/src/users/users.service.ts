@@ -1,8 +1,8 @@
 import {
-  ConflictException,
   Inject,
   Injectable,
-  Logger
+  Logger,
+  NotFoundException
 } from "@nestjs/common";
 import { CACHE_MANAGER } from "@nestjs/cache-manager";
 import type { Cache } from "cache-manager";
@@ -15,10 +15,14 @@ import type {
 } from "@vigilart/shared/types";
 import { SubscriptionTier } from "@vigilart/shared";
 
-const USERS_TTL = 30 * 24 * 60 * 60 * 1000;
+const USERS_TTL = 7 * 24 * 60 * 60 * 1000;
 
 const USER_KEY = (id: string) => {
   return `users:${id}`;
+}
+
+const USER_EMAIL_KEY = (email: string) => {
+  return `users:email:${email}`;
 }
 
 @Injectable()
@@ -29,24 +33,48 @@ export class UsersService {
   ) {}
   private readonly logger = new Logger(UsersService.name);
 
-  async create(user: UserCreate): Promise<UserGet> {
-    try {
-      this.logger.log(`Creating new user ${user.email}`);
-      return await this.prisma.user.create({
-        data: {
-          ...user,
-          subscriptionTier: SubscriptionTier.FREE
-        },
-        omit: {
-          password: true
-        }
-      });
-    } catch (e: any) {
-      if (e.code === "P2002") {
-        throw new ConflictException("Email already in use");
+  private withoutPassword({ password: _, ...user }: User): UserGet {
+    return user;
+  }
+
+  private async findCached(by: { id: string } | { email: string }): Promise<User | null> {
+    let id: string | undefined;
+
+    if ("email" in by)
+      id = await this.cacheManager.get<string>(USER_EMAIL_KEY(by.email)) ?? undefined;
+    else
+      id = by.id;
+    if (id) {
+      const cached = await this.cacheManager.get<User>(USER_KEY(id));
+      if (cached) {
+        console.log("cc ici")
+        return cached;
       }
-      throw e;
     }
+
+    this.logger.log(`Finding user ${"id" in by ? by.id : by.email}`);
+    const user = await this.prisma.user.findUnique({
+      where: by
+    });
+
+    if (user) {
+      await this.cacheManager.set(USER_KEY(user.id), user, USERS_TTL);
+      await this.cacheManager.set(USER_EMAIL_KEY(user.email), user.id, USERS_TTL);
+    }
+    return user;
+  }
+
+  async create(user: UserCreate): Promise<UserGet> {
+    this.logger.log(`Creating new user ${user.email}`);
+    return this.prisma.user.create({
+      data: {
+        ...user,
+        subscriptionTier: SubscriptionTier.FREE
+      },
+      omit: {
+        password: true
+      }
+    });
   }
 
   async findAll(): Promise<UserGet[]> {
@@ -59,48 +87,27 @@ export class UsersService {
   }
 
   async findOne(id: string): Promise<User> {
-    this.logger.log(`Finding user ${id}`);
-    return this.prisma.user.findUniqueOrThrow({
-      where: {
-        id
-      }
-    });
-  }
+    const user = await this.findCached({ id });
+    if (!user)
+      throw new NotFoundException(`User ${id} not found`);
 
-  async findByEmail(email: string): Promise<User | null> {
-    this.logger.log(`Finding user with ${email}`);
-    return this.prisma.user.findUnique({
-      where: {
-        email
-      }
-    });
-  }
-
-  async findOneWithoutPassword(id: string): Promise<UserGet> {
-    const cached = await this.cacheManager.get<UserGet>(USER_KEY(id));
-    if (cached)
-      return cached;
-
-    this.logger.log(`Finding user ${id}`);
-    const user = await this.prisma.user.findUniqueOrThrow({
-      where: { id },
-      omit: { password: true }
-    });
-
-    await this.cacheManager.set(USER_KEY(id), user, USERS_TTL);
     return user;
   }
 
+  async findByEmail(email: string): Promise<User | null> {
+    return this.findCached({ email });
+  }
+
+  async findOneWithoutPassword(id: string): Promise<UserGet> {
+    return this.withoutPassword(await this.findOne(id));
+  }
+
   async findByEmailWithoutPassword(email: string): Promise<UserGet> {
-    this.logger.log(`Finding user with ${email}`);
-    return this.prisma.user.findUniqueOrThrow({
-      where: {
-        email
-      },
-      omit: {
-        password: true
-      }
-    });
+    const user = await this.findCached({ email });
+    if (!user)
+      throw new NotFoundException(`User with email ${email} not found`);
+
+    return this.withoutPassword(user);
   }
 
   async update(
@@ -108,6 +115,8 @@ export class UsersService {
     updateUserDto: UserUpdate
   ): Promise<UserGet> {
     this.logger.log(`Updating user ${id}`);
+
+    const oldUser = await this.prisma.user.findUnique({ where: { id } });
     const user = await this.prisma.user.update({
       where: { id },
       data: updateUserDto,
@@ -115,16 +124,23 @@ export class UsersService {
     });
 
     await this.cacheManager.del(USER_KEY(id));
+    await this.cacheManager.del(USER_EMAIL_KEY(user.email));
+    if (oldUser && oldUser.email !== user.email)
+      await this.cacheManager.del(USER_EMAIL_KEY(oldUser.email));
     return user;
   }
 
   async remove(id: string): Promise<void> {
     this.logger.log(`Removing user ${id}`);
+    const user = await this.prisma.user.findUnique({ where: { id } });
+
     await this.prisma.user.delete({
       where: {
         id
       }
     });
     await this.cacheManager.del(USER_KEY(id));
+    if (user)
+      await this.cacheManager.del(USER_EMAIL_KEY(user.email));
   }
 }
