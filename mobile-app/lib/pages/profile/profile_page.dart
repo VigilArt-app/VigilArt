@@ -114,10 +114,19 @@ class _ProfilePageState extends State<ProfilePage> {
       setState(() => _isLoading = true);
 
       final Uint8List fileBytes = await image.readAsBytes();
-      final String filename = image.name;
-      final String mimeType = filename.toLowerCase().endsWith('.png') ? 'image/png' : 'image/jpeg';
+      
+      String originalName = image.name.toLowerCase();
+      String safeFilename = 'avatar_${DateTime.now().millisecondsSinceEpoch}';
+      String mimeType;
 
-      final uploadData = await _apiService.getAvatarUploadUrl(filename);
+      if (originalName.endsWith('.png')) {
+        safeFilename += '.png';
+        mimeType = 'image/png';
+      } else {
+        safeFilename += '.jpeg';
+        mimeType = 'image/jpeg';
+      }
+      final uploadData = await _apiService.getAvatarUploadUrl(safeFilename);
       
       if (uploadData != null) {
         final String presignedUrl = uploadData['presignedUrl'];
