@@ -119,9 +119,8 @@ extension ScanReportsApi on ApiService {
           headers: headers,
         ),
       );
-
       if (response.statusCode != 200 && response.statusCode != 201) {
-        throw Exception('Server returned ${response.statusCode}');
+        throw Exception(response.body); 
       }
 
       final createdData = jsonDecode(response.body);
@@ -137,14 +136,15 @@ extension ScanReportsApi on ApiService {
       );
 
       if (detailsRes.statusCode != 200) {
-        throw Exception('Failed to fetch report details');
+        throw Exception(detailsRes.body); // Même chose ici
       }
 
       final detailsData = jsonDecode(detailsRes.body);
       return detailsData['data'] ?? detailsData;
 
     } catch (e) {
-      throw Exception('Failed to trigger scan: $e');
+      rethrow; 
     }
   }
+
 }

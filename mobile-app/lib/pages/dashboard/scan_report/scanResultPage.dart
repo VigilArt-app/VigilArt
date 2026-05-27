@@ -115,36 +115,40 @@ class _ScanResultsPageState extends State<ScanResultsPage> {
       }
     } catch (e) {
       if (mounted) {
-        String rawError = e.toString();
-        String serverMessage = rawError.replaceAll('Exception:', '').trim();
+        String serverMessage = 'An error occurred.';
+        String title = 'Error';
 
         try {
-          int jsonStartIndex = serverMessage.indexOf('{');
+          String errorString = e.toString();
+          int jsonStartIndex = errorString.indexOf('{');
+          
           if (jsonStartIndex != -1) {
-            String jsonPart = serverMessage.substring(jsonStartIndex);
+            String jsonPart = errorString.substring(jsonStartIndex);
             final Map<String, dynamic> errorJson = jsonDecode(jsonPart);
             
             if (errorJson.containsKey('message')) {
               var msg = errorJson['message'];
               serverMessage = msg is List ? msg.join('\n') : msg.toString();
             }
+          } else {
+            serverMessage = errorString.replaceAll('Exception:', '').trim();
           }
         } catch (_) {
+          serverMessage = e.toString().replaceAll('Exception:', '').trim();
         }
 
-        String title = 'Scan Error';
-        if (serverMessage.toLowerCase().contains('30 days') || serverMessage.toLowerCase().contains('less than')) {
-          title = 'Scan Limit Reached';
-        } else if (serverMessage.toLowerCase().contains('unauthorized')) {
+        if (serverMessage.toLowerCase().contains('unauthorized')) {
           title = 'Authentication Error';
+        } else if (serverMessage.toLowerCase().contains('30 days')) {
+          title = 'Scan Limit';
         }
+
         _showErrorDialog(title, serverMessage);
       }
     } finally {
       if (mounted) setState(() => _isScanning = false);
     }
   }
-
 
   List<Map<String, dynamic>> get _filteredResults {
     return _allResults.where((result) {
