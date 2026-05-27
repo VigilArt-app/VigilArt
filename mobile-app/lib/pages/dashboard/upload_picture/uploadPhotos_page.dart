@@ -4,8 +4,8 @@ import 'dart:async';
 import 'dart:ui' as ui;
 import '../../../(api)/auth.dart';
 import '../../../(api)/upload_artworks_api.dart'; 
-import 'package:VigilArt/pages/dashboard/upload_picture/dragDropUploadZone.dart';
-import 'package:VigilArt/pages/dashboard/upload_picture/fileUploadCard.dart';
+import 'package:vigilart/pages/dashboard/upload_picture/dragDropUploadZone.dart';
+import 'package:vigilart/pages/dashboard/upload_picture/fileUploadCard.dart';
 
 class UploadPhotosPage extends StatefulWidget {
   const UploadPhotosPage({super.key});

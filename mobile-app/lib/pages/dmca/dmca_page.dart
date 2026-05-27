@@ -6,6 +6,10 @@ import '../../../(api)/dmca.dart';
 import 'dmca_form_utils.dart';
 import 'dmca_schema_form.dart';
 
+import 'package:vigilart/widgets/header_bar.dart';
+import 'package:vigilart/widgets/slideMenuBar.dart';
+
+
 class DmcaPage extends StatefulWidget {
   final Map<String, dynamic> artworkPrefill;
 
@@ -16,8 +20,9 @@ class DmcaPage extends StatefulWidget {
 }
 
 class _DmcaPageState extends State<DmcaPage> {
-  final ApiService _api = ApiService(); 
+ final ApiService _api = ApiService(); 
   String? _userId;
+  String _userAvatarUrl = 'assets/images/default_avatar.jpg';
   
   bool _isLoading = true;
   bool _isSavingProfile = false;
@@ -26,7 +31,6 @@ class _DmcaPageState extends State<DmcaPage> {
 
   int _currentStep = 1;
   List<dynamic> _allNotices = [];
-
   List<dynamic> _platforms = [];
   String? _selectedPlatformSlug;
   
@@ -36,23 +40,26 @@ class _DmcaPageState extends State<DmcaPage> {
   Map<String, dynamic> _noticesByPlatform = {};
   Map<String, dynamic>? _activeNotice;
   Map<String, dynamic>? _generatedContent;
-  
   Map<String, dynamic> _formPayload = {};
 
   @override
   void initState() {
     super.initState();
     _loadData();
+    _loadAvatar();
+  }
+
+  Future<void> _loadAvatar() async {
+    final avatarKey = await _api.secureStorage.read(key: ApiService.keyUserAvatar);
+    if (avatarKey != null && avatarKey.isNotEmpty) {
+      setState(() => _userAvatarUrl = avatarKey);
+    }
   }
 
   Future<void> _loadData() async {
     _userId = await _api.secureStorage.read(key: ApiService.keyUserId);
-
     if (_userId == null) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Error: User not authenticated.')));
-        setState(() => _isLoading = false);
-      }
+      if (mounted) setState(() => _isLoading = false);
       return;
     }
 
@@ -84,24 +91,18 @@ class _DmcaPageState extends State<DmcaPage> {
       _allNotices = responses[2] as List<dynamic>;
       for (var notice in _allNotices) {
         final existing = _noticesByPlatform[notice['dmcaPlatformSlug']];
-        if (existing == null) {
+        if (existing == null || DateTime.parse(notice['updatedAt']).isAfter(DateTime.parse(existing['updatedAt']))) {
           _noticesByPlatform[notice['dmcaPlatformSlug']] = notice;
-        } else {
-          final existingDate = DateTime.parse(existing['updatedAt']);
-          final currentDate = DateTime.parse(notice['updatedAt']);
-          if (currentDate.isAfter(existingDate)) {
-            _noticesByPlatform[notice['dmcaPlatformSlug']] = notice;
-          }
         }
       }
-
       _initializeFormForPlatform();
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to load DMCA data: $e')));
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
   }
+  
 
   void _initializeFormForPlatform() {
     if (_selectedPlatformSlug == null) return;
@@ -221,10 +222,6 @@ class _DmcaPageState extends State<DmcaPage> {
     );
     launchUrl(emailLaunchUri);
   }
-
-  // ----------------------------------------------------------------------
-  // UI BUILDERS (Matching Web Components)
-  // ----------------------------------------------------------------------
 
   Widget _buildTextField(String label, String initialValue, Function(String) onChanged) {
     return Padding(
@@ -645,63 +642,74 @@ class _DmcaPageState extends State<DmcaPage> {
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
-      return const Scaffold(
-        backgroundColor: Color(0xFFF9FAFB),
-        body: Center(child: CircularProgressIndicator(color: Color(0xFF5E3B7D))),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator(color: Color(0xFF5E3B7D))));
     }
 
     return Scaffold(
       backgroundColor: const Color(0xFFF9FAFB),
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        centerTitle: true,
-        iconTheme: const IconThemeData(color: Colors.black),
-        title: const Text("DMCA Generator", style: TextStyle(color: Colors.black, fontWeight: FontWeight.w800)),
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(60),
+        child: SafeArea(
+          child: VigilArtHeaderBar(
+            onLogoTap: () => Navigator.pushReplacementNamed(context, '/dashboard'),
+            onNotificationsTap: () => Navigator.pushNamed(context, '/notifications'),
+            onProfileTap: () => Navigator.pushNamed(context, '/profile'),
+            avatar: _userAvatarUrl,
+          ),
+        ),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text("DMCA Assistant", style: TextStyle(color: Colors.black, fontSize: 24, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 8),
-            Text("Follow the steps to prepare and send your legal notice.", style: TextStyle(color: Colors.grey[600], fontSize: 14)),
-            const SizedBox(height: 24),
+      
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text("DMCA Assistant", style: TextStyle(fontSize: 28, fontWeight: FontWeight.w800)),
+              const SizedBox(height: 8),
+              Text("Follow the steps to prepare and send your legal notice.", style: TextStyle(color: Colors.grey[600], fontSize: 14)),
+              const SizedBox(height: 24),
 
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: const Color(0xFFFEF3C7),
-                border: Border.all(color: const Color(0xFFFCD34D)),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Icon(Icons.warning_amber_rounded, color: Color(0xFFD97706)),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      "Important: VigilArt never files a DMCA complaint on your behalf. You must review and submit it yourself on the target website.",
-                      style: TextStyle(color: Colors.amber[900], fontSize: 13, height: 1.4, fontWeight: FontWeight.w500),
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFEF3C7),
+                  border: Border.all(color: const Color(0xFFFCD34D)),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.warning_amber_rounded, color: Color(0xFFD97706)),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text("Important: VigilArt never files a DMCA complaint on your behalf.", style: TextStyle(color: Colors.amber[900], fontSize: 13, fontWeight: FontWeight.w500)),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-            
-            _buildStepIndicator(),
-            
-            if (_currentStep == 1) _buildHistorySection(),
+              
+              _buildStepIndicator(),
+              
+              if (_currentStep == 1) _buildHistorySection(),
+              if (_currentStep == 1) _buildProfileStep(),
+              if (_currentStep == 2) _buildPreparationStep(),
+              if (_currentStep == 3) _buildSubmissionStep(),
+              
+              const SizedBox(height: 40),
+            ],
+          ),
+        ),
+      ),
 
-            if (_currentStep == 1) _buildProfileStep(),
-            if (_currentStep == 2) _buildPreparationStep(),
-            if (_currentStep == 3) _buildSubmissionStep(),
-            
-            const SizedBox(height: 40),
-          ],
+      // GLOBAL BOTTOM NAVIGATION
+      bottomNavigationBar: SafeArea(
+        child: SlideMenuBar(
+          selectedIndex: 2, // Matches the new DMCA index
+          onTabChange: (i) {
+             if (i == 0) Navigator.pushReplacementNamed(context, '/gallery');
+             if (i == 1) Navigator.pushReplacementNamed(context, '/dashboard');
+             if (i == 3) Navigator.pushReplacementNamed(context, '/profile');
+          }
         ),
       ),
     );
