@@ -14,6 +14,7 @@ import type {
   User
 } from "@vigilart/shared/types";
 import { SubscriptionTier } from "@vigilart/shared";
+import { createHash } from "crypto";
 
 const USERS_TTL = 7 * 24 * 60 * 60 * 1000;
 
@@ -22,7 +23,9 @@ const USER_KEY = (id: string) => {
 }
 
 const USER_EMAIL_KEY = (email: string) => {
-  return `users:email:${email}`;
+  const hash = createHash("sha256").update(email).digest("hex");
+
+  return `users:email:${hash}`;
 }
 
 @Injectable()
