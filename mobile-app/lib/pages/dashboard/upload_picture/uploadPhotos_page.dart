@@ -4,8 +4,8 @@ import 'dart:async';
 import 'dart:ui' as ui;
 import '../../../(api)/auth.dart';
 import '../../../(api)/upload_artworks_api.dart'; 
-import 'package:VigilArt/pages/dashboard/upload_picture/dragDropUploadZone.dart';
-import 'package:VigilArt/pages/dashboard/upload_picture/fileUploadCard.dart';
+import 'package:vigilart/pages/dashboard/upload_picture/dragDropUploadZone.dart';
+import 'package:vigilart/pages/dashboard/upload_picture/fileUploadCard.dart';
 
 class UploadPhotosPage extends StatefulWidget {
   const UploadPhotosPage({super.key});
@@ -56,9 +56,22 @@ class _UploadPhotosPageState extends State<UploadPhotosPage> {
                 onFilesSelected: (filePaths) {
                   setState(() {
                     for (String path in filePaths) {
-                      String fileName = path.split('/').last;
+                      String originalName = path.split('/').last;
+                      
+                      String extension = originalName.contains('.') 
+                          ? originalName.split('.').last.toLowerCase() 
+                          : '';
+                      
+                      String safeExtension = (extension == 'png') ? 'png' : 'jpg';
+                      
+                      String baseName = originalName.contains('.') 
+                          ? originalName.substring(0, originalName.lastIndexOf('.'))
+                          : originalName;
+                          
+                      String safeFileName = '$baseName.$safeExtension';
+
                       _uploadingFiles.add({
-                        'name': fileName,
+                        'name': safeFileName,
                         'path': path,
                         'progress': 0.0,
                         'description': '',
@@ -274,122 +287,8 @@ class _UploadPhotosPageState extends State<UploadPhotosPage> {
     );
   }
 
-  // ... imports stay the same ...
-
-  void _handleUpload() async {
-    if (_uploadingFiles.isEmpty) return;
-
-    setState(() {
-      _isUploading = true;
-    });
-
-    try {
-      final userId = await apiService.secureStorage.read(key: ApiService.keyUserId);
-      if (userId == null) throw Exception("User not authenticated. Please log in again.");
-
-      List<String> filenames = _uploadingFiles.map((f) => f['name'] as String).toList();
-      final uploadUrlsMap = await apiService.getUploadUrls(filenames);
-
-      if (uploadUrlsMap == null || uploadUrlsMap.isEmpty) {
-        throw Exception("Server did not return upload URLs.");
-      }
-
-      List<Map<String, dynamic>> artworksToCreate = [];
-      List<String> failedFiles = []; // Track files that failed validation
-
-      for (int i = 0; i < _uploadingFiles.length; i++) {
-        final file = _uploadingFiles[i];
-        final fileName = file['name'] as String;
-        final filePath = file['path'] as String;
-        final description = file['description'] as String;
-        
-        final uploadInfo = uploadUrlsMap[fileName];
-        
-        // FIXED: Validate and cast keys from the dynamic map
-        final String? presignedUrl = uploadInfo?['presignedUrl']?.toString();
-        final String? storageKey = uploadInfo?['storageKey']?.toString();
-
-        if (presignedUrl == null || storageKey == null) {
-          failedFiles.add(fileName);
-          debugPrint("❌ Missing upload metadata for $fileName");
-          continue; 
-        }
-
-        final contentType = apiService.getContentType(filePath);
-
-        // Pass validated non-null strings
-        bool success = await apiService.uploadFileToCloud(presignedUrl, filePath, contentType);
-        
-        if (success) {
-          final fileObj = File(filePath);
-          final fileBytes = await fileObj.readAsBytes();
-          final sizeBytes = fileBytes.length;
-
-          final Completer<ui.Image> completer = Completer();
-          ui.decodeImageFromList(fileBytes, (ui.Image img) {
-            completer.complete(img);
-          });
-          final ui.Image decodedImage = await completer.future;
-          
-          final width = decodedImage.width;
-          final height = decodedImage.height;
-
-          artworksToCreate.add({
-            'userId': userId,
-            'originalFilename': fileName, 
-            'contentType': contentType,
-            'sizeBytes': sizeBytes,
-            'description': description,
-            'storageKey': storageKey,
-            'width': width, 
-            'height': height,
-          });
-
-          if (mounted) {
-            setState(() {
-              file['progress'] = 1.0;
-            });
-          }
-        }
-      }
-
-      // Show alert if some files failed metadata validation
-      if (failedFiles.isNotEmpty && mounted) {
-        _showSnackBar('Metadata error for: ${failedFiles.join(", ")}', Colors.orange);
-      }
-
-      if (artworksToCreate.isNotEmpty) {
-        bool recordsCreated = await apiService.createArtworkRecords(artworksToCreate);
-        
-        if (!recordsCreated) throw Exception("Images uploaded to cloud, but failed to save records in database.");
-
-        if (mounted) {
-          setState(() {
-             for (var f in _uploadingFiles.where((f) => f['progress'] == 1.0)) {
-               _uploadedFiles.add({'name': f['name'], 'path': f['path']});
-             }
-             _uploadingFiles.removeWhere((f) => f['progress'] == 1.0);
-          });
-          
-          _showSnackBar('Artworks uploaded successfully!', const Color(0xFF22C55E), icon: Icons.check_circle);
-        }
-      } else if (failedFiles.isEmpty) {
-        throw Exception("Failed to upload any files to the cloud.");
-      }
-
-    } catch (e) {
-      if (mounted) _showSnackBar('Upload Error: $e', Colors.red.shade600);
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isUploading = false;
-        });
-      }
-    }
-  }
-
-  // Helper to reduce code duplication for snackbars
   void _showSnackBar(String message, Color color, {IconData? icon}) {
+    if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Row(
@@ -405,4 +304,83 @@ class _UploadPhotosPageState extends State<UploadPhotosPage> {
       ),
     );
   }
+
+  void _handleUpload() async {
+    if (_uploadingFiles.isEmpty) return;
+
+    setState(() => _isUploading = true);
+
+    try {
+      final userId = await apiService.secureStorage.read(key: ApiService.keyUserId);
+      if (userId == null) throw Exception("User not authenticated.");
+
+      List<String> filenames = _uploadingFiles.map((f) => f['name'] as String).toList();
+      final uploadUrlsMap = await apiService.getUploadUrls(filenames);
+
+      if (uploadUrlsMap == null) throw Exception("Server did not return upload URLs.");
+
+      List<Map<String, dynamic>> artworksToCreate = [];
+      List<Map<String, dynamic>> successfullyUploaded = [];
+
+      for (var file in _uploadingFiles) {
+        final uploadInfo = uploadUrlsMap[file['name']];
+        if (uploadInfo == null) continue;
+
+        bool success = await apiService.uploadFileToCloud(
+          uploadInfo['presignedUrl'], 
+          file['path'], 
+          apiService.getContentType(file['path']),
+          (progress) {
+            if (mounted) setState(() => file['progress'] = progress);
+          }
+        );
+        
+        if (success) {
+          final fileObj = File(file['path']);
+          final fileBytes = await fileObj.readAsBytes();
+          
+          final Completer<ui.Image> completer = Completer();
+          ui.decodeImageFromList(fileBytes, (ui.Image img) {
+            completer.complete(img);
+          });
+          final ui.Image decodedImage = await completer.future;
+          
+          artworksToCreate.add({
+            'userId': userId,
+            'originalFilename': file['name'],
+            'storageKey': uploadInfo['storageKey'],
+            'contentType': apiService.getContentType(file['path']),
+            'sizeBytes': fileBytes.length,
+            'description': file['description'],
+            'width': decodedImage.width, 
+            'height': decodedImage.height,
+          });
+
+          successfullyUploaded.add(file);
+        }
+      }
+
+      if (artworksToCreate.isNotEmpty) {
+        bool recordsCreated = await apiService.createArtworkRecords(artworksToCreate);
+        
+        if (!recordsCreated) {
+          throw Exception("Images uploaded to cloud, but failed to save records in database.");
+        }
+
+        if (mounted) {
+          setState(() {
+            _uploadedFiles.addAll(successfullyUploaded);
+            _uploadingFiles.removeWhere((f) => successfullyUploaded.contains(f));
+          });
+          _showSnackBar('Artworks uploaded successfully!', const Color(0xFF22C55E), icon: Icons.check_circle);
+        }
+      }
+
+    } catch (e) {
+      if (mounted) _showSnackBar('Upload Error: $e', Colors.red);
+    } finally {
+      if (mounted) setState(() => _isUploading = false);
+    }
+  }
+
 }

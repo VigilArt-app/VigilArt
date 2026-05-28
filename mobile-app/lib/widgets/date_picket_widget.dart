@@ -32,12 +32,10 @@ class _DatePickerFieldState extends State<DatePickerField> {
   }
 
   void _updateTextField() {
-    // Format date without intl package
     String formattedDate = _formatDate(_selectedDate);
     _controller.text = formattedDate;
   }
 
-  // Custom date formatting function (no intl needed!)
   String _formatDate(DateTime date) {
     final List<String> months = [
       'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
@@ -61,7 +59,7 @@ class _DatePickerFieldState extends State<DatePickerField> {
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: const ColorScheme.light(
-              primary: Color(0xFF5E3B7D), // Primary purple
+              primary: Color(0xFF5E3B7D),
               surface: Colors.white,
               onSurface: Colors.black,
             ),

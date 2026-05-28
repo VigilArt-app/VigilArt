@@ -1,11 +1,11 @@
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:VigilArt/(api)/auth.dart';
-import 'package:VigilArt/pages/profile/profile_header.dart';
-import 'package:VigilArt/widgets/editable_from_field.dart';
-import 'package:VigilArt/widgets/header_bar.dart';
-import 'package:VigilArt/widgets/slideMenuBar.dart';
+import 'package:vigilart/(api)/auth.dart';
+import 'package:vigilart/pages/profile/profile_header.dart';
+import 'package:vigilart/widgets/editable_from_field.dart';
+import 'package:vigilart/widgets/header_bar.dart';
+import 'package:vigilart/widgets/slideMenuBar.dart';
 import 'package:flutter/material.dart';
-import 'package:VigilArt/(api)/user.dart';
+import 'package:vigilart/(api)/user.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:typed_data';
 
@@ -114,10 +114,19 @@ class _ProfilePageState extends State<ProfilePage> {
       setState(() => _isLoading = true);
 
       final Uint8List fileBytes = await image.readAsBytes();
-      final String filename = image.name;
-      final String mimeType = filename.toLowerCase().endsWith('.png') ? 'image/png' : 'image/jpeg';
+      
+      String originalName = image.name.toLowerCase();
+      String safeFilename = 'avatar_${DateTime.now().millisecondsSinceEpoch}';
+      String mimeType;
 
-      final uploadData = await _apiService.getAvatarUploadUrl(filename);
+      if (originalName.endsWith('.png')) {
+        safeFilename += '.png';
+        mimeType = 'image/png';
+      } else {
+        safeFilename += '.jpeg';
+        mimeType = 'image/jpeg';
+      }
+      final uploadData = await _apiService.getAvatarUploadUrl(safeFilename);
       
       if (uploadData != null) {
         final String presignedUrl = uploadData['presignedUrl'];

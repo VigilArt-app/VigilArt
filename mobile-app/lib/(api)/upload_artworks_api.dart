@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
-
 import 'auth.dart'; 
 
 extension ArtworkUpload on ApiService {
@@ -14,17 +13,22 @@ extension ArtworkUpload on ApiService {
         (headers) => http.post(
           url,
           headers: headers,
-          body: jsonEncode({
-            'filenames': filenames,
-            'prefix': 'artworks',
-          }),
+          body: jsonEncode({'filenames': filenames, 'prefix': 'artworks'}),
         ),
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         final responseData = jsonDecode(response.body);
-        if (responseData['data'] != null) {
-          return responseData['data'] as Map<String, dynamic>; 
+        final data = responseData['data'] ?? responseData;
+        
+        if (data is Map<String, dynamic>) return data;
+        if (data is List) {
+          Map<String, dynamic> mapped = {};
+          for (var item in data) {
+            final key = item['filename'] ?? item['name'];
+            if (key != null) mapped[key] = item;
+          }
+          return mapped;
         }
       }
       return null;
@@ -34,7 +38,12 @@ extension ArtworkUpload on ApiService {
     }
   }
 
-  Future<bool> uploadFileToCloud(String presignedUrl, String filePath, String contentType) async {
+  Future<bool> uploadFileToCloud(
+    String presignedUrl, 
+    String filePath, 
+    String contentType,
+    Function(double) onProgress
+  ) async {
     try {
       final file = File(filePath);
       final fileBytes = await file.readAsBytes();
@@ -45,16 +54,18 @@ extension ArtworkUpload on ApiService {
         headers: {'Content-Type': contentType}, 
       );
       
-      return response.statusCode == 200;
+      if (response.statusCode == 200) {
+        onProgress(1.0);
+        return true;
+      }
+      return false;
     } catch (e) {
-      print('Error uploading to cloud: $e');
       return false;
     }
   }
 
   Future<bool> createArtworkRecords(List<Map<String, dynamic>> artworks) async {
     final url = Uri.parse('$serverUrl/artworks/batch');
-
     try {
       final response = await authenticatedRequest(
         (headers) => http.post(
@@ -63,7 +74,6 @@ extension ArtworkUpload on ApiService {
           body: jsonEncode(artworks),
         ),
       );
-      
       return response.statusCode == 200 || response.statusCode == 201;
     } catch (e) {
       print('Error creating artwork records: $e');
