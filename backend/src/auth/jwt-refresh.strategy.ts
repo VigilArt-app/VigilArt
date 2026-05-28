@@ -39,10 +39,7 @@ export class JwtRefreshStrategy extends PassportStrategy(Strategy, 'jwt-refresh'
     if (!refreshToken)
       throw new UnauthorizedException('Refresh token is required');
 
-    const user = await this.usersService.findByEmail(payload.email);
-    if (!user)
-      throw new UnauthorizedException('Invalid token: user not found');
-
+    const user = await this.usersService.findByEmailWithoutPassword(payload.email);
     const validTokens = await this.prisma.refreshToken.findMany({
       where: {
         userId: user.id,

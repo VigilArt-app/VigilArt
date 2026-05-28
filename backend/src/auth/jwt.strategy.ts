@@ -1,7 +1,7 @@
 
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { ConfigService } from "@nestjs/config";
 import { UsersService } from "../users/users.service";
 import type { AuthenticatedRequest, JwtPayload } from './auth';
@@ -31,9 +31,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: JwtPayload): Promise<AuthenticatedRequest["user"]> {
-    const user = await this.usersService.findByEmail(payload.email);
-    if (!user)
-        throw new UnauthorizedException("Invalid token: user not found");
+    const user = await this.usersService.findByEmailWithoutPassword(payload.email);
 
     return { id: user.id, email: user.email };
   }
