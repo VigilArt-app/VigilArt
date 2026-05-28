@@ -3,6 +3,9 @@ import { AppModule } from "./app.module";
 import { setupApp } from "./app.setup";
 import { ConfigService } from "@nestjs/config";
 
+// This should trigger a "Hardcoded Secret" or "High Entropy" rule
+const test_key = "AIzaSyA-1234567890ExampleKey-For-Testing";
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   
