@@ -34,13 +34,10 @@ export class UsersService {
     private readonly prisma: PrismaService,
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
   ) {}
+
   private readonly logger = new Logger(UsersService.name);
 
-  private withoutPassword({ password: _, ...user }: User): UserGet {
-    return user;
-  }
-
-  private async findCached(by: { id: string } | { email: string }): Promise<User | null> {
+  private async findCached(by: { id: string } | { email: string }): Promise<UserGet | null> {
     let id: string | undefined;
 
     if ("email" in by)
@@ -55,7 +52,10 @@ export class UsersService {
 
     this.logger.log(`Finding user ${"id" in by ? by.id : by.email}`);
     const user = await this.prisma.user.findUnique({
-      where: by
+      where: by,
+      omit: {
+        password: true
+      }
     });
 
     if (user) {
@@ -87,7 +87,16 @@ export class UsersService {
     });
   }
 
-  async findOne(id: string): Promise<User> {
+  async findOne(id: string): Promise<User | null> {
+    return this.prisma.user.findUnique({ where: { id } });
+
+  }
+
+  async findByEmail(email: string): Promise<User | null> {
+    return this.prisma.user.findFirst({ where: { email } });
+  }
+
+  async findOneWithoutPassword(id: string): Promise<UserGet> {
     const user = await this.findCached({ id });
     if (!user)
       throw new NotFoundException(`User ${id} not found`);
@@ -95,20 +104,12 @@ export class UsersService {
     return user;
   }
 
-  async findByEmail(email: string): Promise<User | null> {
-    return this.findCached({ email });
-  }
-
-  async findOneWithoutPassword(id: string): Promise<UserGet> {
-    return this.withoutPassword(await this.findOne(id));
-  }
-
   async findByEmailWithoutPassword(email: string): Promise<UserGet> {
     const user = await this.findCached({ email });
     if (!user)
       throw new NotFoundException(`User with email ${email} not found`);
 
-    return this.withoutPassword(user);
+    return user;
   }
 
   async update(
@@ -117,7 +118,7 @@ export class UsersService {
   ): Promise<UserGet> {
     this.logger.log(`Updating user ${id}`);
 
-    const oldUser = await this.prisma.user.findUnique({ where: { id } });
+    const oldUser = await this.findOneWithoutPassword(id);
     const user = await this.prisma.user.update({
       where: { id },
       data: updateUserDto,
@@ -133,7 +134,7 @@ export class UsersService {
 
   async remove(id: string): Promise<void> {
     this.logger.log(`Removing user ${id}`);
-    const user = await this.prisma.user.findUnique({ where: { id } });
+    const user = await this.findOneWithoutPassword(id);
 
     await this.prisma.user.delete({
       where: {
