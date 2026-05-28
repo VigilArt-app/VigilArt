@@ -5,7 +5,7 @@ class VigilArtHeaderBar extends StatefulWidget {
   final VoidCallback onNotificationsTap;
   final VoidCallback onProfileTap;
   final String avatar;
-  final int notificationCount; // Optional badge count
+  final int notificationCount;
 
   const VigilArtHeaderBar({
     Key? key,

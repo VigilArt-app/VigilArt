@@ -136,7 +136,7 @@ extension ScanReportsApi on ApiService {
       );
 
       if (detailsRes.statusCode != 200) {
-        throw Exception(detailsRes.body); // Même chose ici
+        throw Exception(detailsRes.body);
       }
 
       final detailsData = jsonDecode(detailsRes.body);

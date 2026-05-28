@@ -80,7 +80,6 @@ class ArtworkDetailsSheet extends StatelessWidget {
           ),
           const SizedBox(height: 16),
 
-          // BOTTOM: Actionable Links List
           Expanded(
             child: matches.isEmpty
                 ? Center(

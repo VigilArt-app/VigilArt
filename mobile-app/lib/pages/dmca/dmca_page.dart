@@ -701,10 +701,9 @@ class _DmcaPageState extends State<DmcaPage> {
         ),
       ),
 
-      // GLOBAL BOTTOM NAVIGATION
       bottomNavigationBar: SafeArea(
         child: SlideMenuBar(
-          selectedIndex: 2, // Matches the new DMCA index
+          selectedIndex: 2,
           onTabChange: (i) {
              if (i == 0) Navigator.pushReplacementNamed(context, '/gallery');
              if (i == 1) Navigator.pushReplacementNamed(context, '/dashboard');

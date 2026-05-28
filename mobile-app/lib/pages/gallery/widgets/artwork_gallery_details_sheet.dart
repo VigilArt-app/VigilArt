@@ -16,7 +16,6 @@ class ArtworkGalleryDetailsSheet extends StatelessWidget {
     required this.onViewReports,
   }) : super(key: key);
 
-  // Helper to format bytes to KB/MB matching the web app
   String _formatBytes(int? bytes) {
     if (bytes == null || bytes == 0) return 'Unknown size';
     if (bytes < 1024) return '$bytes B';
@@ -36,9 +35,9 @@ class ArtworkGalleryDetailsSheet extends StatelessWidget {
 
   Color _getStatusColor(String status) {
     switch (status.toLowerCase()) {
-      case 'scanned': return const Color(0xFF22C55E); // Green
-      case 'scanning': return const Color(0xFFA855F7); // Purple
-      case 'protected': return const Color(0xFF3B82F6); // Blue
+      case 'scanned': return const Color(0xFF22C55E); 
+      case 'scanning': return const Color(0xFFA855F7);
+      case 'protected': return const Color(0xFF3B82F6);
       default: return Colors.grey;
     }
   }
@@ -89,7 +88,6 @@ class ArtworkGalleryDetailsSheet extends StatelessWidget {
       ),
       child: Column(
         children: [
-          // Header & Drag Handle
           Container(
             padding: const EdgeInsets.fromLTRB(24, 16, 16, 16),
             decoration: BoxDecoration(
@@ -107,7 +105,6 @@ class ArtworkGalleryDetailsSheet extends StatelessWidget {
             ),
           ),
 
-          // Scrollable Content
           Expanded(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(24),
@@ -115,7 +112,6 @@ class ArtworkGalleryDetailsSheet extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Hero Image
                   Center(
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(16),
@@ -132,7 +128,6 @@ class ArtworkGalleryDetailsSheet extends StatelessWidget {
                   ),
                   const SizedBox(height: 24),
 
-                  // Status Badge
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
@@ -147,7 +142,6 @@ class ArtworkGalleryDetailsSheet extends StatelessWidget {
                   ),
                   const SizedBox(height: 24),
 
-                  // Metadata Section (Matches Web App Layout)
                   _buildInfoRow('File name', title),
                   if (artwork['description'] != null && artwork['description'].toString().isNotEmpty)
                     _buildInfoRow('Description', artwork['description']),
@@ -163,7 +157,6 @@ class ArtworkGalleryDetailsSheet extends StatelessWidget {
                   const Divider(),
                   const SizedBox(height: 16),
 
-                  // Matches Links Section
                   const Text('All links of matches:', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Colors.black87)),
                   const SizedBox(height: 12),
                   
@@ -201,13 +194,12 @@ class ArtworkGalleryDetailsSheet extends StatelessWidget {
                       ),
                     )).toList(),
 
-                  const SizedBox(height: 40), // Bottom padding
+                  const SizedBox(height: 40),
                 ],
               ),
             ),
           ),
 
-          // Sticky Bottom Action Bar
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
