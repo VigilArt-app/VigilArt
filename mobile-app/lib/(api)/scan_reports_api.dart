@@ -109,42 +109,38 @@ extension ScanReportsApi on ApiService {
   }
 
   Future<Map<String, dynamic>> triggerManualScan() async {
-    try {
-      final userId = await secureStorage.read(key: ApiService.keyUserId);
-      if (userId == null) throw Exception('User ID not found');
+    final userId = await secureStorage.read(key: ApiService.keyUserId);
+    if (userId == null) throw Exception('User ID not found');
 
-      final response = await authenticatedRequest(
-        (headers) => http.post(
-          Uri.parse('$serverUrl/reports/user/$userId'),
-          headers: headers,
-        ),
-      );
-      if (response.statusCode != 200 && response.statusCode != 201) {
-        throw Exception(response.body); 
-      }
-
-      final createdData = jsonDecode(response.body);
-      final reportId = (createdData['data'] ?? createdData)['id'];
-
-      if (reportId == null) throw Exception('Report created but no ID returned');
-
-      final detailsRes = await authenticatedRequest(
-        (headers) => http.get(
-          Uri.parse('$serverUrl/reports/details/$reportId'),
-          headers: headers,
-        ),
-      );
-
-      if (detailsRes.statusCode != 200) {
-        throw Exception(detailsRes.body);
-      }
-
-      final detailsData = jsonDecode(detailsRes.body);
-      return detailsData['data'] ?? detailsData;
-
-    } catch (e) {
-      rethrow; 
+    final response = await authenticatedRequest(
+      (headers) => http.post(
+        Uri.parse('$serverUrl/reports/user/$userId'),
+        headers: headers,
+      ),
+    );
+    
+    if (response.statusCode != 200 && response.statusCode != 201) {
+      throw Exception(response.body); 
     }
+
+    final createdData = jsonDecode(response.body);
+    final reportId = (createdData['data'] ?? createdData)['id'];
+
+    if (reportId == null) throw Exception('Report created but no ID returned');
+
+    final detailsRes = await authenticatedRequest(
+      (headers) => http.get(
+        Uri.parse('$serverUrl/reports/details/$reportId'),
+        headers: headers,
+      ),
+    );
+
+    if (detailsRes.statusCode != 200) {
+      throw Exception(detailsRes.body);
+    }
+
+    final detailsData = jsonDecode(detailsRes.body);
+    return detailsData['data'] ?? detailsData;
   }
 
 }
