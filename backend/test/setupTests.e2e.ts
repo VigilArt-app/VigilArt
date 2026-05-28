@@ -31,8 +31,9 @@ afterAll(async () => {
   if (postgresContainer) {
     await postgresContainer.stop();
   }
-  if (redisContainer)
+  if (redisContainer) {
     await redisContainer.stop();
+  }
 });
 
 jest.setTimeout(30000);
