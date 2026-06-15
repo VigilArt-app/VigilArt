@@ -1125,6 +1125,7 @@ export const UserScalarFieldEnum = {
   lastName: 'lastName',
   avatar: 'avatar',
   subscriptionTier: 'subscriptionTier',
+  autoRunReports: 'autoRunReports',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -1317,6 +1318,13 @@ export type EnumSubscriptionTierFieldRefInput<$PrismaModel> = FieldRefInputType<
  * Reference to a field of type 'SubscriptionTier[]'
  */
 export type ListEnumSubscriptionTierFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SubscriptionTier[]'>
+    
+
+
+/**
+ * Reference to a field of type 'Boolean'
+ */
+export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
     
 
 

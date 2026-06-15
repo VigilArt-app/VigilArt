@@ -1,9 +1,11 @@
 import {
   ForbiddenException,
+  Inject,
   Injectable,
-  Logger,
-  NotFoundException
+  Logger
 } from "@nestjs/common";
+import { CACHE_MANAGER } from "@nestjs/cache-manager";
+import type { Cache } from "cache-manager";
 import { VisionService } from "../vision/vision.service";
 import {
   VisualSearchResult,
@@ -24,6 +26,12 @@ import { MatchingPagesService } from "./matchingPage.service";
 import { GoogleLensService } from "../googlelens/googlelens.service";
 import { assertResourceOwnership } from "../common/utils/ownership";
 
+const REPORTS_STATS_TTL = 30 * 24 * 60 * 60 * 1000;
+
+const REPORT_STATS_KEY = (userId: string) => {
+  return `reports:statistics:${userId}`;
+}
+
 @Injectable()
 export class ReportsService {
   constructor(
@@ -32,7 +40,8 @@ export class ReportsService {
     private readonly artworksService: ArtworksService,
     private readonly storageService: StorageService,
     private readonly matchingPagesService: MatchingPagesService,
-    private readonly prisma: PrismaService
+    private readonly prisma: PrismaService,
+    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
   ) {}
 
   private readonly logger = new Logger(ReportsService.name);
@@ -96,11 +105,27 @@ export class ReportsService {
     return foundMatchesIds;
   }
 
-  async generate(userId: string): Promise<ArtworksReport> {
-    this.logger.log(`Generate new report for user ${userId}`);
-    const matchingPagesIds = await this.findArtworksMatches(userId);
+  async checkLastScan(userId: string) {
+    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+    const recentArtwork = await this.prisma.artwork.findFirst({
+      where: {
+        userId,
+        lastScanAt: {
+          gt: thirtyDaysAgo
+        }
+      }
+    });
 
-    return this.prisma.artworksReport.create({
+    if (recentArtwork)
+      throw new ForbiddenException("One or more artworks were scanned less than 30 days ago. Please wait before generating a new report.");
+  }
+
+  async generate(userId: string): Promise<ArtworksReport> {
+    await this.checkLastScan(userId);
+    this.logger.log(`Generate new report for user ${userId}`);
+
+    const matchingPagesIds = await this.findArtworksMatches(userId);
+    const report = await this.prisma.artworksReport.create({
       data: {
         userId,
         matchingPages: {
@@ -108,6 +133,13 @@ export class ReportsService {
         }
       }
     });
+
+    await this.prisma.artwork.updateMany({
+      where: { userId },
+      data: { lastScanAt: new Date() }
+    });
+    await this.cacheManager.del(REPORT_STATS_KEY(userId));
+    return report;
   }
 
   async findMatchesByArtwork(
@@ -194,6 +226,18 @@ export class ReportsService {
     userId: string,
     reportId?: string
   ): Promise<ArtworksReportStatistics> {
+    if (!reportId) {
+      const cached = await this.cacheManager.get<ArtworksReportStatistics>(REPORT_STATS_KEY(userId));
+      if (cached)
+        return cached;
+
+      const matchingPages = await this.findMatchesByUser(userId);
+      const result: ArtworksReportStatistics = { totalMatches: matchingPages.length };
+
+      await this.cacheManager.set(REPORT_STATS_KEY(userId), result, REPORTS_STATS_TTL);
+      return result;
+    }
+
     const matchingPages = await this.findMatchesByUser(userId, reportId);
 
     return {

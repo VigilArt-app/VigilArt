@@ -1,15 +1,15 @@
-import 'package:VigilArt/pages/dashboard/scan_report/scanResultPage.dart';
-import 'package:VigilArt/pages/dashboard/statistics/statistics_page.dart';
-import 'package:VigilArt/pages/dashboard/upload_picture/uploadPhotos_page.dart';
+import 'package:vigilart/pages/dashboard/scan_report/scanResultPage.dart';
+import 'package:vigilart/pages/dashboard/statistics/statistics_page.dart';
+import 'package:vigilart/pages/dashboard/upload_picture/uploadPhotos_page.dart';
 import 'package:flutter/material.dart';
-import 'package:VigilArt/widgets/header_bar.dart';
-import 'package:VigilArt/widgets/slideMenuBar.dart';
-import 'package:VigilArt/widgets/slideTabsBar.dart';
+import 'package:vigilart/widgets/header_bar.dart';
+import 'package:vigilart/widgets/slideMenuBar.dart';
+import 'package:vigilart/widgets/slideTabsBar.dart';
 import '../../(api)/auth.dart';
 import '../../(api)/user.dart';
+import 'package:vigilart/pages/dmca/dmca_page.dart'; 
 
 class DashboardPage extends StatefulWidget {
-
   const DashboardPage({Key? key}) : super(key: key);
   
   @override
@@ -94,10 +94,9 @@ class _DashboardPageState extends State<DashboardPage> {
         child: SlideMenuBar(
           selectedIndex: _bottomNavIndex, 
           onTabChange: (index) {
-            setState(() {
-              _bottomNavIndex = index;
-            });
-            _handleBottomNavigation(index);
+            if (index != 1) { 
+              _handleBottomNavigation(index);
+            }
           },
         ),
       ),
@@ -120,14 +119,19 @@ class _DashboardPageState extends State<DashboardPage> {
   void _handleBottomNavigation(int index) {
     switch (index) {
       case 0:
-        Navigator.pushNamed(context, '/gallery');
+        Navigator.pushReplacementNamed(context, '/gallery');
         break;
       case 1:
         break;
       case 2:
-        Navigator.pushNamed(context, '/profile');
+        Navigator.push(
+          context, 
+          MaterialPageRoute(builder: (context) => const DmcaPage(artworkPrefill: {}))
+        );
+        break;
+      case 3:
+        Navigator.pushReplacementNamed(context, '/profile');
         break;
     }
   }
-
 }

@@ -98,7 +98,6 @@ extension GalleryApi on ApiService {
           'date': art['createdAt'] ?? DateTime.now().toIso8601String(),
           'status': status,
           'matchesCount': matchesCount,
-          // FIXED: Map the stored URLs directly into the output payload
           'infringingUrls': urlsByArtwork[artId] ?? [], 
         };
       }).toList();

@@ -96,21 +96,34 @@ export const updateUserProfile = async (
     });
 
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(
-        errorData.message || t("profil_page.failed_update", "Failed to update user profile")
-      );
+      throw new Error();
     }
 
     const data = await response.json();
     toast.success(t("profil_page.profile_updated", "Profile updated successfully"));
     return data.data || data;
   } catch (error) {
-    toast.error(
-      error instanceof Error
-        ? error.message
-        : t("profil_page.failed_update", "Failed to update user profile")
-    );
+    toast.error(t("profil_page.failed_update", "Failed to update user profile"));
+    throw error;
+  }
+};
+
+/**
+ * Delete user account permanently
+ */
+export const deleteAccount = async (userId: string): Promise<void> => {
+  try {
+    const response = await authenticatedFetch(`/users/${userId}`, {
+      method: "DELETE",
+    });
+
+    if (!response.ok) {
+      throw new Error();
+    }
+
+    toast.success(t("profil_page.account_deleted", "Account deleted successfully"));
+  } catch (error) {
+    toast.error(t("profil_page.failed_delete", "Failed to delete account"));
     throw error;
   }
 };

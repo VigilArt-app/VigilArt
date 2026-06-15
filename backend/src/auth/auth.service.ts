@@ -274,14 +274,6 @@ export class AuthService {
   }
 
   async me(auth: AuthenticatedRequest["user"]): Promise<UserGet> {
-    return this.prisma.user.findUniqueOrThrow({
-      where: {
-        id: auth.id,
-        email: auth.email
-      },
-      omit: {
-        password: true
-      }
-    });
+    return this.usersService.findOneWithoutPassword(auth.id);
   }
 }

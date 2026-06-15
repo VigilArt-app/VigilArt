@@ -98,7 +98,8 @@ export default function LoginPage() {
                                     <div className="flex-1 h-px bg-muted-foreground/30" />
                                 </div>
 
-                                <div>
+                                {/* Google Sign-In is currently disabled as it requires additional backend work to be implemented and not in the BTP*/}
+                                {/* <div>
                                     <Button type="button" className="w-full" >
                                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 mr-2" >
                                             <path d="M21.35 11.1H12v2.8h5.35c-.24 1.4-1.02 2.6-2.18 3.4v2.8h3.52C20.6 19.1 22 15.4 22 12c0-.6-.05-1.2-.15-1.9z" />
@@ -108,7 +109,7 @@ export default function LoginPage() {
                                         </svg>
                                         {t("login_page.sign_in_with_google")}
                                     </Button>
-                                </div>
+                                </div> */}
                             </form>
 
                             <div className="mt-4 text-center text-sm">

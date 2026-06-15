@@ -5,12 +5,15 @@ import { PrismaService } from "../src/prisma/prisma.service";
 import { setupApp } from "../src/app.setup";
 import { ApiClient } from "./api-client";
 import { SubscriptionTier, type UserGet } from "@vigilart/shared";
+import { CACHE_MANAGER } from "@nestjs/cache-manager";
+import type { Cache } from "cache-manager";
 
 describe("Users E2E", () => {
   let app: INestApplication;
   let prismaService: PrismaService;
   let api: ApiClient;
   let testUser: { email: string; password: string, id?: string };
+  let cacheManager: Cache;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -23,6 +26,7 @@ describe("Users E2E", () => {
     await app.init();
     prismaService = app.get(PrismaService);
     api = new ApiClient(app);
+    cacheManager = app.get(CACHE_MANAGER);
   });
 
   beforeEach(async () => {
@@ -43,6 +47,7 @@ describe("Users E2E", () => {
   afterEach(async () => {
     await api.logout();
     await prismaService.user.deleteMany();
+    await cacheManager.clear();
   });
 
   describe("POST /users", () => {
@@ -69,7 +74,8 @@ describe("Users E2E", () => {
           avatar: null,
           subscriptionTier: expect.any(String),
           createdAt: expect.any(String),
-          updatedAt: expect.any(String)
+          updatedAt: expect.any(String),
+          autoRunReports: false
         },
       });
     });
@@ -166,7 +172,8 @@ describe("Users E2E", () => {
           subscriptionTier: SubscriptionTier.FREE,
           avatar: null,
           createdAt: expect.any(String),
-          updatedAt: expect.any(String)
+          updatedAt: expect.any(String),
+          autoRunReports: false
         },
         {
           id: expect.any(String),
@@ -176,7 +183,8 @@ describe("Users E2E", () => {
           subscriptionTier: SubscriptionTier.FREE,
           avatar: null,
           createdAt: expect.any(String),
-          updatedAt: expect.any(String)
+          updatedAt: expect.any(String),
+          autoRunReports: false
         },
         {
           id: expect.any(String),
@@ -186,7 +194,8 @@ describe("Users E2E", () => {
           avatar: null,
           subscriptionTier: SubscriptionTier.FREE,
           createdAt: expect.any(String),
-          updatedAt: expect.any(String)
+          updatedAt: expect.any(String),
+          autoRunReports: false
         }
       ];
 
@@ -214,7 +223,8 @@ describe("Users E2E", () => {
           subscriptionTier: SubscriptionTier.FREE,
           avatar: null,
           createdAt: expect.any(String),
-          updatedAt: expect.any(String)
+          updatedAt: expect.any(String),
+          autoRunReports: false
         },
       });
     });
@@ -265,7 +275,8 @@ describe("Users E2E", () => {
           subscriptionTier: SubscriptionTier.FREE,
           avatar: "new_url",
           createdAt: expect.any(String),
-          updatedAt: expect.any(String)
+          updatedAt: expect.any(String),
+          autoRunReports: false
         },
       });
     });

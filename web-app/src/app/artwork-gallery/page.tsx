@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Loader2 } from "lucide-react";
+import { Loader2, Upload } from "lucide-react";
 import { ArtworkWithInsights, FilterStatus, getArtworkStatus } from "./components/types";
 import { fetchArtworks, fetchArtworkReportInsights, deleteArtwork } from "./components/api";
 import { SearchAndFilters } from "./components/SearchAndFilters";
@@ -9,8 +9,12 @@ import { ArtworkCard } from "./components/ArtworkCard";
 import { ArtworkDetails } from "./components/ArtworkDetails";
 import { DeleteDialog } from "./components/DeleteDialog";
 import { EmptyState } from "./components/EmptyState";
+import EditArtworkModal from "./components/EditArtworkModal";
+import { Button } from "@/src/components/ui/button";
+import { UploadModal } from "../dashboard/components/UploadModal";
 import { useAuth } from "@/src/components/contexts/authContext";
 import { useTranslation } from "react-i18next";
+import React from "react";
 
 export default function ArtworkGalleryPage() {
   const { t } = useTranslation();
@@ -23,6 +27,10 @@ export default function ArtworkGalleryPage() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [artworkToDelete, setArtworkToDelete] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [uploadModalOpen, setUploadModalOpen] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [artworkToEdit, setArtworkToEdit] = useState<ArtworkWithInsights | null>(null);
+  const [refreshKey, setRefreshKey] = useState(0);
   const { user, loading } = useAuth();
 
   useEffect(() => {
@@ -57,7 +65,7 @@ export default function ArtworkGalleryPage() {
     };
 
     loadArtworks();
-  }, [loading, user?.id]);
+  }, [loading, user?.id, refreshKey]);
 
   useEffect(() => {
     let filtered = [...artworks];
@@ -89,6 +97,22 @@ export default function ArtworkGalleryPage() {
     setDeleteDialogOpen(true);
   };
 
+  const handleEditArtwork = (artwork: ArtworkWithInsights, e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    setArtworkToEdit(artwork);
+    setEditModalOpen(true);
+  };
+
+  React.useEffect(() => {
+    const listener = (ev: any) => {
+      setArtworkToEdit(ev.detail);
+      setEditModalOpen(true);
+    };
+
+    window.addEventListener("openEditArtwork", listener as EventListener);
+    return () => window.removeEventListener("openEditArtwork", listener as EventListener);
+  }, []);
+
   const confirmDelete = async () => {
     if (!artworkToDelete) return;
 
@@ -116,9 +140,16 @@ export default function ArtworkGalleryPage() {
 
   return (
     <div className="flex h-screen overflow-hidden">
-      <div className="flex-1 p-8 overflow-y-auto scrollbar-soft">
-        <div className="bg-black text-white rounded-lg p-6 mb-6">
+      <div className="flex-1 p-8 overflow-y-auto scrollbar-soft" onClick={() => setSelectedArtwork(null)}>
+        <div className="bg-black text-white rounded-lg p-6 mb-6 flex items-center justify-between">
           <h1 className="text-3xl font-bold">{t("artwork_gallery_page.artwork_gallery")}</h1>
+          <Button
+            className="flex items-center gap-2 mt-4"
+            onClick={() => setUploadModalOpen(true)}
+          >
+            <Upload className="w-4 h-4" />
+            {t("dashboard_page.upload.upload_artworks")}
+          </Button>
         </div>
 
         <SearchAndFilters
@@ -142,6 +173,7 @@ export default function ArtworkGalleryPage() {
                 artwork={artwork}
                 isSelected={selectedArtwork?.id === artwork.id}
                 onSelect={setSelectedArtwork}
+                onEdit={handleEditArtwork}
                 onDelete={handleDeleteArtwork}
               />
             ))}
@@ -156,6 +188,23 @@ export default function ArtworkGalleryPage() {
         onOpenChange={setDeleteDialogOpen}
         onConfirm={confirmDelete}
         isDeleting={isDeleting}
+      />
+      <UploadModal
+        open={uploadModalOpen}
+        onOpenChange={setUploadModalOpen}
+        onUploadComplete={() => setRefreshKey((value) => value + 1)} />
+      <EditArtworkModal
+        open={editModalOpen}
+        onOpenChange={setEditModalOpen}
+        artwork={artworkToEdit}
+        onSaved={(updated) => {
+          if (!updated) return;
+          setArtworks((prev) => prev.map((a) => (a.id === updated.id ? { ...a, ...updated } : a)));
+          setFilteredArtworks((prev) => prev.map((a) => (a.id === updated.id ? { ...a, ...updated } : a)));
+          if (selectedArtwork?.id === updated.id) {
+            setSelectedArtwork((s) => (s ? { ...s, ...updated } : s));
+          }
+        }}
       />
     </div>
   );

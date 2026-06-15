@@ -22,7 +22,7 @@ class _DragDropUploadZoneState extends State<DragDropUploadZone> {
 
   Future<void> _pickFiles() async {
     try {
-      FilePickerResult? result = await FilePicker.platform.pickFiles(
+      FilePickerResult? result = await FilePicker.pickFiles(
         type: FileType.image,
         allowMultiple: true,
       );

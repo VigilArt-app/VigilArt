@@ -31,6 +31,7 @@ model User {
   lastName         String           @db.VarChar(64)
   avatar           String?
   subscriptionTier SubscriptionTier @default(FREE)
+  autoRunReports   Boolean          @default(false)
 
   createdAt        DateTime         @default(now())
   artworks         Artwork[]
@@ -106,7 +107,7 @@ model MatchingPage {
   pageTitle         String?
   unsafeDomain      Boolean
   firstDetectedAt   DateTime          @default(now())
-  
+
   reports           ArtworksReport[]
 
   @@unique([url, artworkId])
@@ -120,6 +121,7 @@ model ArtworksReport {
   detectionDate     DateTime          @default(now())
   matchingPages     MatchingPage[]
 }
+
 // DMCA Models & Enums
 
 enum DmcaStatus {

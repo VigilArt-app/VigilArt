@@ -51,7 +51,8 @@ jobs:
       - name: Run E2E Tests
         env:
           DOPPLER_TOKEN: ${{ secrets.DOPPLER_TEST_TOKEN }}
-        run: doppler run -- bash -c "export COOKIE_DOMAIN=localhost && pnpm --filter @vigilart/backend test:e2e"
+          COOKIE_DOMAIN: ${{ vars.COOKIE_DOMAIN }}
+        run: doppler run -- bash -c "export COOKIE_DOMAIN=$COOKIE_DOMAIN && pnpm --filter @vigilart/backend test:e2e"
 
   smoke-test:
     if: github.repository != 'EpitechPGE45-2025/G-EIP-700-PAR-7-1-eip-39'

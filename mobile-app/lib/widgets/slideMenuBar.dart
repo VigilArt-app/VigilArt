@@ -9,27 +9,43 @@ class SlideMenuBar extends StatelessWidget {
     required this.selectedIndex,
     required this.onTabChange, 
   }) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(vertical: 12),
+      padding: const EdgeInsets.symmetric(vertical: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, -5),
+          ),
+        ],
+      ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           IconButton(
-            icon: Icon(Icons.camera_alt_outlined),
-            onPressed:() => onTabChange(0),
-            color: selectedIndex == 0 ? Colors.black : Colors.grey,
+            icon: const Icon(Icons.camera_alt_outlined),
+            onPressed: () => onTabChange(0),
+            color: selectedIndex == 0 ? const Color(0xFF5E3B7D) : Colors.grey,
           ),
           IconButton(
-            icon: Icon(Icons.dashboard),
+            icon: const Icon(Icons.dashboard_outlined),
             onPressed: () => onTabChange(1),
-            color: selectedIndex == 1 ? Colors.black : Colors.grey,
+            color: selectedIndex == 1 ? const Color(0xFF5E3B7D) : Colors.grey,
           ),
           IconButton(
-            icon: Icon(Icons.person_2_outlined),
+            icon: const Icon(Icons.gavel_rounded),
             onPressed: () => onTabChange(2),
-            color: selectedIndex == 2 ? Colors.black : Colors.grey,
+            color: selectedIndex == 2 ? const Color(0xFF5E3B7D) : Colors.grey,
+          ),
+          IconButton(
+            icon: const Icon(Icons.person_2_outlined),
+            onPressed: () => onTabChange(3),
+            color: selectedIndex == 3 ? const Color(0xFF5E3B7D) : Colors.grey,
           ),
         ],
       ),
