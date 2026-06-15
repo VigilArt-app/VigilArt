@@ -78,17 +78,22 @@ export const classifyWebsite = (rawUrl: string): WebsiteCategoryType => {
   return WebsiteCategory.OTHER;
 };
 
+const KNOWN_SLDS = new Set(['co', 'com', 'org', 'net', 'gov', 'edu', 'ac', 'ne', 'or', 'go']);
+
 export const extractRootDomain = (url: string): string => {
   const hostname = new URL(url).hostname.replace(/^www\./, "");
   const parts = hostname.split(".");
-  let rootDomain: string;
 
-  if (parts.length <= 2) {
-    rootDomain = hostname;
-  } else {
-    rootDomain = parts.slice(-2).join(".");
+  if (parts.length <= 2) return hostname;
+
+  const tld = parts[parts.length - 1];
+  const sld = parts[parts.length - 2];
+
+  if (tld.length === 2 && KNOWN_SLDS.has(sld)) {
+    return parts.slice(-3).join(".");
   }
-  return rootDomain;
+
+  return parts.slice(-2).join(".");
 };
 
 export const BLACKLISTED_DOMAINS: string[] = [
