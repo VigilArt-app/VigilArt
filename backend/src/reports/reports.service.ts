@@ -116,28 +116,21 @@ export class ReportsService {
     reportId?: string
   ): Promise<MatchingPage[]> {
     this.logger.log(`Finding matches of artwork ${artworkId}`);
-    let selectedReportId = "";
 
-    await this.artworksService.findOne(userId, artworkId);
+    const artwork = await this.artworksService.findOne(userId, artworkId);
+    if (artwork.userId !== userId) {
+      throw new ForbiddenException("Access denied to this artwork");
+    }
+
+    let report: ArtworksReportGet;
     if (reportId) {
       this.logger.log(`Retrieving report ${reportId}`);
-      await this.findOne(userId, reportId);
-      selectedReportId = reportId;
+      report = await this.findOne(userId, reportId);
     } else {
       this.logger.log("Retrieving latest report");
-      const latestReport = await this.findLatestReport(userId);
-      selectedReportId = latestReport.id;
+      report = await this.findLatestReport(userId);
     }
-    return this.prisma.matchingPage.findMany({
-      where: {
-        artworkId,
-        reports: {
-          some: {
-            id: selectedReportId
-          }
-        }
-      }
-    });
+    return report.matchingPages.filter((p) => p.artworkId === artworkId);
   }
 
   async findAll(): Promise<ArtworksReport[]> {
@@ -166,16 +159,18 @@ export class ReportsService {
     return assertResourceOwnership(report, userId);
   }
 
-  async findLatestReport(userId: string): Promise<ArtworksReport> {
+  async findLatestReport(userId: string): Promise<ArtworksReportGet> {
     this.logger.log(`Finding latest report for user ${userId}`);
-    return this.prisma.artworksReport.findFirstOrThrow({
+    const report = await this.prisma.artworksReport.findFirstOrThrow({
       where: {
         userId
       },
       orderBy: {
         detectionDate: "desc"
-      }
+      },
+      include: { matchingPages: true }
     });
+    return assertResourceOwnership(report, userId);
   }
 
   async findMatchesByUser(
@@ -190,8 +185,7 @@ export class ReportsService {
       selectedReport = await this.findOne(userId, reportId);
     } else {
       this.logger.log("Retrieving latest report");
-      const latestReport = await this.findLatestReport(userId);
-      selectedReport = await this.findOne(userId, latestReport.id);
+      selectedReport = await this.findLatestReport(userId);
     }
     return selectedReport.matchingPages;
   }
