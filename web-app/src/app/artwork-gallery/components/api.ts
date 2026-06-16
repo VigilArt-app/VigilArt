@@ -1,21 +1,17 @@
 import { toast } from "sonner";
 import { Artwork, ArtworkReportInsights, MatchingPage } from "./types";
 import { authenticatedFetch } from "../../../utils/auth/authenticatedFetch";
+import { PaginatedResult } from "@vigilart/shared/types";
 import i18next from "i18next";
 
 const t = (key: string, defaultValue: string) =>
   i18next.t(key, { defaultValue });
 
-export interface ArtworkPage {
-  items: Artwork[];
-  nextCursor: string | null;
-}
-
 export const fetchArtworks = async (
   userId: string,
   cursor?: string,
   limit = 20
-): Promise<ArtworkPage> => {
+): Promise<PaginatedResult<Artwork>> => {
   try {
     const params = new URLSearchParams({ limit: String(limit) });
     if (cursor) params.set("cursor", cursor);

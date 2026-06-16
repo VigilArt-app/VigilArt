@@ -772,13 +772,13 @@ describe("Artworks User Journey E2E", () => {
       it("Shouldn't get artwork with non-existent ID", async () => {
         const res = await api
           .get("/artworks/123e4567-e89b-12d3-a456-426614174000")
-          .expect(HttpStatus.FORBIDDEN);
+          .expect(HttpStatus.NOT_FOUND);
 
         expect(res.body).toEqual({
           success: false,
-          statusCode: HttpStatus.FORBIDDEN,
+          statusCode: HttpStatus.NOT_FOUND,
           message: expect.any(String),
-          error: "Forbidden"
+          error: "Not Found"
         });
       });
 
@@ -842,13 +842,13 @@ describe("Artworks User Journey E2E", () => {
           .send({
             description: "New description"
           })
-          .expect(HttpStatus.FORBIDDEN);
+          .expect(HttpStatus.NOT_FOUND);
 
         expect(res.body).toEqual({
           success: false,
-          statusCode: HttpStatus.FORBIDDEN,
+          statusCode: HttpStatus.NOT_FOUND,
           message: expect.any(String),
-          error: "Forbidden"
+          error: "Not Found"
         });
       });
 
@@ -893,13 +893,13 @@ describe("Artworks User Journey E2E", () => {
       it("Shouldn't remove artwork with non-existent ID", async () => {
         const res = await api
           .delete("/artworks/123e4567-e89b-12d3-a456-426614174000")
-          .expect(HttpStatus.FORBIDDEN);
+          .expect(HttpStatus.NOT_FOUND);
 
         expect(res.body).toEqual({
           success: false,
-          statusCode: HttpStatus.FORBIDDEN,
+          statusCode: HttpStatus.NOT_FOUND,
           message: expect.any(String),
-          error: "Forbidden"
+          error: "Not Found"
         });
       });
 

@@ -114,7 +114,8 @@ export class ArtworksService {
       where: {
         id: {
           in: ids
-        }
+        },
+        userId
       }
     });
   }

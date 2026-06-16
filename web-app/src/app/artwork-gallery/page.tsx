@@ -117,12 +117,19 @@ export default function ArtworkGalleryPage() {
     if (!nextCursor || !user?.id) return;
     setIsLoadingMore(true);
     try {
-      const page = await fetchArtworks(user.id, nextCursor);
+      const [page, freshInsights] = await Promise.all([
+        fetchArtworks(user.id, nextCursor),
+        fetchArtworkReportInsights(user.id)
+      ]);
+      setInsightsByArtwork(freshInsights);
       const enriched = page.items.map((artwork) => ({
         ...artwork,
-        reportInsights: insightsByArtwork[artwork.id]
+        reportInsights: freshInsights[artwork.id]
       }));
-      setArtworks((prev) => [...prev, ...enriched]);
+      setArtworks((prev) => prev.map((a) => ({
+        ...a,
+        reportInsights: freshInsights[a.id] ?? a.reportInsights
+      })).concat(enriched));
       setNextCursor(page.nextCursor);
     } finally {
       setIsLoadingMore(false);
