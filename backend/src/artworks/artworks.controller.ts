@@ -8,6 +8,7 @@ import {
   ParseUUIDPipe,
   Patch,
   Post,
+  Query,
   Req
 } from "@nestjs/common";
 import { ArtworksService } from "./artworks.service";
@@ -20,11 +21,14 @@ import {
   ArtworkRemoveManyDTO,
   ArtworkUpdateDTO,
   ArtworkCreateManyResponseDTO,
+  ArtworkPaginatedResultDTO,
   ApiBatchPayload,
-  ApiBatchPayloadDTO
+  ApiBatchPayloadDTO,
+  CursorPaginationQueryDTO,
+  PaginatedResult
 } from "@vigilart/shared";
 import { ApiEndpoint } from "../common/decorators/api-endpoint.decorator";
-import { ApiBody, ApiParam } from "@nestjs/swagger";
+import { ApiBody, ApiParam, ApiQuery } from "@nestjs/swagger";
 import type { AuthenticatedRequest } from "../auth/auth";
 
 @Controller("artworks")
@@ -83,19 +87,22 @@ export class ArtworksController {
 
   @Get("user/:id")
   @ApiEndpoint({
-    summary: "Retrieve all artworks by user ID",
+    summary: "Retrieve artworks by user ID (cursor-paginated)",
     success: {
       status: HttpStatus.OK,
-      type: [ArtworkDTO]
+      type: ArtworkPaginatedResultDTO
     },
     protected: true,
     ownerships: [{ data: "id", userField: "id", type: "params" }]
   })
   @ApiParam({ name: "id", type: String })
+  @ApiQuery({ name: "cursor", required: false, type: String, description: "ID of the last received artwork" })
+  @ApiQuery({ name: "limit", required: false, type: Number, description: "Number of items to return (1–100, default 20)" })
   async findAllPerUser(
-    @Param("id", ParseUUIDPipe) id: string
-  ): Promise<Artwork[]> {
-    return this.artworksService.findAllPerUser(id);
+    @Param("id", ParseUUIDPipe) id: string,
+    @Query() { cursor, limit }: CursorPaginationQueryDTO
+  ): Promise<PaginatedResult<Artwork>> {
+    return this.artworksService.findAllPerUserPaginated(id, cursor, limit);
   }
 
   @Get(":id")

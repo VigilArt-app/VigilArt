@@ -640,7 +640,7 @@ describe("Artworks User Journey E2E", () => {
     });
 
     describe("GET /artworks/user/:id", () => {
-      it("Should get all artworks for user with specific ID", async () => {
+      it("Should get artworks for user with specific ID (first page)", async () => {
         const res = await api
           .get(`/artworks/user/${testUser.id}`)
           .expect(HttpStatus.OK);
@@ -649,23 +649,71 @@ describe("Artworks User Journey E2E", () => {
           success: true,
           statusCode: HttpStatus.OK,
           message: "OK",
+          data: {
+            items: [
+              {
+                id: expect.any(String),
+                userId: testUser.id,
+                originalFilename: "grey_haired_woman.jpg",
+                storageKey: expect.any(String),
+                sizeBytes: 81686,
+                width: 900,
+                height: 800,
+                contentType: "image/jpeg",
+                description: "Woman with grey hair",
+                createdAt: expect.any(String),
+                updatedAt: expect.any(String),
+                lastScanAt: null
+              }
+            ],
+            nextCursor: null
+          }
+        });
+      });
+
+      it("Should paginate artworks with cursor and limit", async () => {
+        await prismaService.artwork.createMany({
           data: [
             {
-              id: expect.any(String),
               userId: testUser.id,
-              originalFilename: "grey_haired_woman.jpg",
-              storageKey: expect.any(String),
-              sizeBytes: 81686,
-              width: 900,
-              height: 800,
-              contentType: "image/jpeg",
-              description: "Woman with grey hair",
-              createdAt: expect.any(String),
-              updatedAt: expect.any(String),
-              lastScanAt: null
+              originalFilename: "extra_artwork_1.jpg",
+              storageKey: `artworks/${testUser.id}/extra1.jpg`,
+              sizeBytes: 1000,
+              width: 100,
+              height: 100,
+              contentType: "image/jpeg"
+            },
+            {
+              userId: testUser.id,
+              originalFilename: "extra_artwork_2.jpg",
+              storageKey: `artworks/${testUser.id}/extra2.jpg`,
+              sizeBytes: 1000,
+              width: 100,
+              height: 100,
+              contentType: "image/jpeg"
             }
           ]
         });
+
+        const firstPage = await api
+          .get(`/artworks/user/${testUser.id}?limit=2`)
+          .expect(HttpStatus.OK);
+
+        expect(firstPage.body.data.items).toHaveLength(2);
+        expect(firstPage.body.data.nextCursor).not.toBeNull();
+
+        const secondPage = await api
+          .get(`/artworks/user/${testUser.id}?limit=2&cursor=${firstPage.body.data.nextCursor}`)
+          .expect(HttpStatus.OK);
+
+        expect(secondPage.body.data.items).toHaveLength(1);
+        expect(secondPage.body.data.nextCursor).toBeNull();
+
+        const allIds = [
+          ...firstPage.body.data.items.map((a: any) => a.id),
+          ...secondPage.body.data.items.map((a: any) => a.id)
+        ];
+        expect(new Set(allIds).size).toBe(3);
       });
 
       it("Should expect an UUID", async () => {

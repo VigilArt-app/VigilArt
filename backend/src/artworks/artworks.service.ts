@@ -11,7 +11,8 @@ import {
   ArtworkCreateManyDTO,
   ArtworkUpdateDTO,
   ArtworkCreateManyResponseDTO,
-  ApiBatchPayload
+  ApiBatchPayload,
+  PaginatedResult
 } from "@vigilart/shared";
 import { assertResourceOwnership } from "../common/utils/ownership";
 
@@ -73,6 +74,24 @@ export class ArtworksService {
         userId
       }
     });
+  }
+
+  async findAllPerUserPaginated(
+    userId: string,
+    cursor: string | undefined,
+    limit: number
+  ): Promise<PaginatedResult<Artwork>> {
+    this.logger.log(`Finding artworks for user ${userId} (cursor=${cursor}, limit=${limit})`);
+    const items = await this.prisma.artwork.findMany({
+      where: { userId },
+      take: limit + 1,
+      ...(cursor && { cursor: { id: cursor }, skip: 1 }),
+      orderBy: { createdAt: "desc" }
+    });
+    const hasNextPage = items.length > limit;
+    if (hasNextPage) items.pop();
+    const nextCursor = hasNextPage ? items[items.length - 1].id : null;
+    return { items, nextCursor };
   }
 
   async findOne(userId: string, id: string): Promise<Artwork> {
