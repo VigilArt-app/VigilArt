@@ -50,9 +50,7 @@ export function useScansReportData(refreshKey: number): UseScansReportDataResult
         }
 
         const artworksResponse = await artworksRes.json();
-        const artworks: Artwork[] = Array.isArray(artworksResponse)
-          ? artworksResponse
-          : artworksResponse.data || [];
+        const artworks: Artwork[] = artworksResponse.data?.items ?? [];
 
         const reportRes = await authenticatedFetch(`/reports/user/${userId}`);
 
