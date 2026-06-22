@@ -335,8 +335,11 @@ class _DmcaPageState extends State<DmcaPage> {
           onTabChange: (index) {
             if (index == 0) {
               Navigator.pushReplacementNamed(context, '/gallery');
-            } else if (index == 1) Navigator.pushReplacementNamed(context, '/dashboard');
-            else if (index == 3) Navigator.pushReplacementNamed(context, '/profile');
+            } else if (index == 1) {
+              Navigator.pushReplacementNamed(context, '/dashboard');
+            } else if (index == 3) {
+              Navigator.pushReplacementNamed(context, '/profile');
+            }
           },
         ),
       ),
