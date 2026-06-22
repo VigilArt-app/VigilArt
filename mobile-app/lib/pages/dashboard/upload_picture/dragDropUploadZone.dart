@@ -33,7 +33,7 @@ class _DragDropUploadZoneState extends State<DragDropUploadZone> {
         widget.onFilesSelected(filePaths);
       }
     } catch (e) {
-      print('Error picking files: $e');
+      debugPrint('Error picking files: $e');
     }
   }
 
@@ -47,7 +47,7 @@ class _DragDropUploadZoneState extends State<DragDropUploadZone> {
         widget.onFilesSelected([photo.path]);
       }
     } catch (e) {
-      print('Error picking from camera: $e');
+      debugPrint('Error picking from camera: $e');
     }
   }
 

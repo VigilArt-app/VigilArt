@@ -108,16 +108,16 @@ class _GalleryPageState extends State<GalleryPage> {
                 TextButton(
                   onPressed: isDeleting ? null : () async {
                     setStateDialog(() => isDeleting = true);
+                    // Capture navigator and scaffold instances before async gap.
+                    final localNavigator = Navigator.of(context);
+                    final localScaffold = ScaffoldMessenger.of(context);
                     final success = await _apiService.deleteArtwork(id);
-                    
-                    if (mounted) {
-                      Navigator.pop(context);
-                      if (success) {
-                        setState(() => _allArtworks.removeWhere((img) => img['id'] == id));
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Artwork deleted'), backgroundColor: Colors.green),
-                        );
-                      }
+
+                    // Use captured references to avoid using BuildContext across await.
+                    localNavigator.pop();
+                    if (success) {
+                      if (mounted) setState(() => _allArtworks.removeWhere((img) => img['id'] == id));
+                      localScaffold.showSnackBar(const SnackBar(content: Text('Artwork deleted'), backgroundColor: Colors.green));
                     }
                   },
                   child: isDeleting 
