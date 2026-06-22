@@ -1,6 +1,6 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'models/statisticsModel.dart';
+import 'models/statistics_model.dart';
 
 class ResolvedBarChart extends StatelessWidget {
   final List<ChartPoint> data;

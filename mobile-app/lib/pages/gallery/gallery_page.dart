@@ -5,7 +5,7 @@ import 'package:vigilart/pages/dmca/dmca_page.dart';
 import 'package:vigilart/pages/gallery/gallery_image_card.dart';
 import 'package:vigilart/pages/gallery/gallery_tab_selector.dart';
 import 'package:vigilart/widgets/header_bar.dart';
-import 'package:vigilart/widgets/slideMenuBar.dart';
+import 'package:vigilart/widgets/slide_menu_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:vigilart/pages/gallery/widgets/artwork_gallery_details_sheet.dart';

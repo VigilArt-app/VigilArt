@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:vigilart/(api)/statistics.dart';
 import '../../../(api)/auth.dart';
-import 'models/statisticsModel.dart';
+import 'models/statistics_model.dart';
 import 'growth_line_chart.dart';
 import 'resolved_bar_chart.dart';
 import 'source_pie_chart.dart';

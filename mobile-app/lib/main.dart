@@ -1,5 +1,5 @@
 import 'package:vigilart/pages/dashboard/dashboard.dart';
-import 'package:vigilart/pages/dashboard/upload_picture/uploadPhotos_page.dart';
+import 'package:vigilart/pages/dashboard/upload_picture/upload_photos_page.dart';
 import 'package:vigilart/pages/gallery/gallery_page.dart';
 import 'package:vigilart/pages/profile/profile_page.dart';
 import 'package:vigilart/(api)/auth.dart';

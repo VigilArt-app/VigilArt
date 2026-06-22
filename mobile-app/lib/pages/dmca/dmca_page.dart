@@ -9,7 +9,7 @@ import 'widgets/dmca_components.dart';
 import 'widgets/dmca_steps.dart';
 
 import 'package:vigilart/widgets/header_bar.dart';
-import 'package:vigilart/widgets/slideMenuBar.dart';
+import 'package:vigilart/widgets/slide_menu_bar.dart';
 
 class DmcaPage extends StatefulWidget {
   final Map<String, dynamic> artworkPrefill;

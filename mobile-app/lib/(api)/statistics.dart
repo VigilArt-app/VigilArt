@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:vigilart/pages/dashboard/statistics/models/statisticsModel.dart';
+import 'package:vigilart/pages/dashboard/statistics/models/statistics_model.dart';
 import 'auth.dart'; 
 
 extension StatisticsApi on ApiService {

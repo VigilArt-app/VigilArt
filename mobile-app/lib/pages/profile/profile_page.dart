@@ -4,7 +4,7 @@ import 'package:vigilart/(api)/auth.dart';
 import 'package:vigilart/pages/profile/profile_header.dart';
 import 'package:vigilart/widgets/editable_from_field.dart';
 import 'package:vigilart/widgets/header_bar.dart';
-import 'package:vigilart/widgets/slideMenuBar.dart';
+import 'package:vigilart/widgets/slide_menu_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:vigilart/(api)/user.dart';
 import 'package:image_picker/image_picker.dart';
