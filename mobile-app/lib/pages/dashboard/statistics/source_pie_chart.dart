@@ -5,7 +5,7 @@ import 'models/statisticsModel.dart';
 class SourcePieChart extends StatelessWidget {
   final List<SourceData> data;
 
-  const SourcePieChart({Key? key, required this.data}) : super(key: key);
+  const SourcePieChart({super.key, required this.data});
 
   Color _getColorForIndex(int index) {
     const colors = [Colors.blue, Colors.redAccent, Colors.orange, Colors.purple, Colors.teal];

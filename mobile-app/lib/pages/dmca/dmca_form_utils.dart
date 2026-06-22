@@ -97,7 +97,9 @@ class PathOperations {
 
     if (head is int) {
       List<dynamic> current = source is List ? List<dynamic>.from(source) : [];
-      while (current.length <= head) current.add(null);
+      while (current.length <= head) {
+        current.add(null);
+      }
       current[head] = setAtPath(current[head] ?? {}, rest, value);
       return current;
     } else {

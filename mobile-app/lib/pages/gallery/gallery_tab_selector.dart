@@ -41,7 +41,7 @@ class GalleryTabSelector extends StatelessWidget {
                   boxShadow: isSelected
                       ? [
                           BoxShadow(
-                            color: const Color(0xFF5E3B7D).withOpacity(0.3),
+                            color: const Color(0xFF5E3B7D).withValues(alpha: 0.3),
                             blurRadius: 8,
                             offset: const Offset(0, 2),
                           )

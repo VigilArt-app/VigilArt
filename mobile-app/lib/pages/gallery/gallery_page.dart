@@ -11,7 +11,7 @@ import 'package:intl/intl.dart';
 import 'package:vigilart/pages/gallery/widgets/artwork_gallery_details_sheet.dart';
 
 class GalleryPage extends StatefulWidget {
-  const GalleryPage({Key? key}) : super(key: key);
+  const GalleryPage({super.key});
 
   @override
   State<GalleryPage> createState() => _GalleryPageState();

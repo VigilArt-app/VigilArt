@@ -13,13 +13,13 @@ class DmcaProfileStep extends StatelessWidget {
   final VoidCallback? onNext;
 
   const DmcaProfileStep({
-    Key? key,
+    super.key,
     required this.profileForm,
     required this.isSaving,
     required this.onFieldChanged,
     required this.onSave,
     required this.onNext,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -115,7 +115,7 @@ class DmcaPreparationStep extends StatelessWidget {
   final VoidCallback? onNext;
 
   const DmcaPreparationStep({
-    Key? key,
+    super.key,
     required this.platform,
     required this.allPlatforms,
     required this.formKey,
@@ -129,7 +129,7 @@ class DmcaPreparationStep extends StatelessWidget {
     required this.onBack,
     required this.onPrepareNotice,
     required this.onNext,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -224,7 +224,7 @@ class DmcaSubmissionStep extends StatelessWidget {
   final VoidCallback onBack;
 
   const DmcaSubmissionStep({
-    Key? key,
+    super.key,
     required this.platform,
     required this.generatedContent,
     required this.isGenerating,
@@ -233,7 +233,7 @@ class DmcaSubmissionStep extends StatelessWidget {
     required this.onLaunchEmail,
     required this.onOpenPdf,
     required this.onBack,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -309,13 +309,13 @@ class DmcaGeneratedContentSection extends StatelessWidget {
   final VoidCallback onOpenPdf;
 
   const DmcaGeneratedContentSection({
-    Key? key,
+    super.key,
     required this.emailData,
     required this.onCopySubject,
     required this.onCopyBody,
     required this.onLaunchEmail,
     required this.onOpenPdf,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -351,7 +351,7 @@ class DmcaGeneratedContentSection extends StatelessWidget {
 }
 
 BoxDecoration _cardDecoration() {
-  return BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: Colors.grey[200]!), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 8, offset: const Offset(0, 2))]);
+  return BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: Colors.grey[200]!), boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 8, offset: const Offset(0, 2))]);
 }
 
 InputDecoration _buildTextFieldDecoration() {

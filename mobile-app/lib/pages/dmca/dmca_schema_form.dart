@@ -9,13 +9,13 @@ class DmcaSchemaForm extends StatelessWidget {
   final Function(List<dynamic> path, dynamic value) onUpdatePath;
 
   const DmcaSchemaForm({
-    Key? key,
+    super.key,
     required this.schema,
     required this.payload,
     required this.detectedInfringingUrls,
     required this.artworkPrefill,
     required this.onUpdatePath,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -139,7 +139,7 @@ class DmcaSchemaForm extends StatelessWidget {
           const SizedBox(height: 8),
           DropdownButtonFormField<String>(
             key: ValueKey('${path.join('.')}_dropdown_$currentValue'),
-            value: currentValue.isEmpty ? null : currentValue,
+            initialValue: currentValue.isEmpty ? null : currentValue,
             dropdownColor: Colors.white,
             style: const TextStyle(
               color: Colors.black87,
@@ -220,7 +220,7 @@ class DmcaSchemaForm extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.02),
+            color: Colors.black.withValues(alpha: 0.02),
             blurRadius: 4,
             offset: const Offset(0, 2),
           )
@@ -242,7 +242,7 @@ class DmcaSchemaForm extends StatelessWidget {
           ...items
               .map((item) =>
                   _renderItem(item, [...path, item['key']]))
-              .toList(),
+              ,
         ],
       ),
     );
@@ -263,7 +263,7 @@ class DmcaSchemaForm extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.02),
+            color: Colors.black.withValues(alpha: 0.02),
             blurRadius: 4,
             offset: const Offset(0, 2),
           )
@@ -386,7 +386,7 @@ class DmcaSchemaForm extends StatelessWidget {
                   [...basePath, index, item['key']],
                 ),
               )
-              .toList(),
+              ,
         ],
       ),
     );

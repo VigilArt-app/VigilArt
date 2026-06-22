@@ -16,14 +16,14 @@ extension UserProfile on ApiService {
       );
 
       if (response.statusCode != 200) {
-        print('Failed to fetch user profile: ${response.statusCode}');
+        debugPrint('Failed to fetch user profile: ${response.statusCode}');
         return null;
       }
 
       final data = jsonDecode(response.body);
       return data['data'] ?? data; 
     } catch (e) {
-      print('Network error fetching profile: $e');
+      debugPrint('Network error fetching profile: $e');
       return null;
     }
   }
@@ -45,14 +45,14 @@ extension UserProfile on ApiService {
 
       if (response.statusCode != 200) {
         final errorData = jsonDecode(response.body);
-        print('Failed to update profile: ${errorData['message'] ?? response.statusCode}');
+        debugPrint('Failed to update profile: ${errorData['message'] ?? response.statusCode}');
         return null;
       }
 
       final data = jsonDecode(response.body);
       return data['data'] ?? data;
     } catch (e) {
-      print('Network error updating profile: $e');
+      debugPrint('Network error updating profile: $e');
       return null;
     }
   }
@@ -78,7 +78,7 @@ extension UserProfile on ApiService {
       }
       return null;
     } catch (e) {
-      print('Error getting avatar download URL: $e');
+      debugPrint('Error getting avatar download URL: $e');
       return null;
     }
   }
@@ -105,7 +105,7 @@ extension UserProfile on ApiService {
       }
       return null;
     } catch (e) {
-      print('Error getting avatar upload URL: $e');
+      debugPrint('Error getting avatar upload URL: $e');
       return null;
     }
   }
@@ -122,7 +122,7 @@ extension UserProfile on ApiService {
 
       return response.statusCode == 200;
     } catch (e) {
-      print('Failed to upload avatar to R2: $e');
+      debugPrint('Failed to upload avatar to R2: $e');
       return false;
     }
   }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class DmcaWarningBanner extends StatelessWidget {
-  const DmcaWarningBanner({Key? key}) : super(key: key);
+  const DmcaWarningBanner({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +35,7 @@ class DmcaWarningBanner extends StatelessWidget {
 class DmcaStepIndicator extends StatelessWidget {
   final int currentStep;
 
-  const DmcaStepIndicator({Key? key, required this.currentStep}) : super(key: key);
+  const DmcaStepIndicator({super.key, required this.currentStep});
 
   @override
   Widget build(BuildContext context) {
@@ -55,7 +55,7 @@ class DmcaStepDot extends StatelessWidget {
   final int step;
   final int currentStep;
 
-  const DmcaStepDot({Key? key, required this.step, required this.currentStep}) : super(key: key);
+  const DmcaStepDot({super.key, required this.step, required this.currentStep});
 
   @override
   Widget build(BuildContext context) {
@@ -86,10 +86,10 @@ class DmcaHistorySection extends StatelessWidget {
   final Future<void> Function(Map<String, dynamic>) onLoadNotice;
 
   const DmcaHistorySection({
-    Key? key,
+    super.key,
     required this.notices,
     required this.onLoadNotice,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -104,7 +104,7 @@ class DmcaHistorySection extends StatelessWidget {
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: Colors.grey[200]!),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 8, offset: const Offset(0, 2))],
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 8, offset: const Offset(0, 2))],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -142,10 +142,10 @@ class DmcaNoticeHistoryTile extends StatelessWidget {
   final Future<void> Function(Map<String, dynamic>) onLoadNotice;
 
   const DmcaNoticeHistoryTile({
-    Key? key,
+    super.key,
     required this.notice,
     required this.onLoadNotice,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

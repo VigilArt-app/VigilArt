@@ -10,7 +10,7 @@ import '../../(api)/user.dart';
 import 'package:vigilart/pages/dmca/dmca_page.dart'; 
 
 class DashboardPage extends StatefulWidget {
-  const DashboardPage({Key? key}) : super(key: key);
+  const DashboardPage({super.key});
   
   @override
   State<DashboardPage> createState() => _DashboardPageState();
@@ -18,7 +18,7 @@ class DashboardPage extends StatefulWidget {
 
 class _DashboardPageState extends State<DashboardPage> {
   int _selectedTabIndex = 1;
-  int _bottomNavIndex = 1;
+  final int _bottomNavIndex = 1;
 
   String _userAvatarUrl = 'assets/images/default_avatar.jpg';
 

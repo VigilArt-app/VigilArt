@@ -53,7 +53,7 @@ Future<bool> checkLoginStatus() async {
 
 class VigilArtApp extends StatelessWidget {
   final bool isLoggedIn;
-  const VigilArtApp({Key? key, required this.isLoggedIn}) : super(key: key);
+  const VigilArtApp({super.key, required this.isLoggedIn});
 
   @override
   Widget build(BuildContext context) {

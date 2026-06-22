@@ -4,7 +4,7 @@ import 'package:url_launcher/url_launcher.dart';
 class ArtworkDetailsSheet extends StatelessWidget {
   final Map<String, dynamic> artwork;
 
-  const ArtworkDetailsSheet({Key? key, required this.artwork}) : super(key: key);
+  const ArtworkDetailsSheet({super.key, required this.artwork});
 
   Future<void> _openLink(BuildContext context, String urlString) async {
     final Uri url = Uri.parse(urlString);

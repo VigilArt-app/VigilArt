@@ -8,7 +8,7 @@ import 'widgets/artwork_details_sheet.dart';
 enum TimelineFilter { all, week, month, quarter, year }
 
 class ScanResultsPage extends StatefulWidget {
-  const ScanResultsPage({Key? key}) : super(key: key);
+  const ScanResultsPage({super.key});
 
   @override
   State<ScanResultsPage> createState() => _ScanResultsPageState();
@@ -53,7 +53,7 @@ class _ScanResultsPageState extends State<ScanResultsPage> {
         icon: Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Colors.red.withOpacity(0.1),
+            color: Colors.red.withValues(alpha: 0.1),
             shape: BoxShape.circle,
           ),
           child: const Icon(Icons.error_outline_rounded, color: Colors.redAccent, size: 40),
@@ -295,7 +295,7 @@ class _ScanResultsPageState extends State<ScanResultsPage> {
             color: Colors.white,
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.05),
+                color: Colors.black.withValues(alpha: 0.05),
                 blurRadius: 20,
                 offset: const Offset(0, -5),
               )

@@ -5,7 +5,7 @@ import 'models/statisticsModel.dart';
 class ResolvedBarChart extends StatelessWidget {
   final List<ChartPoint> data;
 
-  const ResolvedBarChart({Key? key, required this.data}) : super(key: key);
+  const ResolvedBarChart({super.key, required this.data});
 
   @override
   Widget build(BuildContext context) {

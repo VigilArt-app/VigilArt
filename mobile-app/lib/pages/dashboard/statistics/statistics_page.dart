@@ -7,7 +7,7 @@ import 'resolved_bar_chart.dart';
 import 'source_pie_chart.dart';
 
 class StatisticsPage extends StatefulWidget {
-  const StatisticsPage({Key? key}) : super(key: key);
+  const StatisticsPage({super.key});
 
   @override
   State<StatisticsPage> createState() => _StatisticsPageState();

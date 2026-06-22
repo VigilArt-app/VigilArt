@@ -13,7 +13,7 @@ import 'package:vigilart/widgets/slideMenuBar.dart';
 
 class DmcaPage extends StatefulWidget {
   final Map<String, dynamic> artworkPrefill;
-  const DmcaPage({Key? key, required this.artworkPrefill}) : super(key: key);
+  const DmcaPage({super.key, required this.artworkPrefill});
 
   @override
   State<DmcaPage> createState() => _DmcaPageState();
@@ -38,7 +38,7 @@ class _DmcaPageState extends State<DmcaPage> {
   bool _profileExists = false;
 
   List<dynamic> _allNotices = [];
-  Map<String, dynamic> _noticesByPlatform = {};
+  final Map<String, dynamic> _noticesByPlatform = {};
   Map<String, dynamic>? _activeNotice;
   Map<String, dynamic>? _generatedContent;
   Map<String, dynamic> _formPayload = {};

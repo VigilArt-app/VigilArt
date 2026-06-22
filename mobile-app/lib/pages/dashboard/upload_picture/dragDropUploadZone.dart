@@ -7,10 +7,10 @@ class DragDropUploadZone extends StatefulWidget {
   final List<String> acceptedFormats;
 
   const DragDropUploadZone({
-    Key? key,
+    super.key,
     required this.onFilesSelected,
     this.acceptedFormats = const ['JPEG', 'PNG'],
-  }) : super(key: key);
+  });
 
   @override
   State<DragDropUploadZone> createState() => _DragDropUploadZoneState();
@@ -71,7 +71,7 @@ class _DragDropUploadZoneState extends State<DragDropUploadZone> {
             ),
             borderRadius: BorderRadius.circular(16),
             color: _isDragging
-                ? const Color(0xFF5E3B7D).withOpacity(0.05)
+                ? const Color(0xFF5E3B7D).withValues(alpha: 0.05)
                 : Colors.grey[50],
           ),
           child: Column(

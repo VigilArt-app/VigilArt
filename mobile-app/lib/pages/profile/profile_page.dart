@@ -11,7 +11,7 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:typed_data';
 
 class ProfilePage extends StatefulWidget {
-  const ProfilePage({Key? key}) : super(key: key);
+  const ProfilePage({super.key});
 
   @override
   State<ProfilePage> createState() => _ProfilePageState();
@@ -376,7 +376,7 @@ class _ProfilePageState extends State<ProfilePage> {
         child: Container(
           decoration: BoxDecoration(
             color: Colors.white,
-            boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, -2))],
+            boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, -2))],
           ),
           child: SlideMenuBar(
             selectedIndex: _bottomNavIndex, 

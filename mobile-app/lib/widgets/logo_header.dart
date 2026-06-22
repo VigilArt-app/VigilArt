@@ -8,13 +8,13 @@ class LogoHeader extends StatelessWidget {
   final TextStyle? textStyle;
 
   const LogoHeader({
-    Key? key,
+    super.key,
     required this.logoImagePath,
     required this.appName,
     this.logoSize = 60.0,
     this.spacing = 12.0,
     this.textStyle,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -5,7 +5,7 @@ import 'models/statisticsModel.dart';
 class GrowthLineChart extends StatelessWidget {
   final List<ChartPoint> data;
 
-  const GrowthLineChart({Key? key, required this.data}) : super(key: key);
+  const GrowthLineChart({super.key, required this.data});
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +42,7 @@ class GrowthLineChart extends StatelessWidget {
             barWidth: 3,
             belowBarData: BarAreaData(
               show: true,
-              color: const Color(0xFF5E3B7D).withOpacity(0.1),
+              color: const Color(0xFF5E3B7D).withValues(alpha: 0.1),
             ),
           ),
         ],

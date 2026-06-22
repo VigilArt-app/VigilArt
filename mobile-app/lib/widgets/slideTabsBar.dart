@@ -6,11 +6,11 @@ class SlideTabsBar extends StatelessWidget {
   final ValueChanged<int> onTabSelected;
 
   const SlideTabsBar({
-    Key? key,
+    super.key,
     required this.tabs,
     required this.selectedTab,
     required this.onTabSelected,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
