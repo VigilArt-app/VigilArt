@@ -1,4 +1,5 @@
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:vigilart/pages/dmca/dmca_page.dart';
 import 'package:vigilart/(api)/auth.dart';
 import 'package:vigilart/pages/profile/profile_header.dart';
 import 'package:vigilart/widgets/editable_from_field.dart';
@@ -19,7 +20,7 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   bool _isEditMode = false;
   bool _isLoading = true;
-  int _bottomNavIndex = 2;
+  int _bottomNavIndex = 3;
   final _formKey = GlobalKey<FormState>();
   
   final ApiService _apiService = ApiService(); 
@@ -66,21 +67,10 @@ class _ProfilePageState extends State<ProfilePage> {
     setState(() => _isLoading = true);
     try {
       final profile = await _apiService.fetchUserProfile();
-      
-      if (profile != null) {
-        String avatarDisplayUrl = 'assets/images/default_avatar.jpg'; 
-        final String? avatarKey = profile['avatar']?.toString(); 
 
-        if (avatarKey != null && avatarKey.isNotEmpty) {
-          if (avatarKey.startsWith('http')) {
-            avatarDisplayUrl = avatarKey;
-          } else if (avatarKey.startsWith('profiles/')) {
-            final String? downloadUrl = await _apiService.getAvatarDownloadUrl(avatarKey);
-            if (downloadUrl != null && downloadUrl.isNotEmpty) {
-              avatarDisplayUrl = downloadUrl;
-            }
-          }
-        }
+      if (profile != null) {
+        final String? avatarKey = profile['avatar']?.toString();
+        final avatarDisplayUrl = await _resolveAvatarDisplayUrl(avatarKey);
 
         if (mounted) {
           setState(() {
@@ -141,7 +131,7 @@ class _ProfilePageState extends State<ProfilePage> {
             await _apiService.secureStorage.write(key: ApiService.keyUserAvatar, value: storageKey);
 
             if (mounted) _showSnackBar('✓ Photo de profil mise à jour !', const Color(0xFF22C55E));
-            await _loadRemoteUserData(); 
+            await _loadRemoteUserData();
             return;
           }
         }
@@ -153,6 +143,21 @@ class _ProfilePageState extends State<ProfilePage> {
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
+  }
+
+  Future<String> _resolveAvatarDisplayUrl(String? avatarKey) async {
+    String avatarDisplayUrl = 'assets/images/default_avatar.jpg';
+    if (avatarKey != null && avatarKey.isNotEmpty) {
+      if (avatarKey.startsWith('http')) {
+        avatarDisplayUrl = avatarKey;
+      } else if (avatarKey.startsWith('profiles/')) {
+        final String? downloadUrl = await _apiService.getAvatarDownloadUrl(avatarKey);
+        if (downloadUrl != null && downloadUrl.isNotEmpty) {
+          avatarDisplayUrl = downloadUrl;
+        }
+      }
+    }
+    return avatarDisplayUrl;
   }
 
   void _handleEditToggle() async {
@@ -226,12 +231,22 @@ class _ProfilePageState extends State<ProfilePage> {
     setState(() => _bottomNavIndex = index);
     
     switch (index) {
-      case 0: Navigator.pushReplacementNamed(context, '/gallery'); break;
-      case 1: Navigator.pushReplacementNamed(context, '/dashboard'); break;
-      case 2: break;
+      case 0: 
+        Navigator.pushReplacementNamed(context, '/gallery'); 
+        break;
+      case 1: 
+        Navigator.pushReplacementNamed(context, '/dashboard'); 
+        break;
+      case 2: 
+        Navigator.push(
+          context, 
+          MaterialPageRoute(builder: (context) => const DmcaPage(artworkPrefill: {}))
+        );
+        break;
+      case 3: 
+        break;
     }
   }
-
   void _showSnackBar(String message, Color color) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(message), backgroundColor: color, duration: const Duration(seconds: 2))

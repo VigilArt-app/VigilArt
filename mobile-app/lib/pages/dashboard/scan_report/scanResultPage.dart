@@ -115,39 +115,44 @@ class _ScanResultsPageState extends State<ScanResultsPage> {
       }
     } catch (e) {
       if (mounted) {
-        String serverMessage = 'An error occurred.';
-        String title = 'Error';
-
-        try {
-          String errorString = e.toString();
-          int jsonStartIndex = errorString.indexOf('{');
-          
-          if (jsonStartIndex != -1) {
-            String jsonPart = errorString.substring(jsonStartIndex);
-            final Map<String, dynamic> errorJson = jsonDecode(jsonPart);
-            
-            if (errorJson.containsKey('message')) {
-              var msg = errorJson['message'];
-              serverMessage = msg is List ? msg.join('\n') : msg.toString();
-            }
-          } else {
-            serverMessage = errorString.replaceAll('Exception:', '').trim();
-          }
-        } catch (_) {
-          serverMessage = e.toString().replaceAll('Exception:', '').trim();
-        }
-
-        if (serverMessage.toLowerCase().contains('unauthorized')) {
-          title = 'Authentication Error';
-        } else if (serverMessage.toLowerCase().contains('30 days')) {
-          title = 'Scan Limit';
-        }
-
-        _showErrorDialog(title, serverMessage);
+        final parsed = _extractServerErrorMessage(e);
+        _showErrorDialog(parsed['title']!, parsed['message']!);
       }
     } finally {
       if (mounted) setState(() => _isScanning = false);
     }
+  }
+
+  Map<String, String> _extractServerErrorMessage(Object e) {
+    String serverMessage = 'An error occurred.';
+    String title = 'Error';
+
+    try {
+      String errorString = e.toString();
+      int jsonStartIndex = errorString.indexOf('{');
+
+      if (jsonStartIndex != -1) {
+        String jsonPart = errorString.substring(jsonStartIndex);
+        final Map<String, dynamic> errorJson = jsonDecode(jsonPart);
+
+        if (errorJson.containsKey('message')) {
+          var msg = errorJson['message'];
+          serverMessage = msg is List ? msg.join('\n') : msg.toString();
+        }
+      } else {
+        serverMessage = errorString.replaceAll('Exception:', '').trim();
+      }
+    } catch (_) {
+      serverMessage = e.toString().replaceAll('Exception:', '').trim();
+    }
+
+    if (serverMessage.toLowerCase().contains('unauthorized')) {
+      title = 'Authentication Error';
+    } else if (serverMessage.toLowerCase().contains('30 days')) {
+      title = 'Scan Limit';
+    }
+
+    return {'title': title, 'message': serverMessage};
   }
 
   List<Map<String, dynamic>> get _filteredResults {

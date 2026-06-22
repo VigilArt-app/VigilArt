@@ -37,8 +37,12 @@ class _GalleryPageState extends State<GalleryPage> {
 
   Future<void> _loadUserAvatar() async {
     final avatarKey = await _apiService.secureStorage.read(key: ApiService.keyUserAvatar);
-    String finalAvatarUrl = 'assets/images/default_avatar.jpg';
+    final finalAvatarUrl = await _determineAvatarUrl(avatarKey);
+    if (mounted) setState(() => _userAvatarUrl = finalAvatarUrl);
+  }
 
+  Future<String> _determineAvatarUrl(String? avatarKey) async {
+    String finalAvatarUrl = 'assets/images/default_avatar.jpg';
     if (avatarKey != null && avatarKey.isNotEmpty && avatarKey != 'null') {
       if (avatarKey.startsWith('http')) {
         finalAvatarUrl = avatarKey;
@@ -55,8 +59,7 @@ class _GalleryPageState extends State<GalleryPage> {
         finalAvatarUrl = avatarKey;
       }
     }
-
-    if (mounted) setState(() => _userAvatarUrl = finalAvatarUrl);
+    return finalAvatarUrl;
   }
 
   Future<void> _loadArtworks() async {

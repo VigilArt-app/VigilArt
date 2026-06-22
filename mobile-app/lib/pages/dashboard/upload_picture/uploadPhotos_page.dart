@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'dart:async';
@@ -338,13 +340,8 @@ class _UploadPhotosPageState extends State<UploadPhotosPage> {
         if (success) {
           final fileObj = File(file['path']);
           final fileBytes = await fileObj.readAsBytes();
-          
-          final Completer<ui.Image> completer = Completer();
-          ui.decodeImageFromList(fileBytes, (ui.Image img) {
-            completer.complete(img);
-          });
-          final ui.Image decodedImage = await completer.future;
-          
+          final decodedImage = await _decodeImageFromBytes(fileBytes);
+
           artworksToCreate.add({
             'userId': userId,
             'originalFilename': file['name'],
@@ -352,7 +349,7 @@ class _UploadPhotosPageState extends State<UploadPhotosPage> {
             'contentType': apiService.getContentType(file['path']),
             'sizeBytes': fileBytes.length,
             'description': file['description'],
-            'width': decodedImage.width, 
+            'width': decodedImage.width,
             'height': decodedImage.height,
           });
 
@@ -381,6 +378,14 @@ class _UploadPhotosPageState extends State<UploadPhotosPage> {
     } finally {
       if (mounted) setState(() => _isUploading = false);
     }
+  }
+
+  Future<ui.Image> _decodeImageFromBytes(Uint8List bytes) async {
+    final Completer<ui.Image> completer = Completer();
+    ui.decodeImageFromList(bytes, (ui.Image img) {
+      completer.complete(img);
+    });
+    return completer.future;
   }
 
 }
