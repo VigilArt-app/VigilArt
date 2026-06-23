@@ -35,6 +35,8 @@ class _StatisticsPageState extends State<StatisticsPage> {
             _isLoading = false;
           });
         }
+      } else {
+        if (mounted) setState(() => _isLoading = false);
       }
     } catch (e) {
       if (mounted) setState(() => _isLoading = false);

@@ -35,7 +35,7 @@ class GrowthLineChart extends StatelessWidget {
         lineBarsData: [
           LineChartBarData(
             spots: data.asMap().entries.map((entry) {
-              return FlSpot(entry.key.toDouble(), entry.value as double);
+              return FlSpot(entry.key.toDouble(), entry.value.value);
             }).toList(),
             isCurved: true,
             color: const Color(0xFF5E3B7D),

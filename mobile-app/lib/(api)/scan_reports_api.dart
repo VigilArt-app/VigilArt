@@ -12,6 +12,7 @@ extension ScanReportsApi on ApiService {
       if (artworks == null) return null;
 
       final reports = await _fetchUserReports(userId);
+      if (reports == null) return null;
 
       final allMatchingPages = await _fetchAllMatchingPages(reports);
 
@@ -91,9 +92,9 @@ extension ScanReportsApi on ApiService {
     return artworksData['data'] ?? artworksData;
   }
 
-  Future<List<dynamic>> _fetchUserReports(String userId) async {
+  Future<List<dynamic>?> _fetchUserReports(String userId) async {
     final reportsRes = await authenticatedRequest((headers) => http.get(Uri.parse('$serverUrl/reports/user/$userId'), headers: headers));
-    if (reportsRes.statusCode != 200) return [];
+    if (reportsRes.statusCode != 200) return null;
     final reportsData = jsonDecode(reportsRes.body);
     return reportsData['data'] ?? [];
   }

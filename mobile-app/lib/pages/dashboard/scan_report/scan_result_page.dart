@@ -91,7 +91,8 @@ class _ScanResultsPageState extends State<ScanResultsPage> {
 
     try {
       final reportData = await apiService.triggerManualScan();
-      
+
+      if (!mounted) return;
       await _fetchData();
 
       if (mounted) {

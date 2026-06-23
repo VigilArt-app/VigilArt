@@ -24,7 +24,6 @@ class _DragDropUploadZoneState extends State<DragDropUploadZone> {
     try {
       FilePickerResult? result = await FilePicker.pickFiles(
         type: FileType.image,
-        allowMultiple: true,
       );
 
       if (result != null) {

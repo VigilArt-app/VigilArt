@@ -102,7 +102,7 @@ class DmcaProfileStep extends StatelessWidget {
 class DmcaPreparationStep extends StatelessWidget {
   final dynamic platform;
   final List<dynamic> allPlatforms;
-  final GlobalKey<FormState> formKey; //
+  final GlobalKey<FormState> formKey;
   final Map<String, dynamic> formPayload;
   final List<String> detectedUrls;
   final Map<String, dynamic> artworkPrefill;

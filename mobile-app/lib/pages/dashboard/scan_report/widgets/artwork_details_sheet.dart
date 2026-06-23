@@ -116,7 +116,9 @@ class ArtworkDetailsSheet extends StatelessWidget {
                             SizedBox(
                               width: double.infinity,
                               child: FilledButton.icon(
-                                onPressed: () => _openLink(context, match['url']),
+                                onPressed: match['url'] != null
+                                    ? () => _openLink(context, match['url'] as String)
+                                    : null,
                                 style: FilledButton.styleFrom(
                                   backgroundColor: const Color(0xFF5E3B7D),
                                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
