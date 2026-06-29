@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'auth.dart'; 
 
@@ -33,7 +34,7 @@ extension ArtworkUpload on ApiService {
       }
       return null;
     } catch (e) {
-      print('Network error getting URLs: $e');
+      debugPrint('Network error getting URLs: $e');
       return null;
     }
   }
@@ -47,19 +48,21 @@ extension ArtworkUpload on ApiService {
     try {
       final file = File(filePath);
       final fileBytes = await file.readAsBytes();
-      
+
       final response = await http.put(
         Uri.parse(presignedUrl),
         body: fileBytes,
-        headers: {'Content-Type': contentType}, 
+        headers: {'Content-Type': contentType},
       );
-      
+
       if (response.statusCode == 200) {
         onProgress(1.0);
         return true;
       }
+      debugPrint('Upload failed: ${response.statusCode}');
       return false;
     } catch (e) {
+      debugPrint('uploadFileToCloud error: $e');
       return false;
     }
   }
@@ -76,7 +79,6 @@ extension ArtworkUpload on ApiService {
       );
       return response.statusCode == 200 || response.statusCode == 201;
     } catch (e) {
-      print('Error creating artwork records: $e');
       return false;
     }
   }

@@ -9,12 +9,12 @@ class ArtworkGalleryDetailsSheet extends StatelessWidget {
   final VoidCallback onViewReports;
 
   const ArtworkGalleryDetailsSheet({
-    Key? key,
+    super.key,
     required this.artwork,
     required this.onDelete,
     required this.onDmcaTap,
     required this.onViewReports,
-  }) : super(key: key);
+  });
 
   String _formatBytes(int? bytes) {
     if (bytes == null || bytes == 0) return 'Unknown size';
@@ -131,9 +131,9 @@ class ArtworkGalleryDetailsSheet extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
-                      color: _getStatusColor(status).withOpacity(0.1),
+                      color: _getStatusColor(status).withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: _getStatusColor(status).withOpacity(0.3)),
+                      border: Border.all(color: _getStatusColor(status).withValues(alpha: 0.3)),
                     ),
                     child: Text(
                       status.toUpperCase(),
@@ -192,7 +192,7 @@ class ArtworkGalleryDetailsSheet extends StatelessWidget {
                           ),
                         ),
                       ),
-                    )).toList(),
+                    )),
 
                   const SizedBox(height: 40),
                 ],
@@ -204,7 +204,7 @@ class ArtworkGalleryDetailsSheet extends StatelessWidget {
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: Colors.white,
-              boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, -5))],
+              boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, -5))],
             ),
             child: Row(
               children: [

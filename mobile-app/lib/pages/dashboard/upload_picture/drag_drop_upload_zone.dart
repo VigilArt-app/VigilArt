@@ -7,10 +7,10 @@ class DragDropUploadZone extends StatefulWidget {
   final List<String> acceptedFormats;
 
   const DragDropUploadZone({
-    Key? key,
+    super.key,
     required this.onFilesSelected,
     this.acceptedFormats = const ['JPEG', 'PNG'],
-  }) : super(key: key);
+  });
 
   @override
   State<DragDropUploadZone> createState() => _DragDropUploadZoneState();
@@ -24,7 +24,6 @@ class _DragDropUploadZoneState extends State<DragDropUploadZone> {
     try {
       FilePickerResult? result = await FilePicker.pickFiles(
         type: FileType.image,
-        allowMultiple: true,
       );
 
       if (result != null) {
@@ -33,7 +32,7 @@ class _DragDropUploadZoneState extends State<DragDropUploadZone> {
         widget.onFilesSelected(filePaths);
       }
     } catch (e) {
-      print('Error picking files: $e');
+      debugPrint('Error picking files: $e');
     }
   }
 
@@ -47,7 +46,7 @@ class _DragDropUploadZoneState extends State<DragDropUploadZone> {
         widget.onFilesSelected([photo.path]);
       }
     } catch (e) {
-      print('Error picking from camera: $e');
+      debugPrint('Error picking from camera: $e');
     }
   }
 
@@ -71,7 +70,7 @@ class _DragDropUploadZoneState extends State<DragDropUploadZone> {
             ),
             borderRadius: BorderRadius.circular(16),
             color: _isDragging
-                ? const Color(0xFF5E3B7D).withOpacity(0.05)
+                ? const Color(0xFF5E3B7D).withValues(alpha: 0.05)
                 : Colors.grey[50],
           ),
           child: Column(

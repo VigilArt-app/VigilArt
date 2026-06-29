@@ -1,16 +1,16 @@
-import 'package:vigilart/pages/dashboard/scan_report/scanResultPage.dart';
+import 'package:vigilart/pages/dashboard/scan_report/scan_result_page.dart';
 import 'package:vigilart/pages/dashboard/statistics/statistics_page.dart';
-import 'package:vigilart/pages/dashboard/upload_picture/uploadPhotos_page.dart';
+import 'package:vigilart/pages/dashboard/upload_picture/upload_photos_page.dart';
 import 'package:flutter/material.dart';
 import 'package:vigilart/widgets/header_bar.dart';
-import 'package:vigilart/widgets/slideMenuBar.dart';
-import 'package:vigilart/widgets/slideTabsBar.dart';
+import 'package:vigilart/widgets/slide_menu_bar.dart';
+import 'package:vigilart/widgets/slide_tabs_bar.dart';
 import '../../(api)/auth.dart';
 import '../../(api)/user.dart';
 import 'package:vigilart/pages/dmca/dmca_page.dart'; 
 
 class DashboardPage extends StatefulWidget {
-  const DashboardPage({Key? key}) : super(key: key);
+  const DashboardPage({super.key});
   
   @override
   State<DashboardPage> createState() => _DashboardPageState();
@@ -18,7 +18,7 @@ class DashboardPage extends StatefulWidget {
 
 class _DashboardPageState extends State<DashboardPage> {
   int _selectedTabIndex = 1;
-  int _bottomNavIndex = 1;
+  final int _bottomNavIndex = 1;
 
   String _userAvatarUrl = 'assets/images/default_avatar.jpg';
 

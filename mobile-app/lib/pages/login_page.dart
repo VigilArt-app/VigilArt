@@ -9,7 +9,7 @@ import '../(api)/auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginPage extends StatefulWidget {
-  const LoginPage({Key? key}) : super(key: key);
+  const LoginPage({super.key});
 
   @override
   State<LoginPage> createState() => _LoginPageState();
@@ -40,12 +40,14 @@ class _LoginPageState extends State<LoginPage> {
         if (response.statusCode == 200) {
           final prefs = await SharedPreferences.getInstance();
           await prefs.setBool('isLoggedIn', true);
+          if (!mounted) return;
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => const DashboardPage()),
           );
 
         } else {
+          if (!mounted) return;
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Login failed with status: ${response.statusCode}'),
@@ -54,6 +56,7 @@ class _LoginPageState extends State<LoginPage> {
           );
         }
       } catch (e) {
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error occurred: $e'),
@@ -72,7 +75,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void _handleGoogleSignIn() {
-    print('Google Sign-In pressed');
+    debugPrint('Google Sign-In pressed');
   }
 
   @override

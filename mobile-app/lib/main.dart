@@ -1,5 +1,5 @@
 import 'package:vigilart/pages/dashboard/dashboard.dart';
-import 'package:vigilart/pages/dashboard/upload_picture/uploadPhotos_page.dart';
+import 'package:vigilart/pages/dashboard/upload_picture/upload_photos_page.dart';
 import 'package:vigilart/pages/gallery/gallery_page.dart';
 import 'package:vigilart/pages/profile/profile_page.dart';
 import 'package:vigilart/(api)/auth.dart';
@@ -53,7 +53,7 @@ Future<bool> checkLoginStatus() async {
 
 class VigilArtApp extends StatelessWidget {
   final bool isLoggedIn;
-  const VigilArtApp({Key? key, required this.isLoggedIn}) : super(key: key);
+  const VigilArtApp({super.key, required this.isLoggedIn});
 
   @override
   Widget build(BuildContext context) {

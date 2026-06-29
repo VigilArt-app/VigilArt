@@ -7,7 +7,7 @@ import '../(api)/auth.dart';
 import 'login_page.dart';
 
 class SignupPage extends StatefulWidget {
-  const SignupPage({Key? key}) : super(key: key);
+  const SignupPage({super.key});
 
   @override
   State<SignupPage> createState() => _SignupPageState();
@@ -63,22 +63,10 @@ class _SignupPageState extends State<SignupPage> {
             );
           }
         } else {
-          String errorMessage = 'Signup failed. Please try again.';
-          
-          if (response.statusCode == 409) {
-            errorMessage = 'An account with this email address already exists.';
-          } else if (response.statusCode == 400) {
-            errorMessage = 'Invalid information provided. Please check your details.';
-          } else if (response.statusCode >= 500) {
-            errorMessage = 'Server error. Please try again later.';
-          }
-
+          final errorMessage = _parseSignupError(response.statusCode);
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(errorMessage),
-                backgroundColor: Colors.red,
-              ),
+              SnackBar(content: Text(errorMessage), backgroundColor: Colors.red),
             );
           }
         }
@@ -86,14 +74,18 @@ class _SignupPageState extends State<SignupPage> {
         debugPrint('Signup Exception: $e');
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('A network error occurred. Please check your connection.'),
-              backgroundColor: Colors.red,
-            ),
+            const SnackBar(content: Text('A network error occurred. Please check your connection.'), backgroundColor: Colors.red),
           );
         }
       }
     }
+  }
+
+  String _parseSignupError(int statusCode) {
+    if (statusCode == 409) return 'An account with this email address already exists.';
+    if (statusCode == 400) return 'Invalid information provided. Please check your details.';
+    if (statusCode >= 500) return 'Server error. Please try again later.';
+    return 'Signup failed. Please try again.';
   }
 
   void _handleLogin() {
