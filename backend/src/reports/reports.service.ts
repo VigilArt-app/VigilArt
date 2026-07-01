@@ -136,6 +136,17 @@ export class ReportsService {
       return result.value;
     });
 
+    // If EVERY artwork failed, the scan never actually ran — fail the job so
+    // the user sees an error, instead of saving a misleading "0 detections".
+    if (
+      artworks.length > 0 &&
+      settled.every((result) => result.status === "rejected")
+    ) {
+      throw new ServiceUnavailableException(
+        "Scan failed: the visual search provider did not respond in time. Please try again."
+      );
+    }
+
     const foundMatchesIds: string[] = [];
     for (
       let i = 0;

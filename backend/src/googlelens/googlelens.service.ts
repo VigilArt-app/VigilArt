@@ -40,8 +40,8 @@ export class GoogleLensService {
           format: "raw"
         },
         // Google Lens is the only visual-search provider, so give BrightData
-        // generous headroom — its Lens scrapes can legitimately exceed 30s.
-        { headers, timeout: 60000 }
+        // generous headroom — measured Lens scrapes run ~40s+ and vary.
+        { headers, timeout: 120000 }
       )
     );
     if (!data || !data.exact_matches) {
