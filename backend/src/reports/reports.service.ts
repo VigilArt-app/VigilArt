@@ -8,7 +8,6 @@ import { CACHE_MANAGER } from "@nestjs/cache-manager";
 import type { Cache } from "cache-manager";
 import { VisionService } from "../vision/vision.service";
 import {
-  VisualSearchResult,
   ArtworksReport,
   Artwork,
   ArtworksReportGet,
@@ -50,19 +49,24 @@ export class ReportsService {
     imageBuffer: Buffer,
     imageDownloadUrl: string
   ): Promise<MatchingPageGet[]> {
-    const visualSearchResults = await Promise.all([
+    const settledResults = await Promise.allSettled([
       this.visionService.searchImage(imageBuffer),
       this.googleLensService.searchImage(imageDownloadUrl)
     ]);
-    const matchingPages = visualSearchResults.reduce<MatchingPageGet[]>(
-      (acc: MatchingPageGet[], value: VisualSearchResult | null) => {
-        if (value) {
-          acc.push(...value.matchingPages);
-        }
-        return acc;
-      },
-      []
-    );
+    const providers = ["vision", "googleLens"] as const;
+    const matchingPages: MatchingPageGet[] = [];
+    settledResults.forEach((result, index) => {
+      if (result.status === "rejected") {
+        this.logger.error(
+          `Visual search provider "${providers[index]}" failed`,
+          result.reason
+        );
+        return;
+      }
+      if (result.value) {
+        matchingPages.push(...result.value.matchingPages);
+      }
+    });
     return matchingPages;
   }
 
