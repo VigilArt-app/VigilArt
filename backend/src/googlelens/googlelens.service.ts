@@ -14,6 +14,7 @@ import {
 export class GoogleLensService {
   private readonly apiKey: string;
   private readonly zone: string;
+  private readonly timeoutMs: number;
 
   constructor(
     private readonly httpService: HttpService,
@@ -21,6 +22,10 @@ export class GoogleLensService {
   ) {
     this.apiKey = config.getOrThrow<string>("GOOGLE_LENS_API_KEY");
     this.zone = config.getOrThrow<string>("BRIGHTDATA_SERP_API_ZONE");
+    // Tunable via Doppler without a code change; BrightData Lens scrapes can
+    // legitimately take longer than the old 30s. Kept bounded so a truly hung
+    // call can't wedge a job forever.
+    this.timeoutMs = Number(config.get("GOOGLE_LENS_TIMEOUT_MS")) || 60000;
   }
 
   async getGoogleLensExactMatches(
@@ -39,7 +44,7 @@ export class GoogleLensService {
           url: `https://lens.google.com/uploadbyurl?url=${url}&brd_lens=exact_matches`,
           format: "raw"
         },
-        { headers, timeout: 30000 }
+        { headers, timeout: this.timeoutMs }
       )
     );
     if (!data || !data.exact_matches) {
