@@ -61,11 +61,9 @@ export class ReportsService {
   private readonly logger = new Logger(ReportsService.name);
 
   async aggregateVisualSearchResults(
-    // imageBuffer: Buffer,
     imageDownloadUrl: string
   ): Promise<MatchingPageGet[]> {
     const settledResults = await Promise.allSettled([
-      // this.visionService.searchImage(imageBuffer),
       this.googleLensService.searchImage(imageDownloadUrl)
     ]);
     const providers = ["googleLens"] as const;
@@ -91,12 +89,10 @@ export class ReportsService {
   }
 
   async findArtworkMatches(artwork: Artwork): Promise<MatchingPageCreateMany> {
-    // const imageBuffer = await this.storageService.getImage(artwork.storageKey);
     const imageDownloadUrl = await this.storageService.getDownloadUrl(
       artwork.storageKey
     );
     const matchingPages = await this.aggregateVisualSearchResults(
-      // imageBuffer,
       imageDownloadUrl
     );
     const matchingPagesData = matchingPages.map((match) => ({
@@ -119,16 +115,26 @@ export class ReportsService {
     let processed = 0;
     this.emitProgress(job, processed, total);
 
-    const allMatches = await Promise.all(
+    // Isolate per-artwork failures: one artwork's provider error (e.g. a Lens
+    // timeout) must not discard the matches already found for the others.
+    const settled = await Promise.allSettled(
       artworks.map((artwork) =>
-        this.findArtworkMatches(artwork).then((matches) => {
+        this.findArtworkMatches(artwork).finally(() => {
           processed += 1;
           this.emitProgress(job, processed, total);
-          return matches;
         })
       )
     );
-    const matchingPagesData = allMatches.flat();
+    const matchingPagesData = settled.flatMap((result, index) => {
+      if (result.status === "rejected") {
+        this.logger.error(
+          `Scan failed for artwork ${artworks[index].id}`,
+          result.reason
+        );
+        return [];
+      }
+      return result.value;
+    });
 
     const foundMatchesIds: string[] = [];
     for (

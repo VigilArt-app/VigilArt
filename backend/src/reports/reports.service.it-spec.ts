@@ -194,6 +194,19 @@ describe("ReportsService", () => {
       expect(report).toEqual({ id: "report-1" });
     });
 
+    it("Should still complete the scan when one artwork's search fails", async () => {
+      mockScanSuccess();
+      // Two artworks; the first one's Lens call fails, the second succeeds.
+      googleLensService.searchImage
+        .mockReset()
+        .mockRejectedValueOnce(new Error("lens timeout"))
+        .mockResolvedValueOnce({ matchingPages: [] });
+
+      const report = await service.generate("user-id");
+
+      expect(report).toEqual({ id: "report-1" });
+    });
+
     it("Should not create a report when over quota", async () => {
       prisma.artworksReport.count.mockResolvedValue(MAX_SCANS_PER_WINDOW);
 
