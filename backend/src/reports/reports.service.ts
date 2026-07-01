@@ -2,7 +2,8 @@ import {
   ForbiddenException,
   Inject,
   Injectable,
-  Logger
+  Logger,
+  ServiceUnavailableException
 } from "@nestjs/common";
 import { CACHE_MANAGER } from "@nestjs/cache-manager";
 import type { Cache } from "cache-manager";
@@ -24,6 +25,10 @@ import { PrismaService } from "../prisma/prisma.service";
 import { MatchingPagesService } from "./matchingPage.service";
 import { GoogleLensService } from "../googlelens/googlelens.service";
 import { assertResourceOwnership } from "../common/utils/ownership";
+import {
+  MAX_SCANS_PER_WINDOW,
+  SCAN_WINDOW_DAYS
+} from "./reports.constants";
 
 const REPORTS_STATS_TTL = 30 * 24 * 60 * 60 * 1000;
 
@@ -67,6 +72,11 @@ export class ReportsService {
         matchingPages.push(...result.value.matchingPages);
       }
     });
+    if (settledResults.every((result) => result.status === "rejected")) {
+      throw new ServiceUnavailableException(
+        "Visual search providers are currently unavailable. Please try again later."
+      );
+    }
     return matchingPages;
   }
 
@@ -109,23 +119,27 @@ export class ReportsService {
     return foundMatchesIds;
   }
 
-  async checkLastScan(userId: string) {
-    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
-    const recentArtwork = await this.prisma.artwork.findFirst({
+  async checkScanQuota(userId: string) {
+    const windowStart = new Date(
+      Date.now() - SCAN_WINDOW_DAYS * 24 * 60 * 60 * 1000
+    );
+    const scansInWindow = await this.prisma.artworksReport.count({
       where: {
         userId,
-        lastScanAt: {
-          gt: thirtyDaysAgo
+        detectionDate: {
+          gt: windowStart
         }
       }
     });
 
-    if (recentArtwork)
-      throw new ForbiddenException("One or more artworks were scanned less than 30 days ago. Please wait before generating a new report.");
+    if (scansInWindow >= MAX_SCANS_PER_WINDOW)
+      throw new ForbiddenException(
+        `You have reached the maximum of ${MAX_SCANS_PER_WINDOW} scans per ${SCAN_WINDOW_DAYS} days. Please wait before generating a new report.`
+      );
   }
 
   async generate(userId: string): Promise<ArtworksReport> {
-    await this.checkLastScan(userId);
+    await this.checkScanQuota(userId);
     this.logger.log(`Generate new report for user ${userId}`);
 
     const matchingPagesIds = await this.findArtworksMatches(userId);
