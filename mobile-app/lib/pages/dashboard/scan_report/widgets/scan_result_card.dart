@@ -4,7 +4,7 @@ class ScanResultCard extends StatelessWidget {
   final Map<String, dynamic> result;
   final VoidCallback onTap;
 
-  const ScanResultCard({Key? key, required this.result, required this.onTap}) : super(key: key);
+  const ScanResultCard({super.key, required this.result, required this.onTap});
 
   Color _getBadgeColor(int matches) {
     if (matches == 0) return Colors.grey;
@@ -59,7 +59,7 @@ class ScanResultCard extends StatelessWidget {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                           decoration: BoxDecoration(
-                            color: _getBadgeColor(matches).withOpacity(0.1),
+                            color: _getBadgeColor(matches).withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: Text(

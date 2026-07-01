@@ -5,13 +5,13 @@ import 'package:vigilart/pages/dmca/dmca_page.dart';
 import 'package:vigilart/pages/gallery/gallery_image_card.dart';
 import 'package:vigilart/pages/gallery/gallery_tab_selector.dart';
 import 'package:vigilart/widgets/header_bar.dart';
-import 'package:vigilart/widgets/slideMenuBar.dart';
+import 'package:vigilart/widgets/slide_menu_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:vigilart/pages/gallery/widgets/artwork_gallery_details_sheet.dart';
 
 class GalleryPage extends StatefulWidget {
-  const GalleryPage({Key? key}) : super(key: key);
+  const GalleryPage({super.key});
 
   @override
   State<GalleryPage> createState() => _GalleryPageState();
@@ -37,8 +37,12 @@ class _GalleryPageState extends State<GalleryPage> {
 
   Future<void> _loadUserAvatar() async {
     final avatarKey = await _apiService.secureStorage.read(key: ApiService.keyUserAvatar);
-    String finalAvatarUrl = 'assets/images/default_avatar.jpg';
+    final finalAvatarUrl = await _determineAvatarUrl(avatarKey);
+    if (mounted) setState(() => _userAvatarUrl = finalAvatarUrl);
+  }
 
+  Future<String> _determineAvatarUrl(String? avatarKey) async {
+    String finalAvatarUrl = 'assets/images/default_avatar.jpg';
     if (avatarKey != null && avatarKey.isNotEmpty && avatarKey != 'null') {
       if (avatarKey.startsWith('http')) {
         finalAvatarUrl = avatarKey;
@@ -55,8 +59,7 @@ class _GalleryPageState extends State<GalleryPage> {
         finalAvatarUrl = avatarKey;
       }
     }
-
-    if (mounted) setState(() => _userAvatarUrl = finalAvatarUrl);
+    return finalAvatarUrl;
   }
 
   Future<void> _loadArtworks() async {
@@ -105,16 +108,16 @@ class _GalleryPageState extends State<GalleryPage> {
                 TextButton(
                   onPressed: isDeleting ? null : () async {
                     setStateDialog(() => isDeleting = true);
+                    // Capture navigator and scaffold instances before async gap.
+                    final localNavigator = Navigator.of(context);
+                    final localScaffold = ScaffoldMessenger.of(context);
                     final success = await _apiService.deleteArtwork(id);
-                    
-                    if (mounted) {
-                      Navigator.pop(context);
-                      if (success) {
-                        setState(() => _allArtworks.removeWhere((img) => img['id'] == id));
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Artwork deleted'), backgroundColor: Colors.green),
-                        );
-                      }
+
+                    // Use captured references to avoid using BuildContext across await.
+                    localNavigator.pop();
+                    if (success) {
+                      if (mounted) setState(() => _allArtworks.removeWhere((img) => img['id'] == id));
+                      localScaffold.showSnackBar(const SnackBar(content: Text('Artwork deleted'), backgroundColor: Colors.green));
                     }
                   },
                   child: isDeleting 

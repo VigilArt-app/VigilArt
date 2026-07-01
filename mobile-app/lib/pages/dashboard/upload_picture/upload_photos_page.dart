@@ -1,11 +1,13 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'dart:async';
 import 'dart:ui' as ui;
 import '../../../(api)/auth.dart';
 import '../../../(api)/upload_artworks_api.dart'; 
-import 'package:vigilart/pages/dashboard/upload_picture/dragDropUploadZone.dart';
-import 'package:vigilart/pages/dashboard/upload_picture/fileUploadCard.dart';
+import 'package:vigilart/pages/dashboard/upload_picture/drag_drop_upload_zone.dart';
+import 'package:vigilart/pages/dashboard/upload_picture/file_upload_card.dart';
 
 class UploadPhotosPage extends StatefulWidget {
   const UploadPhotosPage({super.key});
@@ -15,8 +17,8 @@ class UploadPhotosPage extends StatefulWidget {
 }
 
 class _UploadPhotosPageState extends State<UploadPhotosPage> {
-  List<Map<String, dynamic>> _uploadingFiles = [];
-  List<Map<String, dynamic>> _uploadedFiles = [];
+  final List<Map<String, dynamic>> _uploadingFiles = [];
+  final List<Map<String, dynamic>> _uploadedFiles = [];
   bool _isUploading = false;
 
   final ApiService apiService = ApiService();
@@ -102,7 +104,7 @@ class _UploadPhotosPageState extends State<UploadPhotosPage> {
                       borderRadius: BorderRadius.circular(20),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.03),
+                          color: Colors.black.withValues(alpha: 0.03),
                           blurRadius: 20,
                           offset: const Offset(0, 4),
                         ),
@@ -157,7 +159,7 @@ class _UploadPhotosPageState extends State<UploadPhotosPage> {
                       ),
                     ),
                   );
-                }).toList(),
+                }),
               ],
 
               if (_uploadedFiles.isNotEmpty) ...[
@@ -178,10 +180,10 @@ class _UploadPhotosPageState extends State<UploadPhotosPage> {
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: Colors.green.withOpacity(0.3), width: 1),
+                      border: Border.all(color: Colors.green.withValues(alpha: 0.3), width: 1),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.green.withOpacity(0.02),
+                          color: Colors.green.withValues(alpha: 0.02),
                           blurRadius: 10,
                           offset: const Offset(0, 2),
                         ),
@@ -200,7 +202,7 @@ class _UploadPhotosPageState extends State<UploadPhotosPage> {
                       ),
                     ),
                   );
-                }).toList(),
+                }),
                 const SizedBox(height: 24),
               ],
 
@@ -222,7 +224,7 @@ class _UploadPhotosPageState extends State<UploadPhotosPage> {
                         borderRadius: BorderRadius.circular(16),
                       ),
                       elevation: _isUploading ? 0 : 4,
-                      shadowColor: const Color(0xFF5E3B7D).withOpacity(0.4),
+                      shadowColor: const Color(0xFF5E3B7D).withValues(alpha: 0.4),
                     ),
                     child: _isUploading
                         ? Row(
@@ -338,13 +340,8 @@ class _UploadPhotosPageState extends State<UploadPhotosPage> {
         if (success) {
           final fileObj = File(file['path']);
           final fileBytes = await fileObj.readAsBytes();
-          
-          final Completer<ui.Image> completer = Completer();
-          ui.decodeImageFromList(fileBytes, (ui.Image img) {
-            completer.complete(img);
-          });
-          final ui.Image decodedImage = await completer.future;
-          
+          final decodedImage = await _decodeImageFromBytes(fileBytes);
+
           artworksToCreate.add({
             'userId': userId,
             'originalFilename': file['name'],
@@ -352,7 +349,7 @@ class _UploadPhotosPageState extends State<UploadPhotosPage> {
             'contentType': apiService.getContentType(file['path']),
             'sizeBytes': fileBytes.length,
             'description': file['description'],
-            'width': decodedImage.width, 
+            'width': decodedImage.width,
             'height': decodedImage.height,
           });
 
@@ -381,6 +378,14 @@ class _UploadPhotosPageState extends State<UploadPhotosPage> {
     } finally {
       if (mounted) setState(() => _isUploading = false);
     }
+  }
+
+  Future<ui.Image> _decodeImageFromBytes(Uint8List bytes) async {
+    final Completer<ui.Image> completer = Completer();
+    ui.decodeImageFromList(bytes, (ui.Image img) {
+      completer.complete(img);
+    });
+    return completer.future;
   }
 
 }
