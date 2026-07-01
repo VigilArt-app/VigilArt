@@ -3,10 +3,13 @@ import {
   Inject,
   Injectable,
   Logger,
+  NotFoundException,
   ServiceUnavailableException
 } from "@nestjs/common";
 import { CACHE_MANAGER } from "@nestjs/cache-manager";
 import type { Cache } from "cache-manager";
+import { InjectQueue } from "@nestjs/bullmq";
+import { Job, JobsOptions, Queue } from "bullmq";
 import { VisionService } from "../vision/vision.service";
 import {
   ArtworksReport,
@@ -17,7 +20,11 @@ import {
   MatchingPageGet,
   ApiBatchPayload,
   MATCHING_PAGE_CREATE_BATCH_MAX_SIZE,
-  MatchingPageCreateMany
+  MatchingPageCreateMany,
+  ScanEnqueued,
+  ScanStatus,
+  ScanProgress,
+  ScanJobState
 } from "@vigilart/shared";
 import { ArtworksService } from "../artworks/artworks.service";
 import { StorageService } from "../storage/storage.service";
@@ -27,7 +34,9 @@ import { GoogleLensService } from "../googlelens/googlelens.service";
 import { assertResourceOwnership } from "../common/utils/ownership";
 import {
   MAX_SCANS_PER_WINDOW,
-  SCAN_WINDOW_DAYS
+  SCAN_WINDOW_DAYS,
+  REPORTS_QUEUE,
+  GENERATE_REPORT_JOB
 } from "./reports.constants";
 
 const REPORTS_STATS_TTL = 30 * 24 * 60 * 60 * 1000;
@@ -45,7 +54,8 @@ export class ReportsService {
     private readonly storageService: StorageService,
     private readonly matchingPagesService: MatchingPagesService,
     private readonly prisma: PrismaService,
-    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
+    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
+    @InjectQueue(REPORTS_QUEUE) private readonly reportsQueue: Queue
   ) {}
 
   private readonly logger = new Logger(ReportsService.name);
@@ -97,11 +107,26 @@ export class ReportsService {
     return matchingPagesData;
   }
 
-  async findArtworksMatches(userId: string): Promise<string[]> {
+  // Progress reporting is best-effort: a transient Redis failure here must
+  // never reject and discard an otherwise-successful (already paid-for) scan.
+  private emitProgress(job: Job | undefined, processed: number, total: number) {
+    void job?.updateProgress({ processed, total }).catch(() => undefined);
+  }
+
+  async findArtworksMatches(userId: string, job?: Job): Promise<string[]> {
     const artworks = await this.artworksService.findAllPerUser(userId);
+    const total = artworks.length;
+    let processed = 0;
+    this.emitProgress(job, processed, total);
 
     const allMatches = await Promise.all(
-      artworks.map((artwork) => this.findArtworkMatches(artwork))
+      artworks.map((artwork) =>
+        this.findArtworkMatches(artwork).then((matches) => {
+          processed += 1;
+          this.emitProgress(job, processed, total);
+          return matches;
+        })
+      )
     );
     const matchingPagesData = allMatches.flat();
 
@@ -138,11 +163,11 @@ export class ReportsService {
       );
   }
 
-  async generate(userId: string): Promise<ArtworksReport> {
+  async generate(userId: string, job?: Job): Promise<ArtworksReport> {
     await this.checkScanQuota(userId);
     this.logger.log(`Generate new report for user ${userId}`);
 
-    const matchingPagesIds = await this.findArtworksMatches(userId);
+    const matchingPagesIds = await this.findArtworksMatches(userId, job);
     const report = await this.prisma.artworksReport.create({
       data: {
         userId,
@@ -158,6 +183,113 @@ export class ReportsService {
     });
     await this.cacheManager.del(REPORT_STATS_KEY(userId));
     return report;
+  }
+
+  private scanJobId(userId: string): string {
+    return `scan-${userId}`;
+  }
+
+  private isRunningState(state: string): boolean {
+    return (
+      state === "active" ||
+      state === "waiting" ||
+      state === "waiting-children" ||
+      state === "prioritized" ||
+      state === "delayed"
+    );
+  }
+
+  private mapJobState(state: string): ScanJobState {
+    switch (state) {
+      case "active":
+      case "completed":
+      case "failed":
+      case "delayed":
+        return state;
+      default:
+        return "waiting";
+    }
+  }
+
+  // Single-flight enqueue against the deterministic per-user job id. Any
+  // source (manual button, hourly scheduler) that targets the same user
+  // collapses onto the same job: a scan already in flight is reused, and a
+  // retained terminal job is cleared so a fresh scan can take its id. A
+  // crashed/stalled active job is left to BullMQ's own stalled-job recovery
+  // rather than being force-removed here.
+  private async enqueueScanJob(
+    userId: string,
+    options: JobsOptions
+  ): Promise<string> {
+    const jobId = this.scanJobId(userId);
+    const existing = await this.reportsQueue.getJob(jobId);
+    if (existing) {
+      const state = await existing.getState();
+      if (this.isRunningState(state)) {
+        return jobId;
+      }
+      // Terminal (completed/failed) job retained only so the status endpoint
+      // could read its result; clear it so the id can be reused.
+      await existing.remove().catch(() => undefined);
+    }
+
+    const job = await this.reportsQueue.add(
+      GENERATE_REPORT_JOB,
+      { userId },
+      { jobId, ...options }
+    );
+    return job.id ?? jobId;
+  }
+
+  // Enqueue an interactive async scan (fail fast, retain the finished job so
+  // the frontend can poll its result). Quota is checked up front for
+  // immediate feedback before a job is created.
+  async enqueueScan(userId: string): Promise<ScanEnqueued> {
+    await this.checkScanQuota(userId);
+    const jobId = await this.enqueueScanJob(userId, {
+      attempts: 1,
+      removeOnComplete: { age: 3600 },
+      removeOnFail: { age: 86400 }
+    });
+    return { jobId };
+  }
+
+  // Enqueue an auto-scan from the scheduler: retry-friendly and self-cleaning.
+  // Shares the deterministic id with manual scans so a user is never scanned
+  // twice concurrently. Quota is enforced later inside generate().
+  async enqueueScheduledScan(userId: string): Promise<void> {
+    await this.enqueueScanJob(userId, {
+      attempts: 3,
+      backoff: { type: "exponential", delay: 5000 },
+      removeOnComplete: true,
+      removeOnFail: 100
+    });
+  }
+
+  async getScanStatus(userId: string, jobId: string): Promise<ScanStatus> {
+    const job = await this.reportsQueue.getJob(jobId);
+    if (!job || job.data?.userId !== userId)
+      throw new NotFoundException("Scan job not found.");
+
+    const state = await job.getState();
+    // The job was evicted between getJob and getState; treat it as gone so the
+    // client fails fast instead of polling a phantom "waiting" job.
+    if (state === "unknown") throw new NotFoundException("Scan job not found.");
+    const progress =
+      job.progress && typeof job.progress === "object"
+        ? (job.progress as ScanProgress)
+        : null;
+
+    return {
+      jobId,
+      state: this.mapJobState(state),
+      progress,
+      reportId:
+        state === "completed" && typeof job.returnvalue === "string"
+          ? job.returnvalue
+          : null,
+      error: state === "failed" ? job.failedReason ?? "Scan failed." : null
+    };
   }
 
   async findMatchesByArtwork(
