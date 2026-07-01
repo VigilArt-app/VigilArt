@@ -86,7 +86,7 @@ export class ArtworksService {
       where: { userId },
       take: limit + 1,
       ...(cursor && { cursor: { id: cursor }, skip: 1 }),
-      orderBy: { createdAt: "desc" }
+      orderBy: [{ createdAt: "desc" }, { id: "desc" }]
     });
     const hasNextPage = items.length > limit;
     if (hasNextPage) items.pop();
