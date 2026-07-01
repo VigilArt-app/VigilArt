@@ -39,7 +39,7 @@ export class GoogleLensService {
           url: `https://lens.google.com/uploadbyurl?url=${url}&brd_lens=exact_matches`,
           format: "raw"
         },
-        { headers }
+        { headers, timeout: 30000 }
       )
     );
     if (!data || !data.exact_matches) {

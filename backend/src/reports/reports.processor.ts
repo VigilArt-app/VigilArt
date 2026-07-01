@@ -13,8 +13,10 @@ export class ReportsProcessor extends WorkerHost {
     super();
   }
 
-  async process(job: Job<GenerateReportJobData>): Promise<void> {
-    if (job.name === GENERATE_REPORT_JOB)
-      await this.reportsService.generate(job.data.userId);
+  async process(job: Job<GenerateReportJobData>): Promise<string | void> {
+    if (job.name === GENERATE_REPORT_JOB) {
+      const report = await this.reportsService.generate(job.data.userId, job);
+      return report.id;
+    }
   }
 }

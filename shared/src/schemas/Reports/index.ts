@@ -38,4 +38,31 @@ export class ArtworksReportGetDTO extends createZodDto(
   ArtworksReportGetSchema
 ) {}
 
+export const ScanEnqueuedSchema = z.object({
+  jobId: z.string()
+});
+export class ScanEnqueuedDTO extends createZodDto(ScanEnqueuedSchema) {}
+
+export const ScanJobStateSchema = z.enum([
+  "waiting",
+  "active",
+  "completed",
+  "failed",
+  "delayed"
+]);
+
+export const ScanProgressSchema = z.object({
+  processed: z.number(),
+  total: z.number()
+});
+
+export const ScanStatusSchema = z.object({
+  jobId: z.string(),
+  state: ScanJobStateSchema,
+  progress: ScanProgressSchema.nullable(),
+  reportId: z.string().nullable(),
+  error: z.string().nullable()
+});
+export class ScanStatusDTO extends createZodDto(ScanStatusSchema) {}
+
 export * from "./VisualSearchResult";
