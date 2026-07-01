@@ -61,14 +61,14 @@ export class ReportsService {
   private readonly logger = new Logger(ReportsService.name);
 
   async aggregateVisualSearchResults(
-    imageBuffer: Buffer,
+    // imageBuffer: Buffer,
     imageDownloadUrl: string
   ): Promise<MatchingPageGet[]> {
     const settledResults = await Promise.allSettled([
-      this.visionService.searchImage(imageBuffer),
+      // this.visionService.searchImage(imageBuffer),
       this.googleLensService.searchImage(imageDownloadUrl)
     ]);
-    const providers = ["vision", "googleLens"] as const;
+    const providers = ["googleLens"] as const;
     const matchingPages: MatchingPageGet[] = [];
     settledResults.forEach((result, index) => {
       if (result.status === "rejected") {
@@ -91,12 +91,12 @@ export class ReportsService {
   }
 
   async findArtworkMatches(artwork: Artwork): Promise<MatchingPageCreateMany> {
-    const imageBuffer = await this.storageService.getImage(artwork.storageKey);
+    // const imageBuffer = await this.storageService.getImage(artwork.storageKey);
     const imageDownloadUrl = await this.storageService.getDownloadUrl(
       artwork.storageKey
     );
     const matchingPages = await this.aggregateVisualSearchResults(
-      imageBuffer,
+      // imageBuffer,
       imageDownloadUrl
     );
     const matchingPagesData = matchingPages.map((match) => ({

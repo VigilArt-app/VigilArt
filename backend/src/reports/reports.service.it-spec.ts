@@ -74,23 +74,16 @@ describe("ReportsService", () => {
   });
 
   describe("aggregateVisualSearchResults", () => {
-    it("Should merge matches from both providers", async () => {
-      visionService.searchImage.mockResolvedValue({
-        matchingPages: [{ url: "https://a.example" }]
-      });
+    it("Should return Google Lens matches", async () => {
       googleLensService.searchImage.mockResolvedValue({
         matchingPages: [{ url: "https://b.example" }]
       });
 
       const res = await service.aggregateVisualSearchResults(
-        Buffer.from(""),
         "https://download.example"
       );
 
-      expect(res).toEqual([
-        { url: "https://a.example" },
-        { url: "https://b.example" }
-      ]);
+      expect(res).toEqual([{ url: "https://b.example" }]);
     });
 
     it("Should return the surviving provider's matches when one provider fails", async () => {
@@ -100,7 +93,7 @@ describe("ReportsService", () => {
       });
 
       const res = await service.aggregateVisualSearchResults(
-        Buffer.from(""),
+        // Buffer.from(""),
         "https://download.example"
       );
 
@@ -112,7 +105,7 @@ describe("ReportsService", () => {
       googleLensService.searchImage.mockResolvedValue({ matchingPages: [] });
 
       const res = await service.aggregateVisualSearchResults(
-        Buffer.from(""),
+        // Buffer.from(""),
         "https://download.example"
       );
 
@@ -125,7 +118,7 @@ describe("ReportsService", () => {
 
       await expect(
         service.aggregateVisualSearchResults(
-          Buffer.from(""),
+          // Buffer.from(""),
           "https://download.example"
         )
       ).rejects.toBeInstanceOf(ServiceUnavailableException);
