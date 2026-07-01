@@ -7,6 +7,7 @@ import {
   ServiceUnavailableException
 } from "@nestjs/common";
 import { CACHE_MANAGER } from "@nestjs/cache-manager";
+import { ConfigService } from "@nestjs/config";
 import type { Cache } from "cache-manager";
 import { InjectQueue } from "@nestjs/bullmq";
 import { Job, JobsOptions, Queue } from "bullmq";
@@ -45,7 +46,9 @@ const REPORTS_STATS_TTL = 30 * 24 * 60 * 60 * 1000;
 // buffer into memory plus fires Vision + Google Lens calls, so an unbounded
 // Promise.all over every artwork can exhaust a small container's heap (OOM ->
 // SIGKILL -> the API dies mid-scan). A small pool bounds peak memory/IO.
-const SCAN_CONCURRENCY = 3;
+// Tunable via the SCAN_CONCURRENCY env var (Doppler) so a memory-starved
+// deployment can drop it to 1 without a code change.
+const SCAN_CONCURRENCY_DEFAULT = 3;
 
 const REPORT_STATS_KEY = (userId: string) => {
   return `reports:statistics:${userId}`;
@@ -61,10 +64,15 @@ export class ReportsService {
     private readonly matchingPagesService: MatchingPagesService,
     private readonly prisma: PrismaService,
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
-    @InjectQueue(REPORTS_QUEUE) private readonly reportsQueue: Queue
-  ) {}
+    @InjectQueue(REPORTS_QUEUE) private readonly reportsQueue: Queue,
+    private readonly config: ConfigService
+  ) {
+    this.scanConcurrency =
+      Number(config.get("SCAN_CONCURRENCY")) || SCAN_CONCURRENCY_DEFAULT;
+  }
 
   private readonly logger = new Logger(ReportsService.name);
+  private readonly scanConcurrency: number;
 
   async aggregateVisualSearchResults(
     imageBuffer: Buffer,
@@ -150,7 +158,7 @@ export class ReportsService {
 
     const allMatches = await this.mapWithConcurrency(
       artworks,
-      SCAN_CONCURRENCY,
+      this.scanConcurrency,
       (artwork) =>
         this.findArtworkMatches(artwork).then((matches) => {
           processed += 1;
