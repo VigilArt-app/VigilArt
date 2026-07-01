@@ -7,12 +7,12 @@ class FileUploadCard extends StatelessWidget {
   final VoidCallback onRemove;
 
   const FileUploadCard({
-    Key? key,
+    super.key,
     required this.fileName,
     required this.status,
     this.uploadProgress,
     required this.onRemove,
-  }) : super(key: key);
+  });
 
   Color _getStatusColor() {
     switch (status) {
@@ -48,7 +48,7 @@ class FileUploadCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         border: Border.all(
-          color: _getStatusColor().withOpacity(0.3),
+          color: _getStatusColor().withValues(alpha: 0.3),
           width: 1.5,
         ),
         borderRadius: BorderRadius.circular(12),
@@ -88,7 +88,7 @@ class FileUploadCard extends StatelessWidget {
                 child: Container(
                   padding: const EdgeInsets.all(6),
                   decoration: BoxDecoration(
-                    color: Colors.red.withOpacity(0.1),
+                    color: Colors.red.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: Icon(

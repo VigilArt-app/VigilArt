@@ -8,13 +8,13 @@ class ProfileHeader extends StatefulWidget {
   final VoidCallback onAvatarTap;
 
   const ProfileHeader({
-    Key? key,
+    super.key,
     required this.userName,
     required this.avatarUrl,
     required this.isEditMode,
     required this.onEditTap,
     required this.onAvatarTap,
-  }) : super(key: key);
+  });
 
   @override
   State<ProfileHeader> createState() => _ProfileHeaderState();
@@ -71,7 +71,7 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.15),
+                        color: Colors.black.withValues(alpha: 0.15),
                         blurRadius: 12,
                         offset: const Offset(0, 4),
                       ),

@@ -5,10 +5,10 @@ class SlideMenuBar extends StatelessWidget {
   final ValueChanged<int> onTabChange;
 
   const SlideMenuBar({
-    Key? key, 
+    super.key, 
     required this.selectedIndex,
     required this.onTabChange, 
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +18,7 @@ class SlideMenuBar extends StatelessWidget {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, -5),
           ),
