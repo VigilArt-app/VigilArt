@@ -66,7 +66,7 @@ export const initialUsers = [
   {
     id: "49cb44a3-e6f9-4cd0-a7f8-292d5b3e5231",
     email: "amanda_rowles@gmail.com",
-    password: bcrypt.hashSync("H4shed_password_", Number(process.env["SALT_ROUNDS"] || 10)),
+    password: bcrypt.hashSync("H4shed_password#", Number(process.env["SALT_ROUNDS"] || 10)),
     firstName: "Amanda",
     lastName: "Rowles",
     avatar: null,
