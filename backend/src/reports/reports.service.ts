@@ -41,6 +41,12 @@ import {
 
 const REPORTS_STATS_TTL = 30 * 24 * 60 * 60 * 1000;
 
+// Cap how many artworks are scanned at once. Each artwork loads a full image
+// buffer into memory plus fires Vision + Google Lens calls, so an unbounded
+// Promise.all over every artwork can exhaust a small container's heap (OOM ->
+// SIGKILL -> the API dies mid-scan). A small pool bounds peak memory/IO.
+const SCAN_CONCURRENCY = 3;
+
 const REPORT_STATS_KEY = (userId: string) => {
   return `reports:statistics:${userId}`;
 }
@@ -113,20 +119,44 @@ export class ReportsService {
     void job?.updateProgress({ processed, total }).catch(() => undefined);
   }
 
+  // Concurrency-bounded map preserving input order. Runs at most `limit`
+  // invocations of `fn` at a time via a fixed pool of workers pulling from a
+  // shared cursor. Rejection semantics match Promise.all: the first rejection
+  // propagates (failing the scan), and every input promise still has a handler
+  // attached, so a later rejection never becomes an unhandledRejection.
+  private async mapWithConcurrency<T, R>(
+    items: T[],
+    limit: number,
+    fn: (item: T) => Promise<R>
+  ): Promise<R[]> {
+    const results: R[] = new Array<R>(items.length);
+    let cursor = 0;
+    const worker = async (): Promise<void> => {
+      while (cursor < items.length) {
+        const index = cursor++;
+        results[index] = await fn(items[index]);
+      }
+    };
+    const poolSize = Math.min(limit, items.length);
+    await Promise.all(Array.from({ length: poolSize }, () => worker()));
+    return results;
+  }
+
   async findArtworksMatches(userId: string, job?: Job): Promise<string[]> {
     const artworks = await this.artworksService.findAllPerUser(userId);
     const total = artworks.length;
     let processed = 0;
     this.emitProgress(job, processed, total);
 
-    const allMatches = await Promise.all(
-      artworks.map((artwork) =>
+    const allMatches = await this.mapWithConcurrency(
+      artworks,
+      SCAN_CONCURRENCY,
+      (artwork) =>
         this.findArtworkMatches(artwork).then((matches) => {
           processed += 1;
           this.emitProgress(job, processed, total);
           return matches;
         })
-      )
     );
     const matchingPagesData = allMatches.flat();
 
