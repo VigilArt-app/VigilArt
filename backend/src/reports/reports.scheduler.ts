@@ -15,7 +15,7 @@ export class ReportsScheduler {
     private readonly prisma: PrismaService
   ) {}
 
-  @Cron(CronExpression.EVERY_HOUR)
+  @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
   async scheduleAutoReports(): Promise<void> {
     const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
     const users = await this.prisma.user.findMany({
