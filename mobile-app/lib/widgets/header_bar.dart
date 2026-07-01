@@ -8,13 +8,13 @@ class VigilArtHeaderBar extends StatefulWidget {
   final int notificationCount;
 
   const VigilArtHeaderBar({
-    Key? key,
+    super.key,
     required this.onLogoTap,
     required this.onNotificationsTap,
     required this.onProfileTap,
     required this.avatar,
     this.notificationCount = 0,
-  }) : super(key: key);
+  });
 
   @override
   State<VigilArtHeaderBar> createState() => _VigilArtHeaderBarState();
@@ -58,7 +58,7 @@ class _VigilArtHeaderBarState extends State<VigilArtHeaderBar>
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.06),
+            color: Colors.black.withValues(alpha: 0.06),
             blurRadius: 12,
             offset: const Offset(0, 4),
             spreadRadius: 2,
@@ -79,7 +79,7 @@ class _VigilArtHeaderBarState extends State<VigilArtHeaderBar>
                   child: Container(
                     padding: const EdgeInsets.all(6),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF5E3B7D).withOpacity(0.08),
+                      color: const Color(0xFF5E3B7D).withValues(alpha: 0.08),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Image.asset(
@@ -103,7 +103,7 @@ class _VigilArtHeaderBarState extends State<VigilArtHeaderBar>
                 letterSpacing: 0.5,
                 shadows: [
                   Shadow(
-                    color: Colors.black.withOpacity(0.05),
+                    color: Colors.black.withValues(alpha: 0.05),
                     offset: const Offset(0, 2),
                     blurRadius: 4,
                   ),
@@ -182,7 +182,7 @@ class _VigilArtHeaderBarState extends State<VigilArtHeaderBar>
                         shape: BoxShape.circle,
                         boxShadow: [
                           BoxShadow(
-                            color: const Color(0xFF5E3B7D).withOpacity(0.15),
+                            color: const Color(0xFF5E3B7D).withValues(alpha: 0.15),
                             blurRadius: 8,
                             offset: const Offset(0, 2),
                           ),

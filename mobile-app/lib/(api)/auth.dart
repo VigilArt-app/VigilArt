@@ -128,19 +128,18 @@ class ApiService {
     final refreshToken = await secureStorage.read(key: keyRefreshToken);
     final url = Uri.parse('$serverUrl/auth/logout');
 
-    final response = await http.post(
-      url,
-      headers: {
-        ..._authHeaders(),
-        if (refreshToken != null) 'Authorization': 'Bearer $refreshToken',
-      },
-    );
-
-    if (response.statusCode == 200 || response.statusCode == 204) {
+    try {
+      final response = await http.post(
+        url,
+        headers: {
+          ..._authHeaders(),
+          if (refreshToken != null) 'Authorization': 'Bearer $refreshToken',
+        },
+      );
+      return response;
+    } finally {
       await secureStorage.deleteAll();
     }
-
-    return response;
   }
 
   Future<String?> getAccessToken() async {

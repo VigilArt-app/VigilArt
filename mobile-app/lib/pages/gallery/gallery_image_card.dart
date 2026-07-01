@@ -11,7 +11,7 @@ class GalleryImageCard extends StatelessWidget {
   final VoidCallback onDmcaTap;
 
   const GalleryImageCard({
-    Key? key,
+    super.key,
     required this.id,
     required this.title,
     required this.imageUrl,
@@ -20,7 +20,7 @@ class GalleryImageCard extends StatelessWidget {
     required this.onTap,
     required this.onDelete,
     required this.onDmcaTap, 
-  }) : super(key: key);
+  });
 
   Color _getStatusColor() {
     switch (status.toLowerCase()) {
@@ -48,7 +48,7 @@ class GalleryImageCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(12),
-          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.06), blurRadius: 10, offset: const Offset(0, 4))],
+          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.06), blurRadius: 10, offset: const Offset(0, 4))],
         ),
         child: Stack(
           children: [
@@ -84,7 +84,7 @@ class GalleryImageCard extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12),
                 gradient: LinearGradient(
                   begin: Alignment.topCenter, end: Alignment.bottomCenter,
-                  colors: [Colors.black.withOpacity(0.2), Colors.black.withOpacity(0.8)],
+                  colors: [Colors.black.withValues(alpha: 0.2), Colors.black.withValues(alpha: 0.8)],
                 ),
               ),
             ),
@@ -125,7 +125,7 @@ class GalleryImageCard extends StatelessWidget {
                           const SizedBox(height: 2),
                           Text(
                             uploadDate,
-                            style: TextStyle(fontSize: 11, color: Colors.white.withOpacity(0.8)),
+                            style: TextStyle(fontSize: 11, color: Colors.white.withValues(alpha: 0.8)),
                           ),
                         ],
                       ),
@@ -145,7 +145,7 @@ class GalleryImageCard extends StatelessWidget {
                           onTap: onDelete,
                           child: Container(
                             padding: const EdgeInsets.all(6),
-                            decoration: BoxDecoration(color: Colors.red.withOpacity(0.8), borderRadius: BorderRadius.circular(6)),
+                            decoration: BoxDecoration(color: Colors.red.withValues(alpha: 0.8), borderRadius: BorderRadius.circular(6)),
                             child: const Icon(Icons.delete_outline, color: Colors.white, size: 16),
                           ),
                         ),
