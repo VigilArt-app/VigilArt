@@ -7,7 +7,6 @@ import {
   ServiceUnavailableException
 } from "@nestjs/common";
 import { CACHE_MANAGER } from "@nestjs/cache-manager";
-import { ConfigService } from "@nestjs/config";
 import type { Cache } from "cache-manager";
 import { InjectQueue } from "@nestjs/bullmq";
 import { Job, JobsOptions, Queue } from "bullmq";
@@ -42,14 +41,6 @@ import {
 
 const REPORTS_STATS_TTL = 30 * 24 * 60 * 60 * 1000;
 
-// Cap how many artworks are scanned at once. Each artwork loads a full image
-// buffer into memory plus fires Vision + Google Lens calls, so an unbounded
-// Promise.all over every artwork can exhaust a small container's heap (OOM ->
-// SIGKILL -> the API dies mid-scan). A small pool bounds peak memory/IO.
-// Tunable via the SCAN_CONCURRENCY env var (Doppler) so a memory-starved
-// deployment can drop it to 1 without a code change.
-const SCAN_CONCURRENCY_DEFAULT = 3;
-
 const REPORT_STATS_KEY = (userId: string) => {
   return `reports:statistics:${userId}`;
 }
@@ -64,25 +55,18 @@ export class ReportsService {
     private readonly matchingPagesService: MatchingPagesService,
     private readonly prisma: PrismaService,
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
-    @InjectQueue(REPORTS_QUEUE) private readonly reportsQueue: Queue,
-    private readonly config: ConfigService
-  ) {
-    this.scanConcurrency =
-      Number(config.get("SCAN_CONCURRENCY")) || SCAN_CONCURRENCY_DEFAULT;
-  }
+    @InjectQueue(REPORTS_QUEUE) private readonly reportsQueue: Queue
+  ) {}
 
   private readonly logger = new Logger(ReportsService.name);
-  private readonly scanConcurrency: number;
 
   async aggregateVisualSearchResults(
-    imageBuffer: Buffer,
     imageDownloadUrl: string
   ): Promise<MatchingPageGet[]> {
     const settledResults = await Promise.allSettled([
-      this.visionService.searchImage(imageBuffer),
       this.googleLensService.searchImage(imageDownloadUrl)
     ]);
-    const providers = ["vision", "googleLens"] as const;
+    const providers = ["googleLens"] as const;
     const matchingPages: MatchingPageGet[] = [];
     settledResults.forEach((result, index) => {
       if (result.status === "rejected") {
@@ -105,12 +89,10 @@ export class ReportsService {
   }
 
   async findArtworkMatches(artwork: Artwork): Promise<MatchingPageCreateMany> {
-    const imageBuffer = await this.storageService.getImage(artwork.storageKey);
     const imageDownloadUrl = await this.storageService.getDownloadUrl(
       artwork.storageKey
     );
     const matchingPages = await this.aggregateVisualSearchResults(
-      imageBuffer,
       imageDownloadUrl
     );
     const matchingPagesData = matchingPages.map((match) => ({
@@ -127,46 +109,32 @@ export class ReportsService {
     void job?.updateProgress({ processed, total }).catch(() => undefined);
   }
 
-  // Concurrency-bounded map preserving input order. Runs at most `limit`
-  // invocations of `fn` at a time via a fixed pool of workers pulling from a
-  // shared cursor. Rejection semantics match Promise.all: the first rejection
-  // propagates (failing the scan), and every input promise still has a handler
-  // attached, so a later rejection never becomes an unhandledRejection.
-  private async mapWithConcurrency<T, R>(
-    items: T[],
-    limit: number,
-    fn: (item: T) => Promise<R>
-  ): Promise<R[]> {
-    const results: R[] = new Array<R>(items.length);
-    let cursor = 0;
-    const worker = async (): Promise<void> => {
-      while (cursor < items.length) {
-        const index = cursor++;
-        results[index] = await fn(items[index]);
-      }
-    };
-    const poolSize = Math.min(limit, items.length);
-    await Promise.all(Array.from({ length: poolSize }, () => worker()));
-    return results;
-  }
-
   async findArtworksMatches(userId: string, job?: Job): Promise<string[]> {
     const artworks = await this.artworksService.findAllPerUser(userId);
     const total = artworks.length;
     let processed = 0;
     this.emitProgress(job, processed, total);
 
-    const allMatches = await this.mapWithConcurrency(
-      artworks,
-      this.scanConcurrency,
-      (artwork) =>
-        this.findArtworkMatches(artwork).then((matches) => {
+    // Isolate per-artwork failures: one artwork's provider error (e.g. a Lens
+    // timeout) must not discard the matches already found for the others.
+    const settled = await Promise.allSettled(
+      artworks.map((artwork) =>
+        this.findArtworkMatches(artwork).finally(() => {
           processed += 1;
           this.emitProgress(job, processed, total);
-          return matches;
         })
+      )
     );
-    const matchingPagesData = allMatches.flat();
+    const matchingPagesData = settled.flatMap((result, index) => {
+      if (result.status === "rejected") {
+        this.logger.error(
+          `Scan failed for artwork ${artworks[index].id}`,
+          result.reason
+        );
+        return [];
+      }
+      return result.value;
+    });
 
     const foundMatchesIds: string[] = [];
     for (
