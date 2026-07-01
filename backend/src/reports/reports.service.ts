@@ -149,10 +149,8 @@ export class ReportsService {
   ): Promise<MatchingPage[]> {
     this.logger.log(`Finding matches of artwork ${artworkId}`);
 
-    const artwork = await this.artworksService.findOne(userId, artworkId);
-    if (artwork.userId !== userId) {
-      throw new ForbiddenException("Access denied to this artwork");
-    }
+    // Enforces ownership: throws ForbiddenException if the artwork isn't the user's.
+    await this.artworksService.findOne(userId, artworkId);
 
     let report: ArtworksReportGet;
     if (reportId) {
