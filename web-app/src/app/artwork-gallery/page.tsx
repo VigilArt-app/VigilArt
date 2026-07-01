@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { Loader2, Upload } from "lucide-react";
 import {
   ArtworkWithInsights,
-  ArtworkReportInsights,
   FilterStatus,
   getArtworkStatus
 } from "./components/types";
@@ -34,7 +33,6 @@ export default function ArtworkGalleryPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [nextCursor, setNextCursor] = useState<string | null>(null);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const [insightsByArtwork, setInsightsByArtwork] = useState<Record<string, ArtworkReportInsights>>({});
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedFilter, setSelectedFilter] = useState<FilterStatus>("All");
   const [selectedArtwork, setSelectedArtwork] =
@@ -75,7 +73,6 @@ export default function ArtworkGalleryPage() {
           })
         );
 
-        setInsightsByArtwork(insights);
         setArtworks(enrichedArtworks);
         setFilteredArtworks(enrichedArtworks);
         setNextCursor(page.nextCursor);
@@ -121,7 +118,6 @@ export default function ArtworkGalleryPage() {
         fetchArtworks(user.id, nextCursor),
         fetchArtworkReportInsights(user.id)
       ]);
-      setInsightsByArtwork(freshInsights);
       const enriched = page.items.map((artwork) => ({
         ...artwork,
         reportInsights: freshInsights[artwork.id]
