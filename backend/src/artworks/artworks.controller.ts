@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   HttpStatus,
+  Logger,
   Param,
   ParseUUIDPipe,
   Patch,
@@ -37,6 +38,8 @@ export class ArtworksController {
     private readonly artworksService: ArtworksService,
     private readonly storageService: StorageService
   ) {}
+
+  private readonly logger = new Logger(ArtworksController.name);
 
   @Post()
   @ApiEndpoint({
@@ -158,8 +161,20 @@ export class ArtworksController {
   ): Promise<void> {
     const artwork = await this.artworksService.findOne(req.user.id, id);
 
-    await this.storageService.deleteImage(artwork.storageKey);
-    return this.artworksService.remove(req.user.id, id);
+    await this.artworksService.remove(req.user.id, id);
+
+    // Best-effort object cleanup: the row is already gone (source of truth),
+    // so a storage failure only leaves an orphaned file, never a broken row.
+    if (artwork.storageKey) {
+      try {
+        await this.storageService.deleteImage(artwork.storageKey);
+      } catch (error) {
+        this.logger.error(
+          `Failed to delete R2 object ${artwork.storageKey} for artwork ${id}`,
+          error instanceof Error ? error.stack : String(error)
+        );
+      }
+    }
   }
 
   @Post("delete/batch")
@@ -177,9 +192,24 @@ export class ArtworksController {
     @Body() { ids }: ArtworkRemoveManyDTO
   ): Promise<ApiBatchPayload> {
     const artworks = await this.artworksService.findMany(req.user.id, ids);
-    const storageKeys = artworks.map((artwork) => artwork.storageKey);
+    const storageKeys = artworks
+      .map((artwork) => artwork.storageKey)
+      .filter((key): key is string => !!key);
 
-    await this.storageService.deleteImages(storageKeys);
-    return this.artworksService.removeMany(req.user.id, ids);
+    const result = await this.artworksService.removeMany(req.user.id, ids);
+
+    // Best-effort object cleanup after the rows are deleted (source of truth).
+    if (storageKeys.length > 0) {
+      try {
+        await this.storageService.deleteImages(storageKeys);
+      } catch (error) {
+        this.logger.error(
+          `Failed to delete R2 objects for artworks ${ids.join(",")}`,
+          error instanceof Error ? error.stack : String(error)
+        );
+      }
+    }
+
+    return result;
   }
 }
