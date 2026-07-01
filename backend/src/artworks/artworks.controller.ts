@@ -103,9 +103,13 @@ export class ArtworksController {
   @ApiQuery({ name: "limit", required: false, type: Number, description: "Number of items to return (1–100, default 20)" })
   async findAllPerUser(
     @Param("id", ParseUUIDPipe) id: string,
-    @Query() { cursor, limit }: CursorPaginationQueryDTO
+    @Query() query: CursorPaginationQueryDTO
   ): Promise<PaginatedResult<Artwork>> {
-    return this.artworksService.findAllPerUserPaginated(id, cursor, limit);
+    return this.artworksService.findAllPerUserPaginated(
+      id,
+      query.cursor,
+      query.limit
+    );
   }
 
   @Get(":id")

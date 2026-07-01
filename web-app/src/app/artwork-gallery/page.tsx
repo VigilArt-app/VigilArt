@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Loader2, Upload } from "lucide-react";
 import {
+  ArtworkReportInsights,
   ArtworkWithInsights,
   FilterStatus,
   getArtworkStatus
@@ -33,6 +34,9 @@ export default function ArtworkGalleryPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [nextCursor, setNextCursor] = useState<string | null>(null);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [insightsByArtwork, setInsightsByArtwork] = useState<
+    Record<string, ArtworkReportInsights>
+  >({});
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedFilter, setSelectedFilter] = useState<FilterStatus>("All");
   const [selectedArtwork, setSelectedArtwork] =
@@ -73,9 +77,12 @@ export default function ArtworkGalleryPage() {
           })
         );
 
+        setInsightsByArtwork(insights);
         setArtworks(enrichedArtworks);
         setFilteredArtworks(enrichedArtworks);
         setNextCursor(page.nextCursor);
+      } catch {
+        // Errors are already surfaced via toast in the fetch helpers.
       } finally {
         setIsLoading(false);
       }
@@ -114,19 +121,15 @@ export default function ArtworkGalleryPage() {
     if (!nextCursor || !user?.id) return;
     setIsLoadingMore(true);
     try {
-      const [page, freshInsights] = await Promise.all([
-        fetchArtworks(user.id, nextCursor),
-        fetchArtworkReportInsights(user.id)
-      ]);
+      const page = await fetchArtworks(user.id, nextCursor);
       const enriched = page.items.map((artwork) => ({
         ...artwork,
-        reportInsights: freshInsights[artwork.id]
+        reportInsights: insightsByArtwork[artwork.id]
       }));
-      setArtworks((prev) => prev.map((a) => ({
-        ...a,
-        reportInsights: freshInsights[a.id] ?? a.reportInsights
-      })).concat(enriched));
+      setArtworks((prev) => prev.concat(enriched));
       setNextCursor(page.nextCursor);
+    } catch {
+      // Errors are already surfaced via toast in fetchArtworks.
     } finally {
       setIsLoadingMore(false);
     }
