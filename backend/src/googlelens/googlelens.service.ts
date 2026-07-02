@@ -39,15 +39,13 @@ export class GoogleLensService {
           url: `https://lens.google.com/uploadbyurl?url=${url}&brd_lens=exact_matches`,
           format: "raw"
         },
-        // Google Lens is the only visual-search provider, so give BrightData
-        // generous headroom — measured Lens scrapes run ~40s+ and vary.
         { headers, timeout: 120000 }
       )
     );
-    if (!data || !data.exact_matches) {
+    if (!data || !data.organic) {
       return null;
     }
-    const foundMatches: GoogleLensExactResult[] = data.exact_matches;
+    const foundMatches: GoogleLensExactResult[] = data.organic;
     return foundMatches;
   }
 
