@@ -33,6 +33,23 @@ services:
     profiles:
       - migrate
 
+  seeder:
+    image: ghcr.io/${REPO_OWNER:-vigilart-app}/vigilart-backend:${IMAGE_TAG}
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - app-network
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      SALT_ROUNDS: ${SALT_ROUNDS}
+      NODE_ENV: ${NODE_ENV}
+    entrypoint: []
+    command: sh -c "cd /app/backend && pnpm db:seed:prod"
+    restart: "no"
+    profiles:
+      - seed
+
   backend:
     image: ghcr.io/${REPO_OWNER:-vigilart-app}/vigilart-backend:${IMAGE_TAG}
     build:
