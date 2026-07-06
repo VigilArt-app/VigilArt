@@ -102,10 +102,3 @@ export const ArtworkCreateManyResponseSchema = z.object({
 export class ArtworkCreateManyResponseDTO extends createZodDto(
   ArtworkCreateManyResponseSchema
 ) {}
-
-export const ArtworkPaginatedResultSchema = z.object({
-  items: z.array(ArtworkSchema),
-  nextCursor: z.string().uuid().nullable()
-});
-
-export class ArtworkPaginatedResultDTO extends createZodDto(ArtworkPaginatedResultSchema) {}

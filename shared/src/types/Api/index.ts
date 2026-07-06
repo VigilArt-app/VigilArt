@@ -11,8 +11,7 @@ import {
   ConflictApiErrorSchema,
   InternalServerApiErrorSchema,
   ApiBatchPayloadSchema,
-  ApiPaginationSchema,
-  CursorPaginationQuerySchema
+  ApiPaginationSchema
 } from "../../schemas/Api";
 import { z } from "zod";
 
@@ -57,10 +56,3 @@ export type ApiResponseAsync<T = undefined> = Promise<ApiResponseData<T>>;
 export type ApiBatchPayload = z.infer<typeof ApiBatchPayloadSchema>;
 
 export type ApiPagination = z.infer<typeof ApiPaginationSchema>;
-
-export type CursorPaginationQuery = z.infer<typeof CursorPaginationQuerySchema>;
-
-export type PaginatedResult<T> = {
-  items: T[];
-  nextCursor: string | null;
-};

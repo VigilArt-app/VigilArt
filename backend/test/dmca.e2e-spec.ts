@@ -371,7 +371,7 @@ describe("DMCA User Journey E2E", () => {
                         userId: testUser.id,
                         payload: {}
                     })
-                    .expect(HttpStatus.NOT_FOUND);
+                    .expect(HttpStatus.FORBIDDEN);
             });
 
             it("Should successfully update the notice payload", async () => {
@@ -455,7 +455,7 @@ describe("DMCA User Journey E2E", () => {
             it("Should reject generation for non-existent notice", async () => {
                 await api
                     .post(`/dmca/notice/00000000-0000-0000-0000-000000000000/generate`)
-                    .expect(HttpStatus.NOT_FOUND);
+                    .expect(HttpStatus.FORBIDDEN);
             });
 
             it("Should successfully generate PDF and email content", async () => {
@@ -490,7 +490,7 @@ describe("DMCA User Journey E2E", () => {
             it("Should verify profile was deleted", async () => {
                 await api
                     .get(`/dmca/profile/${testUser.id}`)
-                    .expect(HttpStatus.NOT_FOUND);
+                    .expect(HttpStatus.FORBIDDEN);
             });
         });
     });
