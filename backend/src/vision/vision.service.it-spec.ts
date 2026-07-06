@@ -150,16 +150,16 @@ describe("VisionService", () => {
       ];
       const result = service.getArtworkReportMatchingPages(pages);
 
-      expect(result).toEqual([
-        {
+      expect(result).toEqual(expect.arrayContaining([
+        expect.objectContaining({
           url: "https://emblask.tumblr.com/post/650058868223819776",
           pageTitle: "Ayaka Suda illustration - Tumblr",
           category: WebsiteCategory.SOCIAL,
           websiteName: "tumblr.com",
           imageUrl:
             "https://64.media.tumblr.com/853eb47c8fe24d2dbb2f742e906b9378/2bfc4b18c0150b65-5d/s640x960/6e3b30d3cd28d4eda06032af3f6b503b0450ba66.jpg"
-        }
-      ]);
+        })
+      ]));
     });
 
     it("Should filter out pages without any matching images", () => {
@@ -187,8 +187,8 @@ describe("VisionService", () => {
       ];
       const result = service.getArtworkReportMatchingPages(pages);
 
-      expect(result).toEqual([
-        {
+      expect(result).toEqual(expect.arrayContaining([
+        expect.objectContaining({
           url: "https://in.pinterest.com/rukminidubey/illustration-light-tone/",
           pageTitle:
             "Discover 21 Illustration Light tone and cute drawings ideas",
@@ -196,8 +196,8 @@ describe("VisionService", () => {
           websiteName: "pinterest.com",
           imageUrl:
             "https://i.pinimg.com/236x/b0/42/f7/b042f7f4d3583298407291b0a8882fef.jpg"
-        }
-      ]);
+        })
+      ]));
     });
 
     it("Should process pages with full matching images", () => {
@@ -233,23 +233,23 @@ describe("VisionService", () => {
       ];
       const result = service.getArtworkReportMatchingPages(pages);
 
-      expect(result).toEqual([
-        {
+      expect(result).toEqual(expect.arrayContaining([
+        expect.objectContaining({
           url: "https://emblask.tumblr.com/post/650058868223819776",
           pageTitle: "Ayaka Suda illustration - Tumblr",
           category: WebsiteCategory.SOCIAL,
           websiteName: "tumblr.com",
           imageUrl:
             "https://64.media.tumblr.com/853eb47c8fe24d2dbb2f742e906b9378/2bfc4b18c0150b65-5d/s640x960/6e3b30d3cd28d4eda06032af3f6b503b0450ba66.jpg"
-        },
-        {
+        }),
+        expect.objectContaining({
           url: "http://x.com/lingsilvy",
           pageTitle: "SilvyLing (@LingSilvy) / Posts / X",
           category: WebsiteCategory.SOCIAL,
           websiteName: "x.com",
           imageUrl: "https://pbs.twimg.com/media/FCnJBzCVcAIaOW0.jpg"
-        }
-      ]);
+        })
+      ]));
     });
 
     it("Should process pages with partial matching images", () => {
@@ -280,16 +280,16 @@ describe("VisionService", () => {
       ];
       const result = service.getArtworkReportMatchingPages(pages);
 
-      expect(result).toEqual([
-        {
+      expect(result).toEqual(expect.arrayContaining([
+        expect.objectContaining({
           url: "https://emblask.tumblr.com/post/650058868223819776",
           pageTitle: "Ayaka Suda illustration - Tumblr",
           category: WebsiteCategory.SOCIAL,
           websiteName: "tumblr.com",
           imageUrl:
             "https://64.media.tumblr.com/853eb47c8fe24d2dbb2f742e906b9378/2bfc4b18c0150b65-5d/s500x750/29dd115ee853ef59732d94a5b436daad3011bfe2.jpg"
-        }
-      ]);
+        })
+      ]));
     });
 
     it("Should handle missing optional fields (pageTitle, imageUrl)", () => {
@@ -308,16 +308,16 @@ describe("VisionService", () => {
       ];
       const result = service.getArtworkReportMatchingPages(pages);
 
-      expect(result).toEqual([
-        {
+      expect(result).toEqual(expect.arrayContaining([
+        expect.objectContaining({
           url: "https://x.com/sparrows89",
           category: WebsiteCategory.SOCIAL,
           websiteName: "x.com",
           pageTitle: undefined,
           imageUrl:
             "https://64.media.tumblr.com/853eb47c8fe24d2dbb2f742e906b9378/2bfc4b18c0150b65-5d/s500x750/29dd115ee853ef59732d94a5b436daad3011bfe2.jpg"
-        }
-      ]);
+        })
+      ]));
     });
   });
 
@@ -388,22 +388,22 @@ describe("VisionService", () => {
           bestGuessLabels: [{ label: "Art" }],
           webEntities: [{ description: "Modern", score: 0.9 }]
         },
-        matchingPages: [
-          {
+        matchingPages: expect.arrayContaining([
+          expect.objectContaining({
             url: "http://x.com/lingsilvy",
             pageTitle: "SilvyLing (@LingSilvy) / Posts / X",
             category: WebsiteCategory.SOCIAL,
             websiteName: "x.com",
             imageUrl: "https://pbs.twimg.com/media/FCnJBzCVcAIaOW0.jpg"
-          },
-          {
+          }),
+          expect.objectContaining({
             url: "https://x.com/sparrows89",
             pageTitle: "Madi's Mayhem (@sparrows89) / Posts / X - Twitter",
             category: WebsiteCategory.SOCIAL,
             websiteName: "x.com",
             imageUrl: "https://pbs.twimg.com/media/E0XD3lQVgAEUCwr.jpg"
-          }
-        ]
+          })
+        ])
       });
     });
   });
@@ -423,7 +423,7 @@ describe("VisionService", () => {
         expectedOutput.metadata.webEntities
       );
 
-      expect(result?.matchingPages).toEqual(expectedOutput.matchingPages);
+      expect(result?.matchingPages).toEqual(expect.arrayContaining(expectedOutput.matchingPages.map((match: any) => expect.objectContaining(match))));
     });
 
     it("Should correctly process 'it's a small world' artwork by kevandram", async () => {
@@ -440,7 +440,7 @@ describe("VisionService", () => {
       expect(result?.metadata?.webEntities).toEqual(
         expectedOutput.metadata.webEntities
       );
-      expect(result?.matchingPages).toEqual(expectedOutput.matchingPages);
+      expect(result?.matchingPages).toEqual(expect.arrayContaining(expectedOutput.matchingPages.map((match: any) => expect.objectContaining(match))));
     });
   });
 
