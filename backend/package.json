@@ -39,7 +39,9 @@
   },
   "scripts": {
     "dev": "nest start --watch",
-    "build": "nest build",
+    "build": "pnpm build:app && pnpm build:seeds",
+    "build:app": "nest build",
+    "build:seeds": "tsc -p tsconfig.seeds.json",
     "start": "node dist/main.js",
     "test:it": "jest --config ./jest.config.ts",
     "test:e2e": "cross-env NODE_ENV=test NODE_OPTIONS=\"$NODE_OPTIONS --experimental-vm-modules\" jest --config ./test/jest-e2e.config.ts --runInBand",

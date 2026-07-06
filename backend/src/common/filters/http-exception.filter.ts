@@ -9,17 +9,11 @@ import {
 import { Request, Response } from "express";
 import { ApiErrorData } from "@vigilart/shared/types";
 import { errorLabels } from "@vigilart/shared/constants";
-import { getCookieOptions } from "../utils/get-cookie-options";
+import { clearAuthCookies } from "../utils/get-cookie-options";
 
 @Catch(HttpException)
 export class HttpExceptionFilter implements ExceptionFilter {
     private readonly logger = new Logger(HttpExceptionFilter.name);
-
-    private clearAuthCookies(response: Response) {
-        const cookieOptions = getCookieOptions();
-        response.clearCookie('auth_token', cookieOptions);
-        response.clearCookie('refresh_token', cookieOptions);
-    }
 
     catch(exception: HttpException, host: ArgumentsHost) {
         const ctx = host.switchToHttp();
@@ -47,7 +41,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
             errorBody.error = exception.name;
         }
         if (errorBody.statusCode === HttpStatus.UNAUTHORIZED && (request.path.includes('/auth/refresh') || request.path.includes('/auth/logout')))
-            this.clearAuthCookies(response);
+            clearAuthCookies(response);
         response.status(errorBody.statusCode).json(errorBody);
     }
 }
