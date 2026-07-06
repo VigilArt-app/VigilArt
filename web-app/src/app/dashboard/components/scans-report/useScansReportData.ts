@@ -43,23 +43,16 @@ export function useScansReportData(refreshKey: number): UseScansReportDataResult
       try {
         setError(false);
 
-        const artworks: Artwork[] = [];
-        let cursor: string | null = null;
-        do {
-          const params = new URLSearchParams({ limit: "100" });
-          if (cursor) params.set("cursor", cursor);
-          const artworksRes = await authenticatedFetch(
-            `/artworks/user/${userId}?${params}`
-          );
+        const artworksRes = await authenticatedFetch(`/artworks/user/${userId}`);
 
-          if (!artworksRes.ok) {
-            throw new Error(`Failed to fetch artworks list (${artworksRes.status})`);
-          }
+        if (!artworksRes.ok) {
+          throw new Error(`Failed to fetch artworks list (${artworksRes.status})`);
+        }
 
-          const artworksResponse = await artworksRes.json();
-          artworks.push(...(artworksResponse.data?.items ?? []));
-          cursor = artworksResponse.data?.nextCursor ?? null;
-        } while (cursor);
+        const artworksResponse = await artworksRes.json();
+        const artworks: Artwork[] = Array.isArray(artworksResponse)
+          ? artworksResponse
+          : artworksResponse.data || [];
 
         const reportRes = await authenticatedFetch(`/reports/user/${userId}`);
 

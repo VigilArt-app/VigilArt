@@ -1,21 +1,16 @@
 import { toast } from "sonner";
 import { Artwork, ArtworkReportInsights, MatchingPage } from "./types";
 import { authenticatedFetch } from "../../../utils/auth/authenticatedFetch";
-import { PaginatedResult } from "@vigilart/shared/types";
 import i18next from "i18next";
 
 const t = (key: string, defaultValue: string) =>
   i18next.t(key, { defaultValue });
 
 export const fetchArtworks = async (
-  userId: string,
-  cursor?: string,
-  limit = 20
-): Promise<PaginatedResult<Artwork>> => {
+  userId: string
+): Promise<Artwork[]> => {
   try {
-    const params = new URLSearchParams({ limit: String(limit) });
-    if (cursor) params.set("cursor", cursor);
-    const response = await authenticatedFetch(`/artworks/user/${userId}?${params}`);
+    const response = await authenticatedFetch(`/artworks/user/${userId}`);
 
     if (!response.ok) {
       throw new Error("Failed to fetch artworks");
