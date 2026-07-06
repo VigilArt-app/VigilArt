@@ -19,7 +19,10 @@ import { ConfigService } from "@nestjs/config";
 import { PrismaService } from "../prisma/prisma.service";
 import type { Request, Response } from "express";
 import type { AuthenticatedRequest } from "./auth";
-import { getCookieOptions } from "../common/utils/get-cookie-options";
+import {
+  clearAuthCookies,
+  getCookieOptions
+} from "../common/utils/get-cookie-options";
 
 @Injectable()
 export class AuthService {
@@ -174,9 +177,7 @@ export class AuthService {
   }
 
   private clearAuthCookies(response: Response): void {
-    const cookieOptions = getCookieOptions();
-    response.clearCookie("auth_token", cookieOptions);
-    response.clearCookie("refresh_token", cookieOptions);
+    clearAuthCookies(response);
   }
 
   async login(

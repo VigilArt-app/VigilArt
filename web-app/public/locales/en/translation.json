@@ -253,6 +253,9 @@
         "created_but_details_failed": "Report created, but failed to load details",
         "report_created": "Report created",
         "detections_found": "detections found",
+        "queued": "Queued…",
+        "scanning_artwork": "Scanning artwork {{processed}} of {{total}}",
+        "scan_failed": "The scan failed. Please try again.",
         "error": "Error"
     },
     "dmca_page": {

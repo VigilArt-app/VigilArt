@@ -253,6 +253,9 @@
         "created_but_details_failed": "Report créé, mais échec du chargement des détails",
         "report_created": "Report créé",
         "detections_found": "détections trouvées",
+        "queued": "En file d'attente…",
+        "scanning_artwork": "Analyse de l'artwork {{processed}} sur {{total}}",
+        "scan_failed": "L'analyse a échoué. Veuillez réessayer.",
         "error": "Erreur"
     },
     "dmca_page": {

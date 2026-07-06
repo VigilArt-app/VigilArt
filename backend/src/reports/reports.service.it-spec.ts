@@ -1,56 +1,68 @@
 import { Test, TestingModule } from "@nestjs/testing";
+import {
+  ForbiddenException,
+  NotFoundException,
+  ServiceUnavailableException
+} from "@nestjs/common";
+import { CACHE_MANAGER } from "@nestjs/cache-manager";
+import { getQueueToken } from "@nestjs/bullmq";
 import { ReportsService } from "./reports.service";
 import { VisionService } from "../vision/vision.service";
+import { GoogleLensService } from "../googlelens/googlelens.service";
 import { ArtworksService } from "../artworks/artworks.service";
-import {
-  mockedAggregatedResults,
-  mockedArtwork,
-  mockedArtworks,
-  mockedArtworksReportEntries,
-  mockedFilteredArtworksReportEntries,
-  mockedSearchImageReturnValue
-} from "./sample-inputs";
-import { AggregatedVisualSearchResults } from "@vigilart/shared";
-import { ArtworksReportEntry, WebsiteCategory } from "@vigilart/shared";
-import { NotFoundException } from "@nestjs/common";
 import { StorageService } from "../storage/storage.service";
+import { MatchingPagesService } from "./matchingPage.service";
+import { PrismaService } from "../prisma/prisma.service";
+import { MAX_SCANS_PER_WINDOW, REPORTS_QUEUE } from "./reports.constants";
 
 describe("ReportsService", () => {
   let service: ReportsService;
-  let visionService: VisionService;
-  let artworksService: ArtworksService;
-  let storageService: StorageService;
+  let visionService: { searchImage: jest.Mock };
+  let googleLensService: { searchImage: jest.Mock };
+  let artworksService: { findAllPerUser: jest.Mock };
+  let storageService: { getImage: jest.Mock; getDownloadUrl: jest.Mock };
+  let matchingPagesService: { createMany: jest.Mock };
+  let prisma: {
+    artworksReport: { count: jest.Mock; create: jest.Mock };
+    artwork: { updateMany: jest.Mock };
+  };
+  let queue: { add: jest.Mock; getJob: jest.Mock };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         ReportsService,
-        {
-          provide: VisionService,
-          useValue: {
-            searchImage: jest.fn()
-          }
-        },
-        {
-          provide: ArtworksService,
-          useValue: {
-            findAllPerUser: jest.fn(),
-            findOne: jest.fn()
-          }
-        },
+        { provide: VisionService, useValue: { searchImage: jest.fn() } },
+        { provide: GoogleLensService, useValue: { searchImage: jest.fn() } },
+        { provide: ArtworksService, useValue: { findAllPerUser: jest.fn() } },
         {
           provide: StorageService,
+          useValue: { getImage: jest.fn(), getDownloadUrl: jest.fn() }
+        },
+        { provide: MatchingPagesService, useValue: { createMany: jest.fn() } },
+        {
+          provide: PrismaService,
           useValue: {
-            getImage: jest.fn()
+            artworksReport: { count: jest.fn(), create: jest.fn() },
+            artwork: { updateMany: jest.fn() }
           }
+        },
+        { provide: CACHE_MANAGER, useValue: { del: jest.fn() } },
+        {
+          provide: getQueueToken(REPORTS_QUEUE),
+          useValue: { add: jest.fn(), getJob: jest.fn() }
         }
       ]
     }).compile();
 
-    service = module.get<ReportsService>(ReportsService);
-    visionService = module.get<VisionService>(VisionService);
-    artworksService = module.get<ArtworksService>(ArtworksService);
-    storageService = module.get<StorageService>(StorageService);
+    service = module.get(ReportsService);
+    visionService = module.get(VisionService);
+    googleLensService = module.get(GoogleLensService);
+    artworksService = module.get(ArtworksService);
+    storageService = module.get(StorageService);
+    matchingPagesService = module.get(MatchingPagesService);
+    prisma = module.get(PrismaService);
+    queue = module.get(getQueueToken(REPORTS_QUEUE));
   });
 
   afterEach(() => {
@@ -62,362 +74,301 @@ describe("ReportsService", () => {
   });
 
   describe("aggregateVisualSearchResults", () => {
-    it("Should correctly aggregrate visual search results and calculate artwork statistics", async () => {
-      jest
-        .spyOn(visionService, "searchImage")
-        .mockResolvedValue(mockedSearchImageReturnValue);
-      const res: AggregatedVisualSearchResults =
-        await service.aggregateVisualSearchResults(Buffer.from(""));
-
-      expect(res.matchingPages).toEqual(
-        mockedSearchImageReturnValue.matchingPages
-      );
-      expect(res.statistics).toEqual({
-        totalMatches: 4
+    it("Should return Google Lens matches", async () => {
+      googleLensService.searchImage.mockResolvedValue({
+        matchingPages: [{ url: "https://b.example" }]
       });
-    });
 
-    it("Should handle null response from Vision service", async () => {
-      const spy = jest
-        .spyOn(visionService, "searchImage")
-        .mockResolvedValue(null);
-
-      const res = await service.aggregateVisualSearchResults(Buffer.from(""));
-
-      expect(spy).toHaveBeenCalledWith(Buffer.from(""));
-      expect(res.matchingPages).toEqual([]);
-      expect(res.statistics.totalMatches).toBe(0);
-    });
-  });
-
-  describe("getArtworksReportEntry", () => {
-    beforeEach(() => {
-      jest.spyOn(storageService, "getImage").mockResolvedValue(Buffer.from(""));
-      jest
-        .spyOn(service, "aggregateVisualSearchResults")
-        .mockResolvedValue(mockedAggregatedResults);
-    });
-
-    it("Should return full artworks report entry without limit", async () => {
-      const res: ArtworksReportEntry =
-        await service.getArtworksReportEntry(mockedArtwork);
-      expect(res.artworkId).toEqual("1");
-      expect(res.statistics).toEqual({ totalMatches: 4 });
-      expect(res.matchingPages).toEqual(
-        mockedSearchImageReturnValue.matchingPages
-      );
-    });
-
-    it("Should limit matching pages when limit is specified", async () => {
-      const res: ArtworksReportEntry = await service.getArtworksReportEntry(
-        mockedArtwork,
-        2
-      );
-      expect(res.artworkId).toEqual("1");
-      expect(res.statistics).toEqual({ totalMatches: 4 });
-      expect(res.matchingPages).toEqual(
-        mockedSearchImageReturnValue.matchingPages.slice(0, 2)
-      );
-    });
-
-    it("Should handle limit larger than available matching pages", async () => {
-      jest
-        .spyOn(service, "aggregateVisualSearchResults")
-        .mockResolvedValue(mockedAggregatedResults);
-      const res = await service.getArtworksReportEntry(mockedArtwork, 100);
-
-      expect(res.matchingPages).toHaveLength(4);
-    });
-
-    it("Should handle limit of 0", async () => {
-      const res = await service.getArtworksReportEntry(mockedArtwork, 0);
-
-      expect(res.matchingPages).toHaveLength(0);
-    });
-  });
-
-  describe("getArtworksReportEntries", () => {
-    beforeEach(() => {
-      jest
-        .spyOn(service, "aggregateVisualSearchResults")
-        .mockResolvedValue(mockedAggregatedResults);
-      jest
-        .spyOn(artworksService, "findAllPerUser")
-        .mockResolvedValue(mockedArtworks);
-    });
-
-    it("Should return list of artworks report entries without matches limit", async () => {
-      const res = await service.getArtworksReportEntries("0");
-      const expectedEntry = {
-        statistics: { totalMatches: 4 },
-        matchingPages: mockedSearchImageReturnValue.matchingPages
-      };
-
-      expect(res).toEqual([
-        {
-          artworkId: "1",
-          ...expectedEntry
-        },
-        {
-          artworkId: "2",
-          ...expectedEntry
-        },
-        {
-          artworkId: "3",
-          ...expectedEntry
-        },
-        {
-          artworkId: "4",
-          ...expectedEntry
-        }
-      ]);
-    });
-
-    it("Should return list of artworks report entries when limit is specified", async () => {
-      const res = await service.getArtworksReportEntries("0", 2);
-      const expectedEntry = {
-        statistics: { totalMatches: 4 },
-        matchingPages: mockedSearchImageReturnValue.matchingPages.slice(0, 2)
-      };
-
-      expect(res).toEqual([
-        {
-          artworkId: "1",
-          ...expectedEntry
-        },
-        {
-          artworkId: "2",
-          ...expectedEntry
-        },
-        {
-          artworkId: "3",
-          ...expectedEntry
-        },
-        {
-          artworkId: "4",
-          ...expectedEntry
-        }
-      ]);
-    });
-
-    it("Should handle limit larger than available matching pages", async () => {
-      const res = await service.getArtworksReportEntries("0", 100);
-      const expectedEntry = {
-        statistics: { totalMatches: 4 },
-        matchingPages: mockedSearchImageReturnValue.matchingPages.slice(0, 100)
-      };
-
-      expect(res).toEqual([
-        {
-          artworkId: "1",
-          ...expectedEntry
-        },
-        {
-          artworkId: "2",
-          ...expectedEntry
-        },
-        {
-          artworkId: "3",
-          ...expectedEntry
-        },
-        {
-          artworkId: "4",
-          ...expectedEntry
-        }
-      ]);
-    });
-
-    it("Should handle limit of 0", async () => {
-      const res = await service.getArtworksReportEntries("0", 0);
-      const expectedEntry = {
-        statistics: { totalMatches: 4 },
-        matchingPages: mockedSearchImageReturnValue.matchingPages.slice(0, 0)
-      };
-
-      expect(res).toEqual([
-        {
-          artworkId: "1",
-          ...expectedEntry
-        },
-        {
-          artworkId: "2",
-          ...expectedEntry
-        },
-        {
-          artworkId: "3",
-          ...expectedEntry
-        },
-        {
-          artworkId: "4",
-          ...expectedEntry
-        }
-      ]);
-    });
-
-    it("Should handle non-existent user ID", async () => {
-      jest.spyOn(artworksService, "findAllPerUser").mockResolvedValue([]);
-
-      const res = await service.getArtworksReportEntries("0");
-      expect(res).toEqual([]);
-    });
-  });
-
-  describe("getArtworksReportStatistics", () => {
-    beforeEach(() => {});
-
-    it("Should return global statistics about all artworks", () => {
-      const res = service.getArtworksReportStatistics(
-        mockedFilteredArtworksReportEntries
+      const res = await service.aggregateVisualSearchResults(
+        "https://download.example"
       );
 
-      expect(res).toEqual({
-        totalMatches: 12
+      expect(res).toEqual([{ url: "https://b.example" }]);
+    });
+
+    it("Should return the surviving provider's matches when one provider fails", async () => {
+      visionService.searchImage.mockRejectedValue(new Error("vision down"));
+      googleLensService.searchImage.mockResolvedValue({
+        matchingPages: [{ url: "https://b.example" }]
       });
-    });
 
-    it("Should handle no entries", () => {
-      const res = service.getArtworksReportStatistics([]);
-
-      expect(res).toEqual({
-        totalMatches: 0
-      });
-    });
-  });
-
-  describe("getArtworksReport", () => {
-    it("Should return artworks report", async () => {
-      jest
-        .spyOn(service, "getArtworksReportEntries")
-        .mockResolvedValue(mockedFilteredArtworksReportEntries);
-      const res = await service.getArtworksReport("0");
-
-      expect(res).toEqual({
-        detectionDate: expect.any(Date),
-        statistics: { totalMatches: 12 },
-        entries: mockedFilteredArtworksReportEntries
-      });
-    });
-
-    it("Should handle no entries", async () => {
-      jest.spyOn(service, "getArtworksReportEntries").mockResolvedValue([]);
-      const res = await service.getArtworksReport("0");
-
-      expect(res).toEqual({
-        detectionDate: expect.any(Date),
-        statistics: { totalMatches: 0 },
-        entries: []
-      });
-    });
-  });
-
-  describe("getArtworkMatches", () => {
-    beforeEach(() => {
-      jest.spyOn(storageService, "getImage").mockResolvedValue(Buffer.from(""));
-    });
-
-    it("Should return all matching pages of an artwork without filter", async () => {
-      jest.spyOn(artworksService, "findOne").mockResolvedValue(mockedArtwork);
-      jest
-        .spyOn(service, "aggregateVisualSearchResults")
-        .mockResolvedValue(mockedAggregatedResults);
-      const res = await service.getArtworkMatches("", mockedArtwork.id, {});
-
-      expect(res).toEqual(mockedSearchImageReturnValue.matchingPages);
-    });
-
-    it("Should handle artwork not found", async () => {
-      const f = service.getArtworkMatches("", mockedArtwork.id, {});
-
-      await expect(f).rejects.toThrow(
-        new NotFoundException("Artwork not found")
+      const res = await service.aggregateVisualSearchResults(
+        // Buffer.from(""),
+        "https://download.example"
       );
+
+      expect(res).toEqual([{ url: "https://b.example" }]);
     });
 
-    it("Should handle filter", async () => {
-      jest.spyOn(artworksService, "findOne").mockResolvedValue(mockedArtwork);
-      jest
-        .spyOn(service, "aggregateVisualSearchResults")
-        .mockResolvedValue(mockedAggregatedResults);
-      const res = await service.getArtworkMatches("", mockedArtwork.id, {
-        websiteCategory: WebsiteCategory.ART_PLATFORMS
-      });
+    it("Should return an empty array for a genuine zero-match scan", async () => {
+      visionService.searchImage.mockResolvedValue(null);
+      googleLensService.searchImage.mockResolvedValue({ matchingPages: [] });
 
-      expect(res).toEqual([
-        {
-          url: "artstation.com/artist",
-          pageTitle: "Ebay art sold",
-          category: WebsiteCategory.ART_PLATFORMS,
-          websiteName: "artstation.com",
-          imageUrl: "imageUrl"
-        }
-      ]);
-    });
-  });
-
-  describe("getAllArtworksMatches", () => {
-    it("Should return all matches pages found for all artworks of a user without filter", async () => {
-      jest
-        .spyOn(service, "getArtworksReportEntries")
-        .mockResolvedValue(mockedArtworksReportEntries);
-      const res = await service.getAllArtworksMatches(mockedArtwork.id, {});
-      const expectedRes = [
-        ...mockedSearchImageReturnValue.matchingPages,
-        ...mockedSearchImageReturnValue.matchingPages,
-        ...mockedSearchImageReturnValue.matchingPages
-      ];
-
-      expect(res).toEqual(expectedRes);
-    });
-
-    it("Should handle filter", async () => {
-      jest
-        .spyOn(service, "getArtworksReportEntries")
-        .mockResolvedValue(mockedArtworksReportEntries);
-      const res = await service.getAllArtworksMatches(mockedArtwork.id, {
-        websiteCategory: WebsiteCategory.SOCIAL
-      });
-      const expectedArtworkMatches = [
-        {
-          url: "https://in.pinterest.com/rukminidubey/illustration-light-tone/",
-          pageTitle:
-            "Discover 21 Illustration Light tone and cute drawings ideas",
-          category: WebsiteCategory.SOCIAL,
-          websiteName: "pinterest.com",
-          imageUrl:
-            "https://i.pinimg.com/236x/b0/42/f7/b042f7f4d3583298407291b0a8882fef.jpg"
-        },
-        {
-          url: "https://emblask.tumblr.com/post/650058868223819776",
-          pageTitle: "Ayaka Suda illustration - Tumblr",
-          category: WebsiteCategory.SOCIAL,
-          websiteName: "tumblr.com",
-          imageUrl:
-            "https://64.media.tumblr.com/853eb47c8fe24d2dbb2f742e906b9378/2bfc4b18c0150b65-5d/s640x960/6e3b30d3cd28d4eda06032af3f6b503b0450ba66.jpg"
-        }
-      ];
-      const expectedRes = [
-        ...expectedArtworkMatches,
-        ...expectedArtworkMatches,
-        ...expectedArtworkMatches
-      ];
-
-      expect(res).toEqual(expectedRes);
-    });
-
-    it("Should handle no entries with filter", async () => {
-      jest.spyOn(service, "getArtworksReportEntries").mockResolvedValue([]);
-      const res = await service.getAllArtworksMatches(mockedArtwork.id, {});
+      const res = await service.aggregateVisualSearchResults(
+        // Buffer.from(""),
+        "https://download.example"
+      );
 
       expect(res).toEqual([]);
     });
 
-    it("Should handle no entries without filter", async () => {
-      jest.spyOn(service, "getArtworksReportEntries").mockResolvedValue([]);
-      const res = await service.getAllArtworksMatches(mockedArtwork.id, {
-        websiteCategory: WebsiteCategory.ART_PLATFORMS
+    it("Should throw when all providers fail", async () => {
+      visionService.searchImage.mockRejectedValue(new Error("vision down"));
+      googleLensService.searchImage.mockRejectedValue(new Error("lens down"));
+
+      await expect(
+        service.aggregateVisualSearchResults(
+          // Buffer.from(""),
+          "https://download.example"
+        )
+      ).rejects.toBeInstanceOf(ServiceUnavailableException);
+    });
+  });
+
+  describe("checkScanQuota", () => {
+    it(`Should allow a scan below the ${MAX_SCANS_PER_WINDOW}-scan limit`, async () => {
+      prisma.artworksReport.count.mockResolvedValue(MAX_SCANS_PER_WINDOW - 1);
+
+      await expect(
+        service.checkScanQuota("user-id")
+      ).resolves.toBeUndefined();
+    });
+
+    it(`Should throw once the ${MAX_SCANS_PER_WINDOW}-scan limit is reached`, async () => {
+      prisma.artworksReport.count.mockResolvedValue(MAX_SCANS_PER_WINDOW);
+
+      await expect(service.checkScanQuota("user-id")).rejects.toBeInstanceOf(
+        ForbiddenException
+      );
+    });
+
+    it("Should count only reports inside the rolling window", async () => {
+      prisma.artworksReport.count.mockResolvedValue(0);
+
+      await service.checkScanQuota("user-id");
+
+      const where = prisma.artworksReport.count.mock.calls[0][0].where;
+      expect(where.userId).toBe("user-id");
+      expect(where.detectionDate.gt).toBeInstanceOf(Date);
+    });
+  });
+
+  describe("generate", () => {
+    const mockScanSuccess = () => {
+      prisma.artworksReport.count.mockResolvedValue(0);
+      artworksService.findAllPerUser.mockResolvedValue([
+        { id: "a1", storageKey: "k1" },
+        { id: "a2", storageKey: "k2" }
+      ]);
+      storageService.getImage.mockResolvedValue(Buffer.from(""));
+      storageService.getDownloadUrl.mockResolvedValue("https://dl.example");
+      visionService.searchImage.mockResolvedValue({ matchingPages: [] });
+      googleLensService.searchImage.mockResolvedValue({ matchingPages: [] });
+      matchingPagesService.createMany.mockResolvedValue({ matchingPages: [] });
+      prisma.artworksReport.create.mockResolvedValue({ id: "report-1" });
+      prisma.artwork.updateMany.mockResolvedValue({ count: 2 });
+    };
+
+    it("Should report progress to the job per artwork", async () => {
+      mockScanSuccess();
+      const job = { updateProgress: jest.fn().mockResolvedValue(undefined) };
+
+      const report = await service.generate("user-id", job as never);
+
+      expect(report).toEqual({ id: "report-1" });
+      expect(job.updateProgress).toHaveBeenCalledWith({
+        processed: 0,
+        total: 2
+      });
+      expect(job.updateProgress).toHaveBeenLastCalledWith({
+        processed: 2,
+        total: 2
+      });
+    });
+
+    it("Should generate without a job (scheduler path)", async () => {
+      mockScanSuccess();
+
+      const report = await service.generate("user-id");
+
+      expect(report).toEqual({ id: "report-1" });
+    });
+
+    it("Should still complete the scan when one artwork's search fails", async () => {
+      mockScanSuccess();
+      // Two artworks; the first one's Lens call fails, the second succeeds.
+      googleLensService.searchImage
+        .mockReset()
+        .mockRejectedValueOnce(new Error("lens timeout"))
+        .mockResolvedValueOnce({ matchingPages: [] });
+
+      const report = await service.generate("user-id");
+
+      expect(report).toEqual({ id: "report-1" });
+    });
+
+    it("Should fail the scan (no report) when every artwork's search fails", async () => {
+      mockScanSuccess();
+      googleLensService.searchImage
+        .mockReset()
+        .mockRejectedValue(new Error("lens timeout"));
+
+      await expect(service.generate("user-id")).rejects.toBeInstanceOf(
+        ServiceUnavailableException
+      );
+      expect(prisma.artworksReport.create).not.toHaveBeenCalled();
+    });
+
+    it("Should not create a report when over quota", async () => {
+      prisma.artworksReport.count.mockResolvedValue(MAX_SCANS_PER_WINDOW);
+
+      await expect(service.generate("user-id")).rejects.toBeInstanceOf(
+        ForbiddenException
+      );
+      expect(prisma.artworksReport.create).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("enqueueScan", () => {
+    it("Should enqueue a job with a deterministic per-user id when none exists", async () => {
+      prisma.artworksReport.count.mockResolvedValue(0);
+      queue.getJob.mockResolvedValue(null);
+      queue.add.mockResolvedValue({ id: "scan-user-id" });
+
+      const res = await service.enqueueScan("user-id");
+
+      expect(res).toEqual({ jobId: "scan-user-id" });
+      expect(queue.add).toHaveBeenCalledWith(
+        expect.anything(),
+        { userId: "user-id" },
+        expect.objectContaining({ jobId: "scan-user-id" })
+      );
+    });
+
+    it("Should single-flight an already running scan instead of enqueuing again", async () => {
+      prisma.artworksReport.count.mockResolvedValue(0);
+      queue.getJob.mockResolvedValue({
+        getState: jest.fn().mockResolvedValue("active"),
+        timestamp: Date.now(),
+        processedOn: Date.now()
       });
 
-      expect(res).toEqual([]);
+      const res = await service.enqueueScan("user-id");
+
+      expect(res).toEqual({ jobId: "scan-user-id" });
+      expect(queue.add).not.toHaveBeenCalled();
+    });
+
+    it("Should replace a terminal job so a fresh scan can run", async () => {
+      prisma.artworksReport.count.mockResolvedValue(0);
+      const remove = jest.fn().mockResolvedValue(undefined);
+      queue.getJob.mockResolvedValue({
+        getState: jest.fn().mockResolvedValue("completed"),
+        timestamp: Date.now(),
+        remove
+      });
+      queue.add.mockResolvedValue({ id: "scan-user-id" });
+
+      const res = await service.enqueueScan("user-id");
+
+      expect(remove).toHaveBeenCalled();
+      expect(queue.add).toHaveBeenCalled();
+      expect(res).toEqual({ jobId: "scan-user-id" });
+    });
+
+    it("Should reject before enqueuing when over quota", async () => {
+      prisma.artworksReport.count.mockResolvedValue(MAX_SCANS_PER_WINDOW);
+
+      await expect(service.enqueueScan("user-id")).rejects.toBeInstanceOf(
+        ForbiddenException
+      );
+      expect(queue.add).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("enqueueScheduledScan", () => {
+    it("Should share the deterministic id and single-flight an in-flight scan", async () => {
+      queue.getJob.mockResolvedValue({
+        getState: jest.fn().mockResolvedValue("active")
+      });
+
+      await service.enqueueScheduledScan("user-id");
+
+      expect(queue.getJob).toHaveBeenCalledWith("scan-user-id");
+      expect(queue.add).not.toHaveBeenCalled();
+    });
+
+    it("Should enqueue with retry options when no job exists", async () => {
+      queue.getJob.mockResolvedValue(null);
+      queue.add.mockResolvedValue({ id: "scan-user-id" });
+
+      await service.enqueueScheduledScan("user-id");
+
+      expect(queue.add).toHaveBeenCalledWith(
+        expect.anything(),
+        { userId: "user-id" },
+        expect.objectContaining({ jobId: "scan-user-id", attempts: 3 })
+      );
+    });
+
+    it("Should not check the interactive quota (enforced later in generate)", async () => {
+      queue.getJob.mockResolvedValue(null);
+      queue.add.mockResolvedValue({ id: "scan-user-id" });
+
+      await service.enqueueScheduledScan("user-id");
+
+      expect(prisma.artworksReport.count).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("getScanStatus", () => {
+    it("Should return the reportId when the job is completed", async () => {
+      queue.getJob.mockResolvedValue({
+        data: { userId: "user-id" },
+        getState: jest.fn().mockResolvedValue("completed"),
+        progress: { processed: 2, total: 2 },
+        returnvalue: "report-1",
+        failedReason: undefined
+      });
+
+      const res = await service.getScanStatus("user-id", "scan-user-id");
+
+      expect(res).toMatchObject({
+        jobId: "scan-user-id",
+        state: "completed",
+        progress: { processed: 2, total: 2 },
+        reportId: "report-1"
+      });
+    });
+
+    it("Should throw when the job does not exist", async () => {
+      queue.getJob.mockResolvedValue(null);
+
+      await expect(
+        service.getScanStatus("user-id", "scan-user-id")
+      ).rejects.toBeInstanceOf(NotFoundException);
+    });
+
+    it("Should throw when the job belongs to another user", async () => {
+      queue.getJob.mockResolvedValue({
+        data: { userId: "someone-else" },
+        getState: jest.fn().mockResolvedValue("active")
+      });
+
+      await expect(
+        service.getScanStatus("user-id", "scan-user-id")
+      ).rejects.toBeInstanceOf(NotFoundException);
+    });
+
+    it("Should throw when the job was evicted (unknown state)", async () => {
+      queue.getJob.mockResolvedValue({
+        data: { userId: "user-id" },
+        getState: jest.fn().mockResolvedValue("unknown")
+      });
+
+      await expect(
+        service.getScanStatus("user-id", "scan-user-id")
+      ).rejects.toBeInstanceOf(NotFoundException);
     });
   });
 });
