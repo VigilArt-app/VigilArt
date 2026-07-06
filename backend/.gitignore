@@ -5,3 +5,4 @@ node_modules
 
 keys/
 .prisma-zod-generator-manifest.json
+tsconfig.seeds.tsbuildinfo

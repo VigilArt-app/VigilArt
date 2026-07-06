@@ -16,12 +16,21 @@ export default function ActionButtons({ onUploadComplete }: ActionButtonsProps) 
   const [uploadModalOpen, setUploadModalOpen] = useState(false);
   const [reportModalOpen, setReportModalOpen] = useState(false);
   const { t } = useTranslation();
-  const { loading, error, report, handleCreate, resetState } = useCreateReport();
+  const { loading, error, report, progress, handleCreate, resetState } =
+    useCreateReport();
 
   const handleReportButtonClick = async () => {
     resetState();
     setReportModalOpen(true);
     await handleCreate();
+  };
+
+  const handleReportModalOpenChange = (open: boolean) => {
+    setReportModalOpen(open);
+    // Closing the modal stops the UI polling (the scan keeps running server-side).
+    if (!open) {
+      resetState();
+    }
   };
 
   return (
@@ -52,10 +61,11 @@ export default function ActionButtons({ onUploadComplete }: ActionButtonsProps) 
       />
       <ReportModal
         open={reportModalOpen}
-        onOpenChange={setReportModalOpen}
+        onOpenChange={handleReportModalOpenChange}
         report={report}
         error={error}
         loading={loading}
+        progress={progress}
       />
     </>
   );

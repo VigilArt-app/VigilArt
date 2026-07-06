@@ -53,7 +53,7 @@ services:
       dockerfile: Dockerfile.dev
     command: pnpm db:studio
     ports:
-      - "5555:5555"
+      - "5556:5555"
     env_file:
       - .env
     networks:

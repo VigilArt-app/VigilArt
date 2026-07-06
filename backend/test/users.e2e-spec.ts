@@ -320,6 +320,13 @@ describe("Users E2E", () => {
         .delete(`/users/${testUser.id}`)
         .expect(HttpStatus.NO_CONTENT);
       expect(res.body).toEqual({});
+
+      const setCookie = res.headers["set-cookie"] as unknown as
+        | string[]
+        | undefined;
+      const cookies = Array.isArray(setCookie) ? setCookie : [];
+      expect(cookies.some((c) => c.startsWith("auth_token="))).toBe(true);
+      expect(cookies.some((c) => c.startsWith("refresh_token="))).toBe(true);
     });
 
     it("Shouldn't remove user with non-existent ID", async () => {

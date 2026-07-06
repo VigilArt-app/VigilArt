@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { Loader2, Upload, X, AlertTriangle } from "lucide-react";
 import type { UserUpdate } from "@vigilart/shared/types";
 import {
@@ -11,7 +10,6 @@ import {
   getAvatarDownloadUrl,
   deleteAccount,
 } from "./api";
-import { logout } from "@/src/utils/auth/auth";
 import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
 import { Label } from "@/src/components/ui/label";
@@ -27,7 +25,6 @@ import { useTranslation } from "react-i18next";
 
 export default function ProfilePage() {
   const { t } = useTranslation();
-  const router = useRouter();
   const { user, loading: isLoading, refreshUser } = useAuth();
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -158,11 +155,14 @@ export default function ProfilePage() {
     setIsDeleting(true);
     try {
       await deleteAccount(user.id);
-      await logout();
       setDeleteDialogOpen(false);
-      router.push("/login");
-    } catch (error) {
-    } finally {
+      // The DELETE response clears the auth cookies server-side. Hard-redirect
+      // so the browser drops the deleted session and middleware sees no
+      // auth_token (avoids the /login <-> /dashboard redirect loop).
+      window.location.href = "/login";
+    } catch {
+      // deleteAccount already surfaces a toast on failure; keep the user on the
+      // page so they can retry.
       setIsDeleting(false);
     }
   };

@@ -9,7 +9,7 @@ import {
 } from "../../../components/ui/dialog";
 import { Button } from "../../../components/ui/button";
 import { AlertCircle, CheckCircle } from "lucide-react";
-import type { ReportData } from "@/src/hooks/useCreateReport";
+import type { ReportData, ScanProgress } from "@/src/hooks/useCreateReport";
 
 interface ReportModalProps {
   open: boolean;
@@ -17,6 +17,7 @@ interface ReportModalProps {
   report: ReportData | null;
   error: string | null;
   loading: boolean;
+  progress: ScanProgress | null;
 }
 
 export function ReportModal({
@@ -25,8 +26,16 @@ export function ReportModal({
   report,
   error,
   loading,
+  progress,
 }: ReportModalProps) {
   const { t, i18n } = useTranslation();
+  // Any progress object means the job is running; the bar only makes sense
+  // once there is at least one artwork to scan (avoids a 0/0 division).
+  const scanStarted = !!progress;
+  const hasBar = !!progress && progress.total > 0;
+  const percent = hasBar
+    ? Math.round((progress.processed / progress.total) * 100)
+    : 0;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -42,8 +51,26 @@ export function ReportModal({
         </DialogHeader>
 
         {loading ? (
-          <div className="flex items-center justify-center py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          <div className="py-8 space-y-4">
+            <div className="flex items-center justify-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            </div>
+            <p className="text-center text-sm text-gray-600">
+              {scanStarted
+                ? t("artworks_report_page.scanning_artwork", {
+                    processed: progress.processed,
+                    total: progress.total,
+                  })
+                : t("artworks_report_page.queued")}
+            </p>
+            {hasBar && (
+              <div className="w-full bg-gray-200 rounded-full h-2">
+                <div
+                  className="bg-blue-600 h-2 rounded-full transition-all"
+                  style={{ width: `${percent}%` }}
+                />
+              </div>
+            )}
           </div>
         ) : error ? (
           <div className="flex gap-3 p-4 bg-red-50 rounded-lg border border-red-200">
@@ -138,10 +165,8 @@ export function ReportModal({
         ) : null}
 
         <div className="flex gap-3 justify-end pt-4 border-t">
-          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={loading}>
-            {error || report
-              ? t("dashboard_page.upload.cancel")
-              : t("artworks_report_page.processing")}
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
+            {t("dashboard_page.upload.cancel")}
           </Button>
         </div>
       </DialogContent>
