@@ -1172,6 +1172,7 @@ export const MatchingPageScalarFieldEnum = {
   websiteName: 'websiteName',
   imageUrl: 'imageUrl',
   pageTitle: 'pageTitle',
+  unsafeDomain: 'unsafeDomain',
   firstDetectedAt: 'firstDetectedAt'
 } as const
 
@@ -1366,6 +1367,13 @@ export type EnumWebsiteCategoryFieldRefInput<$PrismaModel> = FieldRefInputType<$
  * Reference to a field of type 'WebsiteCategory[]'
  */
 export type ListEnumWebsiteCategoryFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'WebsiteCategory[]'>
+    
+
+
+/**
+ * Reference to a field of type 'Boolean'
+ */
+export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
     
 
 

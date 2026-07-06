@@ -199,6 +199,11 @@ export type EnumWebsiteCategoryFilter<$PrismaModel = never> = {
   not?: Prisma.NestedEnumWebsiteCategoryFilter<$PrismaModel> | $Enums.WebsiteCategory
 }
 
+export type BoolFilter<$PrismaModel = never> = {
+  equals?: boolean | Prisma.BooleanFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedBoolFilter<$PrismaModel> | boolean
+}
+
 export type EnumWebsiteCategoryWithAggregatesFilter<$PrismaModel = never> = {
   equals?: $Enums.WebsiteCategory | Prisma.EnumWebsiteCategoryFieldRefInput<$PrismaModel>
   in?: $Enums.WebsiteCategory[] | Prisma.ListEnumWebsiteCategoryFieldRefInput<$PrismaModel>
@@ -207,6 +212,14 @@ export type EnumWebsiteCategoryWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumWebsiteCategoryFilter<$PrismaModel>
   _max?: Prisma.NestedEnumWebsiteCategoryFilter<$PrismaModel>
+}
+
+export type BoolWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: boolean | Prisma.BooleanFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedBoolFilter<$PrismaModel>
+  _max?: Prisma.NestedBoolFilter<$PrismaModel>
 }
 
 export type JsonFilter<$PrismaModel = never> =
@@ -475,6 +488,11 @@ export type NestedEnumWebsiteCategoryFilter<$PrismaModel = never> = {
   not?: Prisma.NestedEnumWebsiteCategoryFilter<$PrismaModel> | $Enums.WebsiteCategory
 }
 
+export type NestedBoolFilter<$PrismaModel = never> = {
+  equals?: boolean | Prisma.BooleanFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedBoolFilter<$PrismaModel> | boolean
+}
+
 export type NestedEnumWebsiteCategoryWithAggregatesFilter<$PrismaModel = never> = {
   equals?: $Enums.WebsiteCategory | Prisma.EnumWebsiteCategoryFieldRefInput<$PrismaModel>
   in?: $Enums.WebsiteCategory[] | Prisma.ListEnumWebsiteCategoryFieldRefInput<$PrismaModel>
@@ -483,6 +501,14 @@ export type NestedEnumWebsiteCategoryWithAggregatesFilter<$PrismaModel = never> 
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumWebsiteCategoryFilter<$PrismaModel>
   _max?: Prisma.NestedEnumWebsiteCategoryFilter<$PrismaModel>
+}
+
+export type NestedBoolWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: boolean | Prisma.BooleanFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedBoolFilter<$PrismaModel>
+  _max?: Prisma.NestedBoolFilter<$PrismaModel>
 }
 
 export type NestedJsonFilter<$PrismaModel = never> =

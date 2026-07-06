@@ -117,12 +117,6 @@ export const BLACKLISTED_DOMAINS: string[] = [
   'buhitter.com',
 ];
 
-export const FLAGGED_DOMAINS: string[] = [
-  'pixiv.net',
-  'twitter.com',
-  'x.com',
-];
-
 export function isBlacklisted(url: string): boolean {
   const domain = extractRootDomain(url);
   return BLACKLISTED_DOMAINS.some(
@@ -130,9 +124,3 @@ export function isBlacklisted(url: string): boolean {
   );
 }
 
-export function isFlagged(url: string): boolean {
-  const domain = extractRootDomain(url);
-  return FLAGGED_DOMAINS.some(
-    (flagged) => domain === flagged || domain.endsWith(`.${flagged}`),
-  );
-}
