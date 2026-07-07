@@ -1,4 +1,4 @@
-package com.example.vigilart
+package app.vigilart
 
 import io.flutter.embedding.android.FlutterActivity
 
