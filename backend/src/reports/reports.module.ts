@@ -12,6 +12,7 @@ import { GoogleLensModule } from "../googlelens/googlelens.module";
 import { ReportsProcessor } from "./reports.processor";
 import { ReportsScheduler } from "./reports.scheduler";
 import { REPORTS_QUEUE } from "./reports.constants";
+import { NotificationsModule } from "../notifications/notifications.module";
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { REPORTS_QUEUE } from "./reports.constants";
     ArtworksModule,
     StorageModule,
     GoogleLensModule,
+    NotificationsModule,
     BullModule.registerQueueAsync({
       name: REPORTS_QUEUE,
       imports: [ConfigModule],

@@ -9,6 +9,15 @@
 * 🟢 You can import this file directly.
 */
 
+export const DevicePlatform = {
+  WEB: 'WEB',
+  ANDROID: 'ANDROID',
+  IOS: 'IOS'
+} as const
+
+export type DevicePlatform = (typeof DevicePlatform)[keyof typeof DevicePlatform]
+
+
 export const SubscriptionTier = {
   FREE: 'FREE',
   CREATOR: 'CREATOR',
