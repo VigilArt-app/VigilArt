@@ -4,6 +4,7 @@ import {
   OnModuleInit,
   OnModuleDestroy
 } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
 import { PrismaService } from "../prisma/prisma.service";
 import type { NotificationPayload, DeviceToken } from "@vigilart/shared";
 import { RegisterDeviceDTO } from "@vigilart/shared";
@@ -14,27 +15,37 @@ import {
   cert
 } from "firebase-admin/app";
 import { getMessaging } from "firebase-admin/messaging";
-import firebaseKeyJSON from "../../keys/vigilart-firebase.json";
+import { readFileSync, existsSync } from "fs";
 
 @Injectable()
 export class NotificationsService implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(NotificationsService.name);
   private firebaseApp: App | null = null;
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly config: ConfigService
+  ) {}
 
   onModuleInit() {
-    if (!firebaseKeyJSON.project_id || !firebaseKeyJSON.client_email || !firebaseKeyJSON.private_key) {
-      this.logger.warn("Firebase service account key is incomplete, push notifications are disabled.");
+    const keyPath = this.config.get<string>("FIREBASE_APPLICATION_CREDENTIALS");
+
+    if (!keyPath) {
+      this.logger.warn(
+        "Firebase credentials not configured, push notifications are disabled. " +
+        "Set FIREBASE_APPLICATION_CREDENTIALS to enable them."
+      );
       return;
     }
 
+    if (!existsSync(keyPath)) {
+      this.logger.warn(`Firebase service account key file not found at "${keyPath}", push notifications are disabled.`);
+      return;
+    }
+
+    const serviceAccount = JSON.parse(readFileSync(keyPath, "utf-8"));
     this.firebaseApp = initializeApp({
-      credential: cert({
-        projectId: firebaseKeyJSON.project_id,
-        clientEmail: firebaseKeyJSON.client_email,
-        privateKey: firebaseKeyJSON.private_key
-      })
+      credential: cert(serviceAccount)
     });
     this.logger.log("Firebase Admin SDK initialised.");
   }
@@ -73,19 +84,15 @@ export class NotificationsService implements OnModuleInit, OnModuleDestroy {
     userId: string,
     notification: NotificationPayload
   ): Promise<void> {
-    if (!this.firebaseApp) {
-      this.logger.debug("Firebase not configured, skipping push notification.");
+    if (!this.firebaseApp)
       return;
-    }
 
     const deviceTokens = await this.prisma.deviceToken.findMany({
       where: { userId },
       select: { token: true, id: true }
     });
-    if (deviceTokens.length === 0) {
-      this.logger.debug(`No device tokens found for user ${userId}, skipping.`);
+    if (deviceTokens.length === 0)
       return;
-    }
 
     const tokens = deviceTokens.map((d) => d.token);
     const messaging = getMessaging(this.firebaseApp);
