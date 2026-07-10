@@ -32,6 +32,7 @@ model User {
   avatar           String?
   subscriptionTier SubscriptionTier @default(FREE)
   autoRunReports   Boolean          @default(false)
+  notificationsEnabled Boolean      @default(false)
 
   createdAt        DateTime         @default(now())
   artworks         Artwork[]
