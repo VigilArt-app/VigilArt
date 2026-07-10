@@ -1,3 +1,4 @@
+import { getDomain } from "tldts";
 import {
   WebsiteCategory,
   type WebsiteCategory as WebsiteCategoryType
@@ -79,16 +80,7 @@ export const classifyWebsite = (rawUrl: string): WebsiteCategoryType => {
 };
 
 export const extractRootDomain = (url: string): string => {
-  const hostname = new URL(url).hostname.replace(/^www\./, "");
-  const parts = hostname.split(".");
-  let rootDomain: string;
-
-  if (parts.length <= 2) {
-    rootDomain = hostname;
-  } else {
-    rootDomain = parts.slice(-2).join(".");
-  }
-  return rootDomain;
+  return getDomain(url) ?? new URL(url).hostname.replace(/^www\./, "");
 };
 
 export const BLACKLISTED_DOMAINS: string[] = [
