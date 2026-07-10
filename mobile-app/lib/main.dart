@@ -9,11 +9,27 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'pages/login_page.dart';
 import 'pages/signup_page.dart';
 
-void main() async {
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:vigilart/services/notification_service.dart';
 
+@pragma('vm:entry-point')
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp();
+}
+
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: ".env");
+
+  await Firebase.initializeApp();
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+
   bool isLoggedIn = await checkLoginStatus();
+  if (isLoggedIn) {
+    NotificationService().initialize();
+  }
+
   runApp(VigilArtApp(isLoggedIn: isLoggedIn));
 }
 
@@ -62,10 +78,8 @@ class VigilArtApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.teal,
-        primaryColor: const Color(0xFF21808D), 
-        
+        primaryColor: const Color(0xFF21808D),
         scaffoldBackgroundColor: const Color(0xFFFFF5E6),
-        
         colorScheme: ColorScheme.fromSwatch(
           primarySwatch: Colors.teal,
           backgroundColor: const Color.fromARGB(255, 255, 255, 255),
@@ -101,9 +115,7 @@ class VigilArtApp extends StatelessWidget {
             ),
           ),
         ),
-        
         fontFamily: 'Poppins',
-        
         useMaterial3: true,
       ),
       home: isLoggedIn ? const DashboardPage() : const LoginPage(),
@@ -118,4 +130,3 @@ class VigilArtApp extends StatelessWidget {
     );
   }
 }
-

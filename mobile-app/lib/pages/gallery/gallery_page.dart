@@ -184,7 +184,6 @@ class _GalleryPageState extends State<GalleryPage> {
         child: SafeArea(
           child: VigilArtHeaderBar(
             onLogoTap: () => Navigator.pushNamed(context, '/dashboard'),
-            onNotificationsTap: () => Navigator.pushNamed(context, '/notifications'),
             onProfileTap: () => Navigator.pushNamed(context, '/profile'),
             avatar: _userAvatarUrl,
           ),

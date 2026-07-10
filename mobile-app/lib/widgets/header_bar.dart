@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:vigilart/services/notification_service.dart';
+import 'package:vigilart/(api)/auth.dart';
+import 'package:vigilart/(api)/user.dart';
 
 class VigilArtHeaderBar extends StatefulWidget {
   final VoidCallback onLogoTap;
-  final VoidCallback onNotificationsTap;
   final VoidCallback onProfileTap;
   final String avatar;
   final int notificationCount;
@@ -10,7 +13,6 @@ class VigilArtHeaderBar extends StatefulWidget {
   const VigilArtHeaderBar({
     super.key,
     required this.onLogoTap,
-    required this.onNotificationsTap,
     required this.onProfileTap,
     required this.avatar,
     this.notificationCount = 0,
@@ -25,6 +27,9 @@ class _VigilArtHeaderBarState extends State<VigilArtHeaderBar>
   late AnimationController _animationController;
   late Animation<double> _scaleAnimation;
 
+  bool _notificationsEnabled = false;
+  bool _isToggling = false;
+
   @override
   void initState() {
     super.initState();
@@ -36,6 +41,93 @@ class _VigilArtHeaderBarState extends State<VigilArtHeaderBar>
     _scaleAnimation = Tween<double>(begin: 1.0, end: 1.05).animate(
       CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
     );
+
+    _loadNotificationState();
+  }
+
+  Future<void> _loadNotificationState() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (mounted) {
+      setState(() {
+        _notificationsEnabled = prefs.getBool('notificationsEnabled') ?? false;
+      });
+    }
+    try {
+      final profile = await ApiService().fetchUserProfile();
+      if (profile != null && mounted) {
+        final enabled = profile['notificationsEnabled'] == true;
+        await prefs.setBool('notificationsEnabled', enabled);
+        setState(() {
+          _notificationsEnabled = enabled;
+        });
+      }
+    } catch (e) {
+      debugPrint('Error syncing notification state: $e');
+    }
+  }
+
+  Future<void> _toggleNotifications() async {
+    if (_isToggling) return;
+    setState(() => _isToggling = true);
+
+    final targetState = !_notificationsEnabled;
+    final prefs = await SharedPreferences.getInstance();
+
+    try {
+      final profile = await ApiService().updateUserProfile({
+        'notificationsEnabled': targetState,
+      });
+
+      if (profile != null) {
+        try {
+          if (targetState) {
+            debugPrint('Initializing Firebase Messaging...');
+            await NotificationService().initialize();
+          } else {
+            debugPrint('Unregistering device from Firebase Messaging...');
+            await NotificationService().unregisterDevice();
+          }
+        } catch (fcmError) {
+          debugPrint('FCM configuration error: $fcmError');
+        }
+
+        await prefs.setBool('notificationsEnabled', targetState);
+        if (mounted) {
+          setState(() {
+            _notificationsEnabled = targetState;
+          });
+        }
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(targetState
+                  ? '✓ Notifications activées'
+                  : '✓ Notifications désactivées'),
+              backgroundColor:
+                  targetState ? const Color(0xFF22C55E) : Colors.grey[700],
+              duration: const Duration(seconds: 2),
+            ),
+          );
+        }
+      } else {
+        throw Exception('Failed to update notifications state on backend');
+      }
+    } catch (e) {
+      debugPrint('Error toggling notifications: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Échec de la mise à jour des notifications'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isToggling = false);
+      }
+    }
   }
 
   @override
@@ -92,7 +184,6 @@ class _VigilArtHeaderBarState extends State<VigilArtHeaderBar>
                 ),
               ),
             ),
-
             Text(
               'VigilArt',
               style: TextStyle(
@@ -110,11 +201,10 @@ class _VigilArtHeaderBarState extends State<VigilArtHeaderBar>
                 ],
               ),
             ),
-
             Row(
               children: [
                 GestureDetector(
-                  onTap: widget.onNotificationsTap,
+                  onTap: _toggleNotifications,
                   child: MouseRegion(
                     cursor: SystemMouseCursors.click,
                     child: Container(
@@ -129,13 +219,26 @@ class _VigilArtHeaderBarState extends State<VigilArtHeaderBar>
                       ),
                       child: Stack(
                         children: [
-                          const Icon(
-                            Icons.notifications_none_rounded,
-                            color: Color(0xFF5E3B7D),
-                            size: 22,
-                          ),
-
-                          if (widget.notificationCount > 0)
+                          _isToggling
+                              ? const SizedBox(
+                                  width: 22,
+                                  height: 22,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                        Color(0xFF5E3B7D)),
+                                  ),
+                                )
+                              : Icon(
+                                  _notificationsEnabled
+                                      ? Icons.notifications_active_rounded
+                                      : Icons.notifications_off_rounded,
+                                  color: _notificationsEnabled
+                                      ? const Color(0xFF5E3B7D)
+                                      : Colors.grey,
+                                  size: 22,
+                                ),
+                          if (widget.notificationCount > 0 && !_isToggling)
                             Positioned(
                               top: 0,
                               right: 0,
@@ -165,9 +268,7 @@ class _VigilArtHeaderBarState extends State<VigilArtHeaderBar>
                     ),
                   ),
                 ),
-
                 const SizedBox(width: 12),
-
                 GestureDetector(
                   onTap: _onAvatarTap,
                   child: MouseRegion(

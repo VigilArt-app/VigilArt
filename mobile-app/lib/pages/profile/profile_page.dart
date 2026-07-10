@@ -221,6 +221,7 @@ class _ProfilePageState extends State<ProfilePage> {
     await _apiService.logout();
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('isLoggedIn', false);
+    await prefs.remove('notificationsEnabled');
     if (mounted) {
       Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
     }
@@ -273,9 +274,8 @@ class _ProfilePageState extends State<ProfilePage> {
         child: SafeArea(
           child: VigilArtHeaderBar(
             onLogoTap: () => Navigator.pushNamed(context, '/dashboard'),
-            onNotificationsTap: () => Navigator.pushNamed(context, '/notifications'),
             onProfileTap: () {},
-            avatar: _userData['avatar'] ?? 'assets/images/default_avatar.jpg',          
+            avatar: _userData['avatar'] ?? 'assets/images/default_avatar.jpg',
           ),
         ),
       ),
