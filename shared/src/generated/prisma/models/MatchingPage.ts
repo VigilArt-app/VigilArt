@@ -32,6 +32,7 @@ export type MatchingPageMinAggregateOutputType = {
   websiteName: string | null
   imageUrl: string | null
   pageTitle: string | null
+  unsafeDomain: boolean | null
   firstDetectedAt: Date | null
 }
 
@@ -43,6 +44,7 @@ export type MatchingPageMaxAggregateOutputType = {
   websiteName: string | null
   imageUrl: string | null
   pageTitle: string | null
+  unsafeDomain: boolean | null
   firstDetectedAt: Date | null
 }
 
@@ -54,6 +56,7 @@ export type MatchingPageCountAggregateOutputType = {
   websiteName: number
   imageUrl: number
   pageTitle: number
+  unsafeDomain: number
   firstDetectedAt: number
   _all: number
 }
@@ -67,6 +70,7 @@ export type MatchingPageMinAggregateInputType = {
   websiteName?: true
   imageUrl?: true
   pageTitle?: true
+  unsafeDomain?: true
   firstDetectedAt?: true
 }
 
@@ -78,6 +82,7 @@ export type MatchingPageMaxAggregateInputType = {
   websiteName?: true
   imageUrl?: true
   pageTitle?: true
+  unsafeDomain?: true
   firstDetectedAt?: true
 }
 
@@ -89,6 +94,7 @@ export type MatchingPageCountAggregateInputType = {
   websiteName?: true
   imageUrl?: true
   pageTitle?: true
+  unsafeDomain?: true
   firstDetectedAt?: true
   _all?: true
 }
@@ -173,6 +179,7 @@ export type MatchingPageGroupByOutputType = {
   websiteName: string
   imageUrl: string | null
   pageTitle: string | null
+  unsafeDomain: boolean
   firstDetectedAt: Date
   _count: MatchingPageCountAggregateOutputType | null
   _min: MatchingPageMinAggregateOutputType | null
@@ -205,6 +212,7 @@ export type MatchingPageWhereInput = {
   websiteName?: Prisma.StringFilter<"MatchingPage"> | string
   imageUrl?: Prisma.StringNullableFilter<"MatchingPage"> | string | null
   pageTitle?: Prisma.StringNullableFilter<"MatchingPage"> | string | null
+  unsafeDomain?: Prisma.BoolFilter<"MatchingPage"> | boolean
   firstDetectedAt?: Prisma.DateTimeFilter<"MatchingPage"> | Date | string
   artwork?: Prisma.XOR<Prisma.ArtworkScalarRelationFilter, Prisma.ArtworkWhereInput>
   reports?: Prisma.ArtworksReportListRelationFilter
@@ -218,6 +226,7 @@ export type MatchingPageOrderByWithRelationInput = {
   websiteName?: Prisma.SortOrder
   imageUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   pageTitle?: Prisma.SortOrderInput | Prisma.SortOrder
+  unsafeDomain?: Prisma.SortOrder
   firstDetectedAt?: Prisma.SortOrder
   artwork?: Prisma.ArtworkOrderByWithRelationInput
   reports?: Prisma.ArtworksReportOrderByRelationAggregateInput
@@ -235,6 +244,7 @@ export type MatchingPageWhereUniqueInput = Prisma.AtLeast<{
   websiteName?: Prisma.StringFilter<"MatchingPage"> | string
   imageUrl?: Prisma.StringNullableFilter<"MatchingPage"> | string | null
   pageTitle?: Prisma.StringNullableFilter<"MatchingPage"> | string | null
+  unsafeDomain?: Prisma.BoolFilter<"MatchingPage"> | boolean
   firstDetectedAt?: Prisma.DateTimeFilter<"MatchingPage"> | Date | string
   artwork?: Prisma.XOR<Prisma.ArtworkScalarRelationFilter, Prisma.ArtworkWhereInput>
   reports?: Prisma.ArtworksReportListRelationFilter
@@ -248,6 +258,7 @@ export type MatchingPageOrderByWithAggregationInput = {
   websiteName?: Prisma.SortOrder
   imageUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   pageTitle?: Prisma.SortOrderInput | Prisma.SortOrder
+  unsafeDomain?: Prisma.SortOrder
   firstDetectedAt?: Prisma.SortOrder
   _count?: Prisma.MatchingPageCountOrderByAggregateInput
   _max?: Prisma.MatchingPageMaxOrderByAggregateInput
@@ -265,6 +276,7 @@ export type MatchingPageScalarWhereWithAggregatesInput = {
   websiteName?: Prisma.StringWithAggregatesFilter<"MatchingPage"> | string
   imageUrl?: Prisma.StringNullableWithAggregatesFilter<"MatchingPage"> | string | null
   pageTitle?: Prisma.StringNullableWithAggregatesFilter<"MatchingPage"> | string | null
+  unsafeDomain?: Prisma.BoolWithAggregatesFilter<"MatchingPage"> | boolean
   firstDetectedAt?: Prisma.DateTimeWithAggregatesFilter<"MatchingPage"> | Date | string
 }
 
@@ -275,6 +287,7 @@ export type MatchingPageCreateInput = {
   websiteName: string
   imageUrl?: string | null
   pageTitle?: string | null
+  unsafeDomain: boolean
   firstDetectedAt?: Date | string
   artwork: Prisma.ArtworkCreateNestedOneWithoutMatchingPagesInput
   reports?: Prisma.ArtworksReportCreateNestedManyWithoutMatchingPagesInput
@@ -288,6 +301,7 @@ export type MatchingPageUncheckedCreateInput = {
   websiteName: string
   imageUrl?: string | null
   pageTitle?: string | null
+  unsafeDomain: boolean
   firstDetectedAt?: Date | string
   reports?: Prisma.ArtworksReportUncheckedCreateNestedManyWithoutMatchingPagesInput
 }
@@ -299,6 +313,7 @@ export type MatchingPageUpdateInput = {
   websiteName?: Prisma.StringFieldUpdateOperationsInput | string
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pageTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  unsafeDomain?: Prisma.BoolFieldUpdateOperationsInput | boolean
   firstDetectedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   artwork?: Prisma.ArtworkUpdateOneRequiredWithoutMatchingPagesNestedInput
   reports?: Prisma.ArtworksReportUpdateManyWithoutMatchingPagesNestedInput
@@ -312,6 +327,7 @@ export type MatchingPageUncheckedUpdateInput = {
   websiteName?: Prisma.StringFieldUpdateOperationsInput | string
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pageTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  unsafeDomain?: Prisma.BoolFieldUpdateOperationsInput | boolean
   firstDetectedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   reports?: Prisma.ArtworksReportUncheckedUpdateManyWithoutMatchingPagesNestedInput
 }
@@ -324,6 +340,7 @@ export type MatchingPageCreateManyInput = {
   websiteName: string
   imageUrl?: string | null
   pageTitle?: string | null
+  unsafeDomain: boolean
   firstDetectedAt?: Date | string
 }
 
@@ -334,6 +351,7 @@ export type MatchingPageUpdateManyMutationInput = {
   websiteName?: Prisma.StringFieldUpdateOperationsInput | string
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pageTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  unsafeDomain?: Prisma.BoolFieldUpdateOperationsInput | boolean
   firstDetectedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -345,6 +363,7 @@ export type MatchingPageUncheckedUpdateManyInput = {
   websiteName?: Prisma.StringFieldUpdateOperationsInput | string
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pageTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  unsafeDomain?: Prisma.BoolFieldUpdateOperationsInput | boolean
   firstDetectedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -371,6 +390,7 @@ export type MatchingPageCountOrderByAggregateInput = {
   websiteName?: Prisma.SortOrder
   imageUrl?: Prisma.SortOrder
   pageTitle?: Prisma.SortOrder
+  unsafeDomain?: Prisma.SortOrder
   firstDetectedAt?: Prisma.SortOrder
 }
 
@@ -382,6 +402,7 @@ export type MatchingPageMaxOrderByAggregateInput = {
   websiteName?: Prisma.SortOrder
   imageUrl?: Prisma.SortOrder
   pageTitle?: Prisma.SortOrder
+  unsafeDomain?: Prisma.SortOrder
   firstDetectedAt?: Prisma.SortOrder
 }
 
@@ -393,6 +414,7 @@ export type MatchingPageMinOrderByAggregateInput = {
   websiteName?: Prisma.SortOrder
   imageUrl?: Prisma.SortOrder
   pageTitle?: Prisma.SortOrder
+  unsafeDomain?: Prisma.SortOrder
   firstDetectedAt?: Prisma.SortOrder
 }
 
@@ -487,6 +509,7 @@ export type MatchingPageCreateWithoutArtworkInput = {
   websiteName: string
   imageUrl?: string | null
   pageTitle?: string | null
+  unsafeDomain: boolean
   firstDetectedAt?: Date | string
   reports?: Prisma.ArtworksReportCreateNestedManyWithoutMatchingPagesInput
 }
@@ -498,6 +521,7 @@ export type MatchingPageUncheckedCreateWithoutArtworkInput = {
   websiteName: string
   imageUrl?: string | null
   pageTitle?: string | null
+  unsafeDomain: boolean
   firstDetectedAt?: Date | string
   reports?: Prisma.ArtworksReportUncheckedCreateNestedManyWithoutMatchingPagesInput
 }
@@ -539,6 +563,7 @@ export type MatchingPageScalarWhereInput = {
   websiteName?: Prisma.StringFilter<"MatchingPage"> | string
   imageUrl?: Prisma.StringNullableFilter<"MatchingPage"> | string | null
   pageTitle?: Prisma.StringNullableFilter<"MatchingPage"> | string | null
+  unsafeDomain?: Prisma.BoolFilter<"MatchingPage"> | boolean
   firstDetectedAt?: Prisma.DateTimeFilter<"MatchingPage"> | Date | string
 }
 
@@ -549,6 +574,7 @@ export type MatchingPageCreateWithoutReportsInput = {
   websiteName: string
   imageUrl?: string | null
   pageTitle?: string | null
+  unsafeDomain: boolean
   firstDetectedAt?: Date | string
   artwork: Prisma.ArtworkCreateNestedOneWithoutMatchingPagesInput
 }
@@ -561,6 +587,7 @@ export type MatchingPageUncheckedCreateWithoutReportsInput = {
   websiteName: string
   imageUrl?: string | null
   pageTitle?: string | null
+  unsafeDomain: boolean
   firstDetectedAt?: Date | string
 }
 
@@ -592,6 +619,7 @@ export type MatchingPageCreateManyArtworkInput = {
   websiteName: string
   imageUrl?: string | null
   pageTitle?: string | null
+  unsafeDomain: boolean
   firstDetectedAt?: Date | string
 }
 
@@ -602,6 +630,7 @@ export type MatchingPageUpdateWithoutArtworkInput = {
   websiteName?: Prisma.StringFieldUpdateOperationsInput | string
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pageTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  unsafeDomain?: Prisma.BoolFieldUpdateOperationsInput | boolean
   firstDetectedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   reports?: Prisma.ArtworksReportUpdateManyWithoutMatchingPagesNestedInput
 }
@@ -613,6 +642,7 @@ export type MatchingPageUncheckedUpdateWithoutArtworkInput = {
   websiteName?: Prisma.StringFieldUpdateOperationsInput | string
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pageTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  unsafeDomain?: Prisma.BoolFieldUpdateOperationsInput | boolean
   firstDetectedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   reports?: Prisma.ArtworksReportUncheckedUpdateManyWithoutMatchingPagesNestedInput
 }
@@ -624,6 +654,7 @@ export type MatchingPageUncheckedUpdateManyWithoutArtworkInput = {
   websiteName?: Prisma.StringFieldUpdateOperationsInput | string
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pageTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  unsafeDomain?: Prisma.BoolFieldUpdateOperationsInput | boolean
   firstDetectedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -634,6 +665,7 @@ export type MatchingPageUpdateWithoutReportsInput = {
   websiteName?: Prisma.StringFieldUpdateOperationsInput | string
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pageTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  unsafeDomain?: Prisma.BoolFieldUpdateOperationsInput | boolean
   firstDetectedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   artwork?: Prisma.ArtworkUpdateOneRequiredWithoutMatchingPagesNestedInput
 }
@@ -646,6 +678,7 @@ export type MatchingPageUncheckedUpdateWithoutReportsInput = {
   websiteName?: Prisma.StringFieldUpdateOperationsInput | string
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pageTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  unsafeDomain?: Prisma.BoolFieldUpdateOperationsInput | boolean
   firstDetectedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -657,6 +690,7 @@ export type MatchingPageUncheckedUpdateManyWithoutReportsInput = {
   websiteName?: Prisma.StringFieldUpdateOperationsInput | string
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pageTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  unsafeDomain?: Prisma.BoolFieldUpdateOperationsInput | boolean
   firstDetectedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -699,6 +733,7 @@ export type MatchingPageSelect<ExtArgs extends runtime.Types.Extensions.Internal
   websiteName?: boolean
   imageUrl?: boolean
   pageTitle?: boolean
+  unsafeDomain?: boolean
   firstDetectedAt?: boolean
   artwork?: boolean | Prisma.ArtworkDefaultArgs<ExtArgs>
   reports?: boolean | Prisma.MatchingPage$reportsArgs<ExtArgs>
@@ -713,6 +748,7 @@ export type MatchingPageSelectCreateManyAndReturn<ExtArgs extends runtime.Types.
   websiteName?: boolean
   imageUrl?: boolean
   pageTitle?: boolean
+  unsafeDomain?: boolean
   firstDetectedAt?: boolean
   artwork?: boolean | Prisma.ArtworkDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["matchingPage"]>
@@ -725,6 +761,7 @@ export type MatchingPageSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.
   websiteName?: boolean
   imageUrl?: boolean
   pageTitle?: boolean
+  unsafeDomain?: boolean
   firstDetectedAt?: boolean
   artwork?: boolean | Prisma.ArtworkDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["matchingPage"]>
@@ -737,10 +774,11 @@ export type MatchingPageSelectScalar = {
   websiteName?: boolean
   imageUrl?: boolean
   pageTitle?: boolean
+  unsafeDomain?: boolean
   firstDetectedAt?: boolean
 }
 
-export type MatchingPageOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "artworkId" | "url" | "category" | "websiteName" | "imageUrl" | "pageTitle" | "firstDetectedAt", ExtArgs["result"]["matchingPage"]>
+export type MatchingPageOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "artworkId" | "url" | "category" | "websiteName" | "imageUrl" | "pageTitle" | "unsafeDomain" | "firstDetectedAt", ExtArgs["result"]["matchingPage"]>
 export type MatchingPageInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   artwork?: boolean | Prisma.ArtworkDefaultArgs<ExtArgs>
   reports?: boolean | Prisma.MatchingPage$reportsArgs<ExtArgs>
@@ -767,6 +805,7 @@ export type $MatchingPagePayload<ExtArgs extends runtime.Types.Extensions.Intern
     websiteName: string
     imageUrl: string | null
     pageTitle: string | null
+    unsafeDomain: boolean
     firstDetectedAt: Date
   }, ExtArgs["result"]["matchingPage"]>
   composites: {}
@@ -1200,6 +1239,7 @@ export interface MatchingPageFieldRefs {
   readonly websiteName: Prisma.FieldRef<"MatchingPage", 'String'>
   readonly imageUrl: Prisma.FieldRef<"MatchingPage", 'String'>
   readonly pageTitle: Prisma.FieldRef<"MatchingPage", 'String'>
+  readonly unsafeDomain: Prisma.FieldRef<"MatchingPage", 'Boolean'>
   readonly firstDetectedAt: Prisma.FieldRef<"MatchingPage", 'DateTime'>
 }
     

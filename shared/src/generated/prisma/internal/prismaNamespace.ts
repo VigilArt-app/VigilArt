@@ -1172,6 +1172,7 @@ export const MatchingPageScalarFieldEnum = {
   websiteName: 'websiteName',
   imageUrl: 'imageUrl',
   pageTitle: 'pageTitle',
+  unsafeDomain: 'unsafeDomain',
   firstDetectedAt: 'firstDetectedAt'
 } as const
 
