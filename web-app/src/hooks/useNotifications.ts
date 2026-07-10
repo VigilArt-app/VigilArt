@@ -12,6 +12,7 @@ interface NotificationState {
   permission: NotificationPermission | "unsupported";
   token: string | null;
   error: string | null;
+  isEnabled: boolean;
 }
 
 /**
@@ -28,9 +29,108 @@ export function useNotifications() {
     permission: "unsupported",
     token: null,
     error: null,
+    isEnabled: false,
   });
 
   const messagingRef = useRef<Messaging | null>(null);
+  const currentTokenRef = useRef<string | null>(null);
+  const enabledRef = useRef(false);
+
+  const syncEnabledState = useCallback((enabled: boolean) => {
+    enabledRef.current = enabled;
+
+    setState((s) => ({
+      ...s,
+      isEnabled: enabled,
+    }));
+  }, []);
+
+  const unregisterToken = useCallback(async (fcmToken: string) => {
+    try {
+      await authenticatedFetch(`/notifications/devices/${encodeURIComponent(fcmToken)}`, {
+        method: "DELETE",
+      });
+    } catch (err) {
+      console.error("Failed to unregister device token:", err);
+    }
+  }, []);
+
+  const registerToken = useCallback(async (fcmToken: string) => {
+    currentTokenRef.current = fcmToken;
+    try {
+      await authenticatedFetch("/notifications/devices", {
+        method: "POST",
+        body: JSON.stringify({ token: fcmToken, platform: "WEB" }),
+      });
+    } catch (err) {
+      console.error("Failed to register device token:", err);
+    }
+  }, []);
+
+  const ensureActiveServiceWorker = useCallback(async () => {
+    const swRegistration = await navigator.serviceWorker.register("/firebase-messaging-sw.js");
+
+    if (swRegistration.active)
+      return swRegistration;
+
+    await navigator.serviceWorker.ready;
+
+    if (swRegistration.active)
+      return swRegistration;
+
+    if (swRegistration.installing || swRegistration.waiting) {
+      await new Promise<void>((resolve) => {
+        const worker = swRegistration.installing ?? swRegistration.waiting;
+
+        if (!worker) {
+          resolve();
+          return;
+        }
+
+        const handleStateChange = () => {
+          if (worker.state === "activated") {
+            worker.removeEventListener("statechange", handleStateChange);
+            resolve();
+          }
+        };
+
+        worker.addEventListener("statechange", handleStateChange);
+        handleStateChange();
+      });
+    }
+
+    return swRegistration;
+  }, []);
+
+  const registerCurrentToken = useCallback(async () => {
+    if (!messagingRef.current || !VAPID_KEY) {
+      setState((s) => ({
+        ...s,
+        error: "Messaging not initialised or VAPID key missing",
+      }));
+      return false;
+    }
+
+    const swRegistration = await ensureActiveServiceWorker();
+
+    if (!swRegistration.active) {
+      setState((s) => ({
+        ...s,
+        error: "Service worker is not active yet",
+      }));
+      return false;
+    }
+
+    const token = await getToken(messagingRef.current, {
+      vapidKey: VAPID_KEY,
+      serviceWorkerRegistration: swRegistration,
+    });
+
+    currentTokenRef.current = token;
+    setState((s) => ({ ...s, token }));
+    await registerToken(token);
+    return true;
+  }, [ensureActiveServiceWorker, registerToken]);
 
   useEffect(() => {
     if (typeof window === "undefined")
@@ -48,6 +148,8 @@ export function useNotifications() {
       messagingRef.current = getMessaging(firebaseApp);
 
       onMessage(messagingRef.current, (payload) => {
+        if (!enabledRef.current || Notification.permission !== "granted")
+          return;
         if (payload.notification) {
           new Notification(payload.notification.title ?? "VigilArt", {
             body: payload.notification.body,
@@ -64,55 +166,78 @@ export function useNotifications() {
     }
   }, []);
 
-  const registerToken = useCallback(async (fcmToken: string) => {
-    try {
-      await authenticatedFetch("/notifications/devices", {
-        method: "POST",
-        body: JSON.stringify({ token: fcmToken, platform: "WEB" }),
-      });
-    } catch (err) {
-      console.error("Failed to register device token:", err);
-    }
-  }, []);
+  const activateNotifications = useCallback(async () => {
+    if (Notification.permission !== "granted")
+      return false;
 
-  const requestPermission = useCallback(async () => {
-    if (!messagingRef.current || !VAPID_KEY) {
+    try {
+      const hasToken = await registerCurrentToken();
+      if (hasToken) {
+        syncEnabledState(true);
+      }
+      return hasToken;
+    } catch (err) {
       setState((s) => ({
         ...s,
-        error: "Messaging not initialised or VAPID key missing",
+        error: err instanceof Error ? err.message : "Failed to activate notifications",
       }));
-      return;
+      return false;
     }
+  }, [registerCurrentToken, syncEnabledState]);
 
+  const requestPermission = useCallback(async () => {
     try {
       const permission = await Notification.requestPermission();
 
       setState((s) => ({ ...s, permission }));
       if (permission !== "granted")
-        return;
+        return false;
 
-      const swRegistration = await navigator.serviceWorker.register(
-        "/firebase-messaging-sw.js"
-      );
-
-      const token = await getToken(messagingRef.current, {
-        vapidKey: VAPID_KEY,
-        serviceWorkerRegistration: swRegistration,
-      });
-
-      setState((s) => ({ ...s, token }));
-      await registerToken(token);
+      const hasToken = await registerCurrentToken();
+      return hasToken;
     } catch (err) {
       console.error("Failed to get FCM token:", err);
       setState((s) => ({
         ...s,
         error: err instanceof Error ? err.message : "Failed to get token",
       }));
+      return false;
     }
-  }, [registerToken]);
+  }, [registerCurrentToken]);
+
+  const enableNotifications = useCallback(async () => {
+    const enabled = await requestPermission();
+
+    if (enabled) {
+      syncEnabledState(true);
+      return true;
+    }
+
+    syncEnabledState(false);
+    return false;
+  }, [requestPermission, syncEnabledState]);
+
+  const disableNotifications = useCallback(async () => {
+    syncEnabledState(false);
+    const token = currentTokenRef.current;
+
+    setState((s) => ({
+      ...s,
+      isEnabled: false,
+      token: null,
+    }));
+    currentTokenRef.current = null;
+
+    if (token)
+      await unregisterToken(token);
+  }, [unregisterToken, syncEnabledState]);
 
   return {
     ...state,
     requestPermission,
+    activateNotifications,
+    enableNotifications,
+    disableNotifications,
+    syncEnabledState,
   };
 }

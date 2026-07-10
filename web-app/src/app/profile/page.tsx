@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Loader2, Upload, X, AlertTriangle } from "lucide-react";
+import { Loader2, Upload, X, AlertTriangle, Bell, BellOff } from "lucide-react";
 import type { UserUpdate } from "@vigilart/shared/types";
 import {
   updateUserProfile,
@@ -22,6 +22,9 @@ import {
 } from "@/src/components/ui/dialog";
 import { useAuth } from "@/src/components/contexts/authContext";
 import { useTranslation } from "react-i18next";
+import { Switch } from "@/src/components/ui/switch";
+import { useNotificationsSettings } from "@/src/components/contexts/notificationsContext";
+import { toast } from "sonner";
 
 export default function ProfilePage() {
   const { t } = useTranslation();
@@ -30,6 +33,13 @@ export default function ProfilePage() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [avatarDisplayUrl, setAvatarDisplayUrl] = useState<string>("");
+
+  const {
+    isSupported: notificationsSupported,
+    permission: notificationPermission,
+    error: notificationsError,
+    setNotificationsEnabled,
+  } = useNotificationsSettings();
 
   const [formData, setFormData] = useState({
     firstName: "",
@@ -156,14 +166,38 @@ export default function ProfilePage() {
     try {
       await deleteAccount(user.id);
       setDeleteDialogOpen(false);
-      // The DELETE response clears the auth cookies server-side. Hard-redirect
-      // so the browser drops the deleted session and middleware sees no
-      // auth_token (avoids the /login <-> /dashboard redirect loop).
       window.location.href = "/login";
     } catch {
-      // deleteAccount already surfaces a toast on failure; keep the user on the
-      // page so they can retry.
       setIsDeleting(false);
+    }
+  };
+
+  const handleNotificationsChange = async (enabled: boolean) => {
+    if (!notificationsSupported) {
+      toast.error(t("profil_page.notifications_unsupported"));
+      return;
+    }
+    if (!user?.id)
+      return;
+
+    try {
+      if (enabled) {
+        const allowed = await setNotificationsEnabled(true);
+        if (!allowed) {
+          await setNotificationsEnabled(false);
+          if (Notification.permission === "denied")
+            toast.error(t("profil_page.notifications_denied"));
+          return;
+        }
+      }
+      await updateUserProfile(user.id, { notificationsEnabled: enabled });
+      if (!enabled)
+        await setNotificationsEnabled(false);
+      await refreshUser();
+    } catch {
+      if (enabled)
+        await setNotificationsEnabled(false);
+      toast.error(t("profil_page.failed_update_notifications"));
     }
   };
 
@@ -206,77 +240,109 @@ export default function ProfilePage() {
                 </div>
               </div>
 
-                <div className="space-y-6 border-t pt-6">
-                  <div>
-                    <Label className="block font-semibold mb-3">{t("profil_page.profile_picture")}</Label>
-                    <div className="flex items-center gap-4">
-                      {formData.avatar && formData.avatar !== user?.avatar && (
-                        <div className="relative">
-                          <img src={avatarDisplayUrl || formData.avatar} alt="Avatar preview" className="h-16 w-16 rounded-full object-cover border-2"  />
-                          <button onClick={handleRemoveAvatar} disabled={isSaving} className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 disabled:opacity-50"  >
-                            <X className="h-3 w-3" />
-                          </button>
-                        </div>
+              <div className="space-y-6 border-t pt-6">
+                <div>
+                  <Label className="block font-semibold mb-3">{t("profil_page.profile_picture")}</Label>
+                  <div className="flex items-center gap-4">
+                    {formData.avatar && formData.avatar !== user?.avatar && (
+                      <div className="relative">
+                        <img src={avatarDisplayUrl || formData.avatar} alt="Avatar preview" className="h-16 w-16 rounded-full object-cover border-2" />
+                        <button onClick={handleRemoveAvatar} disabled={isSaving} className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 disabled:opacity-50"  >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </div>
+                    )}
+                    <label className={`flex items-center gap-2 ${isSaving ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'} text-sm`}>
+                      {isSaving && formData.avatarFile ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Upload className="h-4 w-4" />
                       )}
-                      <label className={`flex items-center gap-2 ${isSaving ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'} text-sm`}>
-                        {isSaving && formData.avatarFile ? (
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                        ) : (
-                          <Upload className="h-4 w-4" />
-                        )}
-                        <span>{isSaving && formData.avatarFile ? t("profil_page.uploading") : t("profil_page.upload_picture")}</span>
-                        <input type="file" accept="image/*" onChange={handleAvatarFileChange} className="hidden" disabled={isSaving} />
-                      </label>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-6">
-                    <div>
-                      <Label htmlFor="lastName" className="block font-semibold mb-2">
-                        {t("profil_page.last_name")}
-                      </Label>
-                      <Input id="lastName" name="lastName" value={formData.lastName} onChange={handleInputChange} placeholder={t("profil_page.enter_last_name")} type="text" className="w-full" />
-                    </div>
-
-                    <div>
-                      <Label htmlFor="firstName" className="block font-semibold mb-2">
-                        {t("profil_page.first_name")}
-                      </Label>
-                      <Input id="firstName" name="firstName" value={formData.firstName} onChange={handleInputChange} placeholder={t("profil_page.enter_first_name")} type="text" className="w-full" />
-                    </div>
-
-                    <div>
-                      <Label htmlFor="email" className="block font-semibold mb-2">
-                        {t("profil_page.email")}
-                      </Label>
-                      <Input id="email" name="email" value={formData.email} onChange={handleInputChange} placeholder={t("profil_page.enter_email")} type="email" className="w-full" />
-                    </div>
-
-                    {/* If we want to be able to change the password, we need a route to update it */}
-                    <div>
-                      <Label className="block font-semibold mb-2">
-                        {t("profil_page.password")}
-                      </Label>
-                      <Input type="password" value="••••••••••" disabled className="w-full cursor-not-allowed" />
-                    </div>
-                  </div>
-
-                  <div className="flex justify-between pt-6 border-t">
-                    <Button
-                      variant="destructive"
-                      onClick={() => setDeleteDialogOpen(true)}
-                      disabled={isDeleting || isSaving}
-                      className="gap-2"
-                    >
-                      {isDeleting && <Loader2 className="h-4 w-4 animate-spin" />}
-                      {t("profil_page.delete_account")}
-                    </Button>
-                    <Button onClick={handleSaveProfile} disabled={isSaving} className="gap-2" >
-                      {isSaving && <Loader2 className="h-4 w-4 animate-spin" />}
-                      {t("profil_page.save")}
-                    </Button>
+                      <span>{isSaving && formData.avatarFile ? t("profil_page.uploading") : t("profil_page.upload_picture")}</span>
+                      <input type="file" accept="image/*" onChange={handleAvatarFileChange} className="hidden" disabled={isSaving} />
+                    </label>
                   </div>
                 </div>
+
+                <div className="grid grid-cols-2 gap-6">
+                  <div>
+                    <Label htmlFor="lastName" className="block font-semibold mb-2">
+                      {t("profil_page.last_name")}
+                    </Label>
+                    <Input id="lastName" name="lastName" value={formData.lastName} onChange={handleInputChange} placeholder={t("profil_page.enter_last_name")} type="text" className="w-full" />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="firstName" className="block font-semibold mb-2">
+                      {t("profil_page.first_name")}
+                    </Label>
+                    <Input id="firstName" name="firstName" value={formData.firstName} onChange={handleInputChange} placeholder={t("profil_page.enter_first_name")} type="text" className="w-full" />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="email" className="block font-semibold mb-2">
+                      {t("profil_page.email")}
+                    </Label>
+                    <Input id="email" name="email" value={formData.email} onChange={handleInputChange} placeholder={t("profil_page.enter_email")} type="email" className="w-full" />
+                  </div>
+
+                  {/* If we want to be able to change the password, we need a route to update it */}
+                  <div>
+                    <Label className="block font-semibold mb-2">
+                      {t("profil_page.password")}
+                    </Label>
+                    <Input type="password" value="••••••••••" disabled className="w-full cursor-not-allowed" />
+                  </div>
+                </div>
+
+                <div className="rounded-lg border bg-muted/30 p-4 space-y-3">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="space-y-1">
+                      <Label className="flex items-center gap-2 font-semibold">
+                        {(user?.notificationsEnabled ?? false) ? <Bell className="h-4 w-4" /> : <BellOff className="h-4 w-4" />}
+                        {t("profil_page.notifications_title")}
+                      </Label>
+                      <p className="text-sm text-muted-foreground">
+                        {t("profil_page.notifications_description")}
+                      </p>
+                    </div>
+
+                    <Switch
+                      checked={user?.notificationsEnabled ?? false}
+                      onCheckedChange={handleNotificationsChange}
+                      disabled={!notificationsSupported || isSaving || isDeleting}
+                    />
+                  </div>
+
+                  <p className="text-sm text-muted-foreground">
+                    {notificationPermission === "granted"
+                      ? t("profil_page.notifications_allowed")
+                      : notificationPermission === "denied"
+                        ? t("profil_page.notifications_blocked")
+                        : t("profil_page.notifications_permission_prompt")}
+                  </p>
+
+                  {notificationsError && (
+                    <p className="text-sm text-red-600">{notificationsError}</p>
+                  )}
+                </div>
+
+                <div className="flex justify-between pt-6 border-t">
+                  <Button
+                    variant="destructive"
+                    onClick={() => setDeleteDialogOpen(true)}
+                    disabled={isDeleting || isSaving}
+                    className="gap-2"
+                  >
+                    {isDeleting && <Loader2 className="h-4 w-4 animate-spin" />}
+                    {t("profil_page.delete_account")}
+                  </Button>
+                  <Button onClick={handleSaveProfile} disabled={isSaving} className="gap-2" >
+                    {isSaving && <Loader2 className="h-4 w-4 animate-spin" />}
+                    {t("profil_page.save")}
+                  </Button>
+                </div>
+              </div>
             </div>
           )}
         </div>
