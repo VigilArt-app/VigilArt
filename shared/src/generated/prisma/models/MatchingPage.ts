@@ -464,10 +464,6 @@ export type EnumWebsiteCategoryFieldUpdateOperationsInput = {
   set?: $Enums.WebsiteCategory
 }
 
-export type BoolFieldUpdateOperationsInput = {
-  set?: boolean
-}
-
 export type MatchingPageCreateNestedManyWithoutReportsInput = {
   create?: Prisma.XOR<Prisma.MatchingPageCreateWithoutReportsInput, Prisma.MatchingPageUncheckedCreateWithoutReportsInput> | Prisma.MatchingPageCreateWithoutReportsInput[] | Prisma.MatchingPageUncheckedCreateWithoutReportsInput[]
   connectOrCreate?: Prisma.MatchingPageCreateOrConnectWithoutReportsInput | Prisma.MatchingPageCreateOrConnectWithoutReportsInput[]

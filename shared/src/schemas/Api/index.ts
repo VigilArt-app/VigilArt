@@ -92,7 +92,7 @@ export const ApiPaginationSchema = z.object({
 export class ApiPaginationDTO extends createZodDto(ApiPaginationSchema) {}
 
 export const CursorPaginationQuerySchema = z.object({
-  cursor: z.string().uuid().optional(),
+  cursor: z.uuid().optional(),
   limit: z.coerce.number().int().min(1).max(100).default(20)
 });
 export class CursorPaginationQueryDTO extends createZodDto(CursorPaginationQuerySchema) {}
