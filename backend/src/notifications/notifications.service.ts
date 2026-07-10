@@ -52,8 +52,16 @@ export class NotificationsService implements OnModuleInit, OnModuleDestroy {
 
   async onModuleDestroy() {
     if (this.firebaseApp) {
-      await deleteApp(this.firebaseApp);
-      this.logger.log("Firebase Admin SDK destroyed.");
+      try {
+        await deleteApp(this.firebaseApp);
+        this.logger.log("Firebase Admin SDK destroyed.");
+      } catch (error) {
+        this.logger.warn(
+          `Failed to destroy Firebase Admin SDK: ${
+            error instanceof Error ? error.message : error
+          }`
+        );
+      }
     }
   }
 

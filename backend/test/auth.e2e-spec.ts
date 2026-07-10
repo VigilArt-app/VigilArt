@@ -57,7 +57,8 @@ describe("Auth E2E", () => {
           subscriptionTier: SubscriptionTier.FREE,
           createdAt: expect.any(String),
           updatedAt: expect.any(String),
-          autoRunReports: false
+          autoRunReports: false,
+          notificationsEnabled: false
         },
       });
     });
@@ -86,7 +87,8 @@ describe("Auth E2E", () => {
           subscriptionTier: SubscriptionTier.FREE,
           createdAt: expect.any(String),
           updatedAt: expect.any(String),
-          autoRunReports: false
+          autoRunReports: false,
+          notificationsEnabled: false
         },
       });
     });
@@ -197,7 +199,8 @@ describe("Auth E2E", () => {
           avatar: null,
           createdAt: expect.any(String),
           updatedAt: expect.any(String),
-          autoRunReports: false
+          autoRunReports: false,
+          notificationsEnabled: false
         },
       });
     });
