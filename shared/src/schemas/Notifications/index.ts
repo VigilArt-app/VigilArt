@@ -4,7 +4,8 @@ import { dateTimeStringToDate } from "../../functions";
 import { DeviceTokenSchema, DevicePlatformSchema } from "../../generated/zod";
 
 export const NotificationTypeSchema = z.enum([
-  "REPORT_COMPLETED"
+  "REPORT_COMPLETED",
+  "REPORT_FAILED"
 ]);
 
 export const NotificationPayloadSchema = z.object({
