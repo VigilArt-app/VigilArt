@@ -23,22 +23,46 @@ export class ReportsProcessor extends WorkerHost {
 
   async process(job: Job<GenerateReportJobData>): Promise<string | void> {
     if (job.name === GENERATE_REPORT_JOB) {
-      const report = await this.reportsService.generate(job.data.userId, job);
-
-      const notification: NotificationPayload = {
-        type: "REPORT_COMPLETED",
-        title: "Report Ready",
-        body: "Your artwork scan report has been generated and is ready to view.",
-        data: { reportId: report.id }
-      };
-
       try {
-        await this.notificationsService
-          .send(job.data.userId, notification)
+        const report = await this.reportsService.generate(job.data.userId, job);
+
+        const notification: NotificationPayload = {
+          type: "REPORT_COMPLETED",
+          title: "Report Ready",
+          body: "Your artwork scan report has been generated and is ready to view.",
+          data: { reportId: report.id }
+        };
+
+        try {
+          await this.notificationsService.send(job.data.userId, notification);
+        } catch (err) {
+          this.logger.error("Failed to send report notification", err);
+        }
+        return report.id;
       } catch (err) {
-        this.logger.error("Failed to send report notification", err);
+        this.logger.error(
+          `Report generation failed for user ${job.data.userId}`,
+          err
+        );
+
+        const notification: NotificationPayload = {
+          type: "REPORT_FAILED",
+          title: "Report Failed",
+          body: "An error occurred during the artwork scan. Please try again.",
+          data: { error: err instanceof Error ? err.message : "Unknown error" }
+        };
+
+        try {
+          await this.notificationsService.send(job.data.userId, notification);
+        } catch (notifErr) {
+          this.logger.error(
+            "Failed to send report failure notification",
+            notifErr
+          );
+        }
+
+        throw err;
       }
-      return report.id;
     }
   }
 }

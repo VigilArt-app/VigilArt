@@ -87,6 +87,13 @@ export class NotificationsService implements OnModuleInit, OnModuleDestroy {
     if (!this.firebaseApp)
       return;
 
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { notificationsEnabled: true }
+    });
+    if (!user?.notificationsEnabled)
+      return;
+
     const deviceTokens = await this.prisma.deviceToken.findMany({
       where: { userId },
       select: { token: true, id: true }
