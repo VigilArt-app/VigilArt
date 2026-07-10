@@ -28,9 +28,16 @@ async function clearDmcaPlatformCache() {
     if (!redisUrl)
         return;
 
-    const redis = new Redis(redisUrl);
+    const redis = new Redis(redisUrl, {
+        lazyConnect: true,
+        maxRetriesPerRequest: 1,
+        retryStrategy: () => null
+    });
+    redis.on("error", () => undefined);
 
     try {
+        await redis.connect();
+
         let cursor = "0";
         const keys: string[] = [];
 
@@ -43,9 +50,12 @@ async function clearDmcaPlatformCache() {
             await redis.del(...keys);
             console.log(`🧹 Cleared ${keys.length} cached DMCA platform entries.`);
         }
+    } catch {
+        console.warn("⚠️ Skipping DMCA platform cache clear: Redis is unavailable.");
     } finally {
-        await redis.quit();
-  }
+        if (redis.status !== "end")
+            redis.disconnect();
+    }
 }
 
 export const seedPlatforms = async (prisma: PrismaClient) => {
@@ -57,5 +67,5 @@ export const seedPlatforms = async (prisma: PrismaClient) => {
             create: (platform as any)
         }))
     );
-    clearDmcaPlatformCache();
+    await clearDmcaPlatformCache();
 }
