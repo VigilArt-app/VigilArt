@@ -4,7 +4,7 @@ import { initializeApp, getApps } from "firebase/app";
 const schema = z.object({
   apiUrl: z.url(),
   featureFlag: z.coerce.boolean().default(false),
-  firebaseVapIdKey: z.string()
+  firebaseVapIdKey: z.string().optional()
 });
 
 export const config = schema.parse({
