@@ -20,22 +20,23 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  SharedPreferences prefs = await SharedPreferences.getInstance();
   await dotenv.load(fileName: ".env");
 
   await Firebase.initializeApp();
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
-  bool isLoggedIn = await checkLoginStatus();
-  if (isLoggedIn) {
+  bool isLoggedIn = await checkLoginStatus(prefs);
+  bool? notificationsEnabled = prefs.getBool('notificationsEnabled');
+  if (isLoggedIn && notificationsEnabled == true) {
     NotificationService().initialize();
   }
 
   runApp(VigilArtApp(isLoggedIn: isLoggedIn));
 }
 
-Future<bool> checkLoginStatus() async {
+Future<bool> checkLoginStatus(SharedPreferences prefs) async {
   final apiService = ApiService();
-  SharedPreferences prefs = await SharedPreferences.getInstance();
   bool? loginStatus = prefs.getBool('isLoggedIn');
 
   if (loginStatus != true) {

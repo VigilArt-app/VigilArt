@@ -43,7 +43,9 @@ class _LoginPageState extends State<LoginPage> {
           await prefs.setBool('isLoggedIn', true);
           if (!mounted) return;
 
-          NotificationService().initialize();
+          if (prefs.getBool('notificationsEnabled') == true) {
+            NotificationService().initialize();
+          }
 
           Navigator.pushReplacement(
             context,
@@ -199,7 +201,8 @@ class _LoginPageState extends State<LoginPage> {
                         color: Colors.black54,
                       ),
                       children: [
-                        TextSpan(text: 'By clicking continue, you agree to our '),
+                        TextSpan(
+                            text: 'By clicking continue, you agree to our '),
                         TextSpan(
                           text: 'Terms of Service',
                           style: TextStyle(
