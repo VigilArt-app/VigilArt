@@ -74,44 +74,27 @@ class _VigilArtHeaderBarState extends State<VigilArtHeaderBar>
     final prefs = await SharedPreferences.getInstance();
 
     try {
-      final profile = await ApiService().updateUserProfile({
-        'notificationsEnabled': targetState,
-      });
-
-      if (profile != null) {
-        try {
-          if (targetState) {
-            debugPrint('Initializing Firebase Messaging...');
-            await NotificationService().initialize();
-          } else {
-            debugPrint('Unregistering device from Firebase Messaging...');
-            await NotificationService().unregisterDevice();
-          }
-        } catch (fcmError) {
-          debugPrint('FCM configuration error: $fcmError');
-        }
-
-        await prefs.setBool('notificationsEnabled', targetState);
-        if (mounted) {
-          setState(() {
-            _notificationsEnabled = targetState;
-          });
-        }
-
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(targetState
-                  ? '✓ Notifications activées'
-                  : '✓ Notifications désactivées'),
-              backgroundColor:
-                  targetState ? const Color(0xFF22C55E) : Colors.grey[700],
-              duration: const Duration(seconds: 2),
-            ),
-          );
-        }
+      if (targetState) {
+        await NotificationService().initialize();
       } else {
-        throw Exception('Failed to update notifications state on backend');
+        await NotificationService().unregisterDevice();
+      }
+      await ApiService().updateUserProfile({'notificationsEnabled': targetState});
+      await prefs.setBool('notificationsEnabled', targetState);
+      if (mounted) {
+        setState(() {
+          _notificationsEnabled = targetState;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(targetState
+                ? '✓ Notifications activées'
+                : '✓ Notifications désactivées'),
+            backgroundColor:
+                targetState ? const Color(0xFF22C55E) : Colors.grey[700],
+            duration: const Duration(seconds: 2),
+          ),
+        );
       }
     } catch (e) {
       debugPrint('Error toggling notifications: $e');
