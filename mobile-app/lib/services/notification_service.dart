@@ -13,7 +13,14 @@ class NotificationService {
   final FirebaseMessaging _messaging = FirebaseMessaging.instance;
   final ApiService _apiService = ApiService();
 
-  Future<String?> initialize() async {
+  Future<String?>? _initFuture;
+
+  Future<String?> initialize() {
+    _initFuture ??= _performInitialization();
+    return _initFuture!;
+  }
+
+  Future<String?> _performInitialization() async {
     try {
       final settings = await _messaging.requestPermission(
         alert: true,
@@ -56,6 +63,7 @@ class NotificationService {
     } catch (e) {
       debugPrint('Failed to initialize NotificationService: $e');
     }
+    _initFuture = null;
     return null;
   }
 
@@ -79,6 +87,7 @@ class NotificationService {
   }
 
   Future<void> unregisterDevice() async {
+    _initFuture = null;
     try {
       final prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('fcmToken');
