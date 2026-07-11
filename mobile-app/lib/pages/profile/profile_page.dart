@@ -2,6 +2,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vigilart/pages/dmca/dmca_page.dart';
 import 'package:vigilart/(api)/auth.dart';
 import 'package:vigilart/pages/profile/profile_header.dart';
+import 'package:vigilart/services/notification_service.dart';
 import 'package:vigilart/widgets/editable_from_field.dart';
 import 'package:vigilart/widgets/header_bar.dart';
 import 'package:vigilart/widgets/slide_menu_bar.dart';
@@ -222,6 +223,7 @@ class _ProfilePageState extends State<ProfilePage> {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('isLoggedIn', false);
     await prefs.remove('notificationsEnabled');
+    await NotificationService().unregisterDevice();
     if (mounted) {
       Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
     }

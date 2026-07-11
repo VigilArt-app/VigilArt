@@ -101,17 +101,13 @@ class NotificationService {
         }
       }
 
-      if (token != null) {
-        final url = Uri.parse(
-            '${_apiService.serverUrl}/notifications/devices/${Uri.encodeComponent(token)}');
-        await _apiService.authenticatedRequest((headers) {
-          return http.delete(
-            url,
-            headers: headers,
-          );
-        });
-        await prefs.remove('fcmToken');
-      }
+      if (token == null) return;
+
+      final url = Uri.parse('${_apiService.serverUrl}/notifications/devices/${Uri.encodeComponent(token)}');
+      await _apiService.authenticatedRequest((headers) {
+        return http.delete(url, headers: headers);
+      });
+      await prefs.remove('fcmToken');
     } catch (e) {
       debugPrint('Failed to unregister device token: $e');
     }
