@@ -131,6 +131,7 @@ model MatchingPage {
   websiteName       String
   imageUrl          String?
   pageTitle         String?
+  unsafeDomain      Boolean
   firstDetectedAt   DateTime          @default(now())
 
   reports           ArtworksReport[]

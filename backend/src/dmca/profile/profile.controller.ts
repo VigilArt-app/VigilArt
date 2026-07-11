@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, HttpStatus, Param, Patch, Post, HttpCode, Req, ParseUUIDPipe } from "@nestjs/common";
+import { Body, Controller, Delete, Get, HttpStatus, Param, Patch, Post, HttpCode, ParseUUIDPipe } from "@nestjs/common";
 import { ApiParam, ApiBody } from "@nestjs/swagger";
 import { ApiEndpoint } from "../../common/decorators/api-endpoint.decorator";
 import { DmcaProfileService } from "./profile.service";

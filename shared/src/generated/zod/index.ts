@@ -36,7 +36,7 @@ export type ArtworkScalarFieldEnum = z.infer<typeof ArtworkScalarFieldEnumSchema
 
 // File: MatchingPageScalarFieldEnum.schema.ts
 
-export const MatchingPageScalarFieldEnumSchema = z.enum(['id', 'artworkId', 'url', 'category', 'websiteName', 'imageUrl', 'pageTitle', 'firstDetectedAt'])
+export const MatchingPageScalarFieldEnumSchema = z.enum(['id', 'artworkId', 'url', 'category', 'websiteName', 'imageUrl', 'pageTitle', 'unsafeDomain', 'firstDetectedAt'])
 
 export type MatchingPageScalarFieldEnum = z.infer<typeof MatchingPageScalarFieldEnumSchema>;
 
@@ -202,6 +202,7 @@ export const MatchingPageSchema = z.object({
   websiteName: z.string(),
   imageUrl: z.string().nullable(),
   pageTitle: z.string().nullable(),
+  unsafeDomain: z.boolean(),
   firstDetectedAt: z.coerce.date(),
 });
 
