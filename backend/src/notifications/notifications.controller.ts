@@ -47,7 +47,7 @@ export class NotificationsController {
       status: HttpStatus.NO_CONTENT
     },
     protected: true,
-    errors: [HttpStatus.NOT_FOUND]
+    errors: []
   })
   @ApiParam({
     name: "token",

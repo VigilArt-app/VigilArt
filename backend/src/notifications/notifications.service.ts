@@ -43,25 +43,26 @@ export class NotificationsService implements OnModuleInit, OnModuleDestroy {
       return;
     }
 
-    const serviceAccount = JSON.parse(readFileSync(keyPath, "utf-8"));
-    this.firebaseApp = initializeApp({
-      credential: cert(serviceAccount)
-    });
-    this.logger.log("Firebase Admin SDK initialised.");
+    try {
+      const serviceAccount = JSON.parse(readFileSync(keyPath, "utf-8"));
+      this.firebaseApp = initializeApp({
+        credential: cert(serviceAccount)
+      });
+      this.logger.log("Firebase Admin SDK initialised.");
+    } catch (error) {
+      this.logger.error(`Failed to initialize Firebase Admin SDK: ${error}`);
+    }
   }
 
   async onModuleDestroy() {
-    if (this.firebaseApp) {
-      try {
-        await deleteApp(this.firebaseApp);
-        this.logger.log("Firebase Admin SDK destroyed.");
-      } catch (error) {
-        this.logger.warn(
-          `Failed to destroy Firebase Admin SDK: ${
-            error instanceof Error ? error.message : error
-          }`
-        );
-      }
+    if (!this.firebaseApp)
+      return;
+
+    try {
+      await deleteApp(this.firebaseApp);
+      this.logger.log("Firebase Admin SDK destroyed.");
+    } catch (error) {
+      this.logger.warn(`Failed to destroy Firebase Admin SDK: ${error instanceof Error ? error.message : error}`);
     }
   }
 
