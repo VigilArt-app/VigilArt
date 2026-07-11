@@ -75,7 +75,8 @@ describe("Users E2E", () => {
           subscriptionTier: expect.any(String),
           createdAt: expect.any(String),
           updatedAt: expect.any(String),
-          autoRunReports: false
+          autoRunReports: false,
+          notificationsEnabled: false
         },
       });
     });
@@ -173,7 +174,8 @@ describe("Users E2E", () => {
           avatar: null,
           createdAt: expect.any(String),
           updatedAt: expect.any(String),
-          autoRunReports: false
+          autoRunReports: false,
+          notificationsEnabled: false
         },
         {
           id: expect.any(String),
@@ -184,7 +186,8 @@ describe("Users E2E", () => {
           avatar: null,
           createdAt: expect.any(String),
           updatedAt: expect.any(String),
-          autoRunReports: false
+          autoRunReports: false,
+          notificationsEnabled: false
         },
         {
           id: expect.any(String),
@@ -195,7 +198,8 @@ describe("Users E2E", () => {
           subscriptionTier: SubscriptionTier.FREE,
           createdAt: expect.any(String),
           updatedAt: expect.any(String),
-          autoRunReports: false
+          autoRunReports: false,
+          notificationsEnabled: false
         }
       ];
 
@@ -224,7 +228,8 @@ describe("Users E2E", () => {
           avatar: null,
           createdAt: expect.any(String),
           updatedAt: expect.any(String),
-          autoRunReports: false
+          autoRunReports: false,
+          notificationsEnabled: false
         },
       });
     });
@@ -276,7 +281,8 @@ describe("Users E2E", () => {
           avatar: "new_url",
           createdAt: expect.any(String),
           updatedAt: expect.any(String),
-          autoRunReports: false
+          autoRunReports: false,
+          notificationsEnabled: false
         },
       });
     });

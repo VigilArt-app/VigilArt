@@ -7,6 +7,7 @@ import '../widgets/custom_input_field.dart';
 import '../widgets/custom_button.dart';
 import '../(api)/auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../services/notification_service.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -21,7 +22,7 @@ class _LoginPageState extends State<LoginPage> {
   final _passwordController = TextEditingController();
 
   final ApiService apiService = ApiService();
-  
+
   @override
   void dispose() {
     _emailController.dispose();
@@ -41,11 +42,15 @@ class _LoginPageState extends State<LoginPage> {
           final prefs = await SharedPreferences.getInstance();
           await prefs.setBool('isLoggedIn', true);
           if (!mounted) return;
+
+          if (prefs.getBool('notificationsEnabled') == true) {
+            NotificationService().initialize();
+          }
+
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => const DashboardPage()),
           );
-
         } else {
           if (!mounted) return;
           ScaffoldMessenger.of(context).showSnackBar(
@@ -196,7 +201,8 @@ class _LoginPageState extends State<LoginPage> {
                         color: Colors.black54,
                       ),
                       children: [
-                        TextSpan(text: 'By clicking continue, you agree to our '),
+                        TextSpan(
+                            text: 'By clicking continue, you agree to our '),
                         TextSpan(
                           text: 'Terms of Service',
                           style: TextStyle(

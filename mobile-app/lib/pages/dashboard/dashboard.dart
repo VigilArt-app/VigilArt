@@ -63,7 +63,6 @@ class _DashboardPageState extends State<DashboardPage> {
         child: SafeArea(
           child: VigilArtHeaderBar(
             onLogoTap: () { Navigator.pushNamed(context, '/'); }, 
-            onNotificationsTap: () { Navigator.pushNamed(context, '/notifications'); },
             onProfileTap: () { Navigator.pushNamed(context, '/profile'); },
             avatar: _userAvatarUrl
           ),
