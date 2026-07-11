@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import { getMessaging, getToken, onMessage, type Messaging } from "firebase/messaging";
 import { config, firebaseApp } from "../config";
 import { authenticatedFetch } from "../utils/auth/authenticatedFetch";
+import { toast } from "sonner";
 
 const VAPID_KEY = config.firebaseVapIdKey;
 
@@ -47,23 +48,29 @@ export function useNotifications() {
 
   const unregisterToken = useCallback(async (fcmToken: string) => {
     try {
-      await authenticatedFetch(`/notifications/devices/${encodeURIComponent(fcmToken)}`, {
+      const res = await authenticatedFetch(`/notifications/devices/${encodeURIComponent(fcmToken)}`, {
         method: "DELETE",
       });
+
+      if (!res.ok)
+        throw new Error("Failed to unregister device token");
     } catch (err) {
-      console.error("Failed to unregister device token:", err);
+      toast.error("Failed to unregister device token");
     }
   }, []);
 
   const registerToken = useCallback(async (fcmToken: string) => {
     currentTokenRef.current = fcmToken;
     try {
-      await authenticatedFetch("/notifications/devices", {
+      const res = await authenticatedFetch("/notifications/devices", {
         method: "POST",
         body: JSON.stringify({ token: fcmToken, platform: "WEB" }),
       });
+
+      if (!res.ok)
+        throw new Error("Failed to register device token");
     } catch (err) {
-      console.error("Failed to register device token:", err);
+      toast.error("Failed to register device token");
     }
   }, []);
 
@@ -160,7 +167,6 @@ export function useNotifications() {
 
       return () => unsubscribe();
     } catch (err) {
-      console.error("Failed to initialise Firebase Messaging:", err);
       setState((s) => ({
         ...s,
         error: err instanceof Error ? err.message : "Failed to initialise messaging",
@@ -198,7 +204,6 @@ export function useNotifications() {
       const hasToken = await registerCurrentToken();
       return hasToken;
     } catch (err) {
-      console.error("Failed to get FCM token:", err);
       setState((s) => ({
         ...s,
         error: err instanceof Error ? err.message : "Failed to get token",
