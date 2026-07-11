@@ -147,7 +147,7 @@ export function useNotifications() {
     try {
       messagingRef.current = getMessaging(firebaseApp);
 
-      onMessage(messagingRef.current, (payload) => {
+      const unsubscribe = onMessage(messagingRef.current, (payload) => {
         if (!enabledRef.current || Notification.permission !== "granted")
           return;
         if (payload.notification) {
@@ -157,6 +157,8 @@ export function useNotifications() {
           });
         }
       });
+
+      return () => unsubscribe();
     } catch (err) {
       console.error("Failed to initialise Firebase Messaging:", err);
       setState((s) => ({
