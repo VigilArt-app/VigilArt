@@ -66,6 +66,12 @@ class _VigilArtHeaderBarState extends State<VigilArtHeaderBar>
     }
   }
 
+  void _showSnackBar(SnackBar snackBar) {
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    }
+  }
+
   Future<void> _toggleNotifications() async {
     if (_isToggling) return;
     setState(() => _isToggling = true);
@@ -74,38 +80,40 @@ class _VigilArtHeaderBarState extends State<VigilArtHeaderBar>
     final prefs = await SharedPreferences.getInstance();
 
     try {
+      final profile = await ApiService().updateUserProfile({'notificationsEnabled': targetState});
+
+      if (profile == null) {
+        _showSnackBar(const SnackBar(
+          content: Text('Échec de la mise à jour des notifications'),
+          backgroundColor: Colors.red,
+        ));
+        return;
+      }
+
       if (targetState) {
         await NotificationService().initialize();
       } else {
         await NotificationService().unregisterDevice();
       }
-      await ApiService().updateUserProfile({'notificationsEnabled': targetState});
+
       await prefs.setBool('notificationsEnabled', targetState);
       if (mounted) {
-        setState(() {
-          _notificationsEnabled = targetState;
-        });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(targetState
-                ? '✓ Notifications activées'
-                : '✓ Notifications désactivées'),
-            backgroundColor:
-                targetState ? const Color(0xFF22C55E) : Colors.grey[700],
-            duration: const Duration(seconds: 2),
-          ),
-        );
+        setState(() => _notificationsEnabled = targetState);
       }
+      _showSnackBar(SnackBar(
+        content: Text(targetState
+            ? '✓ Notifications activées'
+            : '✓ Notifications désactivées'),
+        backgroundColor:
+            targetState ? const Color(0xFF22C55E) : Colors.grey[700],
+        duration: const Duration(seconds: 2),
+      ));
     } catch (e) {
-      debugPrint('Error toggling notifications: $e');
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Échec de la mise à jour des notifications'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
+      await ApiService().updateUserProfile({'notificationsEnabled': !targetState});
+      _showSnackBar(const SnackBar(
+        content: Text('Échec de la mise à jour des notifications'),
+        backgroundColor: Colors.red,
+      ));
     } finally {
       if (mounted) {
         setState(() => _isToggling = false);
