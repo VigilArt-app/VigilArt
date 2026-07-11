@@ -40,7 +40,7 @@ export function NotificationsProvider({ children }: Readonly<{ children: React.R
     }
     if (permission === "granted" && !hasActivatedRef.current) {
       hasActivatedRef.current = true;
-      activateNotifications();
+      void activateNotifications();
       return;
     }
     if (!isEnabled)
