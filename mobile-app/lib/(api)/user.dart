@@ -4,11 +4,10 @@ import 'package:flutter/foundation.dart';
 import 'auth.dart';
 
 extension UserProfile on ApiService {
-  
   Future<Map<String, dynamic>?> fetchUserProfile() async {
     try {
       final userId = await secureStorage.read(key: ApiService.keyUserId);
-      
+
       if (userId == null) throw Exception('User ID not found');
 
       final url = Uri.parse('$serverUrl/users/$userId');
@@ -22,17 +21,18 @@ extension UserProfile on ApiService {
       }
 
       final data = jsonDecode(response.body);
-      return data['data'] ?? data; 
+      return data['data'] ?? data;
     } catch (e) {
       debugPrint('Network error fetching profile: $e');
       return null;
     }
   }
 
-  Future<Map<String, dynamic>?> updateUserProfile(Map<String, dynamic> updateData) async {
+  Future<Map<String, dynamic>?> updateUserProfile(
+      Map<String, dynamic> updateData) async {
     try {
       final userId = await secureStorage.read(key: ApiService.keyUserId);
-      
+
       if (userId == null) throw Exception('User ID not found');
 
       final url = Uri.parse('$serverUrl/users/$userId');
@@ -46,7 +46,8 @@ extension UserProfile on ApiService {
 
       if (response.statusCode != 200) {
         final errorData = jsonDecode(response.body);
-        debugPrint('Failed to update profile: ${errorData['message'] ?? response.statusCode}');
+        debugPrint(
+            'Failed to update profile: ${errorData['message'] ?? response.statusCode}');
         return null;
       }
 
@@ -58,10 +59,38 @@ extension UserProfile on ApiService {
     }
   }
 
+  Future<bool> deleteUserAccount() async {
+    try {
+      final userId = await secureStorage.read(key: ApiService.keyUserId);
+      if (userId == null) throw Exception('User ID not found');
+
+      final url = Uri.parse('$serverUrl/users/$userId');
+      final response = await authenticatedRequest(
+        (headers) => http.delete(url, headers: headers),
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 204) {
+        return true;
+      }
+
+      if (response.body.isNotEmpty) {
+        final errorData = jsonDecode(response.body);
+        debugPrint(
+            'Failed to delete account: ${errorData['message'] ?? response.statusCode}');
+      } else {
+        debugPrint('Failed to delete account: ${response.statusCode}');
+      }
+      return false;
+    } catch (e) {
+      debugPrint('Network error deleting account: $e');
+      return false;
+    }
+  }
+
   Future<String?> getAvatarDownloadUrl(String storageKey) async {
     try {
       final url = Uri.parse('$serverUrl/storage/artworks/download-urls');
-      
+
       final response = await authenticatedRequest(
         (headers) => http.post(
           url,
@@ -87,7 +116,7 @@ extension UserProfile on ApiService {
   Future<Map<String, dynamic>?> getAvatarUploadUrl(String filename) async {
     try {
       final url = Uri.parse('$serverUrl/storage/artworks/upload-urls');
-      
+
       final response = await authenticatedRequest(
         (headers) => http.post(
           url,
@@ -102,7 +131,7 @@ extension UserProfile on ApiService {
       if (response.statusCode == 201 || response.statusCode == 200) {
         final data = jsonDecode(response.body);
         final urls = data['data'] ?? data;
-        return urls[filename]; 
+        return urls[filename];
       }
       return null;
     } catch (e) {
@@ -111,7 +140,8 @@ extension UserProfile on ApiService {
     }
   }
 
-  Future<bool> uploadAvatarToR2(List<int> fileBytes, String mimeType, String presignedUrl) async {
+  Future<bool> uploadAvatarToR2(
+      List<int> fileBytes, String mimeType, String presignedUrl) async {
     try {
       final response = await http.put(
         Uri.parse(presignedUrl),

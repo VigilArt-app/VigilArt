@@ -22,8 +22,8 @@ class _ProfilePageState extends State<ProfilePage> {
   bool _isLoading = true;
   int _bottomNavIndex = 3;
   final _formKey = GlobalKey<FormState>();
-  
-  final ApiService _apiService = ApiService(); 
+
+  final ApiService _apiService = ApiService();
 
   late TextEditingController _firstNameController;
   late TextEditingController _lastNameController;
@@ -98,13 +98,13 @@ class _ProfilePageState extends State<ProfilePage> {
     try {
       final ImagePicker picker = ImagePicker();
       final XFile? image = await picker.pickImage(source: ImageSource.gallery);
-      
+
       if (image == null) return;
 
       setState(() => _isLoading = true);
 
       final Uint8List fileBytes = await image.readAsBytes();
-      
+
       String originalName = image.name.toLowerCase();
       String safeFilename = 'avatar_${DateTime.now().millisecondsSinceEpoch}';
       String mimeType;
@@ -117,27 +117,33 @@ class _ProfilePageState extends State<ProfilePage> {
         mimeType = 'image/jpeg';
       }
       final uploadData = await _apiService.getAvatarUploadUrl(safeFilename);
-      
+
       if (uploadData != null) {
         final String presignedUrl = uploadData['presignedUrl'];
-        final String storageKey = uploadData['storageKey']; 
+        final String storageKey = uploadData['storageKey'];
 
-        final bool uploadSuccess = await _apiService.uploadAvatarToR2(fileBytes, mimeType, presignedUrl);
+        final bool uploadSuccess = await _apiService.uploadAvatarToR2(
+            fileBytes, mimeType, presignedUrl);
 
         if (uploadSuccess) {
-          final updatedProfile = await _apiService.updateUserProfile({'avatar': storageKey});
-          
-          if (updatedProfile != null) {
-            await _apiService.secureStorage.write(key: ApiService.keyUserAvatar, value: storageKey);
+          final updatedProfile =
+              await _apiService.updateUserProfile({'avatar': storageKey});
 
-            if (mounted) _showSnackBar('✓ Photo de profil mise à jour !', const Color(0xFF22C55E));
+          if (updatedProfile != null) {
+            await _apiService.secureStorage
+                .write(key: ApiService.keyUserAvatar, value: storageKey);
+
+            if (mounted)
+              _showSnackBar(
+                  '✓ Photo de profil mise à jour !', const Color(0xFF22C55E));
             await _loadRemoteUserData();
             return;
           }
         }
       }
-      
-      if (mounted) _showSnackBar('Échec du téléchargement de l\'image', Colors.red);
+
+      if (mounted)
+        _showSnackBar('Échec du téléchargement de l\'image', Colors.red);
     } catch (e) {
       if (mounted) _showSnackBar('Erreur : $e', Colors.red);
     } finally {
@@ -151,7 +157,8 @@ class _ProfilePageState extends State<ProfilePage> {
       if (avatarKey.startsWith('http')) {
         avatarDisplayUrl = avatarKey;
       } else if (avatarKey.startsWith('profiles/')) {
-        final String? downloadUrl = await _apiService.getAvatarDownloadUrl(avatarKey);
+        final String? downloadUrl =
+            await _apiService.getAvatarDownloadUrl(avatarKey);
         if (downloadUrl != null && downloadUrl.isNotEmpty) {
           avatarDisplayUrl = downloadUrl;
         }
@@ -164,7 +171,7 @@ class _ProfilePageState extends State<ProfilePage> {
     if (_isEditMode) {
       if (_formKey.currentState!.validate()) {
         setState(() => _isLoading = true);
-        
+
         final Map<String, dynamic> updateData = {
           'firstName': _firstNameController.text.trim(),
           'lastName': _lastNameController.text.trim(),
@@ -172,19 +179,21 @@ class _ProfilePageState extends State<ProfilePage> {
           'country': _countryController.text.trim(),
           'language': _languageController.text.trim(),
         };
-        
+
         final result = await _apiService.updateUserProfile(updateData);
-        
+
         if (!mounted) return;
-  
+
         setState(() => _isLoading = false);
 
         if (result != null) {
           setState(() {
-            _userData.addAll(updateData.map((k, v) => MapEntry(k, v.toString())));
+            _userData
+                .addAll(updateData.map((k, v) => MapEntry(k, v.toString())));
             _isEditMode = false;
           });
-          _showSnackBar('✓ Profil mis à jour avec succès !', const Color(0xFF22C55E));
+          _showSnackBar(
+              '✓ Profil mis à jour avec succès !', const Color(0xFF22C55E));
         } else {
           _showSnackBar('Échec de la mise à jour', Colors.red);
         }
@@ -202,19 +211,62 @@ class _ProfilePageState extends State<ProfilePage> {
         content: const Text('Souhaitez-vous vraiment vous déconnecter ?'),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context), 
-            child: const Text('Annuler', style: TextStyle(color: Colors.grey))
+              onPressed: () => Navigator.pop(context),
+              child:
+                  const Text('Annuler', style: TextStyle(color: Colors.grey))),
+          TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                _processLogout();
+              },
+              child: const Text('Déconnexion',
+                  style: TextStyle(color: Colors.red))),
+        ],
+      ),
+    );
+  }
+
+  void _handleDeleteAccountDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Supprimer le compte'),
+        content: const Text(
+            'Cette action est irréversible. Voulez-vous vraiment supprimer définitivement votre compte ?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Annuler', style: TextStyle(color: Colors.grey)),
           ),
           TextButton(
             onPressed: () {
               Navigator.pop(context);
-              _processLogout();
-            }, 
-            child: const Text('Déconnexion', style: TextStyle(color: Colors.red))
+              _processDeleteAccount();
+            },
+            child: const Text('Supprimer', style: TextStyle(color: Colors.red)),
           ),
         ],
       ),
     );
+  }
+
+  void _processDeleteAccount() async {
+    setState(() => _isLoading = true);
+    final success = await _apiService.deleteUserAccount();
+    if (!mounted) return;
+    setState(() => _isLoading = false);
+
+    if (success) {
+      await _apiService.clearLocalSession();
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('isLoggedIn', false);
+      if (mounted) {
+        Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+        _showSnackBar('Votre compte a été supprimé.', const Color(0xFF22C55E));
+      }
+    } else {
+      _showSnackBar('Échec de la suppression du compte.', Colors.red);
+    }
   }
 
   void _processLogout() async {
@@ -229,28 +281,30 @@ class _ProfilePageState extends State<ProfilePage> {
   void _onBottomTabChange(int index) {
     if (index == _bottomNavIndex) return;
     setState(() => _bottomNavIndex = index);
-    
+
     switch (index) {
-      case 0: 
-        Navigator.pushReplacementNamed(context, '/gallery'); 
+      case 0:
+        Navigator.pushReplacementNamed(context, '/gallery');
         break;
-      case 1: 
-        Navigator.pushReplacementNamed(context, '/dashboard'); 
+      case 1:
+        Navigator.pushReplacementNamed(context, '/dashboard');
         break;
-      case 2: 
+      case 2:
         Navigator.push(
-          context, 
-          MaterialPageRoute(builder: (context) => const DmcaPage(artworkPrefill: {}))
-        );
+            context,
+            MaterialPageRoute(
+                builder: (context) => const DmcaPage(artworkPrefill: {})));
         break;
-      case 3: 
+      case 3:
         break;
     }
   }
+
   void _showSnackBar(String message, Color color) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: color, duration: const Duration(seconds: 2))
-    );
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(message),
+        backgroundColor: color,
+        duration: const Duration(seconds: 2)));
   }
 
   @override
@@ -273,113 +327,164 @@ class _ProfilePageState extends State<ProfilePage> {
         child: SafeArea(
           child: VigilArtHeaderBar(
             onLogoTap: () => Navigator.pushNamed(context, '/dashboard'),
-            onNotificationsTap: () => Navigator.pushNamed(context, '/notifications'),
+            onNotificationsTap: () =>
+                Navigator.pushNamed(context, '/notifications'),
             onProfileTap: () {},
-            avatar: _userData['avatar'] ?? 'assets/images/default_avatar.jpg',          
+            avatar: _userData['avatar'] ?? 'assets/images/default_avatar.jpg',
           ),
         ),
       ),
-      body: _isLoading 
-        ? const Center(child: CircularProgressIndicator(color: Color(0xFF5E3B7D)))
-        : SingleChildScrollView(
-            physics: const BouncingScrollPhysics(),
-            child: Column(
-              children: [
-                ProfileHeader(
-                  userName: _userData['firstName']!,
-                  avatarUrl: _userData['avatar']!,
-                  isEditMode: _isEditMode,
-                  onEditTap: _handleEditToggle,
-                  onAvatarTap: _handleAvatarUpload, 
-                ),
-                const SizedBox(height: 24),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Form(
-                    key: _formKey,
-                    child: Column(
-                      children: [
-                        _buildSectionHeader('Informations Personnelles'),
-                        _buildSectionCard([
-                          EditableFormField(
-                            label: 'Prénom', 
-                            controller: _firstNameController, 
-                            isReadOnly: !_isEditMode,
-                            validator: (v) => (v == null || v.isEmpty) ? 'Requis' : null,
-                          ),
-                          const SizedBox(height: 16),
-                          EditableFormField(
-                            label: 'Nom', 
-                            controller: _lastNameController, 
-                            isReadOnly: !_isEditMode,
-                            validator: (v) => (v == null || v.isEmpty) ? 'Requis' : null,
-                          ),
-                        ]),
-                        const SizedBox(height: 24),
-                        _buildSectionHeader('Compte'),
-                        _buildSectionCard([
-                          EditableFormField(
-                            label: 'Email', 
-                            controller: _emailController, 
-                            isReadOnly: !_isEditMode,
-                            validator: (v) {
-                              if (v == null || v.isEmpty) return 'Requis';
-                              if (!v.contains('@')) return 'Email invalide';
-                              return null;
-                            },
-                          ),
-                          const SizedBox(height: 16),
-                          EditableFormField(
-                            label: 'Mot de passe', 
-                            controller: _passwordController, 
-                            isPassword: true, 
-                            isReadOnly: true, 
-                          ),
-                        ]),
-                        const SizedBox(height: 24),
-                        _buildSectionHeader('Localisation & Préférences'),
-                        _buildSectionCard([
-                          EditableFormField(label: 'Pays', controller: _countryController, isReadOnly: !_isEditMode,),
-                          const SizedBox(height: 16),
-                          EditableFormField(label: 'Langue', controller: _languageController, isReadOnly: !_isEditMode,),
-                        ]),
-                        const SizedBox(height: 32),
-                        SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton(
-                            onPressed: _handleLogoutDialog,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.red[400],
-                              padding: const EdgeInsets.symmetric(vertical: 14),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                              elevation: 0,
+      body: _isLoading
+          ? const Center(
+              child: CircularProgressIndicator(color: Color(0xFF5E3B7D)))
+          : SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              child: Column(
+                children: [
+                  ProfileHeader(
+                    userName: _userData['firstName']!,
+                    avatarUrl: _userData['avatar']!,
+                    isEditMode: _isEditMode,
+                    onEditTap: _handleEditToggle,
+                    onAvatarTap: _handleAvatarUpload,
+                  ),
+                  const SizedBox(height: 24),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        children: [
+                          _buildSectionHeader('Informations Personnelles'),
+                          _buildSectionCard([
+                            EditableFormField(
+                              label: 'Prénom',
+                              controller: _firstNameController,
+                              isReadOnly: !_isEditMode,
+                              validator: (v) =>
+                                  (v == null || v.isEmpty) ? 'Requis' : null,
                             ),
-                            child: const Row(
-                              mainAxisAlignment: MainAxisAlignment.center, 
-                              children: [
-                                Icon(Icons.logout, color: Colors.white, size: 18),
-                                SizedBox(width: 8),
-                                Text('DÉCONNEXION', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, letterSpacing: 1.1)),
-                              ],
+                            const SizedBox(height: 16),
+                            EditableFormField(
+                              label: 'Nom',
+                              controller: _lastNameController,
+                              isReadOnly: !_isEditMode,
+                              validator: (v) =>
+                                  (v == null || v.isEmpty) ? 'Requis' : null,
+                            ),
+                          ]),
+                          const SizedBox(height: 24),
+                          _buildSectionHeader('Compte'),
+                          _buildSectionCard([
+                            EditableFormField(
+                              label: 'Email',
+                              controller: _emailController,
+                              isReadOnly: !_isEditMode,
+                              validator: (v) {
+                                if (v == null || v.isEmpty) return 'Requis';
+                                if (!v.contains('@')) return 'Email invalide';
+                                return null;
+                              },
+                            ),
+                            const SizedBox(height: 16),
+                            EditableFormField(
+                              label: 'Mot de passe',
+                              controller: _passwordController,
+                              isPassword: true,
+                              isReadOnly: true,
+                            ),
+                          ]),
+                          const SizedBox(height: 24),
+                          _buildSectionHeader('Localisation & Préférences'),
+                          _buildSectionCard([
+                            EditableFormField(
+                              label: 'Pays',
+                              controller: _countryController,
+                              isReadOnly: !_isEditMode,
+                            ),
+                            const SizedBox(height: 16),
+                            EditableFormField(
+                              label: 'Langue',
+                              controller: _languageController,
+                              isReadOnly: !_isEditMode,
+                            ),
+                          ]),
+                          const SizedBox(height: 32),
+                          SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton(
+                              onPressed: _handleLogoutDialog,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.red[400],
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 14),
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12)),
+                                elevation: 0,
+                              ),
+                              child: const Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(Icons.logout,
+                                      color: Colors.white, size: 18),
+                                  SizedBox(width: 8),
+                                  Text('DÉCONNEXION',
+                                      style: TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                          letterSpacing: 1.1)),
+                                ],
+                              ),
                             ),
                           ),
-                        ),
-                        const SizedBox(height: 40),
-                      ],
+                          const SizedBox(height: 16),
+                          SizedBox(
+                            width: double.infinity,
+                            child: OutlinedButton(
+                              onPressed: _handleDeleteAccountDialog,
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor: Colors.red[700],
+                                side: BorderSide(color: Colors.red.shade400),
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 14),
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12)),
+                              ),
+                              child: const Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(Icons.delete_forever,
+                                      color: Colors.red, size: 18),
+                                  SizedBox(width: 8),
+                                  Text('SUPPRIMER LE COMPTE',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          letterSpacing: 1.1)),
+                                ],
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 40),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
       bottomNavigationBar: SafeArea(
         child: Container(
           decoration: BoxDecoration(
             color: Colors.white,
-            boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, -2))],
+            boxShadow: [
+              BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.05),
+                  blurRadius: 10,
+                  offset: const Offset(0, -2))
+            ],
           ),
           child: SlideMenuBar(
-            selectedIndex: _bottomNavIndex, 
+            selectedIndex: _bottomNavIndex,
             onTabChange: _onBottomTabChange,
           ),
         ),
@@ -391,9 +496,18 @@ class _ProfilePageState extends State<ProfilePage> {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12, left: 4),
       child: Row(children: [
-        Container(width: 4, height: 18, decoration: BoxDecoration(color: const Color(0xFF5E3B7D), borderRadius: BorderRadius.circular(2))),
+        Container(
+            width: 4,
+            height: 18,
+            decoration: BoxDecoration(
+                color: const Color(0xFF5E3B7D),
+                borderRadius: BorderRadius.circular(2))),
         const SizedBox(width: 10),
-        Text(title, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: Colors.black87)),
+        Text(title,
+            style: const TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w800,
+                color: Colors.black87)),
       ]),
     );
   }
@@ -402,8 +516,8 @@ class _ProfilePageState extends State<ProfilePage> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white, 
-        borderRadius: BorderRadius.circular(16), 
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(color: const Color(0xFFEEEEEE), width: 1.5),
       ),
       child: Column(children: children),
