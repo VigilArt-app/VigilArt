@@ -63,6 +63,8 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+    volumes:
+      - /srv/VigilArt/keys:/app/backend/keys:ro
     networks:
       - app-network
     environment:
