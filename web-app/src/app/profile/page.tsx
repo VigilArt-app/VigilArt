@@ -127,9 +127,6 @@ export default function ProfilePage() {
       if (formData.lastName !== user?.lastName) {
         updatePayload.lastName = formData.lastName;
       }
-      if (formData.email !== user?.email) {
-        updatePayload.email = formData.email;
-      }
 
       if (formData.avatarFile) {
         try {
@@ -283,7 +280,7 @@ export default function ProfilePage() {
                     <Label htmlFor="email" className="block font-semibold mb-2">
                       {t("profil_page.email")}
                     </Label>
-                    <Input id="email" name="email" value={formData.email} onChange={handleInputChange} placeholder={t("profil_page.enter_email")} type="email" className="w-full" />
+                    <Input id="email" name="email" value={formData.email} type="email" disabled className="w-full cursor-not-allowed" />
                   </div>
 
                   {/* If we want to be able to change the password, we need a route to update it */}
