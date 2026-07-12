@@ -75,7 +75,8 @@ describe("Users E2E", () => {
           subscriptionTier: expect.any(String),
           createdAt: expect.any(String),
           updatedAt: expect.any(String),
-          autoRunReports: false
+          autoRunReports: false,
+          notificationsEnabled: false
         },
       });
     });
@@ -173,7 +174,8 @@ describe("Users E2E", () => {
           avatar: null,
           createdAt: expect.any(String),
           updatedAt: expect.any(String),
-          autoRunReports: false
+          autoRunReports: false,
+          notificationsEnabled: false
         },
         {
           id: expect.any(String),
@@ -184,7 +186,8 @@ describe("Users E2E", () => {
           avatar: null,
           createdAt: expect.any(String),
           updatedAt: expect.any(String),
-          autoRunReports: false
+          autoRunReports: false,
+          notificationsEnabled: false
         },
         {
           id: expect.any(String),
@@ -195,7 +198,8 @@ describe("Users E2E", () => {
           subscriptionTier: SubscriptionTier.FREE,
           createdAt: expect.any(String),
           updatedAt: expect.any(String),
-          autoRunReports: false
+          autoRunReports: false,
+          notificationsEnabled: false
         }
       ];
 
@@ -224,7 +228,8 @@ describe("Users E2E", () => {
           avatar: null,
           createdAt: expect.any(String),
           updatedAt: expect.any(String),
-          autoRunReports: false
+          autoRunReports: false,
+          notificationsEnabled: false
         },
       });
     });
@@ -276,7 +281,8 @@ describe("Users E2E", () => {
           avatar: "new_url",
           createdAt: expect.any(String),
           updatedAt: expect.any(String),
-          autoRunReports: false
+          autoRunReports: false,
+          notificationsEnabled: false
         },
       });
     });
@@ -320,6 +326,13 @@ describe("Users E2E", () => {
         .delete(`/users/${testUser.id}`)
         .expect(HttpStatus.NO_CONTENT);
       expect(res.body).toEqual({});
+
+      const setCookie = res.headers["set-cookie"] as unknown as
+        | string[]
+        | undefined;
+      const cookies = Array.isArray(setCookie) ? setCookie : [];
+      expect(cookies.some((c) => c.startsWith("auth_token="))).toBe(true);
+      expect(cookies.some((c) => c.startsWith("refresh_token="))).toBe(true);
     });
 
     it("Shouldn't remove user with non-existent ID", async () => {

@@ -24,6 +24,7 @@ import { DmcaPlatformModule } from "./dmca/platform/platform.module";
 import { DmcaProfileModule } from "./dmca/profile/profile.module";
 import { DmcaNoticeModule } from "./dmca/notice/notice.module";
 import { GoogleLensModule } from "./googlelens/googlelens.module";
+import { NotificationsModule } from "./notifications/notifications.module";
 
 @Module({
   imports: [
@@ -60,7 +61,8 @@ import { GoogleLensModule } from "./googlelens/googlelens.module";
     DmcaPlatformModule,
     DmcaProfileModule,
     DmcaNoticeModule,
-    GoogleLensModule
+    GoogleLensModule,
+    NotificationsModule
   ],
   controllers: [AppController],
   providers: [

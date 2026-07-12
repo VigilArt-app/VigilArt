@@ -26,6 +26,7 @@
     "cache-manager": "^7.2.8",
     "class-transformer": "^0.5.1",
     "cookie-parser": "^1.4.7",
+    "firebase-admin": "^14.1.0",
     "helmet": "^8.1.0",
     "ioredis": "^5.10.1",
     "mime-types": "^3.0.2",
@@ -35,11 +36,14 @@
     "pdfkit": "^0.17.2",
     "pg": "^8.16.3",
     "rxjs": "^7.8.2",
+    "tldts": "^7.4.5",
     "zod": "^4.1.13"
   },
   "scripts": {
     "dev": "nest start --watch",
-    "build": "nest build",
+    "build": "pnpm build:app && pnpm build:seeds",
+    "build:app": "nest build",
+    "build:seeds": "tsc -p tsconfig.seeds.json",
     "start": "node dist/main.js",
     "test:it": "jest --config ./jest.config.ts",
     "test:e2e": "cross-env NODE_ENV=test NODE_OPTIONS=\"$NODE_OPTIONS --experimental-vm-modules\" jest --config ./test/jest-e2e.config.ts --runInBand",

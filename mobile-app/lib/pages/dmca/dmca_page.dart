@@ -322,7 +322,6 @@ class _DmcaPageState extends State<DmcaPage> {
         child: SafeArea(
           child: VigilArtHeaderBar(
             onLogoTap: () => Navigator.pushReplacementNamed(context, '/dashboard'),
-            onNotificationsTap: () => Navigator.pushNamed(context, '/notifications'),
             onProfileTap: () => Navigator.pushNamed(context, '/profile'),
             avatar: _userAvatarUrl,
           ),

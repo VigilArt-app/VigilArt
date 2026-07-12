@@ -53,6 +53,7 @@ export const AnyNull = runtime.AnyNull
 export const ModelName = {
   User: 'User',
   RefreshToken: 'RefreshToken',
+  DeviceToken: 'DeviceToken',
   Artwork: 'Artwork',
   MatchingPage: 'MatchingPage',
   ArtworksReport: 'ArtworksReport',
@@ -87,6 +88,7 @@ export const UserScalarFieldEnum = {
   avatar: 'avatar',
   subscriptionTier: 'subscriptionTier',
   autoRunReports: 'autoRunReports',
+  notificationsEnabled: 'notificationsEnabled',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -105,6 +107,18 @@ export const RefreshTokenScalarFieldEnum = {
 } as const
 
 export type RefreshTokenScalarFieldEnum = (typeof RefreshTokenScalarFieldEnum)[keyof typeof RefreshTokenScalarFieldEnum]
+
+
+export const DeviceTokenScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  token: 'token',
+  platform: 'platform',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type DeviceTokenScalarFieldEnum = (typeof DeviceTokenScalarFieldEnum)[keyof typeof DeviceTokenScalarFieldEnum]
 
 
 export const ArtworkScalarFieldEnum = {
@@ -133,6 +147,7 @@ export const MatchingPageScalarFieldEnum = {
   websiteName: 'websiteName',
   imageUrl: 'imageUrl',
   pageTitle: 'pageTitle',
+  unsafeDomain: 'unsafeDomain',
   firstDetectedAt: 'firstDetectedAt'
 } as const
 

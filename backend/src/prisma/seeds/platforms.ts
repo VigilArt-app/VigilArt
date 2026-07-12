@@ -10,6 +10,7 @@ import {
     TumblrDmcaFormJSON,
     XDmcaFormJSON
 } from "@vigilart/shared";
+import Redis from "ioredis";
 
 const platforms: Array<DmcaPlatformCreate> = [
     DeviantArtDmcaFormJSON,
@@ -22,6 +23,41 @@ const platforms: Array<DmcaPlatformCreate> = [
     XDmcaFormJSON
 ];
 
+async function clearDmcaPlatformCache() {
+    const redisUrl = process.env.REDIS_URL;
+    if (!redisUrl)
+        return;
+
+    const redis = new Redis(redisUrl, {
+        lazyConnect: true,
+        maxRetriesPerRequest: 1,
+        retryStrategy: () => null
+    });
+    redis.on("error", () => undefined);
+
+    try {
+        await redis.connect();
+
+        let cursor = "0";
+        const keys: string[] = [];
+
+        do {
+            const [nextCursor, batch] = await redis.scan(cursor, "MATCH", "dmca_platforms:*", "COUNT", 100);
+            cursor = nextCursor;
+            keys.push(...batch);
+        } while (cursor !== "0");
+        if (keys.length > 0) {
+            await redis.del(...keys);
+            console.log(`🧹 Cleared ${keys.length} cached DMCA platform entries.`);
+        }
+    } catch {
+        console.warn("⚠️ Skipping DMCA platform cache clear: Redis is unavailable.");
+    } finally {
+        if (redis.status !== "end")
+            redis.disconnect();
+    }
+}
+
 export const seedPlatforms = async (prisma: PrismaClient) => {
     console.info(`Seeding ${platforms.length} platforms...`);
     await prisma.$transaction(
@@ -31,4 +67,5 @@ export const seedPlatforms = async (prisma: PrismaClient) => {
             create: (platform as any)
         }))
     );
+    await clearDmcaPlatformCache();
 }

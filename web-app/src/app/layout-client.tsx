@@ -10,6 +10,7 @@ import I18nProvider from "./i18n/I18nProvider";
 import { Toaster } from "sonner";
 import { AuthProvider } from "../components/contexts/authContext";
 import { SessionRefreshGate } from "../components/auth/session-refresh-gate";
+import { NotificationsProvider } from "../components/contexts/notificationsContext";
 
 type LayoutClientProps = Readonly<{
   children: React.ReactNode;
@@ -47,10 +48,18 @@ export function LayoutClient({
         {showSidebar ? (
           shouldRefreshSession ? (
             <SessionRefreshGate enabled>
-              <AuthProvider>{sidebarShell}</AuthProvider>
+              <AuthProvider>
+                <NotificationsProvider>
+                  {sidebarShell}
+                </NotificationsProvider>
+              </AuthProvider>
             </SessionRefreshGate>
           ) : (
-            <AuthProvider>{sidebarShell}</AuthProvider>
+            <AuthProvider>
+              <NotificationsProvider>
+                {sidebarShell}
+              </NotificationsProvider>
+            </AuthProvider>
           )
         ) : (
           <main className="w-full min-h-screen overflow-x-hidden">

@@ -32,6 +32,7 @@ model User {
   avatar           String?
   subscriptionTier SubscriptionTier @default(FREE)
   autoRunReports   Boolean          @default(false)
+  notificationsEnabled Boolean      @default(false)
 
   createdAt        DateTime         @default(now())
   artworks         Artwork[]
@@ -41,6 +42,7 @@ model User {
   dmcaProfile      DmcaProfile?
   dmcaNotices      DmcaNotice[]
   refreshTokens    RefreshToken[]
+  deviceTokens     DeviceToken[]
 }
 
 model RefreshToken {
@@ -57,6 +59,30 @@ model RefreshToken {
 
   @@index([userId, expiresAt])
 }
+
+// Notification Models & Enums
+
+enum DevicePlatform {
+  WEB
+  ANDROID
+  IOS
+}
+
+model DeviceToken {
+  id        String         @id @default(uuid())
+  userId    String
+  user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  token     String         @unique
+  platform  DevicePlatform
+
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt @default(now())
+
+  @@index([userId])
+}
+
+// Artworks models and enums
 
 enum SubscriptionTier {
   FREE
@@ -105,6 +131,7 @@ model MatchingPage {
   websiteName       String
   imageUrl          String?
   pageTitle         String?
+  unsafeDomain      Boolean
   firstDetectedAt   DateTime          @default(now())
 
   reports           ArtworksReport[]

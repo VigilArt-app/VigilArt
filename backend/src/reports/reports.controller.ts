@@ -19,7 +19,11 @@ import {
   ArtworksReportGlobalStatistics,
   ArtworksReportStatistics,
   ArtworksReportStatisticsDTO,
-  ArtworksReportGlobalStatisticsDTO
+  ArtworksReportGlobalStatisticsDTO,
+  ScanEnqueuedDTO,
+  ScanStatusDTO,
+  ScanEnqueued,
+  ScanStatus
 } from "@vigilart/shared";
 import { ApiEndpoint } from "../common/decorators/api-endpoint.decorator";
 import { ApiParam, ApiQuery } from "@nestjs/swagger";
@@ -45,6 +49,44 @@ export class ReportsController {
     @Param("id", ParseUUIDPipe) userId: string
   ): Promise<ArtworksReport> {
     return this.reportsService.generate(userId);
+  }
+
+  @Post("user/:id/scan")
+  @ApiEndpoint({
+    summary: "Enqueue an async scan for all artworks owned by a user",
+    success: {
+      status: HttpStatus.OK,
+      type: ScanEnqueuedDTO
+    },
+    protected: true,
+    errors: [HttpStatus.NOT_FOUND, HttpStatus.FORBIDDEN],
+    ownerships: [{ data: "id", userField: "id", type: "params" }]
+  })
+  @ApiParam({ name: "id", type: String })
+  async enqueueScan(
+    @Param("id", ParseUUIDPipe) userId: string
+  ): Promise<ScanEnqueued> {
+    return this.reportsService.enqueueScan(userId);
+  }
+
+  @Get("user/:id/scan/:jobId")
+  @ApiEndpoint({
+    summary: "Get the status/progress of an async scan job",
+    success: {
+      status: HttpStatus.OK,
+      type: ScanStatusDTO
+    },
+    protected: true,
+    errors: [HttpStatus.NOT_FOUND],
+    ownerships: [{ data: "id", userField: "id", type: "params" }]
+  })
+  @ApiParam({ name: "id", type: String })
+  @ApiParam({ name: "jobId", type: String })
+  async getScanStatus(
+    @Param("id", ParseUUIDPipe) userId: string,
+    @Param("jobId") jobId: string
+  ): Promise<ScanStatus> {
+    return this.reportsService.getScanStatus(userId, jobId);
   }
 
   @Get("user/:id")

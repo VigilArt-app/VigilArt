@@ -1,3 +1,4 @@
+import { getDomain } from "tldts";
 import {
   WebsiteCategory,
   type WebsiteCategory as WebsiteCategoryType
@@ -79,16 +80,7 @@ export const classifyWebsite = (rawUrl: string): WebsiteCategoryType => {
 };
 
 export const extractRootDomain = (url: string): string => {
-  const hostname = new URL(url).hostname.replace(/^www\./, "");
-  const parts = hostname.split(".");
-  let rootDomain: string;
-
-  if (parts.length <= 2) {
-    rootDomain = hostname;
-  } else {
-    rootDomain = parts.slice(-2).join(".");
-  }
-  return rootDomain;
+  return getDomain(url) ?? new URL(url).hostname.replace(/^www\./, "");
 };
 
 export const BLACKLISTED_DOMAINS: string[] = [
@@ -117,12 +109,6 @@ export const BLACKLISTED_DOMAINS: string[] = [
   'buhitter.com',
 ];
 
-export const FLAGGED_DOMAINS: string[] = [
-  'pixiv.net',
-  'twitter.com',
-  'x.com',
-];
-
 export function isBlacklisted(url: string): boolean {
   const domain = extractRootDomain(url);
   return BLACKLISTED_DOMAINS.some(
@@ -130,9 +116,3 @@ export function isBlacklisted(url: string): boolean {
   );
 }
 
-export function isFlagged(url: string): boolean {
-  const domain = extractRootDomain(url);
-  return FLAGGED_DOMAINS.some(
-    (flagged) => domain === flagged || domain.endsWith(`.${flagged}`),
-  );
-}
