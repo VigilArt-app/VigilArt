@@ -4,6 +4,9 @@ import {
   ArtworksReportGetSchema,
   ArtworksReportGlobalStatisticsSchema,
   ArtworksReportStatisticsSchema,
+  CategoryDistributionItemSchema,
+  StatisticsTimelinePointSchema,
+  StatisticsRangeSchema,
   ScanStatusSchema,
   ScanProgressSchema,
   ScanJobStateSchema,
@@ -21,6 +24,16 @@ export type ArtworksReportStatistics = z.infer<
 export type ArtworksReportGlobalStatistics = z.infer<
   typeof ArtworksReportGlobalStatisticsSchema
 >;
+
+export type CategoryDistributionItem = z.infer<
+  typeof CategoryDistributionItemSchema
+>;
+
+export type StatisticsTimelinePoint = z.infer<
+  typeof StatisticsTimelinePointSchema
+>;
+
+export type StatisticsRange = z.infer<typeof StatisticsRangeSchema>;
 
 export type ScanStatus = z.infer<typeof ScanStatusSchema>;
 

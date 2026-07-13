@@ -40,7 +40,7 @@
         "error_unexpected": "An unexpected error occurred. Please try again.",
         "sign_up_failed": "Sign up failed. Please check your information and try again."
     },
-    "logout_page":{
+    "logout_page": {
         "logging_out": "Logging out..."
     },
     "dashboard_page": {
@@ -101,13 +101,36 @@
                 "10": "October",
                 "11": "November",
                 "12": "December"
-            }
+            },
+            "reposts": "reposts",
+            "no_data": "No reports yet",
+            "click_hint": "Click a bar to see that scan's reposts",
+            "view_report_reposts": "View reposts from {{date}} ({{count}})"
         },
         "statistics": {
             "statistics": "Statistics",
             "reported_posts": "Reported posts",
             "credited_posts": "Credited posts",
-            "unauthorized_content": "Unauthorized content"
+            "unauthorized_content": "Unauthorized content",
+            "total_matches": "total matches",
+            "range_all": "All Time",
+            "range_month": "Last Month",
+            "no_data": "No reposts found yet",
+            "matches_title": "{{category}} reposts",
+            "report_matches_title": "Reposts from {{date}}",
+            "no_matches": "No reposts in this category",
+            "no_matches_report": "No reposts in this report",
+            "load_error": "Could not load matches",
+            "showing_first": "Showing the {{count}} most recent of {{total}}",
+            "categories": {
+                "SOCIAL": "Social media",
+                "ART_PLATFORMS": "Art platforms",
+                "MARKETPLACES": "Marketplaces",
+                "BLOG": "Blogs",
+                "MEDIA": "Media",
+                "SEARCH": "Search engines",
+                "OTHER": "Other"
+            }
         },
         "scans_report": {
             "scan_report": "Scans Report",
