@@ -6,6 +6,15 @@ on:
       - '**'
       - '!dev'
       - '!main'
+    paths:
+      - 'backend/**'
+      - 'web-app/**'
+      - 'shared/**'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
+      - 'docker-compose.prod.yml'
+      - '.github/workflows/ci.yml'
   workflow_call:
     secrets:
       DOPPLER_TEST_TOKEN:
@@ -15,8 +24,41 @@ permissions:
   contents: read
 
 jobs:
-  run-tests:
+  changes:
     if: github.repository != 'EpitechPGE45-2025/G-EIP-700-PAR-7-1-eip-39'
+    runs-on: ubuntu-latest
+    outputs:
+      backend: ${{ steps.filter.outputs.backend }}
+      frontend: ${{ steps.filter.outputs.frontend }}
+      shared: ${{ steps.filter.outputs.shared }}
+      infra: ${{ steps.filter.outputs.infra }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+
+      - name: Check path changes
+        uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
+        id: filter
+        with:
+          filters: |
+            backend:
+              - 'backend/**'
+            frontend:
+              - 'web-app/**'
+            shared:
+              - 'shared/**'
+              - 'package.json'
+              - 'pnpm-lock.yaml'
+              - 'pnpm-workspace.yaml'
+            infra:
+              - 'docker-compose.prod.yml'
+              - '.github/workflows/ci.yml'
+
+  run-tests:
+    needs: changes
+    if: |
+      github.repository != 'EpitechPGE45-2025/G-EIP-700-PAR-7-1-eip-39' &&
+      (needs.changes.outputs.backend == 'true' || needs.changes.outputs.shared == 'true' || needs.changes.outputs.infra == 'true')
     name: 🧪 Run E2E Tests
     runs-on: ubuntu-latest
 
@@ -52,10 +94,13 @@ jobs:
         env:
           DOPPLER_TOKEN: ${{ secrets.DOPPLER_TEST_TOKEN }}
           COOKIE_DOMAIN: ${{ vars.COOKIE_DOMAIN }}
-        run: doppler run -- bash -c "export COOKIE_DOMAIN=$COOKIE_DOMAIN && pnpm --filter @vigilart/backend test:e2e"
+        run: doppler run -- bash -c 'export COOKIE_DOMAIN=$COOKIE_DOMAIN && pnpm --filter @vigilart/backend test:e2e'
 
   smoke-test:
-    if: github.repository != 'EpitechPGE45-2025/G-EIP-700-PAR-7-1-eip-39'
+    needs: changes
+    if: |
+      github.repository != 'EpitechPGE45-2025/G-EIP-700-PAR-7-1-eip-39' &&
+      (needs.changes.outputs.backend == 'true' || needs.changes.outputs.frontend == 'true' || needs.changes.outputs.shared == 'true' || needs.changes.outputs.infra == 'true')
     name: 🔥 Smoke Test
     runs-on: ubuntu-latest
 
@@ -81,25 +126,25 @@ jobs:
           DOPPLER_TOKEN: ${{ secrets.DOPPLER_TEST_TOKEN }}
         run: |
           cleanup() {
-            echo "Cleaning up containers..."
+            echo 'Cleaning up containers...'
             doppler run -- docker compose -f docker-compose.prod.yml down -v
           }
           trap cleanup EXIT
 
-          echo "Building images..."
+          echo 'Building images...'
           COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 doppler run -- docker compose -f docker-compose.prod.yml build
 
-          echo "Starting database..."
+          echo 'Starting database...'
           doppler run -- docker compose -f docker-compose.prod.yml up -d --wait db
 
-          echo "Running database migrations..."
+          echo 'Running database migrations...'
           doppler run -- docker compose -f docker-compose.prod.yml --profile migrate run --rm migrator
-          echo "✅ Migrations successful"
+          echo '✅ Migrations successful'
 
-          echo "Starting backend and frontend..."
+          echo 'Starting backend and frontend...'
           if ! doppler run -- docker compose -f docker-compose.prod.yml up -d --wait backend frontend; then
-            echo "CONTAINER FAILED TO BECOME HEALTHY ! DUMPING FRONTEND LOGS:"
+            echo 'CONTAINER FAILED TO BECOME HEALTHY ! DUMPING FRONTEND LOGS:'
             docker compose -f docker-compose.prod.yml logs frontend
             exit 1
           fi
-          echo "✅ Smoke test passed: build, migrations, and health checks successful."
+          echo '✅ Smoke test passed: build, migrations, and health checks successful.'
