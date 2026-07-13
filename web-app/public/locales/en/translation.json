@@ -372,5 +372,9 @@
         "email_subject": "Subject",
         "generate_notice_first": "Generate the email and PDF first to see the content.",
         "load": "Load"
+    },
+    "matches": {
+        "all_categories": "All categories",
+        "filter_by_category": "Filter by category"
     }
 }

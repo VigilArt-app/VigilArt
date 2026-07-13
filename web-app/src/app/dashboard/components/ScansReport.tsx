@@ -160,7 +160,8 @@ export default function ScansReport({ refreshKey }: ScansReportProps) {
           <div className="flex gap-4 items-center">
             <div className="flex items-center gap-2">
               <Label htmlFor="only-uncredited">{t("dashboard_page.scans_report.only_uncredited")}</Label>
-              <Switch id="only-uncredited" checked={onlyUncredited} onCheckedChange={setOnlyUncredited} />
+              {/* Temporarily disabled: credited-match tracking is not wired up yet. */}
+              <Switch id="only-uncredited" checked={onlyUncredited} onCheckedChange={setOnlyUncredited} disabled />
             </div>
           </div>
         </div>

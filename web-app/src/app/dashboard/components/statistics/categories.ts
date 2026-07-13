@@ -1,19 +1,9 @@
 import type { WebsiteCategory } from "@vigilart/shared";
 
-/**
- * Fixed display order for website categories. Categorical hues are assigned by
- * this order and never cycled, so a category always keeps the same color
- * regardless of how many are present (color follows the entity, not its rank).
- */
-export const CATEGORY_ORDER: WebsiteCategory[] = [
-  "SOCIAL",
-  "ART_PLATFORMS",
-  "MARKETPLACES",
-  "BLOG",
-  "MEDIA",
-  "SEARCH",
-  "OTHER",
-];
+// `CATEGORY_ORDER` and `categoryLabelKey` are the shared category taxonomy
+// (also used by the scans-report modal and the artwork gallery). They live in
+// the shared matches module; re-exported here so existing imports keep working.
+export { CATEGORY_ORDER, categoryLabelKey } from "@/src/components/matches/categories";
 
 // Validated categorical palette (dataviz skill): light + dark steps of the same
 // hues, checked for CVD separation and contrast against each surface.
@@ -34,10 +24,3 @@ export const getCategoryColor = (
   const entry = CATEGORY_COLORS[category] ?? CATEGORY_COLORS.OTHER;
   return isDark ? entry.dark : entry.light;
 };
-
-/**
- * i18n key for a category's human label. Use with `t(categoryLabelKey(c), c)`
- * so the raw enum code is the fallback when a translation is missing.
- */
-export const categoryLabelKey = (category: WebsiteCategory): string =>
-  `dashboard_page.statistics.categories.${category}`;

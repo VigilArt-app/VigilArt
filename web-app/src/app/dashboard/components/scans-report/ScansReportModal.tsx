@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Dialog,
@@ -5,6 +6,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from "../../../../components/ui/dialog";
+import { CategoryFilterSelect } from "../../../../components/matches/CategoryFilterSelect";
+import {
+  ALL_CATEGORIES,
+  filterAndSortMatches,
+  presentCategories,
+  type CategorySelection,
+} from "../../../../components/matches/matchCategoryFilter";
 import { ScanRow } from "./types";
 
 interface ScansReportModalProps {
@@ -14,7 +22,17 @@ interface ScansReportModalProps {
 
 export function ScansReportModal({ artwork, onClose }: ScansReportModalProps) {
   const { t, i18n } = useTranslation();
+  const [category, setCategory] = useState<CategorySelection>(ALL_CATEGORIES);
+
+  // Reset the filter each time a different artwork is opened.
+  useEffect(() => {
+    setCategory(ALL_CATEGORIES);
+  }, [artwork?.artworkId]);
+
   if (!artwork) return null;
+
+  const categories = presentCategories(artwork.matchingPages);
+  const visiblePages = filterAndSortMatches(artwork.matchingPages, category);
 
   return (
     <Dialog open={!!artwork} onOpenChange={(open) => { if (!open) onClose(); }}>
@@ -30,8 +48,17 @@ export function ScansReportModal({ artwork, onClose }: ScansReportModalProps) {
 
           {artwork.matchingPages.length > 0 ? (
             <div className="space-y-3">
-              <h3 className="font-semibold">{t("dashboard_page.scans_report.all_detected_reposts")}</h3>
-              {artwork.matchingPages.map((page) => (
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <h3 className="font-semibold">{t("dashboard_page.scans_report.all_detected_reposts")}</h3>
+                {categories.length > 1 && (
+                  <CategoryFilterSelect
+                    value={category}
+                    onChange={setCategory}
+                    categories={categories}
+                  />
+                )}
+              </div>
+              {visiblePages.map((page) => (
                 <div key={`${page.artworkId}-${page.id}-${page.url}-${page.firstDetectedAt}`} className="border rounded-lg p-3">
                   <div className="flex gap-3">
                     {page.imageUrl && (
