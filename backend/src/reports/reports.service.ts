@@ -54,6 +54,11 @@ const STATS_MONTH_WINDOW_MS = 30 * 24 * 60 * 60 * 1000;
 // chart still shows the true total; the modal shows the most recent slice of it.
 export const MATCHES_MODAL_LIMIT = 100;
 
+// Cap the number of bars in the timeline chart: one bar per report, so a heavy
+// user would otherwise get hundreds of unreadably-thin bars. Show the most
+// recent scans (chronological order preserved for display).
+export const TIMELINE_MAX_POINTS = 30;
+
 // Only the time-invariant "all" range is cached; the rolling "month" window and
 // report-scoped queries are recomputed every call so they never go stale. The
 // `v2` marker invalidates pre-existing `{ totalMatches }`-only cache entries.
@@ -529,14 +534,18 @@ export class ReportsService {
     });
   }
 
-  // Per-report repost counts, oldest first, for the monthly comparison bar chart.
-  // Always spans every report of the user, independent of the statistics range.
+  // Per-report repost counts for the monthly comparison bar chart. Always spans
+  // every report of the user (independent of the pie's All Time / Last Month
+  // range) — a time-trend chart scoped to one month would collapse to a few bars.
   private async getReportsTimeline(
     userId: string
   ): Promise<StatisticsTimelinePoint[]> {
+    // Take the most recent N (desc + take), then restore ascending order so the
+    // chart still reads left-to-right oldest→newest.
     const reports = await this.prisma.artworksReport.findMany({
       where: { userId },
-      orderBy: { detectionDate: "asc" },
+      orderBy: { detectionDate: "desc" },
+      take: TIMELINE_MAX_POINTS,
       select: {
         id: true,
         detectionDate: true,
@@ -544,7 +553,7 @@ export class ReportsService {
       }
     });
 
-    return reports.map((report) => ({
+    return reports.reverse().map((report) => ({
       reportId: report.id,
       date: report.detectionDate.toISOString(),
       totalMatches: report._count.matchingPages

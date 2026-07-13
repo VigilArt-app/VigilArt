@@ -6,7 +6,11 @@ import {
 } from "@nestjs/common";
 import { CACHE_MANAGER } from "@nestjs/cache-manager";
 import { getQueueToken } from "@nestjs/bullmq";
-import { MATCHES_MODAL_LIMIT, ReportsService } from "./reports.service";
+import {
+  MATCHES_MODAL_LIMIT,
+  ReportsService,
+  TIMELINE_MAX_POINTS
+} from "./reports.service";
 import { VisionService } from "../vision/vision.service";
 import { GoogleLensService } from "../googlelens/googlelens.service";
 import { ArtworksService } from "../artworks/artworks.service";
@@ -396,16 +400,18 @@ describe("ReportsService", () => {
         { category: "SOCIAL", _count: { _all: 3 } },
         { category: "MARKETPLACES", _count: { _all: 2 } }
       ]);
+      // The timeline query orders by detectionDate desc (most-recent first) and
+      // the service reverses it back to ascending for display.
       prisma.artworksReport.findMany.mockResolvedValue([
-        {
-          id: "r1",
-          detectionDate: new Date("2026-06-01T00:00:00Z"),
-          _count: { matchingPages: 4 }
-        },
         {
           id: "r2",
           detectionDate: new Date("2026-07-01T00:00:00Z"),
           _count: { matchingPages: 5 }
+        },
+        {
+          id: "r1",
+          detectionDate: new Date("2026-06-01T00:00:00Z"),
+          _count: { matchingPages: 4 }
         }
       ]);
 
@@ -420,6 +426,21 @@ describe("ReportsService", () => {
         { reportId: "r1", date: "2026-06-01T00:00:00.000Z", totalMatches: 4 },
         { reportId: "r2", date: "2026-07-01T00:00:00.000Z", totalMatches: 5 }
       ]);
+    });
+
+    it("Should cap the timeline to the most recent reports, spanning all reports regardless of range", async () => {
+      cache.get.mockResolvedValue(undefined);
+      prisma.matchingPage.groupBy.mockResolvedValue([]);
+      prisma.artworksReport.findMany.mockResolvedValue([]);
+
+      // Even with range=month the timeline must NOT be scoped to the month
+      // window — the bar chart always spans every report, just capped.
+      await service.getGlobalStatistics("user-id", undefined, "month");
+
+      const timelineCall = prisma.artworksReport.findMany.mock.calls[0][0];
+      expect(timelineCall.take).toBe(TIMELINE_MAX_POINTS);
+      expect(timelineCall.orderBy).toEqual({ detectionDate: "desc" });
+      expect(timelineCall.where).toEqual({ userId: "user-id" });
     });
 
     it("Should cache the range=all result on a miss and serve subsequent hits", async () => {
