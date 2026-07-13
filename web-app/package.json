@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "scripts": {
     "predev": "dotenv -e ../.env -- node scripts/generate-sw.js",
-    "dev": "dotenv -e ../.env -- next dev --turbopack",
+    "dev": "pnpm predev && dotenv -e ../.env -- next dev --turbopack",
     "prebuild": "node scripts/generate-sw.js",
-    "build": "next build --turbopack",
+    "build": "pnpm prebuild && next build --turbopack",
     "start": "next start"
   },
   "dependencies": {
