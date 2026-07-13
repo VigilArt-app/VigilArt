@@ -94,7 +94,7 @@ jobs:
         env:
           DOPPLER_TOKEN: ${{ secrets.DOPPLER_TEST_TOKEN }}
           COOKIE_DOMAIN: ${{ vars.COOKIE_DOMAIN }}
-        run: doppler run -- bash -c 'export COOKIE_DOMAIN=$COOKIE_DOMAIN && pnpm --filter @vigilart/backend test:e2e'
+        run: doppler run -- bash -c "export COOKIE_DOMAIN=$COOKIE_DOMAIN && pnpm --filter @vigilart/backend test:e2e"
 
   smoke-test:
     needs: changes
