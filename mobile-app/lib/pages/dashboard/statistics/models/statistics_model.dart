@@ -1,65 +1,71 @@
-class UserStatistics {
-  final int totalScanned;
-  final int infringementsFound;
-  final int noticesSent;
-  final int resolvedCases;
-  final List<ChartPoint> growthData;
-  final List<ChartPoint> resolvedData;
-  final List<SourceData> sourceData;
+// Real statistics models, mirroring the backend
+// `ArtworksReportGlobalStatistics` shape (see shared `schemas/Reports`).
+// Replaces the previous mock `UserStatistics`/`ChartPoint`/`SourceData`.
 
-  UserStatistics({
-    required this.totalScanned,
-    required this.infringementsFound,
-    required this.noticesSent,
-    required this.resolvedCases,
-    required this.growthData,
-    required this.resolvedData,
-    required this.sourceData,
+/// Time window for the totals/distribution. Mirrors the shared
+/// `StatisticsRangeSchema` (`"all" | "month"`).
+enum StatisticsRange {
+  all,
+  month;
+
+  /// The wire value sent as the `range` query param.
+  String get value => name;
+}
+
+class GlobalStatistics {
+  final int totalMatches;
+  final List<CategoryDistributionItem> categoryDistribution;
+  final List<TimelinePoint> timeline;
+
+  GlobalStatistics({
+    required this.totalMatches,
+    required this.categoryDistribution,
+    required this.timeline,
   });
 
-  factory UserStatistics.fromJson(Map<String, dynamic> json) {
-    return UserStatistics(
-      totalScanned: json['totalScanned'] ?? 0,
-      infringementsFound: json['infringementsFound'] ?? 0,
-      noticesSent: json['noticesSent'] ?? 0,
-      resolvedCases: json['resolvedCases'] ?? 0,
-      growthData: (json['growthData'] as List? ?? [])
-          .map((item) => ChartPoint.fromJson(item))
+  factory GlobalStatistics.fromJson(Map<String, dynamic> json) {
+    return GlobalStatistics(
+      totalMatches: (json['totalMatches'] ?? 0) as int,
+      categoryDistribution: (json['categoryDistribution'] as List? ?? [])
+          .map((item) => CategoryDistributionItem.fromJson(item))
           .toList(),
-      resolvedData: (json['resolvedData'] as List? ?? [])
-          .map((item) => ChartPoint.fromJson(item))
-          .toList(),
-      sourceData: (json['sourceData'] as List? ?? [])
-          .map((item) => SourceData.fromJson(item))
+      timeline: (json['timeline'] as List? ?? [])
+          .map((item) => TimelinePoint.fromJson(item))
           .toList(),
     );
   }
 }
 
-class ChartPoint {
-  final String label;
-  final double value;
+class CategoryDistributionItem {
+  final String category;
+  final int count;
 
-  ChartPoint({required this.label, required this.value});
+  CategoryDistributionItem({required this.category, required this.count});
 
-  factory ChartPoint.fromJson(Map<String, dynamic> json) {
-    return ChartPoint(
-      label: json['label'] ?? '',
-      value: (json['value'] ?? 0).toDouble(),
+  factory CategoryDistributionItem.fromJson(Map<String, dynamic> json) {
+    return CategoryDistributionItem(
+      category: json['category']?.toString() ?? 'OTHER',
+      count: (json['count'] ?? 0) as int,
     );
   }
 }
 
-class SourceData {
-  final String platform;
-  final double percentage;
+class TimelinePoint {
+  final String reportId;
+  final String date;
+  final int totalMatches;
 
-  SourceData({required this.platform, required this.percentage});
+  TimelinePoint({
+    required this.reportId,
+    required this.date,
+    required this.totalMatches,
+  });
 
-  factory SourceData.fromJson(Map<String, dynamic> json) {
-    return SourceData(
-      platform: json['platform'] ?? '',
-      percentage: (json['percentage'] ?? 0).toDouble(),
+  factory TimelinePoint.fromJson(Map<String, dynamic> json) {
+    return TimelinePoint(
+      reportId: json['reportId']?.toString() ?? '',
+      date: json['date']?.toString() ?? '',
+      totalMatches: (json['totalMatches'] ?? 0) as int,
     );
   }
 }

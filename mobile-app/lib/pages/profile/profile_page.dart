@@ -169,7 +169,6 @@ class _ProfilePageState extends State<ProfilePage> {
         final Map<String, dynamic> updateData = {
           'firstName': _firstNameController.text.trim(),
           'lastName': _lastNameController.text.trim(),
-          'email': _emailController.text.trim(),
           'country': _countryController.text.trim(),
           'language': _languageController.text.trim(),
         };
@@ -321,9 +320,9 @@ class _ProfilePageState extends State<ProfilePage> {
                         _buildSectionHeader('Compte'),
                         _buildSectionCard([
                           EditableFormField(
-                            label: 'Email', 
-                            controller: _emailController, 
-                            isReadOnly: !_isEditMode,
+                            label: 'Email',
+                            controller: _emailController,
+                            isReadOnly: true,
                             validator: (v) {
                               if (v == null || v.isEmpty) return 'Requis';
                               if (!v.contains('@')) return 'Email invalide';

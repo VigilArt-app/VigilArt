@@ -3,6 +3,7 @@ import 'package:vigilart/pages/dashboard/upload_picture/upload_photos_page.dart'
 import 'package:vigilart/pages/gallery/gallery_page.dart';
 import 'package:vigilart/pages/profile/profile_page.dart';
 import 'package:vigilart/(api)/auth.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -23,13 +24,18 @@ void main() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   await dotenv.load(fileName: ".env");
 
-  await Firebase.initializeApp();
-  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-
   bool isLoggedIn = await checkLoginStatus(prefs);
-  bool? notificationsEnabled = prefs.getBool('notificationsEnabled');
-  if (isLoggedIn && notificationsEnabled == true) {
-    NotificationService().initialize();
+
+  // Firebase / push notifications are mobile-only; web has no Firebase config,
+  // so initializing it there throws and leaves the app on a blank screen.
+  if (!kIsWeb) {
+    await Firebase.initializeApp();
+    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+
+    bool? notificationsEnabled = prefs.getBool('notificationsEnabled');
+    if (isLoggedIn && notificationsEnabled == true) {
+      NotificationService().initialize();
+    }
   }
 
   runApp(VigilArtApp(isLoggedIn: isLoggedIn));
