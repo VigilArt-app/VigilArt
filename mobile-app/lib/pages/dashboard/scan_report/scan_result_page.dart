@@ -97,7 +97,7 @@ class _ScanResultsPageState extends State<ScanResultsPage> {
 
       if (mounted) {
         final List<dynamic> matchingPages = reportData['matchingPages'] ?? [];
-        final int detectionCount = matchingPages.length;
+        final int matchCount = matchingPages.length;
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -105,7 +105,7 @@ class _ScanResultsPageState extends State<ScanResultsPage> {
               children: [
                 const Icon(Icons.check_circle, color: Colors.white),
                 const SizedBox(width: 12),
-                Expanded(child: Text('Scan complete! Found $detectionCount new detections.')),
+                Expanded(child: Text('Scan complete! Found $matchCount new matches.')),
               ],
             ), 
             backgroundColor: const Color(0xFF22C55E),
