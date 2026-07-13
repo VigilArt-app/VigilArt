@@ -1,8 +1,10 @@
 import {
   Controller,
+  DefaultValuePipe,
   Get,
   HttpStatus,
   Param,
+  ParseEnumPipe,
   ParseUUIDPipe,
   Post,
   Query,
@@ -20,11 +22,13 @@ import {
   ArtworksReportStatistics,
   ArtworksReportStatisticsDTO,
   ArtworksReportGlobalStatisticsDTO,
+  StatisticsRange,
   ScanEnqueuedDTO,
   ScanStatusDTO,
   ScanEnqueued,
   ScanStatus
 } from "@vigilart/shared";
+import { WebsiteCategory } from "@vigilart/shared/server";
 import { ApiEndpoint } from "../common/decorators/api-endpoint.decorator";
 import { ApiParam, ApiQuery } from "@nestjs/swagger";
 import type { AuthenticatedRequest } from "../auth/auth";
@@ -156,13 +160,12 @@ export class ReportsController {
 
   @Get("user/:userId/statistics")
   @ApiEndpoint({
-    summary: "Get global statistics from a report",
+    summary: "Get a user's global statistics (totals, per-category distribution, per-report timeline)",
     success: {
       status: HttpStatus.OK,
       type: ArtworksReportGlobalStatisticsDTO
     },
     protected: true,
-    errors: [HttpStatus.NOT_FOUND],
     ownerships: [{ data: "userId", userField: "id", type: "params" }]
   })
   @ApiParam({ name: "userId", type: String })
@@ -172,11 +175,65 @@ export class ReportsController {
     type: String,
     description: "Optional: get matches from a specific report, by default it is set to the latest report"
   })
+  @ApiQuery({
+    name: "range",
+    required: false,
+    enum: ["all", "month"],
+    description: "Time window for the totals/distribution (ignored when reportId is set). The timeline always spans all reports. Defaults to 'all'."
+  })
   async getGlobalStatistics(
     @Param("userId", ParseUUIDPipe) userId: string,
-    @Query("reportId", new ParseUUIDPipe({ optional: true })) reportId?: string
+    @Query("reportId", new ParseUUIDPipe({ optional: true })) reportId?: string,
+    @Query("range", new DefaultValuePipe("all")) range?: string
   ): Promise<ArtworksReportGlobalStatistics> {
-    return this.reportsService.getGlobalStatistics(userId, reportId);
+    const statisticsRange: StatisticsRange = range === "month" ? "month" : "all";
+    return this.reportsService.getGlobalStatistics(userId, reportId, statisticsRange);
+  }
+
+  @Get("user/:userId/matches")
+  @ApiEndpoint({
+    summary: "List a user's distinct matches in a given website category (statistics drill-down)",
+    success: {
+      status: HttpStatus.OK,
+      type: [MatchingPageDTO]
+    },
+    protected: true,
+    errors: [HttpStatus.BAD_REQUEST, HttpStatus.FORBIDDEN],
+    ownerships: [{ data: "userId", userField: "id", type: "params" }]
+  })
+  @ApiParam({ name: "userId", type: String })
+  @ApiQuery({ name: "category", required: true, enum: WebsiteCategory })
+  @ApiQuery({
+    name: "range",
+    required: false,
+    enum: ["all", "month"],
+    description: "Time window for the matches. Defaults to 'all'."
+  })
+  async getMatchesByCategory(
+    @Param("userId", ParseUUIDPipe) userId: string,
+    @Query("category", new ParseEnumPipe(WebsiteCategory)) category: WebsiteCategory,
+    @Query("range", new DefaultValuePipe("all")) range?: string
+  ): Promise<MatchingPage[]> {
+    const statisticsRange: StatisticsRange = range === "month" ? "month" : "all";
+    return this.reportsService.findMatchesByCategory(userId, category, statisticsRange);
+  }
+
+  @Get("report/:reportId/matches")
+  @ApiEndpoint({
+    summary: "List the matches found in a single report (monthly-comparison drill-down)",
+    success: {
+      status: HttpStatus.OK,
+      type: [MatchingPageDTO]
+    },
+    protected: true,
+    errors: [HttpStatus.FORBIDDEN, HttpStatus.NOT_FOUND]
+  })
+  @ApiParam({ name: "reportId", type: String })
+  async getMatchesByReport(
+    @Req() req: AuthenticatedRequest,
+    @Param("reportId", ParseUUIDPipe) reportId: string
+  ): Promise<MatchingPage[]> {
+    return this.reportsService.findMatchesByReport(req.user.id, reportId);
   }
 
   @Get("artwork/:artworkId/statistics")

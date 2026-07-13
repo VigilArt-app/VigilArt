@@ -6,7 +6,11 @@ import {
 } from "@nestjs/common";
 import { CACHE_MANAGER } from "@nestjs/cache-manager";
 import { getQueueToken } from "@nestjs/bullmq";
-import { ReportsService } from "./reports.service";
+import {
+  MATCHES_MODAL_LIMIT,
+  ReportsService,
+  TIMELINE_MAX_POINTS
+} from "./reports.service";
 import { VisionService } from "../vision/vision.service";
 import { GoogleLensService } from "../googlelens/googlelens.service";
 import { ArtworksService } from "../artworks/artworks.service";
@@ -23,9 +27,16 @@ describe("ReportsService", () => {
   let storageService: { getImage: jest.Mock; getDownloadUrl: jest.Mock };
   let matchingPagesService: { createMany: jest.Mock };
   let prisma: {
-    artworksReport: { count: jest.Mock; create: jest.Mock };
+    artworksReport: {
+      count: jest.Mock;
+      create: jest.Mock;
+      findMany: jest.Mock;
+      findUniqueOrThrow: jest.Mock;
+    };
     artwork: { updateMany: jest.Mock };
+    matchingPage: { groupBy: jest.Mock; findMany: jest.Mock };
   };
+  let cache: { get: jest.Mock; set: jest.Mock; del: jest.Mock };
   let queue: { add: jest.Mock; getJob: jest.Mock };
 
   beforeEach(async () => {
@@ -43,11 +54,20 @@ describe("ReportsService", () => {
         {
           provide: PrismaService,
           useValue: {
-            artworksReport: { count: jest.fn(), create: jest.fn() },
-            artwork: { updateMany: jest.fn() }
+            artworksReport: {
+              count: jest.fn(),
+              create: jest.fn(),
+              findMany: jest.fn(),
+              findUniqueOrThrow: jest.fn()
+            },
+            artwork: { updateMany: jest.fn() },
+            matchingPage: { groupBy: jest.fn(), findMany: jest.fn() }
           }
         },
-        { provide: CACHE_MANAGER, useValue: { del: jest.fn() } },
+        {
+          provide: CACHE_MANAGER,
+          useValue: { get: jest.fn(), set: jest.fn(), del: jest.fn() }
+        },
         {
           provide: getQueueToken(REPORTS_QUEUE),
           useValue: { add: jest.fn(), getJob: jest.fn() }
@@ -62,6 +82,7 @@ describe("ReportsService", () => {
     storageService = module.get(StorageService);
     matchingPagesService = module.get(MatchingPagesService);
     prisma = module.get(PrismaService);
+    cache = module.get(CACHE_MANAGER);
     queue = module.get(getQueueToken(REPORTS_QUEUE));
   });
 
@@ -369,6 +390,184 @@ describe("ReportsService", () => {
       await expect(
         service.getScanStatus("user-id", "scan-user-id")
       ).rejects.toBeInstanceOf(NotFoundException);
+    });
+  });
+
+  describe("getGlobalStatistics", () => {
+    it("Should aggregate distinct matches per category and sum them (range=all)", async () => {
+      cache.get.mockResolvedValue(undefined);
+      prisma.matchingPage.groupBy.mockResolvedValue([
+        { category: "SOCIAL", _count: { _all: 3 } },
+        { category: "MARKETPLACES", _count: { _all: 2 } }
+      ]);
+      // The timeline query orders by detectionDate desc (most-recent first) and
+      // the service reverses it back to ascending for display.
+      prisma.artworksReport.findMany.mockResolvedValue([
+        {
+          id: "r2",
+          detectionDate: new Date("2026-07-01T00:00:00Z"),
+          _count: { matchingPages: 5 }
+        },
+        {
+          id: "r1",
+          detectionDate: new Date("2026-06-01T00:00:00Z"),
+          _count: { matchingPages: 4 }
+        }
+      ]);
+
+      const res = await service.getGlobalStatistics("user-id");
+
+      expect(res.totalMatches).toBe(5);
+      expect(res.categoryDistribution).toEqual([
+        { category: "SOCIAL", count: 3 },
+        { category: "MARKETPLACES", count: 2 }
+      ]);
+      expect(res.timeline).toEqual([
+        { reportId: "r1", date: "2026-06-01T00:00:00.000Z", totalMatches: 4 },
+        { reportId: "r2", date: "2026-07-01T00:00:00.000Z", totalMatches: 5 }
+      ]);
+    });
+
+    it("Should cap the timeline to the most recent reports, spanning all reports regardless of range", async () => {
+      cache.get.mockResolvedValue(undefined);
+      prisma.matchingPage.groupBy.mockResolvedValue([]);
+      prisma.artworksReport.findMany.mockResolvedValue([]);
+
+      // Even with range=month the timeline must NOT be scoped to the month
+      // window — the bar chart always spans every report, just capped.
+      await service.getGlobalStatistics("user-id", undefined, "month");
+
+      const timelineCall = prisma.artworksReport.findMany.mock.calls[0][0];
+      expect(timelineCall.take).toBe(TIMELINE_MAX_POINTS);
+      expect(timelineCall.orderBy).toEqual({ detectionDate: "desc" });
+      expect(timelineCall.where).toEqual({ userId: "user-id" });
+    });
+
+    it("Should cache the range=all result on a miss and serve subsequent hits", async () => {
+      cache.get.mockResolvedValue(undefined);
+      prisma.matchingPage.groupBy.mockResolvedValue([]);
+      prisma.artworksReport.findMany.mockResolvedValue([]);
+
+      await service.getGlobalStatistics("user-id");
+
+      expect(cache.set).toHaveBeenCalledWith(
+        "reports:statistics:v2:user-id:all",
+        expect.objectContaining({ totalMatches: 0 }),
+        expect.any(Number)
+      );
+
+      const cached = {
+        totalMatches: 9,
+        categoryDistribution: [],
+        timeline: []
+      };
+      cache.get.mockResolvedValue(cached);
+
+      const res = await service.getGlobalStatistics("user-id");
+
+      expect(res).toBe(cached);
+      // groupBy was only called for the first (miss) invocation.
+      expect(prisma.matchingPage.groupBy).toHaveBeenCalledTimes(1);
+    });
+
+    it("Should filter by a rolling 30-day window and not touch the cache (range=month)", async () => {
+      prisma.matchingPage.groupBy.mockResolvedValue([]);
+      prisma.artworksReport.findMany.mockResolvedValue([]);
+
+      await service.getGlobalStatistics("user-id", undefined, "month");
+
+      expect(cache.get).not.toHaveBeenCalled();
+      expect(cache.set).not.toHaveBeenCalled();
+
+      const where = prisma.matchingPage.groupBy.mock.calls[0][0].where;
+      expect(where.reports.some.userId).toBe("user-id");
+      expect(where.reports.some.detectionDate.gt).toBeInstanceOf(Date);
+    });
+
+    it("Should return zeros for a user with no reports without throwing", async () => {
+      cache.get.mockResolvedValue(undefined);
+      prisma.matchingPage.groupBy.mockResolvedValue([]);
+      prisma.artworksReport.findMany.mockResolvedValue([]);
+
+      const res = await service.getGlobalStatistics("user-id");
+
+      expect(res).toEqual({
+        totalMatches: 0,
+        categoryDistribution: [],
+        timeline: []
+      });
+    });
+
+    it("Should scope to a specific report (and its owner) and bypass the cache", async () => {
+      prisma.matchingPage.groupBy.mockResolvedValue([
+        { category: "BLOG", _count: { _all: 1 } }
+      ]);
+      prisma.artworksReport.findMany.mockResolvedValue([]);
+
+      const res = await service.getGlobalStatistics("user-id", "report-1");
+
+      expect(cache.get).not.toHaveBeenCalled();
+      expect(cache.set).not.toHaveBeenCalled();
+      expect(res.totalMatches).toBe(1);
+
+      const where = prisma.matchingPage.groupBy.mock.calls[0][0].where;
+      expect(where.reports.some).toEqual({ id: "report-1", userId: "user-id" });
+    });
+  });
+
+  describe("findMatchesByCategory", () => {
+    it("Should filter by category and the user's reports, newest first (range=all)", async () => {
+      const pages = [{ id: "m1" }, { id: "m2" }];
+      prisma.matchingPage.findMany.mockResolvedValue(pages);
+
+      const res = await service.findMatchesByCategory("user-id", "SOCIAL");
+
+      expect(res).toBe(pages);
+      const arg = prisma.matchingPage.findMany.mock.calls[0][0];
+      expect(arg.where.category).toBe("SOCIAL");
+      expect(arg.where.reports.some.userId).toBe("user-id");
+      expect(arg.where.reports.some.detectionDate).toBeUndefined();
+      expect(arg.orderBy).toEqual({ firstDetectedAt: "desc" });
+      expect(arg.take).toBe(MATCHES_MODAL_LIMIT);
+    });
+
+    it("Should add the rolling 30-day window when range=month", async () => {
+      prisma.matchingPage.findMany.mockResolvedValue([]);
+
+      await service.findMatchesByCategory("user-id", "MARKETPLACES", "month");
+
+      const where = prisma.matchingPage.findMany.mock.calls[0][0].where;
+      expect(where.category).toBe("MARKETPLACES");
+      expect(where.reports.some.detectionDate.gt).toBeInstanceOf(Date);
+    });
+  });
+
+  describe("findMatchesByReport", () => {
+    it("Should return the report's matches scoped to the owner, newest-first and capped at the DB", async () => {
+      prisma.artworksReport.findUniqueOrThrow.mockResolvedValue({
+        userId: "user-id"
+      });
+      const pages = [{ id: "m1" }, { id: "m2" }];
+      prisma.matchingPage.findMany.mockResolvedValue(pages);
+
+      const res = await service.findMatchesByReport("user-id", "report-1");
+
+      expect(res).toBe(pages);
+      const arg = prisma.matchingPage.findMany.mock.calls[0][0];
+      expect(arg.where.reports.some).toEqual({ id: "report-1", userId: "user-id" });
+      expect(arg.orderBy).toEqual({ firstDetectedAt: "desc" });
+      expect(arg.take).toBe(MATCHES_MODAL_LIMIT);
+    });
+
+    it("Should throw ownership error and not query matches when the report isn't the user's", async () => {
+      prisma.artworksReport.findUniqueOrThrow.mockResolvedValue({
+        userId: "someone-else"
+      });
+
+      await expect(
+        service.findMatchesByReport("user-id", "report-1")
+      ).rejects.toBeInstanceOf(ForbiddenException);
+      expect(prisma.matchingPage.findMany).not.toHaveBeenCalled();
     });
   });
 });

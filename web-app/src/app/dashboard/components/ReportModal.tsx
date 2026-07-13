@@ -165,7 +165,9 @@ export function ReportModal({
         ) : null}
 
         <div className="flex gap-3 justify-end pt-4 border-t">
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
+          {/* Temporarily disabled: this button never cancelled the scan (the job
+              keeps running server-side); the dialog's close (X) still dismisses. */}
+          <Button variant="outline" onClick={() => onOpenChange(false)} disabled>
             {t("dashboard_page.upload.cancel")}
           </Button>
         </div>

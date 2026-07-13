@@ -16,6 +16,11 @@ import {
   Artwork,
   ArtworksReportGet,
   ArtworksReportStatistics,
+  ArtworksReportGlobalStatistics,
+  CategoryDistributionItem,
+  StatisticsTimelinePoint,
+  StatisticsRange,
+  WebsiteCategory,
   MatchingPage,
   MatchingPageGet,
   ApiBatchPayload,
@@ -26,6 +31,7 @@ import {
   ScanProgress,
   ScanJobState
 } from "@vigilart/shared";
+import { Prisma } from "@vigilart/shared/server";
 import { ArtworksService } from "../artworks/artworks.service";
 import { StorageService } from "../storage/storage.service";
 import { PrismaService } from "../prisma/prisma.service";
@@ -40,9 +46,24 @@ import {
 } from "./reports.constants";
 
 const REPORTS_STATS_TTL = 30 * 24 * 60 * 60 * 1000;
+const STATS_MONTH_WINDOW_MS = 30 * 24 * 60 * 60 * 1000;
 
-const REPORT_STATS_KEY = (userId: string) => {
-  return `reports:statistics:${userId}`;
+// Cap the statistics drill-down lists (per-category and per-report): a slice can
+// accumulate thousands of matches, and the modal renders every row (with an
+// image), so an unbounded query would ship a huge payload and jank the UI. The
+// chart still shows the true total; the modal shows the most recent slice of it.
+export const MATCHES_MODAL_LIMIT = 100;
+
+// Cap the number of bars in the timeline chart: one bar per report, so a heavy
+// user would otherwise get hundreds of unreadably-thin bars. Show the most
+// recent scans (chronological order preserved for display).
+export const TIMELINE_MAX_POINTS = 30;
+
+// Only the time-invariant "all" range is cached; the rolling "month" window and
+// report-scoped queries are recomputed every call so they never go stale. The
+// `v2` marker invalidates pre-existing `{ totalMatches }`-only cache entries.
+const REPORT_STATS_KEY = (userId: string, range: StatisticsRange = "all") => {
+  return `reports:statistics:v2:${userId}:${range}`;
 }
 
 @Injectable()
@@ -389,25 +410,154 @@ export class ReportsService {
 
   async getGlobalStatistics(
     userId: string,
-    reportId?: string
-  ): Promise<ArtworksReportStatistics> {
-    if (!reportId) {
-      const cached = await this.cacheManager.get<ArtworksReportStatistics>(REPORT_STATS_KEY(userId));
+    reportId?: string,
+    range: StatisticsRange = "all"
+  ): Promise<ArtworksReportGlobalStatistics> {
+    // Only the unscoped "all time" view is time-invariant, so it is the only
+    // cacheable path. "month" is a rolling window and a specific report is niche.
+    const cacheable = !reportId && range === "all";
+
+    if (cacheable) {
+      const cached = await this.cacheManager.get<ArtworksReportGlobalStatistics>(
+        REPORT_STATS_KEY(userId, range)
+      );
       if (cached)
         return cached;
-
-      const matchingPages = await this.findMatchesByUser(userId);
-      const result: ArtworksReportStatistics = { totalMatches: matchingPages.length };
-
-      await this.cacheManager.set(REPORT_STATS_KEY(userId), result, REPORTS_STATS_TTL);
-      return result;
     }
 
-    const matchingPages = await this.findMatchesByUser(userId, reportId);
+    const [categoryDistribution, timeline] = await Promise.all([
+      this.getCategoryDistribution(userId, reportId, range),
+      this.getReportsTimeline(userId)
+    ]);
+    const totalMatches = categoryDistribution.reduce(
+      (sum, item) => sum + item.count,
+      0
+    );
 
-    return {
-      totalMatches: matchingPages.length
+    const result: ArtworksReportGlobalStatistics = {
+      totalMatches,
+      categoryDistribution,
+      timeline
     };
+
+    if (cacheable) {
+      await this.cacheManager.set(
+        REPORT_STATS_KEY(userId, range),
+        result,
+        REPORTS_STATS_TTL
+      );
+    }
+
+    return result;
+  }
+
+  // The report-scope filter shared by the category distribution and the
+  // per-category match list, so a slice's count and its drill-down list always
+  // agree: a specific report when `reportId` is set, otherwise all of the
+  // user's reports (optionally limited to the rolling month window).
+  private buildReportFilter(
+    userId: string,
+    reportId?: string,
+    range: StatisticsRange = "all"
+  ): Prisma.ArtworksReportWhereInput {
+    return reportId
+      ? { id: reportId, userId }
+      : {
+          userId,
+          ...(range === "month"
+            ? {
+                detectionDate: {
+                  gt: new Date(Date.now() - STATS_MONTH_WINDOW_MS)
+                }
+              }
+            : {})
+        };
+  }
+
+  // Distribution of distinct matching pages per website category. The many-to-many
+  // `some` filter counts each page once even if it appears in several reports.
+  private async getCategoryDistribution(
+    userId: string,
+    reportId?: string,
+    range: StatisticsRange = "all"
+  ): Promise<CategoryDistributionItem[]> {
+    const grouped = await this.prisma.matchingPage.groupBy({
+      by: ["category"],
+      where: { reports: { some: this.buildReportFilter(userId, reportId, range) } },
+      _count: { _all: true }
+    });
+
+    return grouped.map((group) => ({
+      category: group.category,
+      count: group._count._all
+    }));
+  }
+
+  // Drill-down list backing a clicked pie slice: the distinct matching pages in
+  // one category, scoped by the same filter as getCategoryDistribution so the
+  // list length matches the slice count. Newest detections first.
+  async findMatchesByCategory(
+    userId: string,
+    category: WebsiteCategory,
+    range: StatisticsRange = "all"
+  ): Promise<MatchingPage[]> {
+    this.logger.log(`Finding ${category} matches for user ${userId}`);
+    return this.prisma.matchingPage.findMany({
+      where: {
+        category,
+        reports: { some: this.buildReportFilter(userId, undefined, range) }
+      },
+      orderBy: { firstDetectedAt: "desc" },
+      take: MATCHES_MODAL_LIMIT
+    });
+  }
+
+  // Drill-down list backing a clicked Monthly-comparison bar: the matches found
+  // in one report, newest first and capped. Ownership/existence are checked with
+  // a light userId-only lookup (403/404) before the capped list query, so we
+  // never materialize a huge report's full match set just to slice it.
+  async findMatchesByReport(
+    userId: string,
+    reportId: string
+  ): Promise<MatchingPage[]> {
+    this.logger.log(`Finding matches of report ${reportId} for user ${userId}`);
+    const report = await this.prisma.artworksReport.findUniqueOrThrow({
+      where: { id: reportId },
+      select: { userId: true }
+    });
+    assertResourceOwnership(report, userId);
+
+    return this.prisma.matchingPage.findMany({
+      where: { reports: { some: this.buildReportFilter(userId, reportId) } },
+      orderBy: { firstDetectedAt: "desc" },
+      take: MATCHES_MODAL_LIMIT
+    });
+  }
+
+  // Per-report repost counts for the monthly comparison bar chart. Always spans
+  // every report of the user (independent of the pie's All Time / Last Month
+  // range) — a time-trend chart scoped to one month would collapse to a few bars.
+  private async getReportsTimeline(
+    userId: string
+  ): Promise<StatisticsTimelinePoint[]> {
+    // Take the most recent N (desc + take), then restore ascending order so the
+    // chart still reads left-to-right oldest→newest.
+    const reports = await this.prisma.artworksReport.findMany({
+      where: { userId },
+      orderBy: { detectionDate: "desc" },
+      take: TIMELINE_MAX_POINTS,
+      select: {
+        id: true,
+        detectionDate: true,
+        _count: { select: { matchingPages: true } }
+      }
+    });
+
+    return reports.reverse().map((report) => ({
+      reportId: report.id,
+      date: report.detectionDate.toISOString(),
+      totalMatches: report._count.matchingPages
+    }));
   }
 
   async getArtworkStatistics(
@@ -428,21 +578,39 @@ export class ReportsService {
 
   async remove(id: string): Promise<void> {
     this.logger.log(`Removing artworks report ${id}`);
+    // Capture the owner before deletion so the cached "all time" statistics
+    // (which counted this report's matches) don't outlive it.
+    const report = await this.prisma.artworksReport.findUnique({
+      where: { id },
+      select: { userId: true }
+    });
     await this.prisma.artworksReport.delete({
       where: {
         id
       }
     });
+    if (report) await this.cacheManager.del(REPORT_STATS_KEY(report.userId));
   }
 
   async removeMany(ids: string[]): Promise<ApiBatchPayload> {
     this.logger.log(`Removing artworks reports ${ids.join(",")}`);
-    return await this.prisma.artworksReport.deleteMany({
+    const reports = await this.prisma.artworksReport.findMany({
+      where: { id: { in: ids } },
+      select: { userId: true },
+      distinct: ["userId"]
+    });
+    const result = await this.prisma.artworksReport.deleteMany({
       where: {
         id: {
           in: ids
         }
       }
     });
+    await Promise.all(
+      reports.map((report) =>
+        this.cacheManager.del(REPORT_STATS_KEY(report.userId))
+      )
+    );
+    return result;
   }
 }
