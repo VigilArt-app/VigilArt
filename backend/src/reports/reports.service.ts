@@ -38,6 +38,7 @@ import { PrismaService } from "../prisma/prisma.service";
 import { MatchingPagesService } from "./matchingPage.service";
 import { GoogleLensService } from "../googlelens/googlelens.service";
 import { assertResourceOwnership } from "../common/utils/ownership";
+import { normalizeMatchUrl } from "../common/utils/website-class";
 import {
   MAX_SCANS_PER_WINDOW,
   SCAN_WINDOW_DAYS,
@@ -118,7 +119,10 @@ export class ReportsService {
     );
     const matchingPagesData = matchingPages.map((match) => ({
       artworkId: artwork.id,
-      ...match
+      ...match,
+      // Dedup on the canonical page URL: drop query string + fragment so
+      // `.../123?lang=es` and `.../123` collapse to one MatchingPage row.
+      url: normalizeMatchUrl(match.url)
     }));
 
     return matchingPagesData;

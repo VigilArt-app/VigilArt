@@ -240,6 +240,27 @@ describe("ReportsService", () => {
       expect(prisma.artworksReport.create).not.toHaveBeenCalled();
     });
 
+    it("Should normalize match URLs (strip query/fragment) before persisting", async () => {
+      mockScanSuccess();
+      artworksService.findAllPerUser.mockResolvedValue([
+        { id: "a1", storageKey: "k1" }
+      ]);
+      const base = "https://x.com/ayaka_s/status/1777995868702171417";
+      googleLensService.searchImage.mockReset().mockResolvedValue({
+        matchingPages: [
+          { url: `${base}?lang=es`, category: "SOCIAL" },
+          { url: base, category: "SOCIAL" }
+        ]
+      });
+
+      await service.generate("user-id");
+
+      // Both provider results collapse onto the same canonical URL; the DB's
+      // `skipDuplicates` on `[url, artworkId]` then dedupes them to one row.
+      const persisted = matchingPagesService.createMany.mock.calls[0][0];
+      expect(persisted.map((m: { url: string }) => m.url)).toEqual([base, base]);
+    });
+
     it("Should not create a report when over quota", async () => {
       prisma.artworksReport.count.mockResolvedValue(MAX_SCANS_PER_WINDOW);
 
