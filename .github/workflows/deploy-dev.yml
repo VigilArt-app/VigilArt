@@ -75,8 +75,8 @@ jobs:
           file: backend/Dockerfile.prod
           push: true
           tags: ghcr.io/${{ steps.repo-owner.outputs.owner }}/vigilart-backend:dev
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=registry,ref=ghcr.io/${{ steps.repo-owner.outputs.owner }}/vigilart-backend:buildcache-dev
+          cache-to: type=registry,ref=ghcr.io/${{ steps.repo-owner.outputs.owner }}/vigilart-backend:buildcache-dev,mode=max,image-manifest=true,oci-mediatypes=true
 
   build-frontend:
     name: 📦 Build & Push Frontend
@@ -110,8 +110,8 @@ jobs:
           file: web-app/Dockerfile.prod
           push: true
           tags: ghcr.io/${{ steps.repo-owner.outputs.owner }}/vigilart-frontend:dev
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=registry,ref=ghcr.io/${{ steps.repo-owner.outputs.owner }}/vigilart-frontend:buildcache-dev
+          cache-to: type=registry,ref=ghcr.io/${{ steps.repo-owner.outputs.owner }}/vigilart-frontend:buildcache-dev,mode=max,image-manifest=true,oci-mediatypes=true
           build-args: |
             NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }}
             NEXT_PUBLIC_APP_ENV=development
