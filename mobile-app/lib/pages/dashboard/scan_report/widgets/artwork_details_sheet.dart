@@ -75,7 +75,7 @@ class ArtworkDetailsSheet extends StatelessWidget {
           const SizedBox(height: 16),
           
           Text(
-            '${matches.length} Detections Found',
+            '${matches.length} Matches Found',
             style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 16),

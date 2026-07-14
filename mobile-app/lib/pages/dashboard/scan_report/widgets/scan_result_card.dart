@@ -74,7 +74,7 @@ class ScanResultCard extends StatelessWidget {
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
-                            result['mostRecentSource'] != 'N/A' ? result['mostRecentSource'] : 'No detections',
+                            result['mostRecentSource'] != 'N/A' ? result['mostRecentSource'] : 'No matches',
                             style: TextStyle(color: Colors.grey[600], fontSize: 12),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
