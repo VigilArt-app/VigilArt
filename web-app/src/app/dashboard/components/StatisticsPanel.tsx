@@ -113,7 +113,7 @@ export default function StatisticsPanel({
             onClick={() => onRangeChange("month")}
             className="text-xs"
           >
-            {t("dashboard_page.statistics.range_month", "Last Month")}
+            {t("dashboard_page.statistics.range_month", "Last 30 days")}
           </Button>
         </div>
 
