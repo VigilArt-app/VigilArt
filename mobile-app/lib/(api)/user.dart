@@ -127,4 +127,32 @@ extension UserProfile on ApiService {
       return false;
     }
   }
+
+  Future<bool> deleteUserAccount() async {
+    try {
+      final userId = await secureStorage.read(key: ApiService.keyUserId);
+      if (userId == null) throw Exception('User ID not found');
+
+      final url = Uri.parse('$serverUrl/users/$userId');
+      final response = await authenticatedRequest(
+        (headers) => http.delete(url, headers: headers),
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 204) {
+        return true;
+      }
+
+      if (response.body.isNotEmpty) {
+        final errorData = jsonDecode(response.body);
+        debugPrint(
+            'Failed to delete account: ${errorData['message'] ?? response.statusCode}');
+      } else {
+        debugPrint('Failed to delete account: ${response.statusCode}');
+      }
+      return false;
+    } catch (e) {
+      debugPrint('Network error deleting account: $e');
+      return false;
+    }
+  }
 }
