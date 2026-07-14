@@ -5,7 +5,6 @@ import {
 } from "@nestjs/common";
 import type {
   AuthAccessToken,
-  AuthResponse,
   AuthSessionResponse,
   AuthTokens,
   Login,
@@ -18,7 +17,7 @@ import * as bcrypt from "bcrypt";
 import { ConfigService } from "@nestjs/config";
 import { PrismaService } from "../prisma/prisma.service";
 import type { Request, Response } from "express";
-import type { AuthenticatedRequest } from "./auth";
+import type { AuthenticatedRequest, ClientType } from "./auth";
 import {
   clearAuthCookies,
   getCookieOptions
@@ -32,10 +31,6 @@ export class AuthService {
     private readonly config: ConfigService,
     private readonly prisma: PrismaService
   ) {}
-
-  private isMobileClient(request?: Request): boolean {
-    return request?.header("x-client-type")?.toLowerCase() === "mobile";
-  }
 
   private buildAuthSessionResponse(
     user: UserGet,
@@ -65,10 +60,11 @@ export class AuthService {
   private async generateTokens(
     userId: string,
     email: string,
-    request?: Request
+    request: Request,
+    clientType: ClientType
   ): Promise<AuthTokens> {
     const accessTokenExpiry = this.config.get("JWT_EXPIRES") || "15m";
-    const refreshTokenExpiry = this.getRefreshTokenExpiry(request);
+    const refreshTokenExpiry = this.getRefreshTokenExpiry(clientType);
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(
         { sub: userId, email },
@@ -78,23 +74,24 @@ export class AuthService {
         }
       ),
       this.jwtService.signAsync(
-        { sub: userId, email },
+        { sub: userId, email, clientType },
         {
           secret: this.config.getOrThrow<string>("JWT_REFRESH_SECRET"),
           expiresIn: refreshTokenExpiry
         }
       )
     ]);
-    await this.persistRefreshToken(userId, refreshToken, request);
+    await this.persistRefreshToken(userId, refreshToken, request, clientType);
     return { accessToken, refreshToken, expiresIn: accessTokenExpiry };
   }
 
   private async persistRefreshToken(
     userId: string,
     refreshToken: string,
-    request?: Request
+    request: Request,
+    clientType: ClientType
   ): Promise<void> {
-    const refreshTokenExpiry = this.getRefreshTokenExpiry(request);
+    const refreshTokenExpiry = this.getRefreshTokenExpiry(clientType);
     const refreshTokenExpiryMs = this.parseExpiryToMs(refreshTokenExpiry);
     const hashedRefreshToken = await bcrypt.hash(
       refreshToken,
@@ -106,14 +103,14 @@ export class AuthService {
         userId,
         token: hashedRefreshToken,
         expiresAt: new Date(Date.now() + refreshTokenExpiryMs),
-        deviceInfo: request ? this.extractDeviceInfo(request) : null,
-        ipAddress: request ? this.extractIpAddress(request) : null
+        deviceInfo: this.extractDeviceInfo(request),
+        ipAddress: this.extractIpAddress(request)
       }
     });
   }
 
-  private getRefreshTokenExpiry(request?: Request) {
-    if (request && this.isMobileClient(request))
+  private getRefreshTokenExpiry(clientType: ClientType) {
+    if (clientType === "mobile")
       return this.config.get("JWT_MOBILE_REFRESH_EXPIRES") || "3650d";
     return this.config.get("JWT_REFRESH_EXPIRES") || "7d";
   }
@@ -180,25 +177,44 @@ export class AuthService {
     clearAuthCookies(response);
   }
 
-  async login(
+  private async login(
     response: Response,
     request: Request,
-    { email, password }: Login
-  ): Promise<AuthResponse> {
+    { email, password }: Login,
+    clientType: ClientType
+  ): Promise<{ user: UserGet, tokens: AuthTokens }>
+  {
     const user = await this.usersService.findByEmail(email);
-    if (!user) throw new UnauthorizedException("Invalid credentials");
+    if (!user)
+      throw new UnauthorizedException("Invalid credentials");
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid)
       throw new UnauthorizedException("Invalid credentials");
 
-    const tokens = await this.generateTokens(user.id, user.email, request);
+    const tokens = await this.generateTokens(user.id, user.email, request, clientType);
     const { password: hashedPassword, ...userProfile } = user;
 
     this.setAuthCookies(response, tokens);
-    return this.isMobileClient(request)
-      ? this.buildAuthSessionResponse(userProfile, tokens)
-      : userProfile;
+    return { user: userProfile, tokens };
+  }
+
+  async loginWeb(
+    response: Response,
+    request: Request,
+    { email, password }: Login
+  ): Promise<UserGet> {
+    const { user } = await this.login(response, request, { email, password }, "web");
+    return user;
+  }
+
+  async loginMobile(
+    response: Response,
+    request: Request,
+    { email, password }: Login
+  ): Promise<AuthSessionResponse> {
+    const { user, tokens } = await this.login(response, request, { email, password }, "mobile");
+    return this.buildAuthSessionResponse(user, tokens);
   }
 
   async signUp({
@@ -222,9 +238,9 @@ export class AuthService {
 
   async refreshTokens(
     response: Response,
-    request: Request,
     userId: string,
     email: string,
+    clientType: ClientType | undefined,
     oldRefreshToken?: string
   ): Promise<AuthAccessToken | void> {
     if (!oldRefreshToken)
@@ -233,7 +249,7 @@ export class AuthService {
     const accessToken = await this.generateAccessToken(userId, email);
 
     this.setAccessTokenCookie(response, accessToken);
-    if (!this.isMobileClient(request))
+    if (clientType !== "mobile")
       return;
     return {
       accessToken,

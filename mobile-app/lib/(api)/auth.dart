@@ -18,7 +18,6 @@ class ApiService {
 
   Map<String, String> _authHeaders() => {
     'Content-Type': 'application/json',
-    'x-client-type': 'mobile',
   };
 
   Future<Map<String, String>> bearerHeaders({bool includeContentType = true}) async {
@@ -50,7 +49,7 @@ class ApiService {
   }
 
   Future<http.Response> login(String email, String password) async {
-    final url = Uri.parse('$serverUrl/auth/login');
+    final url = Uri.parse('$serverUrl/auth/mobile/login');
     final response = await http.post(
       url,
       headers: _authHeaders(),

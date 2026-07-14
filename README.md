@@ -24,6 +24,7 @@ Currently working on a website and a mobile app!
 ## Status
 
 [![Deploy to dev](https://github.com/VigilArt-app/VigilArt/actions/workflows/deploy-dev.yml/badge.svg?branch=dev)](https://dev.vigilart.app)
+[![Deploy to prod](https://github.com/VigilArt-app/VigilArt/actions/workflows/deploy-main.yml/badge.svg)](https://github.com/VigilArt-app/VigilArt/actions/workflows/deploy-main.yml)
 
 ## Getting started
 

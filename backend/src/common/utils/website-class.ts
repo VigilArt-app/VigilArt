@@ -83,6 +83,21 @@ export const extractRootDomain = (url: string): string => {
   return getDomain(url) ?? new URL(url).hostname.replace(/^www\./, "");
 };
 
+// Two URLs that point at the same page but differ only by query string or
+// fragment (e.g. `.../status/123?lang=es` vs `.../status/123`) must be treated
+// as the same match. Strip both so dedup keys on the canonical page URL; leave
+// everything else (scheme, host, path, trailing slash) untouched.
+export const normalizeMatchUrl = (rawUrl: string): string => {
+  try {
+    const url = new URL(rawUrl);
+    url.search = "";
+    url.hash = "";
+    return url.toString();
+  } catch {
+    return rawUrl; // leave un-parseable URLs untouched
+  }
+};
+
 export const BLACKLISTED_DOMAINS: string[] = [
   'gelbooru.com',
   'danbooru.donmai.us',

@@ -59,6 +59,6 @@ export class JwtRefreshStrategy extends PassportStrategy(Strategy, 'jwt-refresh'
 
     if (!isRefreshTokenValid)
       throw new UnauthorizedException('Invalid refresh token');
-    return { id: user.id, email: user.email, refreshToken };
+    return { id: user.id, email: user.email, refreshToken, clientType: payload.clientType };
   }
 }
