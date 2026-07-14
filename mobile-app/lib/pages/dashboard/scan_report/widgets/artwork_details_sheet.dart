@@ -85,18 +85,10 @@ class _ArtworkDetailsSheetState extends State<ArtworkDetailsSheet> {
 
           const Divider(),
           const SizedBox(height: 16),
-
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  '${visibleMatches.length} Detections Found',
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-              ),
-              // Only offer a filter when more than one category is present.
-              if (categories.length > 1) _buildCategoryFilter(categories),
-            ],
+          
+          Text(
+            '${matches.length} Matches Found',
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 16),
 
