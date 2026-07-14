@@ -94,47 +94,68 @@ export function useDmcaPage() {
 
     const loadData = async () => {
       try {
-        const [allPlatforms, profile, userNotices] = await Promise.all([
+        const [platformsRes, profileRes, noticesRes] = await Promise.allSettled([
           fetchDmcaPlatforms(),
           fetchDmcaProfile(resolvedUserId),
           fetchUserDmcaNotices(resolvedUserId),
         ]);
 
-        setPlatforms(allPlatforms);
-
-        if (allPlatforms.length > 0) setSelectedPlatformSlug(allPlatforms[0].slug);
-
-        if (profile) {
-          setProfileExists(true);
-          setProfileForm({
-            fullName: profile.fullName || "",
-            street: profile.street || "",
-            aptSuite: profile.aptSuite || "",
-            city: profile.city || "",
-            postalCode: profile.postalCode || "",
-            country: profile.country || "",
-            email: profile.email || "",
-            phone: profile.phone || "",
-            signature: profile.signature || "",
-          });
+        if (platformsRes.status === "fulfilled") {
+          const allPlatforms = platformsRes.value;
+          setPlatforms(allPlatforms);
+          if (allPlatforms.length > 0) setSelectedPlatformSlug(allPlatforms[0].slug);
+        } else {
+          toast.error(
+            platformsRes.reason instanceof Error ? platformsRes.reason.message : t("dmca_page.failed_to_load"),
+          );
         }
 
-        setAllNotices(userNotices);
-
-        const mapped = userNotices.reduce<Record<string, DmcaNoticeGet>>((acc, notice) => {
-          const existing = acc[notice.dmcaPlatformSlug];
-          if (!existing) {
-            acc[notice.dmcaPlatformSlug] = notice;
-            return acc;
+        if (profileRes.status === "fulfilled") {
+          const profile = profileRes.value;
+          if (profile) {
+            setProfileExists(true);
+            setProfileForm({
+              fullName: profile.fullName || "",
+              street: profile.street || "",
+              aptSuite: profile.aptSuite || "",
+              city: profile.city || "",
+              postalCode: profile.postalCode || "",
+              country: profile.country || "",
+              email: profile.email || "",
+              phone: profile.phone || "",
+              signature: profile.signature || "",
+            });
           }
+        } else {
+          toast.error(
+            profileRes.reason instanceof Error ? profileRes.reason.message : t("dmca_page.failed_to_load"),
+          );
+        }
 
-          const existingDate = new Date(existing.updatedAt).getTime();
-          const currentDate = new Date(notice.updatedAt).getTime();
-          if (currentDate > existingDate) acc[notice.dmcaPlatformSlug] = notice;
-          return acc;
-        }, {});
+        if (noticesRes.status === "fulfilled") {
+          const userNotices = noticesRes.value;
+          setAllNotices(userNotices);
 
-        setNoticesByPlatform(mapped);
+          const mapped = userNotices.reduce<Record<string, DmcaNoticeGet>>((acc, notice) => {
+            const existing = acc[notice.dmcaPlatformSlug];
+            if (!existing) {
+              acc[notice.dmcaPlatformSlug] = notice;
+              return acc;
+            }
+
+            const existingDate = new Date(existing.updatedAt).getTime();
+            const currentDate = new Date(notice.updatedAt).getTime();
+            if (currentDate > existingDate) acc[notice.dmcaPlatformSlug] = notice;
+            return acc;
+          }, {});
+
+          setNoticesByPlatform(mapped);
+        } else {
+          toast.error(
+            noticesRes.reason instanceof Error ? noticesRes.reason.message : t("dmca_page.failed_to_load"),
+          );
+        }
+
         setDataLoaded(true);
       } catch (error) {
         toast.error(error instanceof Error ? error.message : t("dmca_page.failed_to_load"));

@@ -119,7 +119,7 @@ export function DmcaProfileStep({
             {savingProfile && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
             {t("dmca_page.save_profile")}
           </Button>
-          <Button onClick={onNext} disabled={!profileExists} className="gap-2">
+          <Button onClick={onNext} className="gap-2">
             {t("dmca_page.next")} →
           </Button>
         </div>
