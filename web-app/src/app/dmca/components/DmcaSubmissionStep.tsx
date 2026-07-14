@@ -1,21 +1,33 @@
 "use client";
 
+import { useState } from "react";
 import { Check, Copy, ExternalLink, Loader2 } from "lucide-react";
 import type { TFunction } from "i18next";
-import type { DmcaNoticeGeneratedContent, DmcaPlatformGet } from "@vigilart/shared/types";
+import type { DmcaNoticeGeneratedContent, DmcaNoticeGet, DmcaPlatformGet } from "@vigilart/shared/types";
 import { Button } from "@/src/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/src/components/ui/dialog";
 
 type DmcaSubmissionStepProps = {
-  activeNotice: boolean;
+  activeNotice: DmcaNoticeGet | null;
   copiedField: "subject" | "body" | null;
   generatedContent: DmcaNoticeGeneratedContent | null;
   generating: boolean;
   mailtoHref: string;
   selectedPlatform: DmcaPlatformGet | null;
+  submittingStatus: boolean;
   t: TFunction;
   onBack: () => void;
   onCopyToClipboard: (value: string, kind: "subject" | "body") => void;
   onGenerate: () => void;
+  onMarkSubmitted: () => void;
+  onStartNew: () => void;
 };
 
 export function DmcaSubmissionStep({
@@ -25,11 +37,17 @@ export function DmcaSubmissionStep({
   generating,
   mailtoHref,
   selectedPlatform,
+  submittingStatus,
   t,
   onBack,
   onCopyToClipboard,
   onGenerate,
+  onMarkSubmitted,
+  onStartNew,
 }: DmcaSubmissionStepProps) {
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const isSubmitted = activeNotice?.status === "SUBMITTED";
+
   return (
     <div className="rounded-xl border p-8 space-y-6">
       <div>
@@ -110,11 +128,53 @@ export function DmcaSubmissionStep({
         </div>
       )}
 
+      {activeNotice && !isSubmitted && (
+        <div className="rounded-lg border border-amber-300/70 bg-amber-50 dark:bg-amber-900/20 p-4">
+          <p className="text-sm mb-3">{t("dmca_page.mark_submitted_warning")}</p>
+          <Button
+            variant="outline"
+            onClick={() => setConfirmOpen(true)}
+            disabled={submittingStatus}
+            className="gap-2"
+          >
+            {submittingStatus && <Loader2 className="h-4 w-4 animate-spin" />}
+            {t("dmca_page.mark_submitted")}
+          </Button>
+        </div>
+      )}
+
       <div className="flex gap-3 justify-between pt-4">
-        <Button variant="outline" onClick={onBack}>
+        <Button variant="outline" onClick={onBack} disabled={isSubmitted}>
           ← {t("dmca_page.back")}
         </Button>
+        <Button onClick={onStartNew} className="gap-2">
+          {t("dmca_page.start_new_report")}
+        </Button>
       </div>
+
+      <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t("dmca_page.confirm_submit_title")}</DialogTitle>
+            <DialogDescription>{t("dmca_page.confirm_submit_description")}</DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setConfirmOpen(false)}>
+              {t("dmca_page.cancel")}
+            </Button>
+            <Button
+              onClick={() => {
+                setConfirmOpen(false);
+                onMarkSubmitted();
+              }}
+              disabled={submittingStatus}
+            >
+              {submittingStatus && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+              {t("dmca_page.confirm_submit")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

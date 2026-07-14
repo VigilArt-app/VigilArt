@@ -146,3 +146,15 @@ export const generateDmcaNotice = async (noticeId: string): Promise<DmcaNoticeGe
 
   return extractData<DmcaNoticeGeneratedContent>(await response.json());
 };
+
+export const updateDmcaNoticeStatus = async (noticeId: string, status: string): Promise<DmcaNoticeGet> => {
+  const response = await authenticatedFetch(`/dmca/notice/${noticeId}/status/${status}`, {
+    method: "PATCH",
+  });
+
+  if (!response.ok) {
+    throw new Error(await parseErrorMessage(response));
+  }
+
+  return extractData<DmcaNoticeGet>(await response.json());
+};

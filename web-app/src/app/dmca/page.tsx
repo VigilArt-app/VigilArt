@@ -69,16 +69,19 @@ export default function DmcaPage() {
 
       {dmca.currentStep === 3 && (
         <DmcaSubmissionStep
-          activeNotice={Boolean(dmca.activeNotice)}
+          activeNotice={dmca.activeNotice}
           copiedField={dmca.copiedField}
           generatedContent={dmca.generatedContent}
           generating={dmca.generating}
           mailtoHref={dmca.mailtoHref}
           selectedPlatform={dmca.selectedPlatform}
+          submittingStatus={dmca.submittingStatus}
           t={t}
           onBack={() => dmca.setCurrentStep(2)}
           onCopyToClipboard={dmca.copyToClipboard}
           onGenerate={dmca.handleGenerate}
+          onMarkSubmitted={dmca.handleMarkSubmitted}
+          onStartNew={dmca.startNewReport}
         />
       )}
     </div>
