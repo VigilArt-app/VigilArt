@@ -105,7 +105,7 @@ export function useDmcaPage() {
         if (platformsRes.status === "fulfilled") {
           const allPlatforms = platformsRes.value;
           setPlatforms(allPlatforms);
-          if (allPlatforms.length > 0) setSelectedPlatformSlug(allPlatforms[0].slug);
+          setSelectedPlatformSlug((prev) => prev || (allPlatforms.length > 0 ? allPlatforms[0].slug : null));
         } else {
           toast.error(
             platformsRes.reason instanceof Error ? platformsRes.reason.message : t("dmca_page.failed_to_load"),
