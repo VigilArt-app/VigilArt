@@ -138,7 +138,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
             const SizedBox(height: 24),
 
             const Text(
-              'Monthly comparison',
+              'Recent Scans',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 12),
@@ -173,7 +173,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
       children: [
         _rangeButton('All Time', StatisticsRange.all),
         const SizedBox(width: 8),
-        _rangeButton('Last Month', StatisticsRange.month),
+        _rangeButton('Last 30 days', StatisticsRange.month),
       ],
     );
   }
