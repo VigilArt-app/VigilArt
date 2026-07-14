@@ -31,6 +31,7 @@ export function UploadModal({ open, onOpenChange, onUploadComplete }: UploadModa
     updateDescription,
     uploadFiles,
     setUploadResult,
+    clearFiles,
   } = useFileUpload({ onUploadComplete });
   const { t } = useTranslation();
 
@@ -58,15 +59,22 @@ export function UploadModal({ open, onOpenChange, onUploadComplete }: UploadModa
     }
   }, [open, uploadResult, setUploadResult]);
 
+  const handleOpenChange = (newOpen: boolean) => {
+    if (!newOpen) {
+      clearFiles();
+    }
+    onOpenChange(newOpen);
+  };
+
   const handleUpload = async () => {
     const success = await uploadFiles();
     if (success) {
-      onOpenChange(false);
+      handleOpenChange(false);
     }
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle>{t("dashboard_page.upload.upload_picture")}</DialogTitle>
@@ -87,7 +95,7 @@ export function UploadModal({ open, onOpenChange, onUploadComplete }: UploadModa
           <div className="flex gap-3 justify-end pt-4 border-t">
             <Button
               variant="outline"
-              onClick={() => onOpenChange(false)}
+              onClick={() => handleOpenChange(false)}
               disabled={isUploading}
             >
               {t("dashboard_page.upload.cancel")}
