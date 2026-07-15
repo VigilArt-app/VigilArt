@@ -30,11 +30,20 @@ class NotificationService {
 
       if (settings.authorizationStatus == AuthorizationStatus.authorized) {
         final token = await _messaging.getToken();
-        if (token != null) {
-          final prefs = await SharedPreferences.getInstance();
-          await prefs.setString('fcmToken', token);
-          await _registerTokenWithBackend(token);
+        if (token == null) {
+          _initFuture = null;
+          return null;
         }
+
+        final registered = await _registerTokenWithBackend(token);
+        if (!registered) {
+          _initFuture = null;
+          return null;
+        }
+
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('fcmToken', token);
+
         _messaging.onTokenRefresh.listen((newToken) async {
           final prefs = await SharedPreferences.getInstance();
           await prefs.setString('fcmToken', newToken);
@@ -67,11 +76,11 @@ class NotificationService {
     return null;
   }
 
-  Future<void> _registerTokenWithBackend(String token) async {
+  Future<bool> _registerTokenWithBackend(String token) async {
     final url = Uri.parse('${_apiService.serverUrl}/notifications/devices');
 
     try {
-      await _apiService.authenticatedRequest((headers) {
+      final response = await _apiService.authenticatedRequest((headers) {
         return http.post(
           url,
           headers: headers,
@@ -81,12 +90,19 @@ class NotificationService {
           }),
         );
       });
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return true;
+      }
+      debugPrint('Failed to register device token with backend: HTTP ${response.statusCode}');
+      return false;
     } catch (e) {
       debugPrint('Failed to register device token with backend: $e');
+      return false;
     }
   }
 
-  Future<void> unregisterDevice() async {
+  Future<bool> unregisterDevice() async {
     _initFuture = null;
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -101,15 +117,23 @@ class NotificationService {
         }
       }
 
-      if (token == null) return;
+      if (token == null) return true;
 
       final url = Uri.parse('${_apiService.serverUrl}/notifications/devices/${Uri.encodeComponent(token)}');
-      await _apiService.authenticatedRequest((headers) {
+      final response = await _apiService.authenticatedRequest((headers) {
         return http.delete(url, headers: headers);
       });
+
+      if (response.statusCode != 200 && response.statusCode != 204) {
+        debugPrint('Failed to unregister device token: HTTP ${response.statusCode}');
+        return false;
+      }
+
       await prefs.remove('fcmToken');
+      return true;
     } catch (e) {
       debugPrint('Failed to unregister device token: $e');
+      return false;
     }
   }
 }

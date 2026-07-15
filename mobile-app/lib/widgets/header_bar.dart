@@ -77,12 +77,16 @@ class _VigilArtHeaderBarState extends State<VigilArtHeaderBar>
     setState(() => _isToggling = true);
 
     final targetState = !_notificationsEnabled;
-    final prefs = await SharedPreferences.getInstance();
 
     try {
-      final profile = await ApiService().updateUserProfile({'notificationsEnabled': targetState});
+      // Flip the actual device registration first: initialize()/unregisterDevice()
+      // report real success/failure, unlike updateUserProfile which we only want
+      // to persist once the device side is confirmed to match it.
+      final deviceOk = targetState
+          ? await NotificationService().initialize() != null
+          : await NotificationService().unregisterDevice();
 
-      if (profile == null) {
+      if (!deviceOk) {
         _showSnackBar(const SnackBar(
           content: Text('Échec de la mise à jour des notifications'),
           backgroundColor: Colors.red,
@@ -90,12 +94,24 @@ class _VigilArtHeaderBarState extends State<VigilArtHeaderBar>
         return;
       }
 
-      if (targetState) {
-        await NotificationService().initialize();
-      } else {
-        await NotificationService().unregisterDevice();
+      final profile = await ApiService().updateUserProfile({'notificationsEnabled': targetState});
+
+      if (profile == null) {
+        // Device state changed but the backend flag couldn't be persisted:
+        // revert the device side so both stay in sync.
+        if (targetState) {
+          await NotificationService().unregisterDevice();
+        } else {
+          await NotificationService().initialize();
+        }
+        _showSnackBar(const SnackBar(
+          content: Text('Échec de la mise à jour des notifications'),
+          backgroundColor: Colors.red,
+        ));
+        return;
       }
 
+      final prefs = await SharedPreferences.getInstance();
       await prefs.setBool('notificationsEnabled', targetState);
       if (mounted) {
         setState(() => _notificationsEnabled = targetState);
@@ -107,12 +123,6 @@ class _VigilArtHeaderBarState extends State<VigilArtHeaderBar>
         backgroundColor:
             targetState ? const Color(0xFF22C55E) : Colors.grey[700],
         duration: const Duration(seconds: 2),
-      ));
-    } catch (e) {
-      await ApiService().updateUserProfile({'notificationsEnabled': !targetState});
-      _showSnackBar(const SnackBar(
-        content: Text('Échec de la mise à jour des notifications'),
-        backgroundColor: Colors.red,
       ));
     } finally {
       if (mounted) {
