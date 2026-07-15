@@ -3,7 +3,7 @@ import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { MatchingPageGet, VisualSearchResult } from "@vigilart/shared";
 import { lastValueFrom } from "rxjs";
-import { GoogleLensExactResult } from "./interfaces";
+import { SerpApiLensMatch } from "./interfaces";
 import {
   classifyWebsite,
   extractRootDomain,
@@ -11,41 +11,34 @@ import {
 } from "../common/utils/website-class";
 
 @Injectable()
-export class GoogleLensService {
+export class SerpApiLensService {
   private readonly apiKey: string;
-  private readonly zone: string;
 
   constructor(
     private readonly httpService: HttpService,
     private readonly config: ConfigService
   ) {
-    this.apiKey = config.getOrThrow<string>("GOOGLE_LENS_API_KEY");
-    this.zone = config.getOrThrow<string>("BRIGHTDATA_SERP_API_ZONE");
+    this.apiKey = config.getOrThrow<string>("SERP_API_GOOGLE_LENS_API_KEY");
   }
 
-  async getGoogleLensExactMatches(
+  async getExactMatches(
     downloadUrl: string
-  ): Promise<GoogleLensExactResult[] | null> {
-    const headers = {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${this.apiKey}`
-    };
-    const url = encodeURIComponent(downloadUrl);
+  ): Promise<SerpApiLensMatch[] | null> {
     const { data } = await lastValueFrom(
-      this.httpService.post(
-        "https://api.brightdata.com/request",
-        {
-          zone: this.zone,
-          url: `https://lens.google.com/uploadbyurl?url=${url}&brd_lens=exact_matches`,
-          format: "raw"
+      this.httpService.get("https://serpapi.com/search", {
+        params: {
+          engine: "google_lens",
+          url: downloadUrl,
+          type: "exact_matches",
+          api_key: this.apiKey
         },
-        { headers, timeout: 120000 }
-      )
+        timeout: 120000
+      })
     );
-    if (!data || !data.images) {
+    if (!data || !data.exact_matches) {
       return null;
     }
-    const foundMatches: GoogleLensExactResult[] = data.images;
+    const foundMatches: SerpApiLensMatch[] = data.exact_matches;
     return foundMatches;
   }
 
@@ -54,20 +47,19 @@ export class GoogleLensService {
       bestGuessLabels: [],
       webEntities: []
     };
-    const googleLensExactMatches =
-      await this.getGoogleLensExactMatches(downloadUrl);
-    if (!googleLensExactMatches) {
+    const exactMatches = await this.getExactMatches(downloadUrl);
+    if (!exactMatches) {
       return null;
     }
-    const matchingPages: MatchingPageGet[] = googleLensExactMatches.reduce(
-      (acc: MatchingPageGet[], match: GoogleLensExactResult) => {
+    const matchingPages: MatchingPageGet[] = exactMatches.reduce(
+      (acc: MatchingPageGet[], match: SerpApiLensMatch) => {
         if (match.link) {
           const validItem: MatchingPageGet = {
             url: match.link,
             category: classifyWebsite(match.link),
             websiteName: extractRootDomain(match.link),
             unsafeDomain: isBlacklisted(match.link),
-            imageUrl: match.image_url ?? undefined,
+            imageUrl: match.thumbnail ?? match.image ?? undefined,
             pageTitle: match.title
           };
           acc.push(validItem);

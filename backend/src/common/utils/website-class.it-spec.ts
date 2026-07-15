@@ -41,4 +41,29 @@ describe("normalizeMatchUrl", () => {
   it("Should return an un-parseable string untouched", () => {
     expect(normalizeMatchUrl("not a url")).toBe("not a url");
   });
+
+  it("Should treat a country-code subdomain and www as the same host", () => {
+    expect(normalizeMatchUrl("https://uk.pinterest.com/gogotsakoyani/")).toBe(
+      normalizeMatchUrl("https://www.pinterest.com/gogotsakoyani/")
+    );
+  });
+
+  it("Should strip a bare www. host to the registrable domain", () => {
+    expect(normalizeMatchUrl("https://www.pinterest.com/gogotsakoyani/")).toBe(
+      "https://pinterest.com/gogotsakoyani/"
+    );
+  });
+
+  it("Should keep meaningful subdomains distinct", () => {
+    expect(normalizeMatchUrl("https://alice.wixsite.com/portfolio")).not.toBe(
+      normalizeMatchUrl("https://bob.wixsite.com/portfolio")
+    );
+  });
+
+  it("Should not strip a label when no registrable domain would remain", () => {
+    // `co.uk` is a public suffix, not a registrable domain, so `www.` stays.
+    expect(normalizeMatchUrl("https://www.co.uk/page")).toBe(
+      "https://www.co.uk/page"
+    );
+  });
 });

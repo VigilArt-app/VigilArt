@@ -13,6 +13,7 @@ import {
 } from "./reports.service";
 import { VisionService } from "../vision/vision.service";
 import { GoogleLensService } from "../googlelens/googlelens.service";
+import { SerpApiLensService } from "../serpapilens/serpapilens.service";
 import { ArtworksService } from "../artworks/artworks.service";
 import { StorageService } from "../storage/storage.service";
 import { MatchingPagesService } from "./matchingPage.service";
@@ -22,7 +23,7 @@ import { MAX_SCANS_PER_WINDOW, REPORTS_QUEUE } from "./reports.constants";
 describe("ReportsService", () => {
   let service: ReportsService;
   let visionService: { searchImage: jest.Mock };
-  let googleLensService: { searchImage: jest.Mock };
+  let serpApiLensService: { searchImage: jest.Mock };
   let artworksService: { findAllPerUser: jest.Mock };
   let storageService: { getImage: jest.Mock; getDownloadUrl: jest.Mock };
   let matchingPagesService: { createMany: jest.Mock };
@@ -45,6 +46,7 @@ describe("ReportsService", () => {
         ReportsService,
         { provide: VisionService, useValue: { searchImage: jest.fn() } },
         { provide: GoogleLensService, useValue: { searchImage: jest.fn() } },
+        { provide: SerpApiLensService, useValue: { searchImage: jest.fn() } },
         { provide: ArtworksService, useValue: { findAllPerUser: jest.fn() } },
         {
           provide: StorageService,
@@ -77,7 +79,7 @@ describe("ReportsService", () => {
 
     service = module.get(ReportsService);
     visionService = module.get(VisionService);
-    googleLensService = module.get(GoogleLensService);
+    serpApiLensService = module.get(SerpApiLensService);
     artworksService = module.get(ArtworksService);
     storageService = module.get(StorageService);
     matchingPagesService = module.get(MatchingPagesService);
@@ -96,7 +98,7 @@ describe("ReportsService", () => {
 
   describe("aggregateVisualSearchResults", () => {
     it("Should return Google Lens matches", async () => {
-      googleLensService.searchImage.mockResolvedValue({
+      serpApiLensService.searchImage.mockResolvedValue({
         matchingPages: [{ url: "https://b.example" }]
       });
 
@@ -109,7 +111,7 @@ describe("ReportsService", () => {
 
     it("Should return the surviving provider's matches when one provider fails", async () => {
       visionService.searchImage.mockRejectedValue(new Error("vision down"));
-      googleLensService.searchImage.mockResolvedValue({
+      serpApiLensService.searchImage.mockResolvedValue({
         matchingPages: [{ url: "https://b.example" }]
       });
 
@@ -123,7 +125,7 @@ describe("ReportsService", () => {
 
     it("Should return an empty array for a genuine zero-match scan", async () => {
       visionService.searchImage.mockResolvedValue(null);
-      googleLensService.searchImage.mockResolvedValue({ matchingPages: [] });
+      serpApiLensService.searchImage.mockResolvedValue({ matchingPages: [] });
 
       const res = await service.aggregateVisualSearchResults(
         // Buffer.from(""),
@@ -135,7 +137,7 @@ describe("ReportsService", () => {
 
     it("Should throw when all providers fail", async () => {
       visionService.searchImage.mockRejectedValue(new Error("vision down"));
-      googleLensService.searchImage.mockRejectedValue(new Error("lens down"));
+      serpApiLensService.searchImage.mockRejectedValue(new Error("lens down"));
 
       await expect(
         service.aggregateVisualSearchResults(
@@ -184,7 +186,7 @@ describe("ReportsService", () => {
       storageService.getImage.mockResolvedValue(Buffer.from(""));
       storageService.getDownloadUrl.mockResolvedValue("https://dl.example");
       visionService.searchImage.mockResolvedValue({ matchingPages: [] });
-      googleLensService.searchImage.mockResolvedValue({ matchingPages: [] });
+      serpApiLensService.searchImage.mockResolvedValue({ matchingPages: [] });
       matchingPagesService.createMany.mockResolvedValue({ matchingPages: [] });
       prisma.artworksReport.create.mockResolvedValue({ id: "report-1" });
       prisma.artwork.updateMany.mockResolvedValue({ count: 2 });
@@ -218,7 +220,7 @@ describe("ReportsService", () => {
     it("Should still complete the scan when one artwork's search fails", async () => {
       mockScanSuccess();
       // Two artworks; the first one's Lens call fails, the second succeeds.
-      googleLensService.searchImage
+      serpApiLensService.searchImage
         .mockReset()
         .mockRejectedValueOnce(new Error("lens timeout"))
         .mockResolvedValueOnce({ matchingPages: [] });
@@ -230,7 +232,7 @@ describe("ReportsService", () => {
 
     it("Should fail the scan (no report) when every artwork's search fails", async () => {
       mockScanSuccess();
-      googleLensService.searchImage
+      serpApiLensService.searchImage
         .mockReset()
         .mockRejectedValue(new Error("lens timeout"));
 
@@ -246,7 +248,7 @@ describe("ReportsService", () => {
         { id: "a1", storageKey: "k1" }
       ]);
       const base = "https://x.com/ayaka_s/status/1777995868702171417";
-      googleLensService.searchImage.mockReset().mockResolvedValue({
+      serpApiLensService.searchImage.mockReset().mockResolvedValue({
         matchingPages: [
           { url: `${base}?lang=es`, category: "SOCIAL" },
           { url: base, category: "SOCIAL" }
