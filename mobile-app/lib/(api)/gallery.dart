@@ -85,10 +85,32 @@ extension GalleryApi on ApiService {
   }
 
   Future<List<dynamic>?> _fetchUserArtworks(String userId) async {
-    final artworksRes = await authenticatedRequest((headers) => http.get(Uri.parse('$serverUrl/artworks/user/$userId'), headers: headers));
-    if (artworksRes.statusCode != 200) return null;
-    final artworksData = jsonDecode(artworksRes.body);
-    return artworksData['data'] ?? artworksData;
+    final allArtworks = <dynamic>[];
+    String? cursor;
+
+    while (true) {
+      final uri = Uri.parse('$serverUrl/artworks/user/$userId').replace(queryParameters: {
+        'limit': '100',
+        if (cursor != null) 'cursor': cursor,
+      });
+      final artworksRes = await authenticatedRequest((headers) => http.get(uri, headers: headers));
+      if (artworksRes.statusCode != 200) return allArtworks.isEmpty ? null : allArtworks;
+
+      final artworksData = jsonDecode(artworksRes.body);
+      final payload = artworksData['data'] ?? artworksData;
+
+      if (payload is Map) {
+        allArtworks.addAll(payload['items'] ?? []);
+        final nextCursor = payload['nextCursor']?.toString();
+        if (nextCursor == null) break;
+        cursor = nextCursor;
+      } else {
+        allArtworks.addAll(payload as List<dynamic>);
+        break;
+      }
+    }
+
+    return allArtworks;
   }
 
   Future<List<dynamic>> _fetchUserReports(String userId) async {
