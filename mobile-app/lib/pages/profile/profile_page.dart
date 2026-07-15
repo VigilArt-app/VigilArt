@@ -21,6 +21,7 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   bool _isEditMode = false;
   bool _isLoading = true;
+  bool _isLoggingOut = false;
   int _bottomNavIndex = 3;
   final _formKey = GlobalKey<FormState>();
 
@@ -270,13 +271,23 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   void _processLogout() async {
-    await _apiService.logout();
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('isLoggedIn', false);
-    await prefs.remove('notificationsEnabled');
-    await NotificationService().unregisterDevice();
-    if (mounted) {
-      Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+    if (_isLoggingOut) return;
+    setState(() => _isLoggingOut = true);
+
+    try {
+      // Unregister the device's push token first: it needs a valid access
+      // token, which _apiService.logout() wipes from secure storage below.
+      await NotificationService().unregisterDevice();
+      await _apiService.logout();
+    } catch (e) {
+      debugPrint('Logout error: $e');
+    } finally {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('isLoggedIn', false);
+      await prefs.setBool('notificationsEnabled', false);
+      if (mounted) {
+        Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+      }
     }
   }
 
@@ -413,7 +424,8 @@ class _ProfilePageState extends State<ProfilePage> {
                           SizedBox(
                             width: double.infinity,
                             child: ElevatedButton(
-                              onPressed: _handleLogoutDialog,
+                              onPressed:
+                                  _isLoggingOut ? null : _handleLogoutDialog,
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.red[400],
                                 padding:
@@ -422,19 +434,29 @@ class _ProfilePageState extends State<ProfilePage> {
                                     borderRadius: BorderRadius.circular(12)),
                                 elevation: 0,
                               ),
-                              child: const Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(Icons.logout,
-                                      color: Colors.white, size: 18),
-                                  SizedBox(width: 8),
-                                  Text('DÉCONNEXION',
-                                      style: TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold,
-                                          letterSpacing: 1.1)),
-                                ],
-                              ),
+                              child: _isLoggingOut
+                                  ? const SizedBox(
+                                      height: 18,
+                                      width: 18,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        color: Colors.white,
+                                      ),
+                                    )
+                                  : const Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Icon(Icons.logout,
+                                            color: Colors.white, size: 18),
+                                        SizedBox(width: 8),
+                                        Text('DÉCONNEXION',
+                                            style: TextStyle(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.bold,
+                                                letterSpacing: 1.1)),
+                                      ],
+                                    ),
                             ),
                           ),
                           const SizedBox(height: 16),
