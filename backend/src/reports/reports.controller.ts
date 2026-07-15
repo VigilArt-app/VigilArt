@@ -1,11 +1,14 @@
 import {
   Controller,
+  DefaultValuePipe,
   Get,
   HttpStatus,
   Param,
+  ParseEnumPipe,
   ParseUUIDPipe,
   Post,
-  Query
+  Query,
+  Req
 } from "@nestjs/common";
 import { ReportsService } from "./reports.service";
 import {
@@ -18,10 +21,17 @@ import {
   ArtworksReportGlobalStatistics,
   ArtworksReportStatistics,
   ArtworksReportStatisticsDTO,
-  ArtworksReportGlobalStatisticsDTO
+  ArtworksReportGlobalStatisticsDTO,
+  StatisticsRange,
+  ScanEnqueuedDTO,
+  ScanStatusDTO,
+  ScanEnqueued,
+  ScanStatus
 } from "@vigilart/shared";
+import { WebsiteCategory } from "@vigilart/shared/server";
 import { ApiEndpoint } from "../common/decorators/api-endpoint.decorator";
 import { ApiParam, ApiQuery } from "@nestjs/swagger";
+import type { AuthenticatedRequest } from "../auth/auth";
 
 @Controller("reports")
 export class ReportsController {
@@ -35,13 +45,52 @@ export class ReportsController {
       type: ArtworksReportDTO
     },
     protected: true,
-    errors: [HttpStatus.NOT_FOUND]
+    errors: [HttpStatus.NOT_FOUND],
+    ownerships: [{ data: "id", userField: "id", type: "params" }]
   })
   @ApiParam({ name: "id", type: String })
   async generateArtworkReport(
     @Param("id", ParseUUIDPipe) userId: string
   ): Promise<ArtworksReport> {
     return this.reportsService.generate(userId);
+  }
+
+  @Post("user/:id/scan")
+  @ApiEndpoint({
+    summary: "Enqueue an async scan for all artworks owned by a user",
+    success: {
+      status: HttpStatus.OK,
+      type: ScanEnqueuedDTO
+    },
+    protected: true,
+    errors: [HttpStatus.NOT_FOUND, HttpStatus.FORBIDDEN],
+    ownerships: [{ data: "id", userField: "id", type: "params" }]
+  })
+  @ApiParam({ name: "id", type: String })
+  async enqueueScan(
+    @Param("id", ParseUUIDPipe) userId: string
+  ): Promise<ScanEnqueued> {
+    return this.reportsService.enqueueScan(userId);
+  }
+
+  @Get("user/:id/scan/:jobId")
+  @ApiEndpoint({
+    summary: "Get the status/progress of an async scan job",
+    success: {
+      status: HttpStatus.OK,
+      type: ScanStatusDTO
+    },
+    protected: true,
+    errors: [HttpStatus.NOT_FOUND],
+    ownerships: [{ data: "id", userField: "id", type: "params" }]
+  })
+  @ApiParam({ name: "id", type: String })
+  @ApiParam({ name: "jobId", type: String })
+  async getScanStatus(
+    @Param("id", ParseUUIDPipe) userId: string,
+    @Param("jobId") jobId: string
+  ): Promise<ScanStatus> {
+    return this.reportsService.getScanStatus(userId, jobId);
   }
 
   @Get("user/:id")
@@ -51,7 +100,9 @@ export class ReportsController {
       status: HttpStatus.OK,
       type: [ArtworksReportDTO]
     },
-    protected: true
+    protected: true,
+    ownerships: [{ data: "id", userField: "id", type: "params" }],
+    errors: [HttpStatus.NOT_FOUND]
   })
   @ApiParam({ name: "id", type: String })
   async getAllArtworksReportsByUser(
@@ -72,9 +123,10 @@ export class ReportsController {
   })
   @ApiParam({ name: "id", type: String })
   async getArtworksReport(
+    @Req() req: AuthenticatedRequest,
     @Param("id", ParseUUIDPipe) id: string
   ): Promise<ArtworksReportGet> {
-    return this.reportsService.findOne(id);
+    return this.reportsService.findOne(req.user.id, id);
   }
 
   @Get("artwork/:artworkId/matches")
@@ -94,33 +146,27 @@ export class ReportsController {
     type: String,
     description: "Optional: get matches from a specific report, by default it is set to the latest report"
   })
-  @ApiQuery({
-    name: "userId",
-    required: true,
-    type: String,
-    description: "User id, temporary" //jwt session should be used instead
-  })
   async getMatchesArtwork(
     @Param("artworkId", ParseUUIDPipe) artworkId: string,
-    @Query("userId", ParseUUIDPipe) userId: string,
+    @Req() req: AuthenticatedRequest,
     @Query("reportId", new ParseUUIDPipe({ optional: true })) reportId?: string
   ): Promise<MatchingPage[]> {
     return this.reportsService.findMatchesByArtwork(
       artworkId,
-      userId,
+      req.user.id,
       reportId
     );
   }
 
   @Get("user/:userId/statistics")
   @ApiEndpoint({
-    summary: "Get global statistics from a report",
+    summary: "Get a user's global statistics (totals, per-category distribution, per-report timeline)",
     success: {
       status: HttpStatus.OK,
       type: ArtworksReportGlobalStatisticsDTO
     },
     protected: true,
-    errors: [HttpStatus.FORBIDDEN, HttpStatus.NOT_FOUND]
+    ownerships: [{ data: "userId", userField: "id", type: "params" }]
   })
   @ApiParam({ name: "userId", type: String })
   @ApiQuery({
@@ -129,11 +175,65 @@ export class ReportsController {
     type: String,
     description: "Optional: get matches from a specific report, by default it is set to the latest report"
   })
+  @ApiQuery({
+    name: "range",
+    required: false,
+    enum: ["all", "month"],
+    description: "Time window for the totals/distribution (ignored when reportId is set). The timeline always spans all reports. Defaults to 'all'."
+  })
   async getGlobalStatistics(
     @Param("userId", ParseUUIDPipe) userId: string,
-    @Query("reportId", new ParseUUIDPipe({ optional: true })) reportId?: string
+    @Query("reportId", new ParseUUIDPipe({ optional: true })) reportId?: string,
+    @Query("range", new DefaultValuePipe("all")) range?: string
   ): Promise<ArtworksReportGlobalStatistics> {
-    return this.reportsService.getGlobalStatistics(userId, reportId);
+    const statisticsRange: StatisticsRange = range === "month" ? "month" : "all";
+    return this.reportsService.getGlobalStatistics(userId, reportId, statisticsRange);
+  }
+
+  @Get("user/:userId/matches")
+  @ApiEndpoint({
+    summary: "List a user's distinct matches in a given website category (statistics drill-down)",
+    success: {
+      status: HttpStatus.OK,
+      type: [MatchingPageDTO]
+    },
+    protected: true,
+    errors: [HttpStatus.BAD_REQUEST, HttpStatus.FORBIDDEN],
+    ownerships: [{ data: "userId", userField: "id", type: "params" }]
+  })
+  @ApiParam({ name: "userId", type: String })
+  @ApiQuery({ name: "category", required: true, enum: WebsiteCategory })
+  @ApiQuery({
+    name: "range",
+    required: false,
+    enum: ["all", "month"],
+    description: "Time window for the matches. Defaults to 'all'."
+  })
+  async getMatchesByCategory(
+    @Param("userId", ParseUUIDPipe) userId: string,
+    @Query("category", new ParseEnumPipe(WebsiteCategory)) category: WebsiteCategory,
+    @Query("range", new DefaultValuePipe("all")) range?: string
+  ): Promise<MatchingPage[]> {
+    const statisticsRange: StatisticsRange = range === "month" ? "month" : "all";
+    return this.reportsService.findMatchesByCategory(userId, category, statisticsRange);
+  }
+
+  @Get("report/:reportId/matches")
+  @ApiEndpoint({
+    summary: "List the matches found in a single report (monthly-comparison drill-down)",
+    success: {
+      status: HttpStatus.OK,
+      type: [MatchingPageDTO]
+    },
+    protected: true,
+    errors: [HttpStatus.FORBIDDEN, HttpStatus.NOT_FOUND]
+  })
+  @ApiParam({ name: "reportId", type: String })
+  async getMatchesByReport(
+    @Req() req: AuthenticatedRequest,
+    @Param("reportId", ParseUUIDPipe) reportId: string
+  ): Promise<MatchingPage[]> {
+    return this.reportsService.findMatchesByReport(req.user.id, reportId);
   }
 
   @Get("artwork/:artworkId/statistics")
@@ -148,12 +248,6 @@ export class ReportsController {
   })
   @ApiParam({ name: "artworkId", type: String })
   @ApiQuery({
-    name: "userId",
-    required: true,
-    type: String,
-    description: "User id, temporary" //jwt session should be used instead
-  })
-  @ApiQuery({
     name: "reportId",
     required: false,
     type: String,
@@ -161,12 +255,12 @@ export class ReportsController {
   })
   async getArtworkStatistics(
     @Param("artworkId", ParseUUIDPipe) artworkId: string,
-    @Query("userId", ParseUUIDPipe) userId: string,
+    @Req() req: AuthenticatedRequest,
     @Query("reportId", new ParseUUIDPipe({ optional: true })) reportId?: string
   ): Promise<ArtworksReportStatistics> {
     return this.reportsService.getArtworkStatistics(
       artworkId,
-      userId,
+      req.user.id,
       reportId
     );
   }

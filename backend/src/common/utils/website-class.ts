@@ -1,3 +1,4 @@
+import { getDomain } from "tldts";
 import {
   WebsiteCategory,
   type WebsiteCategory as WebsiteCategoryType
@@ -79,16 +80,40 @@ export const classifyWebsite = (rawUrl: string): WebsiteCategoryType => {
 };
 
 export const extractRootDomain = (url: string): string => {
-  const hostname = new URL(url).hostname.replace(/^www\./, "");
-  const parts = hostname.split(".");
-  let rootDomain: string;
+  return getDomain(url) ?? new URL(url).hostname.replace(/^www\./, "");
+};
 
-  if (parts.length <= 2) {
-    rootDomain = hostname;
-  } else {
-    rootDomain = parts.slice(-2).join(".");
+// Collapse host variants that point at the same page: drop a leading `www.` and
+// a leading 2-letter country/locale label (e.g. Pinterest's `uk.`/`de.`), so
+// `uk.pinterest.com/x` and `www.pinterest.com/x` dedup to one match. Meaningful
+// subdomains (`shop.`, `blog.`, per-user hosts like `alice.wixsite.com`) are
+// left intact. Only strips when a registrable domain still remains, so hosts
+// like `uk.com` or `www.co.uk` are untouched.
+const normalizeHost = (hostname: string): string => {
+  const labels = hostname.split(".");
+  const first = labels[0];
+  if (labels.length >= 3 && (first === "www" || /^[a-z]{2}$/.test(first))) {
+    const stripped = labels.slice(1).join(".");
+    if (getDomain(stripped)) return stripped;
   }
-  return rootDomain;
+  return hostname;
+};
+
+// Two URLs that point at the same page but differ only by query string,
+// fragment, or a `www.`/country-code host variant (e.g. `.../status/123?lang=es`
+// vs `.../status/123`, or `uk.pinterest.com` vs `www.pinterest.com`) must be
+// treated as the same match. Canonicalize so dedup keys on one page URL; leave
+// the scheme, path, and trailing slash untouched.
+export const normalizeMatchUrl = (rawUrl: string): string => {
+  try {
+    const url = new URL(rawUrl);
+    url.search = "";
+    url.hash = "";
+    url.hostname = normalizeHost(url.hostname);
+    return url.toString();
+  } catch {
+    return rawUrl; // leave un-parseable URLs untouched
+  }
 };
 
 export const BLACKLISTED_DOMAINS: string[] = [
@@ -117,12 +142,6 @@ export const BLACKLISTED_DOMAINS: string[] = [
   'buhitter.com',
 ];
 
-export const FLAGGED_DOMAINS: string[] = [
-  'pixiv.net',
-  'twitter.com',
-  'x.com',
-];
-
 export function isBlacklisted(url: string): boolean {
   const domain = extractRootDomain(url);
   return BLACKLISTED_DOMAINS.some(
@@ -130,9 +149,3 @@ export function isBlacklisted(url: string): boolean {
   );
 }
 
-export function isFlagged(url: string): boolean {
-  const domain = extractRootDomain(url);
-  return FLAGGED_DOMAINS.some(
-    (flagged) => domain === flagged || domain.endsWith(`.${flagged}`),
-  );
-}

@@ -1,8 +1,16 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { ArtworkWithInsights, getArtworkStatus } from "./types";
 import { useArtworkImageUrl } from "./hooks/useArtworkImageUrl";
 import { useTranslation } from "react-i18next";
+import { CategoryFilterSelect } from "../../../components/matches/CategoryFilterSelect";
+import {
+  ALL_CATEGORIES,
+  filterAndSortMatches,
+  presentCategories,
+  type CategorySelection,
+} from "../../../components/matches/matchCategoryFilter";
 
 interface ArtworkDetailsProps {
   artwork: ArtworkWithInsights;
@@ -16,6 +24,16 @@ export function ArtworkDetails({ artwork }: ArtworkDetailsProps) {
   const mostRecentDate = artwork.reportInsights?.mostRecentDate;
   const matchingPages = artwork.reportInsights?.matchingPages || [];
   const { imageUrl, isLoading } = useArtworkImageUrl(artwork.storageKey);
+
+  const [category, setCategory] = useState<CategorySelection>(ALL_CATEGORIES);
+
+  // Reset the filter each time a different artwork is selected.
+  useEffect(() => {
+    setCategory(ALL_CATEGORIES);
+  }, [artwork.id]);
+
+  const categories = presentCategories(matchingPages);
+  const visiblePages = filterAndSortMatches(matchingPages, category);
 
   return (
     <div className="w-96 border-l bg-background p-6 overflow-y-auto scrollbar-soft">
@@ -110,14 +128,23 @@ export function ArtworkDetails({ artwork }: ArtworkDetailsProps) {
         </div>
 
         <div className="border-t pt-4">
-          <h3 className="font-semibold mb-2">{t("artwork_gallery_page.all_links_matches")}</h3>
+          <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
+            <h3 className="font-semibold">{t("artwork_gallery_page.all_links_matches")}</h3>
+            {categories.length > 1 && (
+              <CategoryFilterSelect
+                value={category}
+                onChange={setCategory}
+                categories={categories}
+              />
+            )}
+          </div>
           {matchingPages.length === 0 ? (
             <div className="text-xs text-muted-foreground">
               {t("artwork_gallery_page.no_matches")}
             </div>
           ) : (
             <div className="space-y-2">
-              {matchingPages.map((page) => (
+              {visiblePages.map((page) => (
                 <a
                   key={`${page.id}-${page.url}-${page.firstDetectedAt}`}
                   href={page.url}

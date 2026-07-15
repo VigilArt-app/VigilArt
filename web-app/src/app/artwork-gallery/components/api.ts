@@ -1,30 +1,28 @@
 import { toast } from "sonner";
 import { Artwork, ArtworkReportInsights, MatchingPage } from "./types";
-import { getUserIdFromToken } from "../../../utils/auth/getUserIdFromToken";
 import { authenticatedFetch } from "../../../utils/auth/authenticatedFetch";
+import { PaginatedResult } from "@vigilart/shared/types";
 import i18next from "i18next";
-import { API_BASE_URL } from "@/src/config";
 
 const t = (key: string, defaultValue: string) =>
   i18next.t(key, { defaultValue });
 
-export const fetchArtworks = async (): Promise<Artwork[]> => {
-  const userId = getUserIdFromToken();
-  if (!userId) {
-    toast.error(t("artwork_gallery_page.not_authenticated", "User not authenticated. Please login."));
-    throw new Error("Not authenticated");
-  }
-
+export const fetchArtworks = async (
+  userId: string,
+  cursor?: string,
+  limit = 20
+): Promise<PaginatedResult<Artwork>> => {
   try {
-    const API_BASE = API_BASE_URL;
-    const response = await authenticatedFetch(`${API_BASE}/artworks/user/${userId}`);
+    const params = new URLSearchParams({ limit: String(limit) });
+    if (cursor) params.set("cursor", cursor);
+    const response = await authenticatedFetch(`/artworks/user/${userId}?${params}`);
 
     if (!response.ok) {
       throw new Error("Failed to fetch artworks");
     }
 
     const data = await response.json();
-    return data.data || [];
+    return data.data;
   } catch (error) {
     toast.error(t("artwork_gallery_page.failed_load", "Failed to load artworks"));
     throw error;
@@ -41,28 +39,16 @@ interface ReportDetails {
   matchingPages: MatchingPage[];
 }
 
-export const fetchArtworkReportInsights = async (): Promise<Record<string, ArtworkReportInsights>> => {
-  const userId = getUserIdFromToken();
-  if (!userId) {
-    return {};
-  }
-
+export const fetchArtworkReportInsights = async (userId: string): Promise<Record<string, ArtworkReportInsights>> => {
   try {
-    const API_BASE = API_BASE_URL;
-    const reportsRes = await authenticatedFetch(`${API_BASE}/reports/user/${userId}`);
+    const reportsRes = await authenticatedFetch(`/reports/user/${userId}`);
 
     if (!reportsRes.ok) {
       throw new Error("Failed to fetch reports");
     }
 
     const reportsData = await reportsRes.json();
-    let reports: ReportSummary[] = [];
-
-    if (Array.isArray(reportsData?.data)) {
-      reports = reportsData.data;
-    } else if (Array.isArray(reportsData)) {
-      reports = reportsData;
-    }
+    const reports: ReportSummary[] = reportsData.data || [];
 
     if (reports.length === 0) {
       return {};
@@ -71,11 +57,11 @@ export const fetchArtworkReportInsights = async (): Promise<Record<string, Artwo
     const detailsResults = await Promise.all(
       reports.map(async (report) => {
         try {
-          const detailsRes = await authenticatedFetch(`${API_BASE}/reports/details/${report.id}`);
+          const detailsRes = await authenticatedFetch(`/reports/details/${report.id}`);
           if (!detailsRes.ok) return null;
 
           const detailsData = await detailsRes.json();
-          const reportDetails = (detailsData?.data || detailsData) as ReportDetails;
+          const reportDetails = detailsData.data as ReportDetails;
 
           if (!reportDetails || !Array.isArray(reportDetails.matchingPages)) {
             return null;
@@ -125,8 +111,7 @@ export const fetchArtworkReportInsights = async (): Promise<Record<string, Artwo
 
 export const deleteArtwork = async (id: string): Promise<void> => {
   try {
-    const API_BASE = API_BASE_URL;
-    const response = await authenticatedFetch(`${API_BASE}/artworks/${id}`, {
+    const response = await authenticatedFetch(`/artworks/${id}`, {
       method: "DELETE",
     });
 
@@ -137,6 +122,26 @@ export const deleteArtwork = async (id: string): Promise<void> => {
     toast.success(t("artwork_gallery_page.success_delete", "Artwork deleted successfully"));
   } catch (error) {
     toast.error(t("artwork_gallery_page.failed_delete", "Failed to delete artwork"));
+    throw error;
+  }
+};
+
+export const updateArtwork = async (id: string, payload: { originalFilename?: string; description?: string; }): Promise<any> => {
+  try {
+    const response = await authenticatedFetch(`/artworks/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to update artwork");
+    }
+
+    const data = await response.json();
+    toast.success(t("artwork_gallery_page.success_update", "Artwork updated"));
+    return data.data;
+  } catch (error) {
+    toast.error(t("artwork_gallery_page.failed_update", "Failed to update artwork"));
     throw error;
   }
 };

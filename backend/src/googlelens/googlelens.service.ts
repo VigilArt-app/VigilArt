@@ -39,13 +39,13 @@ export class GoogleLensService {
           url: `https://lens.google.com/uploadbyurl?url=${url}&brd_lens=exact_matches`,
           format: "raw"
         },
-        { headers }
+        { headers, timeout: 120000 }
       )
     );
-    if (!data || !data.exact_matches) {
+    if (!data || !data.images) {
       return null;
     }
-    const foundMatches: GoogleLensExactResult[] = data.exact_matches;
+    const foundMatches: GoogleLensExactResult[] = data.images;
     return foundMatches;
   }
 
@@ -61,11 +61,12 @@ export class GoogleLensService {
     }
     const matchingPages: MatchingPageGet[] = googleLensExactMatches.reduce(
       (acc: MatchingPageGet[], match: GoogleLensExactResult) => {
-        if (match.link && !isBlacklisted(match.link)) {
+        if (match.link) {
           const validItem: MatchingPageGet = {
             url: match.link,
             category: classifyWebsite(match.link),
             websiteName: extractRootDomain(match.link),
+            unsafeDomain: isBlacklisted(match.link),
             imageUrl: match.image_url ?? undefined,
             pageTitle: match.title
           };

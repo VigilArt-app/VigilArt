@@ -8,8 +8,7 @@ import { Button } from "../../components/ui/button"
 import { Input } from "../../components/ui/input"
 import { Label } from "../../components/ui/label"
 import { Switch } from "../../components/ui/switch"
-import { setCookie } from "../cookies"
-import { API_BASE_URL } from "@/src/config"
+import { authenticatedFetch } from "@/src/utils/auth/authenticatedFetch"
 
 export default function LoginPage() {
     const { t } = useTranslation()
@@ -26,38 +25,15 @@ export default function LoginPage() {
         setError(null)
         setIsLoading(true)
         try {
-            // Clear any existing expired tokens before attempting login
-            try {
-                localStorage.removeItem("auth_token")
-                sessionStorage.removeItem("auth_token")
-            } catch {}
-            
-            const API_BASE = API_BASE_URL
-            const res = await fetch(`${API_BASE}/auth/login`, {
+            const res = await authenticatedFetch(`/auth/login`, {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ email, password })
-            })
+            }, true);
             if (!res.ok) {
                 const data = await res.json().catch(() => null)
                 const message = data?.message || t("login_page.error_login_failed")
                 throw new Error(Array.isArray(message) ? message.join(", ") : message)
             }
-            const data = await res.json()
-            const accessToken = data?.data?.accessToken
-            if (!accessToken) {
-                throw new Error(t("login_page.error_no_token"))
-            }
-            
-            try {
-                if (remember) {
-                    localStorage.setItem("auth_token", accessToken)
-                } else {
-                    sessionStorage.setItem("auth_token", accessToken)
-                }
-                setCookie("auth_token", accessToken, remember ? 365 : 1)
-            } catch {}
-            
             router.push("/dashboard")
         } catch (err: any) {
             setError(err.message || t("login_page.error_unexpected"))
@@ -122,7 +98,8 @@ export default function LoginPage() {
                                     <div className="flex-1 h-px bg-muted-foreground/30" />
                                 </div>
 
-                                <div>
+                                {/* Google Sign-In is currently disabled as it requires additional backend work to be implemented and not in the BTP*/}
+                                {/* <div>
                                     <Button type="button" className="w-full" >
                                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 mr-2" >
                                             <path d="M21.35 11.1H12v2.8h5.35c-.24 1.4-1.02 2.6-2.18 3.4v2.8h3.52C20.6 19.1 22 15.4 22 12c0-.6-.05-1.2-.15-1.9z" />
@@ -132,7 +109,7 @@ export default function LoginPage() {
                                         </svg>
                                         {t("login_page.sign_in_with_google")}
                                     </Button>
-                                </div>
+                                </div> */}
                             </form>
 
                             <div className="mt-4 text-center text-sm">

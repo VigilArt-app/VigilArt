@@ -27,6 +27,7 @@
         "first_name": "First name",
         "last_name": "Last name",
         "email": "Email address",
+        "placeholder_email": "john.doe@example.com",
         "password": "Password",
         "confirm_password": "Confirm password",
         "passwords_do_not_match": "Passwords do not match",
@@ -39,7 +40,7 @@
         "error_unexpected": "An unexpected error occurred. Please try again.",
         "sign_up_failed": "Sign up failed. Please check your information and try again."
     },
-    "logout_page":{
+    "logout_page": {
         "logging_out": "Logging out..."
     },
     "dashboard_page": {
@@ -83,7 +84,7 @@
             "error_upload": "An error occurred during upload"
         },
         "graphs": {
-            "monthly_comparison": "Monthly Comparison Graph",
+            "monthly_comparison": "Recent Scans",
             "last_month": "Last month average",
             "credit_matches": "credited matches",
             "this_month": "This month average",
@@ -100,13 +101,36 @@
                 "10": "October",
                 "11": "November",
                 "12": "December"
-            }
+            },
+            "reposts": "reposts",
+            "no_data": "No reports yet",
+            "click_hint": "Click a bar to see that scan's reposts",
+            "view_report_reposts": "View reposts from {{date}} ({{count}})"
         },
         "statistics": {
             "statistics": "Statistics",
             "reported_posts": "Reported posts",
             "credited_posts": "Credited posts",
-            "unauthorized_content": "Unauthorized content"
+            "unauthorized_content": "Unauthorized content",
+            "total_matches": "total matches",
+            "range_all": "All Time",
+            "range_month": "Last 30 days",
+            "no_data": "No reposts found yet",
+            "matches_title": "{{category}} reposts",
+            "report_matches_title": "Reposts from {{date}}",
+            "no_matches": "No reposts in this category",
+            "no_matches_report": "No reposts in this report",
+            "load_error": "Could not load matches",
+            "showing_first": "Showing the {{count}} most recent of {{total}}",
+            "categories": {
+                "SOCIAL": "Social media",
+                "ART_PLATFORMS": "Art platforms",
+                "MARKETPLACES": "Marketplaces",
+                "BLOG": "Blogs",
+                "MEDIA": "Media",
+                "SEARCH": "Search engines",
+                "OTHER": "Other"
+            }
         },
         "scans_report": {
             "scan_report": "Scans Report",
@@ -127,6 +151,12 @@
             "page": "Page",
             "previous": "Previous",
             "next": "Next",
+            "timeline_filter": "Timeline",
+            "timeline_all": "All Time",
+            "timeline_week": "Last Week",
+            "timeline_month": "Last Month",
+            "timeline_quarter": "Last 3 Months",
+            "timeline_year": "Last Year",
             "total_matches": "Total matches",
             "most_recent_source": "Most recent source",
             "all_detected_reposts": "All detected reposts",
@@ -138,7 +168,13 @@
             "visit": "Visit",
             "no_matches_for_artwork": "No matches found for this artwork",
             "failed_to_load": "Failed to load scans report. Please try again."
-        }
+        },
+        "dmca_notices_history": "DMCA Notices History",
+        "no_dmca_notices": "No DMCA notices yet",
+        "create_dmca_notice": "Create DMCA notice",
+        "submitted": "Submitted",
+        "all": "All",
+        "dmca_notices_load_error": "Failed to load DMCA notices"
     },
     "sidebar": {
         "profile": "Profile",
@@ -169,7 +205,25 @@
         "failed_to_load": "Failed to load profile information. Please try again.",
         "failed_prepare_avatar": "Failed to prepare avatar for upload. Please try again.",
         "failed_avatar_upload": "Failed to upload avatar. Please try again.",
-        "failed_update": "Failed to update profile. Please try again."
+        "failed_update": "Failed to update profile. Please try again.",
+        "notifications_title": "Push notifications",
+        "notifications_description": "Choose whether VigilArt can send browser notifications for activity updates and reports.",
+        "notifications_permission_prompt": "Notifications are off until you enable them here.",
+        "notifications_allowed": "Browser notifications are allowed.",
+        "notifications_blocked": "Notifications are blocked in your browser settings.",
+        "notifications_enabled": "Notifications enabled.",
+        "notifications_disabled": "Notifications disabled.",
+        "notifications_denied": "Browser notifications were denied. Change your browser permission to enable them.",
+        "notifications_unsupported": "Notifications are not supported in this browser.",
+        "failed_update_notifications": "Failed to update notification preferences. Please try again.",
+        "delete_account": "Delete Account",
+        "delete_account_confirm": "Delete Account Permanently",
+        "delete_account_warning": "This action will permanently delete your account and all associated data. You will not be able to recover your account.",
+        "delete_account_irreversible": "This action is irreversible. Please make sure you want to proceed.",
+        "cancel": "Cancel",
+        "delete_permanently": "Delete Permanently",
+        "failed_delete": "Failed to delete account. Please try again.",
+        "account_deleted": "Account deleted successfully."
     },
     "artwork_gallery_page": {
         "artwork_gallery": "Artwork Gallery",
@@ -181,6 +235,8 @@
         "uploaded": "Uploaded",
         "encod_date": "en-US",
         "selected_artwork": "Selected artwork",
+        "edit_artwork_title": "Edit description",
+        "edit_artwork_description_modal": "Edit the description of your artwork.",
         "file_name": "File name:",
         "description": "Description:",
         "upload_date": "Upload date:",
@@ -195,6 +251,7 @@
         "delete_artwork": "Delete artwork",
         "confirm_delete": "Are you sure you want to delete this artwork? This action cannot be undone.",
         "cancel": "Cancel",
+        "save": "Save",
         "delete": "Delete",
         "deleting": "Deleting...",
         "not_authenticated": "You are not authenticated. Please log in again.",
@@ -213,9 +270,9 @@
         "processing": "Processing...",
         "create_report": "Create report",
         "report_details": "Report Details",
-        "detection_date": "Detection date",
-        "detections_count": "Number of detections",
-        "detections": "Detections",
+        "detection_date": "Scan date",
+        "detections_count": "Number of matches",
+        "detections": "Matches",
         "detected": "Detected",
         "category": "Category",
         "website": "Website",
@@ -228,7 +285,10 @@
         "created_but_no_id": "The report was created but its ID is missing.",
         "created_but_details_failed": "Report created, but failed to load details",
         "report_created": "Report created",
-        "detections_found": "detections found",
+        "detections_found": "matches found",
+        "queued": "Queued…",
+        "scanning_artwork": "Scanning artwork {{processed}} of {{total}}",
+        "scan_failed": "The scan failed. Please try again.",
         "error": "Error"
     },
     "dmca_page": {
@@ -263,6 +323,7 @@
         "send_title": "3) Manual submission",
         "send_subtitle": "Use generated assets, then submit the report directly on the platform website.",
         "open_platform_form": "Open external DMCA form",
+        "platform_form_url_unavailable": "Platform form URL is not available for this service",
         "no_platform_url": "No DMCA URL is configured for this platform.",
         "copy_subject": "Copy subject",
         "copy_body": "Copy body",
@@ -299,6 +360,30 @@
             "email": "Email",
             "phone": "Phone",
             "signature": "Signature"
-        }
+        },
+        "notices_history": "Previous DMCA Notices",
+        "notice_loaded": "Notice loaded successfully",
+        "previous_notices_subtitle": "Click 'Load' to restore a previous notice and continue editing",
+        "download_profile": "Download Profile",
+        "next": "Next",
+        "back": "Back",
+        "select_platform": "Select a platform",
+        "email_to": "To",
+        "email_subject": "Subject",
+        "generate_notice_first": "Generate the email and PDF first to see the content.",
+        "load": "Load",
+        "start_new_report": "Start new report",
+        "mark_submitted": "Mark as submitted",
+        "mark_submitted_warning": "Once you have submitted the DMCA report on the platform, mark it as submitted below. This will lock the report and prevent further modifications.",
+        "confirm_submit_title": "Mark notice as submitted?",
+        "confirm_submit_description": "This action is irreversible. Once marked as submitted, the notice can no longer be modified.",
+        "confirm_submit": "Confirm",
+        "cancel": "Cancel",
+        "status_updated": "Notice marked as submitted.",
+        "status_update_failed": "Failed to update notice status."
+    },
+    "matches": {
+        "all_categories": "All categories",
+        "filter_by_category": "Filter by category"
     }
 }

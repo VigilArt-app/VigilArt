@@ -5,11 +5,14 @@ import { PrismaService } from "../src/prisma/prisma.service";
 import { setupApp } from "../src/app.setup";
 import { ApiClient } from "./api-client";
 import { SubscriptionTier } from "@vigilart/shared/enums";
+import { CACHE_MANAGER } from "@nestjs/cache-manager";
+import type { Cache } from "cache-manager";
 
 describe("Auth E2E", () => {
   let app: INestApplication;
   let prismaService: PrismaService;
   let api: ApiClient;
+  let cacheManager: Cache;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -21,10 +24,12 @@ describe("Auth E2E", () => {
     await app.init();
     prismaService = app.get(PrismaService);
     api = new ApiClient(app);
+    cacheManager = app.get(CACHE_MANAGER);
   });
 
   afterEach(async () => {
     await prismaService.user.deleteMany();
+    await cacheManager.clear();
   });
 
   describe("POST /signup", () => {
@@ -44,19 +49,16 @@ describe("Auth E2E", () => {
         statusCode: HttpStatus.CREATED,
         message: "Created",
         data: {
-          accessToken: expect.any(String),
-          refreshToken: expect.any(String),
-          expiresIn: expect.any(String),
-          user: {
-            id: expect.any(String),
-            email: "emma.dao@mail.com",
-            firstName: "Emma",
-            lastName: "Dao",
-            avatar: null,
-            subscriptionTier: SubscriptionTier.FREE,
-            createdAt: expect.any(String),
-            updatedAt: expect.any(String)
-          },
+          id: expect.any(String),
+          email: "emma.dao@mail.com",
+          firstName: "Emma",
+          lastName: "Dao",
+          avatar: null,
+          subscriptionTier: SubscriptionTier.FREE,
+          createdAt: expect.any(String),
+          updatedAt: expect.any(String),
+          autoRunReports: false,
+          notificationsEnabled: false
         },
       });
     });
@@ -77,19 +79,16 @@ describe("Auth E2E", () => {
         statusCode: HttpStatus.CREATED,
         message: "Created",
         data: {
-          accessToken: expect.any(String),
-          refreshToken: expect.any(String),
-          expiresIn: expect.any(String),
-          user: {
-            id: expect.any(String),
-            email: "emma.dao@mail.com",
-            firstName: "Emma",
-            lastName: "Dao",
-            avatar: null,
-            subscriptionTier: SubscriptionTier.FREE,
-            createdAt: expect.any(String),
-            updatedAt: expect.any(String)
-          },
+          id: expect.any(String),
+          email: "emma.dao@mail.com",
+          firstName: "Emma",
+          lastName: "Dao",
+          avatar: null,
+          subscriptionTier: SubscriptionTier.FREE,
+          createdAt: expect.any(String),
+          updatedAt: expect.any(String),
+          autoRunReports: false,
+          notificationsEnabled: false
         },
       });
     });
@@ -192,19 +191,16 @@ describe("Auth E2E", () => {
         statusCode: HttpStatus.OK,
         message: "OK",
         data: {
-          accessToken: expect.any(String),
-          refreshToken: expect.any(String),
-          expiresIn: expect.any(String),
-          user: {
-            id: expect.any(String),
-            email: "emma.dao@mail.com",
-            firstName: "Emma",
-            lastName: "Dao",
-            subscriptionTier: SubscriptionTier.FREE,
-            avatar: null,
-            createdAt: expect.any(String),
-            updatedAt: expect.any(String)
-          },
+          id: expect.any(String),
+          email: "emma.dao@mail.com",
+          firstName: "Emma",
+          lastName: "Dao",
+          subscriptionTier: SubscriptionTier.FREE,
+          avatar: null,
+          createdAt: expect.any(String),
+          updatedAt: expect.any(String),
+          autoRunReports: false,
+          notificationsEnabled: false
         },
       });
     });

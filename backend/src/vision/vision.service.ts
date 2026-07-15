@@ -10,7 +10,8 @@ import {
 import { WebDetection, WebEntity, WebImage, WebLabel, WebPage } from "./types";
 import {
   classifyWebsite,
-  extractRootDomain
+  extractRootDomain,
+  isBlacklisted
 } from "../common/utils/website-class";
 
 @Injectable()
@@ -104,6 +105,7 @@ export class VisionService implements OnModuleDestroy {
           const validItem: MatchingPageGet = {
             url: page.url,
             category: classifyWebsite(page.url),
+            unsafeDomain: isBlacklisted(page.url),
             websiteName: extractRootDomain(page.url),
             imageUrl: imageUrl ?? undefined,
             pageTitle: page.pageTitle ?? undefined

@@ -1,7 +1,5 @@
 import { useEffect, useState } from "react";
-import { getUserIdFromToken } from "../../../../utils/auth/getUserIdFromToken";
 import { authenticatedFetch } from "../../../../utils/auth/authenticatedFetch";
-import { API_BASE_URL } from "@/src/config";
 import {
   Artwork,
   ArtworksReportDetails,
@@ -9,6 +7,7 @@ import {
   MatchingPage,
   ScanRow,
 } from "./types";
+import { useAuth } from "@/src/components/contexts/authContext";
 
 interface UseScansReportDataResult {
   scans: ScanRow[];
@@ -23,33 +22,46 @@ export function useScansReportData(refreshKey: number): UseScansReportDataResult
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [selectedDate, setSelectedDate] = useState("");
+  const { user, loading: userLoading } = useAuth();
 
   useEffect(() => {
     const fetchData = async () => {
+      if (userLoading) {
+        return;
+      }
+
       setLoading(true);
-      const userId = getUserIdFromToken();
-      if (!userId) {
+
+      if (!user?.id) {
         setError(true);
         setLoading(false);
         return;
       }
 
+      const userId = user.id;
+
       try {
         setError(false);
-        const base = API_BASE_URL;
 
-        const artworksRes = await authenticatedFetch(`${base}/artworks/user/${userId}`);
+        const artworks: Artwork[] = [];
+        let cursor: string | null = null;
+        do {
+          const params = new URLSearchParams({ limit: "100" });
+          if (cursor) params.set("cursor", cursor);
+          const artworksRes = await authenticatedFetch(
+            `/artworks/user/${userId}?${params}`
+          );
 
-        if (!artworksRes.ok) {
-          throw new Error(`Failed to fetch artworks list (${artworksRes.status})`);
-        }
+          if (!artworksRes.ok) {
+            throw new Error(`Failed to fetch artworks list (${artworksRes.status})`);
+          }
 
-        const artworksResponse = await artworksRes.json();
-        const artworks: Artwork[] = Array.isArray(artworksResponse)
-          ? artworksResponse
-          : artworksResponse.data || [];
+          const artworksResponse = await artworksRes.json();
+          artworks.push(...(artworksResponse.data?.items ?? []));
+          cursor = artworksResponse.data?.nextCursor ?? null;
+        } while (cursor);
 
-        const reportRes = await authenticatedFetch(`${base}/reports/user/${userId}`);
+        const reportRes = await authenticatedFetch(`/reports/user/${userId}`);
 
         if (!reportRes.ok) {
           throw new Error(`Failed to fetch reports list (${reportRes.status})`);
@@ -81,7 +93,7 @@ export function useScansReportData(refreshKey: number): UseScansReportDataResult
         const reportDetailsResults = await Promise.all(
           reports.map(async (report) => {
             try {
-              const detailsRes = await authenticatedFetch(`${base}/reports/details/${report.id}`);
+              const detailsRes = await authenticatedFetch(`/reports/details/${report.id}`);
 
               if (!detailsRes.ok) {
                 return null;
@@ -110,7 +122,7 @@ export function useScansReportData(refreshKey: number): UseScansReportDataResult
 
         let downloadUrlsByStorageKey: Record<string, string> = {};
         if (artworkStorageKeys.length > 0) {
-          const downloadUrlsRes = await authenticatedFetch(`${base}/storage/artworks/download-urls`, {
+          const downloadUrlsRes = await authenticatedFetch(`/storage/artworks/download-urls`, {
             method: "POST",
             body: JSON.stringify({ storageKeys: artworkStorageKeys }),
           });
@@ -180,7 +192,7 @@ export function useScansReportData(refreshKey: number): UseScansReportDataResult
     };
 
     fetchData();
-  }, [refreshKey]);
+  }, [refreshKey, userLoading, user?.id]);
 
   return { scans, loading, error, selectedDate, setSelectedDate };
 }

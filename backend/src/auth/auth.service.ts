@@ -3,40 +3,218 @@ import {
   Injectable,
   UnauthorizedException
 } from "@nestjs/common";
-import type { Login, SignUp, AuthResponse } from "@vigilart/shared/types";
+import type {
+  AuthAccessToken,
+  AuthSessionResponse,
+  AuthTokens,
+  Login,
+  SignUp,
+  UserGet
+} from "@vigilart/shared/types";
 import { UsersService } from "../users/users.service";
 import { JwtService } from "@nestjs/jwt";
 import * as bcrypt from "bcrypt";
 import { ConfigService } from "@nestjs/config";
+import { PrismaService } from "../prisma/prisma.service";
+import type { Request, Response } from "express";
+import type { AuthenticatedRequest, ClientType } from "./auth";
+import {
+  clearAuthCookies,
+  getCookieOptions
+} from "../common/utils/get-cookie-options";
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
-    private readonly config: ConfigService
+    private readonly config: ConfigService,
+    private readonly prisma: PrismaService
   ) {}
 
-  async login({ email, password }: Login): Promise<AuthResponse> {
+  private buildAuthSessionResponse(
+    user: UserGet,
+    tokens: AuthTokens
+  ): AuthSessionResponse {
+    return {
+      accessToken: tokens.accessToken,
+      refreshToken: tokens.refreshToken,
+      user
+    };
+  }
+
+  private async generateAccessToken(
+    userId: string,
+    email: string
+  ): Promise<string> {
+    const accessTokenExpiry = this.config.get("JWT_EXPIRES") || "15m";
+    return this.jwtService.signAsync(
+      { sub: userId, email },
+      {
+        secret: this.config.getOrThrow<string>("JWT_SECRET"),
+        expiresIn: accessTokenExpiry
+      }
+    );
+  }
+
+  private async generateTokens(
+    userId: string,
+    email: string,
+    request: Request,
+    clientType: ClientType
+  ): Promise<AuthTokens> {
+    const accessTokenExpiry = this.config.get("JWT_EXPIRES") || "15m";
+    const refreshTokenExpiry = this.getRefreshTokenExpiry(clientType);
+    const [accessToken, refreshToken] = await Promise.all([
+      this.jwtService.signAsync(
+        { sub: userId, email },
+        {
+          secret: this.config.getOrThrow<string>("JWT_SECRET"),
+          expiresIn: accessTokenExpiry
+        }
+      ),
+      this.jwtService.signAsync(
+        { sub: userId, email, clientType },
+        {
+          secret: this.config.getOrThrow<string>("JWT_REFRESH_SECRET"),
+          expiresIn: refreshTokenExpiry
+        }
+      )
+    ]);
+    await this.persistRefreshToken(userId, refreshToken, request, clientType);
+    return { accessToken, refreshToken, expiresIn: accessTokenExpiry };
+  }
+
+  private async persistRefreshToken(
+    userId: string,
+    refreshToken: string,
+    request: Request,
+    clientType: ClientType
+  ): Promise<void> {
+    const refreshTokenExpiry = this.getRefreshTokenExpiry(clientType);
+    const refreshTokenExpiryMs = this.parseExpiryToMs(refreshTokenExpiry);
+    const hashedRefreshToken = await bcrypt.hash(
+      refreshToken,
+      Number(this.config.get<number>("SALT_ROUNDS") || 10)
+    );
+
+    await this.prisma.refreshToken.create({
+      data: {
+        userId,
+        token: hashedRefreshToken,
+        expiresAt: new Date(Date.now() + refreshTokenExpiryMs),
+        deviceInfo: this.extractDeviceInfo(request),
+        ipAddress: this.extractIpAddress(request)
+      }
+    });
+  }
+
+  private getRefreshTokenExpiry(clientType: ClientType) {
+    if (clientType === "mobile")
+      return this.config.get("JWT_MOBILE_REFRESH_EXPIRES") || "3650d";
+    return this.config.get("JWT_REFRESH_EXPIRES") || "7d";
+  }
+
+  private extractDeviceInfo(request: Request): string {
+    const userAgent = request.headers['user-agent'] || 'Unknown';
+    return userAgent.substring(0, 255);
+  }
+
+  private extractIpAddress(request: Request): string {
+    const forwarded = request.headers['x-forwarded-for'];
+    if (forwarded)
+      return (Array.isArray(forwarded) ? forwarded[0] : forwarded.split(',')[0]).trim();
+
+    return request.ip || request.socket.remoteAddress || 'Unknown';
+  }
+
+  private parseExpiryToMs(expiry: string): number {
+    const unit = expiry.slice(-1);
+    const value = parseInt(expiry.slice(0, -1));
+
+    switch (unit) {
+      case 's': return value * 1000;
+      case 'm': return value * 60 * 1000;
+      case 'h': return value * 60 * 60 * 1000;
+      case 'd': return value * 24 * 60 * 60 * 1000;
+      default: return 15 * 60 * 1000;
+    }
+  }
+
+  private setAccessTokenCookie(
+    response: Response,
+    accessToken: string
+  ): void {
+    const accessTokenExpiry = this.config.get("JWT_EXPIRES") || "15m";
+
+    response.cookie(
+      "auth_token",
+      accessToken,
+      getCookieOptions(this.parseExpiryToMs(accessTokenExpiry))
+    );
+  }
+
+  private setAuthCookies(
+    response: Response,
+    tokens: AuthTokens
+  ): void {
+    const accessTokenExpiry = this.config.get("JWT_EXPIRES") || "15m";
+    const refreshTokenExpiry = this.config.get("JWT_REFRESH_EXPIRES") || "7d";
+
+    response.cookie(
+      "auth_token",
+      tokens.accessToken,
+      getCookieOptions(this.parseExpiryToMs(accessTokenExpiry))
+    );
+    response.cookie(
+      "refresh_token",
+      tokens.refreshToken,
+      getCookieOptions(this.parseExpiryToMs(refreshTokenExpiry))
+    );
+  }
+
+  private clearAuthCookies(response: Response): void {
+    clearAuthCookies(response);
+  }
+
+  private async login(
+    response: Response,
+    request: Request,
+    { email, password }: Login,
+    clientType: ClientType
+  ): Promise<{ user: UserGet, tokens: AuthTokens }>
+  {
     const user = await this.usersService.findByEmail(email);
-    if (!user) throw new UnauthorizedException("Invalid credentials");
+    if (!user)
+      throw new UnauthorizedException("Invalid credentials");
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid)
       throw new UnauthorizedException("Invalid credentials");
 
-    const accessToken = await this.jwtService.signAsync({
-      sub: user.id,
-      email: user.email
-    });
+    const tokens = await this.generateTokens(user.id, user.email, request, clientType);
     const { password: hashedPassword, ...userProfile } = user;
 
-    return {
-      user: userProfile,
-      accessToken,
-      refreshToken: "", // TODO
-      expiresIn: "" // TODO
-    };
+    this.setAuthCookies(response, tokens);
+    return { user: userProfile, tokens };
+  }
+
+  async loginWeb(
+    response: Response,
+    request: Request,
+    { email, password }: Login
+  ): Promise<UserGet> {
+    const { user } = await this.login(response, request, { email, password }, "web");
+    return user;
+  }
+
+  async loginMobile(
+    response: Response,
+    request: Request,
+    { email, password }: Login
+  ): Promise<AuthSessionResponse> {
+    const { user, tokens } = await this.login(response, request, { email, password }, "mobile");
+    return this.buildAuthSessionResponse(user, tokens);
   }
 
   async signUp({
@@ -44,28 +222,75 @@ export class AuthService {
     password,
     firstName,
     lastName
-  }: SignUp): Promise<AuthResponse> {
+  }: SignUp): Promise<UserGet> {
     const userExists = await this.usersService.findByEmail(email);
     if (userExists) throw new ConflictException("Email already in use");
 
-    const saltRounds = Number(this.config.get<number>("SALT_ROUNDS")) || 10;
+    const saltRounds = Number(this.config.get<number>("SALT_ROUNDS") || 10);
     const hashedPassword = await bcrypt.hash(password, saltRounds);
-    const user = await this.usersService.create({
+    return this.usersService.create({
       email,
       password: hashedPassword,
       firstName,
       lastName
     });
-    const accessToken = await this.jwtService.signAsync({
-      sub: user.id,
-      email: user.email
-    });
+  }
 
+  async refreshTokens(
+    response: Response,
+    userId: string,
+    email: string,
+    clientType: ClientType | undefined,
+    oldRefreshToken?: string
+  ): Promise<AuthAccessToken | void> {
+    if (!oldRefreshToken)
+      throw new UnauthorizedException("User is not logged in.");
+
+    const accessToken = await this.generateAccessToken(userId, email);
+
+    this.setAccessTokenCookie(response, accessToken);
+    if (clientType !== "mobile")
+      return;
     return {
-      user,
       accessToken,
-      refreshToken: "", // TODO
-      expiresIn: "" // TODO
+      expiresIn: this.config.get("JWT_EXPIRES") || "15m"
     };
+  }
+
+  async logout(
+    response: Response,
+    userId: string,
+    refreshToken?: string
+  ): Promise<void> {
+    if (!refreshToken)
+      throw new UnauthorizedException("User is not logged in.");
+
+    const userTokens = await this.prisma.refreshToken.findMany({
+      where: { userId }
+    });
+    for (const storedToken of userTokens) {
+      if (await bcrypt.compare(refreshToken, storedToken.token)) {
+        await this.prisma.refreshToken.delete({
+          where: { id: storedToken.id }
+        });
+        break;
+      }
+    }
+
+    this.clearAuthCookies(response);
+  }
+
+  async logoutAllDevices(
+    response: Response,
+    userId: string
+  ): Promise<void> {
+    await this.prisma.refreshToken.deleteMany({
+      where: { userId }
+    });
+    this.clearAuthCookies(response);
+  }
+
+  async me(auth: AuthenticatedRequest["user"]): Promise<UserGet> {
+    return this.usersService.findOneWithoutPassword(auth.id);
   }
 }

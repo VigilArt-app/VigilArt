@@ -12,9 +12,21 @@ export type TransactionIsolationLevel = z.infer<typeof TransactionIsolationLevel
 
 // File: UserScalarFieldEnum.schema.ts
 
-export const UserScalarFieldEnumSchema = z.enum(['id', 'email', 'password', 'firstName', 'lastName', 'avatar', 'subscriptionTier', 'createdAt', 'updatedAt'])
+export const UserScalarFieldEnumSchema = z.enum(['id', 'email', 'password', 'firstName', 'lastName', 'avatar', 'subscriptionTier', 'autoRunReports', 'notificationsEnabled', 'createdAt', 'updatedAt'])
 
 export type UserScalarFieldEnum = z.infer<typeof UserScalarFieldEnumSchema>;
+
+// File: RefreshTokenScalarFieldEnum.schema.ts
+
+export const RefreshTokenScalarFieldEnumSchema = z.enum(['id', 'userId', 'token', 'deviceInfo', 'ipAddress', 'expiresAt', 'createdAt'])
+
+export type RefreshTokenScalarFieldEnum = z.infer<typeof RefreshTokenScalarFieldEnumSchema>;
+
+// File: DeviceTokenScalarFieldEnum.schema.ts
+
+export const DeviceTokenScalarFieldEnumSchema = z.enum(['id', 'userId', 'token', 'platform', 'createdAt', 'updatedAt'])
+
+export type DeviceTokenScalarFieldEnum = z.infer<typeof DeviceTokenScalarFieldEnumSchema>;
 
 // File: ArtworkScalarFieldEnum.schema.ts
 
@@ -24,7 +36,7 @@ export type ArtworkScalarFieldEnum = z.infer<typeof ArtworkScalarFieldEnumSchema
 
 // File: MatchingPageScalarFieldEnum.schema.ts
 
-export const MatchingPageScalarFieldEnumSchema = z.enum(['id', 'artworkId', 'url', 'category', 'websiteName', 'imageUrl', 'pageTitle', 'firstDetectedAt'])
+export const MatchingPageScalarFieldEnumSchema = z.enum(['id', 'artworkId', 'url', 'category', 'websiteName', 'imageUrl', 'pageTitle', 'unsafeDomain', 'firstDetectedAt'])
 
 export type MatchingPageScalarFieldEnum = z.infer<typeof MatchingPageScalarFieldEnumSchema>;
 
@@ -94,6 +106,12 @@ export const SubscriptionTierSchema = z.enum(['FREE', 'CREATOR', 'PRO'])
 
 export type SubscriptionTier = z.infer<typeof SubscriptionTierSchema>;
 
+// File: DevicePlatform.schema.ts
+
+export const DevicePlatformSchema = z.enum(['WEB', 'ANDROID', 'IOS'])
+
+export type DevicePlatform = z.infer<typeof DevicePlatformSchema>;
+
 // File: WebsiteCategory.schema.ts
 
 export const WebsiteCategorySchema = z.enum(['SOCIAL', 'ART_PLATFORMS', 'MARKETPLACES', 'BLOG', 'MEDIA', 'SEARCH', 'OTHER'])
@@ -116,11 +134,42 @@ export const UserSchema = z.object({
   lastName: z.string(),
   avatar: z.string().nullable(),
   subscriptionTier: SubscriptionTierSchema.default("FREE"),
+  autoRunReports: z.boolean(),
+  notificationsEnabled: z.boolean(),
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),
 });
 
 export type UserType = z.infer<typeof UserSchema>;
+
+
+// File: RefreshToken.schema.ts
+
+export const RefreshTokenSchema = z.object({
+  id: z.string(),
+  userId: z.string(),
+  token: z.string(),
+  deviceInfo: z.string().nullable(),
+  ipAddress: z.string().nullable(),
+  expiresAt: z.coerce.date(),
+  createdAt: z.coerce.date(),
+});
+
+export type RefreshTokenType = z.infer<typeof RefreshTokenSchema>;
+
+
+// File: DeviceToken.schema.ts
+
+export const DeviceTokenSchema = z.object({
+  id: z.string(),
+  userId: z.string(),
+  token: z.string(),
+  platform: DevicePlatformSchema,
+  createdAt: z.coerce.date(),
+  updatedAt: z.coerce.date(),
+});
+
+export type DeviceTokenType = z.infer<typeof DeviceTokenSchema>;
 
 
 // File: Artwork.schema.ts
@@ -153,6 +202,7 @@ export const MatchingPageSchema = z.object({
   websiteName: z.string(),
   imageUrl: z.string().nullable(),
   pageTitle: z.string().nullable(),
+  unsafeDomain: z.boolean(),
   firstDetectedAt: z.coerce.date(),
 });
 

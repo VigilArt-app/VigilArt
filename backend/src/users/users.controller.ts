@@ -7,10 +7,13 @@ import {
   Param,
   ParseUUIDPipe,
   Patch,
-  Post
+  Post,
+  Res
 } from "@nestjs/common";
+import type { Response } from "express";
 import { UsersService } from "./users.service";
 import { ApiEndpoint } from "../common/decorators/api-endpoint.decorator";
+import { clearAuthCookies } from "../common/utils/get-cookie-options";
 import { ApiBody, ApiParam } from "@nestjs/swagger";
 import {
   UserCreateDTO,
@@ -60,7 +63,8 @@ export class UsersController {
       type: UserDTO
     },
     errors: [HttpStatus.NOT_FOUND],
-    protected: true
+    protected: true,
+    ownerships: [{ data: "id", userField: "id", type: "params" }]
   })
   @ApiParam({ name: "id", type: String })
   async findOne(@Param("id", ParseUUIDPipe) id: string): Promise<UserGet> {
@@ -75,7 +79,8 @@ export class UsersController {
       type: UserDTO
     },
     errors: [HttpStatus.NOT_FOUND],
-    protected: true
+    protected: true,
+    ownerships: [{ data: "email", userField: "email", type: "params" }]
   })
   @ApiParam({ name: "email", type: String })
   async findByEmail(@Param("email") email: string): Promise<UserGet> {
@@ -90,7 +95,8 @@ export class UsersController {
       type: UserGetDTO
     },
     errors: [HttpStatus.BAD_REQUEST, HttpStatus.NOT_FOUND],
-    protected: true
+    protected: true,
+    ownerships: [{ data: "id", userField: "id", type: "params" }]
   })
   @ApiParam({ name: "id", type: String })
   @ApiBody({ type: UserUpdateDTO })
@@ -108,10 +114,18 @@ export class UsersController {
       status: HttpStatus.NO_CONTENT
     },
     errors: [HttpStatus.NOT_FOUND],
-    protected: true
+    protected: true,
+    ownerships: [{ data: "id", userField: "id", type: "params" }]
   })
   @ApiParam({ name: "id", type: String })
-  async remove(@Param("id", ParseUUIDPipe) id: string): Promise<void> {
-    return this.usersService.remove(id);
+  async remove(
+    @Param("id", ParseUUIDPipe) id: string,
+    @Res({ passthrough: true }) response: Response
+  ): Promise<void> {
+    await this.usersService.remove(id);
+    // Deleting the account cascade-removes the refresh token, so the guarded
+    // /auth/logout route can no longer be used to clear the session. Clear the
+    // auth cookies here so the client isn't left with a stale auth_token.
+    clearAuthCookies(response);
   }
 }

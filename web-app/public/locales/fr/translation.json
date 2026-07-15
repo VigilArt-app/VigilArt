@@ -27,6 +27,7 @@
         "first_name": "Prénom",
         "last_name": "Nom de famille",
         "email": "Adresse e-mail",
+        "placeholder_email": "john.doe@exemple.com",
         "password": "Mot de passe",
         "confirm_password": "Confirmer le mot de passe",
         "passwords_do_not_match": "Les mots de passe ne correspondent pas",
@@ -39,7 +40,7 @@
         "error_unexpected": "Une erreur inattendue s'est produite. Veuillez réessayer.",
         "sign_up_failed": "L'inscription a échoué. Veuillez vérifier vos informations et réessayer."
     },
-    "logout_page":{
+    "logout_page": {
         "logging_out": "Déconnexion en cours..."
     },
     "dashboard_page": {
@@ -83,7 +84,7 @@
             "error_upload": "Une erreur s'est produite pendant le téléchargement"
         },
         "graphs": {
-            "monthly_comparison": "Graphique de comparaison mensuelle",
+            "monthly_comparison": "Scans récents",
             "last_month": "Moyenne du mois dernier",
             "credit_matches": "correspondances créditées",
             "this_month": "Moyenne du mois en cours",
@@ -100,13 +101,36 @@
                 "10": "Octobre",
                 "11": "Novembre",
                 "12": "Décembre"
-            }
+            },
+            "reposts": "reprises",
+            "no_data": "Aucun rapport pour l'instant",
+            "click_hint": "Cliquez sur une barre pour voir les reposts de ce scan",
+            "view_report_reposts": "Voir les reposts du {{date}} ({{count}})"
         },
         "statistics": {
             "statistics": "Statistiques",
             "reported_posts": "Publications signalées",
             "credited_posts": "Publications créditées",
-            "unauthorized_content": "Contenu non autorisé"
+            "unauthorized_content": "Contenu non autorisé",
+            "total_matches": "correspondances au total",
+            "range_all": "Tout",
+            "range_month": "30 derniers jours",
+            "no_data": "Aucune reprise trouvée pour l'instant",
+            "matches_title": "Reposts – {{category}}",
+            "report_matches_title": "Reposts du {{date}}",
+            "no_matches": "Aucun repost dans cette catégorie",
+            "no_matches_report": "Aucun repost dans ce scan",
+            "load_error": "Impossible de charger les reposts",
+            "showing_first": "Affichage des {{count}} plus récents sur {{total}}",
+            "categories": {
+                "SOCIAL": "Réseaux sociaux",
+                "ART_PLATFORMS": "Plateformes d'art",
+                "MARKETPLACES": "Places de marché",
+                "BLOG": "Blogs",
+                "MEDIA": "Médias",
+                "SEARCH": "Moteurs de recherche",
+                "OTHER": "Autre"
+            }
         },
         "scans_report": {
             "scan_report": "Rapport des scans",
@@ -127,6 +151,12 @@
             "page": "Page",
             "previous": "Précédent",
             "next": "Suivant",
+            "timeline_filter": "Période",
+            "timeline_all": "Depuis le début",
+            "timeline_week": "Semaine dernière",
+            "timeline_month": "Mois dernier",
+            "timeline_quarter": "3 derniers mois",
+            "timeline_year": "Dernière année",
             "total_matches": "Total des correspondances",
             "most_recent_source": "Source la plus récente",
             "all_detected_reposts": "Toutes les republications détectées",
@@ -138,7 +168,13 @@
             "visit": "Visiter",
             "no_matches_for_artwork": "Aucune correspondance trouvée pour cette œuvre",
             "failed_to_load": "Impossible de charger le rapport de scans. Veuillez réessayer."
-        }
+        },
+        "dmca_notices_history": "Historique des avis DMCA",
+        "no_dmca_notices": "Aucun avis DMCA pour le moment",
+        "create_dmca_notice": "Créer un avis DMCA",
+        "submitted": "Soumis",
+        "all": "Tous",
+        "dmca_notices_load_error": "Impossible de charger les avis DMCA"
     },
     "sidebar": {
         "profile": "Profil",
@@ -169,7 +205,25 @@
         "failed_to_load": "Échec du chargement des informations de profil. Veuillez réessayer.",
         "failed_prepare_avatar": "Échec de la préparation de l'avatar pour le téléchargement. Veuillez réessayer.",
         "failed_avatar_upload": "Échec du téléchargement de l'avatar. Veuillez réessayer.",
-        "failed_update": "Échec de la mise à jour du profil. Veuillez réessayer."
+        "failed_update": "Échec de la mise à jour du profil. Veuillez réessayer.",
+        "notifications_title": "Notifications push",
+        "notifications_description": "Choisissez si VigilArt peut envoyer des notifications du navigateur pour les mises à jour d'activité et les rapports.",
+        "notifications_permission_prompt": "Les notifications sont désactivées tant que vous ne les activez pas ici.",
+        "notifications_allowed": "Les notifications du navigateur sont autorisées.",
+        "notifications_blocked": "Les notifications sont bloquées dans les réglages de votre navigateur.",
+        "notifications_enabled": "Notifications activées.",
+        "notifications_disabled": "Notifications désactivées.",
+        "notifications_denied": "Les notifications du navigateur ont été refusées. Modifiez l'autorisation du navigateur pour les activer.",
+        "notifications_unsupported": "Les notifications ne sont pas prises en charge par ce navigateur.",
+        "failed_update_notifications": "Impossible de mettre à jour les préférences de notification. Veuillez réessayer.",
+        "delete_account": "Supprimer le compte",
+        "delete_account_confirm": "Supprimer le compte définitivement",
+        "delete_account_warning": "Cette action supprimera définitivement votre compte et toutes les données associées. Vous ne pourrez pas récupérer votre compte.",
+        "delete_account_irreversible": "Cette action est irréversible. Veuillez vous assurer que vous voulez continuer.",
+        "cancel": "Annuler",
+        "delete_permanently": "Supprimer définitivement",
+        "failed_delete": "Échec de la suppression du compte. Veuillez réessayer.",
+        "account_deleted": "Compte supprimé avec succès."
     },
     "artwork_gallery_page": {
         "artwork_gallery": "Galerie d'œuvres",
@@ -181,6 +235,8 @@
         "uploaded": "Téléchargé",
         "encod_date": "fr",
         "selected_artwork": "Œuvre sélectionnée",
+        "edit_artwork_title": "Modifier la description",
+        "edit_artwork_description_modal": "Modifiez la description de votre œuvre.",
         "file_name": "Nom du fichier:",
         "description": "Description:",
         "upload_date": "Date de téléchargement:",
@@ -195,6 +251,7 @@
         "delete_artwork": "Supprimer l'œuvre",
         "confirm_delete": "Êtes-vous sûr de vouloir supprimer cette œuvre ? Cette action ne peut pas être annulée.",
         "cancel": "Annuler",
+        "save": "Enregistrer",
         "delete": "Supprimer",
         "deleting": "Suppression en cours...",
         "not_authenticated": "Vous n'êtes pas authentifié. Veuillez vous reconnecter.",
@@ -213,9 +270,9 @@
         "processing": "Traitement...",
         "create_report": "Créer le report",
         "report_details": "Détails du Report",
-        "detection_date": "Date de détection",
-        "detections_count": "Nombre de détections",
-        "detections": "Détections",
+        "detection_date": "Date du scan",
+        "detections_count": "Nombre de correspondances",
+        "detections": "Correspondances",
         "detected": "Détecté",
         "category": "Catégorie",
         "website": "Site",
@@ -228,7 +285,10 @@
         "created_but_no_id": "Le report a été créé mais son identifiant est introuvable.",
         "created_but_details_failed": "Report créé, mais échec du chargement des détails",
         "report_created": "Report créé",
-        "detections_found": "détections trouvées",
+        "detections_found": "correspondances trouvées",
+        "queued": "En file d'attente…",
+        "scanning_artwork": "Analyse de l'artwork {{processed}} sur {{total}}",
+        "scan_failed": "L'analyse a échoué. Veuillez réessayer.",
         "error": "Erreur"
     },
     "dmca_page": {
@@ -263,6 +323,7 @@
         "send_title": "3) Envoi manuel",
         "send_subtitle": "Utilisez les éléments générés, puis envoyez la demande directement sur la plateforme.",
         "open_platform_form": "Ouvrir le formulaire DMCA externe",
+        "platform_form_url_unavailable": "L'URL du formulaire de la plateforme n'est pas disponible pour ce service",
         "no_platform_url": "Cette plateforme n'a pas d'URL DMCA renseignée.",
         "copy_subject": "Copier l'objet",
         "copy_body": "Copier le corps",
@@ -299,6 +360,30 @@
             "email": "Email",
             "phone": "Téléphone",
             "signature": "Signature"
-        }
+        },
+        "notices_history": "Avis DMCA précédents",
+        "notice_loaded": "Notice chargée avec succès",
+        "previous_notices_subtitle": "Cliquez sur 'Charger' pour restaurer une notice précédente et continuer l'édition",
+        "download_profile": "Télécharger le profil",
+        "next": "Suivant",
+        "back": "Retour",
+        "select_platform": "Sélectionner une plateforme",
+        "email_to": "À",
+        "email_subject": "Objet",
+        "generate_notice_first": "Générez d'abord l'email et le PDF pour voir le contenu.",
+        "load": "Charger",
+        "start_new_report": "Nouveau rapport",
+        "mark_submitted": "Marquer comme soumis",
+        "mark_submitted_warning": "Une fois le rapport DMCA soumis sur la plateforme, marquez-le comme soumis ci-dessous. Cela verrouillera le rapport et empêchera toute modification ultérieure.",
+        "confirm_submit_title": "Marquer la notice comme soumise ?",
+        "confirm_submit_description": "Cette action est irréversible. Une fois marquée comme soumise, la notice ne pourra plus être modifiée.",
+        "confirm_submit": "Confirmer",
+        "cancel": "Annuler",
+        "status_updated": "Notice marquée comme soumise.",
+        "status_update_failed": "Échec de la mise à jour du statut de la notice."
+    },
+    "matches": {
+        "all_categories": "Toutes les catégories",
+        "filter_by_category": "Filtrer par catégorie"
     }
 }

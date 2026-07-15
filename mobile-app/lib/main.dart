@@ -1,30 +1,82 @@
-import 'package:VigilArt/pages/dashboard/dashboard.dart';
-import 'package:VigilArt/pages/dashboard/upload_picture/uploadPhotos_page.dart';
-import 'package:VigilArt/pages/gallery/gallery_page.dart';
-import 'package:VigilArt/pages/profile/profile_page.dart';
+import 'package:vigilart/pages/dashboard/dashboard.dart';
+import 'package:vigilart/pages/dashboard/upload_picture/upload_photos_page.dart';
+import 'package:vigilart/pages/gallery/gallery_page.dart';
+import 'package:vigilart/pages/profile/profile_page.dart';
+import 'package:vigilart/(api)/auth.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'pages/login_page.dart';
 import 'pages/signup_page.dart';
 
-void main() async {
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:vigilart/services/notification_service.dart';
 
+@pragma('vm:entry-point')
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp();
+}
+
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  bool isLoggedIn = await checkLoginStatus();
+  SharedPreferences prefs = await SharedPreferences.getInstance();
   await dotenv.load(fileName: ".env");
+
+  bool isLoggedIn = await checkLoginStatus(prefs);
+
+  // Firebase / push notifications are mobile-only; web has no Firebase config,
+  // so initializing it there throws and leaves the app on a blank screen.
+  if (!kIsWeb) {
+    await Firebase.initializeApp();
+    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+
+    bool? notificationsEnabled = prefs.getBool('notificationsEnabled');
+    if (isLoggedIn && notificationsEnabled == true) {
+      NotificationService().initialize();
+    }
+  }
+
   runApp(VigilArtApp(isLoggedIn: isLoggedIn));
 }
 
-Future<bool> checkLoginStatus() async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
+Future<bool> checkLoginStatus(SharedPreferences prefs) async {
+  final apiService = ApiService();
   bool? loginStatus = prefs.getBool('isLoggedIn');
-  return loginStatus ?? false;
+
+  if (loginStatus != true) {
+    return false;
+  }
+
+  final refreshToken = await apiService.getRefreshToken();
+  if (refreshToken == null) {
+    await prefs.setBool('isLoggedIn', false);
+    return false;
+  }
+
+  try {
+    final response = await apiService.refreshAccessToken();
+    if (response.statusCode == 200) {
+      await prefs.setBool('isLoggedIn', true);
+      return true;
+    }
+
+    if (response.statusCode == 401) {
+      await prefs.setBool('isLoggedIn', false);
+      await apiService.clearLocalSession();
+      return false;
+    }
+
+    return true;
+  } catch (_) {
+    return true;
+  }
 }
 
 class VigilArtApp extends StatelessWidget {
   final bool isLoggedIn;
-  const VigilArtApp({Key? key, required this.isLoggedIn}) : super(key: key);
+  const VigilArtApp({super.key, required this.isLoggedIn});
 
   @override
   Widget build(BuildContext context) {
@@ -33,10 +85,8 @@ class VigilArtApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.teal,
-        primaryColor: const Color(0xFF21808D), 
-        
+        primaryColor: const Color(0xFF21808D),
         scaffoldBackgroundColor: const Color(0xFFFFF5E6),
-        
         colorScheme: ColorScheme.fromSwatch(
           primarySwatch: Colors.teal,
           backgroundColor: const Color.fromARGB(255, 255, 255, 255),
@@ -72,9 +122,7 @@ class VigilArtApp extends StatelessWidget {
             ),
           ),
         ),
-        
         fontFamily: 'Poppins',
-        
         useMaterial3: true,
       ),
       home: isLoggedIn ? const DashboardPage() : const LoginPage(),
@@ -89,4 +137,3 @@ class VigilArtApp extends StatelessWidget {
     );
   }
 }
-

@@ -7,3 +7,5 @@ keys/
 infra
 .prisma-zod-generator-manifest.json
 .agent
+.idea
+CLAUDE.md

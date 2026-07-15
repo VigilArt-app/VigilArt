@@ -1,5 +1,22 @@
 services:
 
+  redis:
+    image: redis:7-alpine
+    restart: always
+    volumes:
+      - redis_prod_data:/data
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "3"
+
   migrator:
     image: ghcr.io/${REPO_OWNER:-vigilart-app}/vigilart-backend:${IMAGE_TAG}
     depends_on:
@@ -16,6 +33,24 @@ services:
     profiles:
       - migrate
 
+  seeder:
+    image: ghcr.io/${REPO_OWNER:-vigilart-app}/vigilart-backend:${IMAGE_TAG}
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - app-network
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      SALT_ROUNDS: ${SALT_ROUNDS}
+      REDIS_URL: ${REDIS_URL}
+      NODE_ENV: ${NODE_ENV}
+    entrypoint: []
+    command: sh -c "cd /app/backend && pnpm db:seed:prod"
+    restart: "no"
+    profiles:
+      - seed
+
   backend:
     image: ghcr.io/${REPO_OWNER:-vigilart-app}/vigilart-backend:${IMAGE_TAG}
     build:
@@ -26,6 +61,10 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - /srv/VigilArt/backend/keys:/app/backend/keys:ro
     networks:
       - app-network
     environment:
@@ -40,8 +79,12 @@ services:
       API_BASE_URL: ${API_BASE_URL}
       API_PREFIX: ${API_PREFIX}
       CORS_ORIGINS: ${CORS_ORIGINS}
+      COOKIE_DOMAIN: ${COOKIE_DOMAIN}
       JWT_SECRET: ${JWT_SECRET}
       JWT_EXPIRES: ${JWT_EXPIRES}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
+      JWT_REFRESH_EXPIRES: ${JWT_REFRESH_EXPIRES}
+      JWT_MOBILE_REFRESH_EXPIRES: ${JWT_MOBILE_REFRESH_EXPIRES}
       SALT_ROUNDS: ${SALT_ROUNDS}
       REDIS_URL: ${REDIS_URL}
       CLOUDFLARE_BUCKET_NAME: ${CLOUDFLARE_BUCKET_NAME}
@@ -50,6 +93,8 @@ services:
       CLOUDFLARE_R2_SECRET_KEY: ${CLOUDFLARE_R2_SECRET_KEY}
       GOOGLE_LENS_API_KEY: ${GOOGLE_LENS_API_KEY}
       BRIGHTDATA_SERP_API_ZONE: ${BRIGHTDATA_SERP_API_ZONE}
+      SERP_API_GOOGLE_LENS_API_KEY: ${SERP_API_GOOGLE_LENS_API_KEY}
+      FIREBASE_APPLICATION_CREDENTIALS: ${FIREBASE_APPLICATION_CREDENTIALS}
 
     restart: always
     init: true
@@ -69,7 +114,16 @@ services:
         NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
         NEXT_PUBLIC_APP_ENV: ${NEXT_PUBLIC_APP_ENV}
         NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL}
+        NEXT_PUBLIC_FIREBASE_API_KEY: ${NEXT_PUBLIC_FIREBASE_API_KEY}
+        NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: ${NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN}
+        NEXT_PUBLIC_FIREBASE_PROJECT_ID: ${NEXT_PUBLIC_FIREBASE_PROJECT_ID}
+        NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: ${NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET}
+        NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: ${NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID}
+        NEXT_PUBLIC_FIREBASE_APP_ID: ${NEXT_PUBLIC_FIREBASE_APP_ID}
+        NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID: ${NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID}
+        NEXT_PUBLIC_FIREBASE_VAPID_KEY: ${NEXT_PUBLIC_FIREBASE_VAPID_KEY}
         API_URL: ${API_URL}
+        APP_PORT: ${APP_PORT}
     ports:
       - "${APP_PORT}:${APP_PORT}"
     networks:
@@ -106,6 +160,7 @@ services:
 
 volumes:
   postgres_prod_data:
+  redis_prod_data:
 
 networks:
   app-network:

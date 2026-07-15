@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation"
 import { Button } from "../../components/ui/button"
 import { Input } from "../../components/ui/input"
 import { Label } from "../../components/ui/label"
+import { authenticatedFetch } from "@/src/utils/auth/authenticatedFetch"
 import { useTranslation } from "react-i18next"
 import { API_BASE_URL } from "@/src/config"
 
@@ -30,12 +31,10 @@ export default function SignUpPage() {
     }
     setIsLoading(true)
     try {
-      const API_BASE = API_BASE_URL
-      const res = await fetch(`${API_BASE}/auth/signup`, {
+      const res = await authenticatedFetch(`/auth/signup`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password, firstName, lastName })
-      })
+      }, true);
       if (!res.ok) {
         const data = await res.json().catch(() => null)
         const message = data?.message || t("signup_page.error_signup_failed")
@@ -108,17 +107,18 @@ export default function SignUpPage() {
                   <div className="flex-1 h-px bg-muted-foreground/30" />
                 </div>
 
-                <div>
-                  <Button type="button" className="w-full">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 mr-2">
-                      <path d="M21.35 11.1H12v2.8h5.35c-.24 1.4-1.02 2.6-2.18 3.4v2.8h3.52C20.6 19.1 22 15.4 22 12c0-.6-.05-1.2-.15-1.9z" />
-                      <path d="M12 22c2.7 0 4.95-.9 6.6-2.45l-3.52-2.8c-.98.66-2.25 1.05-3.08 1.05-2.36 0-4.36-1.6-5.08-3.75H3.28v2.35C4.92 19.95 8.24 22 12 22z" />
-                      <path d="M6.92 13.05A6.99 6.99 0 0 1 6.6 12c0-.35.05-.7.12-1.05V8.6H3.28A9.98 9.98 0 0 0 2 12c0 1.6.38 3.08 1.05 4.4l3.87-3.35z" />
-                      <path d="M12 6.5c1.46 0 2.77.5 3.8 1.48l2.85-2.85C16.94 3.6 14.7 2.5 12 2.5 8.24 2.5 4.92 4.55 3.28 7.55l3.84 2.9C7.64 8.1 9.64 6.5 12 6.5z" />
-                    </svg>
-                    {t("sign_up_page.sign_up_with_google")}
-                  </Button>
-                </div>
+                  {/* Google Sign-In is currently disabled as it requires additional backend work to be implemented and not in the BTP*/}
+                  {/* <div>
+                    <Button type="button" className="w-full">
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 mr-2">
+                        <path d="M21.35 11.1H12v2.8h5.35c-.24 1.4-1.02 2.6-2.18 3.4v2.8h3.52C20.6 19.1 22 15.4 22 12c0-.6-.05-1.2-.15-1.9z" />
+                        <path d="M12 22c2.7 0 4.95-.9 6.6-2.45l-3.52-2.8c-.98.66-2.25 1.05-3.08 1.05-2.36 0-4.36-1.6-5.08-3.75H3.28v2.35C4.92 19.95 8.24 22 12 22z" />
+                        <path d="M6.92 13.05A6.99 6.99 0 0 1 6.6 12c0-.35.05-.7.12-1.05V8.6H3.28A9.98 9.98 0 0 0 2 12c0 1.6.38 3.08 1.05 4.4l3.87-3.35z" />
+                        <path d="M12 6.5c1.46 0 2.77.5 3.8 1.48l2.85-2.85C16.94 3.6 14.7 2.5 12 2.5 8.24 2.5 4.92 4.55 3.28 7.55l3.84 2.9C7.64 8.1 9.64 6.5 12 6.5z" />
+                      </svg>
+                      {t("sign_up_page.sign_up_with_google")}
+                    </Button>
+                  </div> */}
               </form>
 
               <div className="mt-4 text-center text-sm">

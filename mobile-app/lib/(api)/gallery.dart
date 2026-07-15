@@ -6,79 +6,38 @@ extension GalleryApi on ApiService {
   
   Future<List<Map<String, dynamic>>?> fetchGalleryArtworks() async {
     try {
-      final token = await getAccessToken();
       final userId = await secureStorage.read(key: ApiService.keyUserId);
       if (userId == null) throw Exception('User ID not found');
 
-      final headers = {'Content-Type': 'application/json', 'Authorization': 'Bearer $token'};
+      final artworks = await _fetchUserArtworks(userId);
+      if (artworks == null) return null;
 
-      final artworksRes = await http.get(Uri.parse('$serverUrl/artworks/user/$userId'), headers: headers);
-      if (artworksRes.statusCode != 200) return null;
-      final artworksData = jsonDecode(artworksRes.body);
-      final List<dynamic> artworks = artworksData['data'] ?? artworksData;
+      final reports = await _fetchUserReports(userId);
 
-      final reportsRes = await http.get(Uri.parse('$serverUrl/reports/user/$userId'), headers: headers);
-      final reportsData = reportsRes.statusCode == 200 ? jsonDecode(reportsRes.body) : {};
-      final List<dynamic> reports = reportsData['data'] ?? [];
+      final allMatchingPages = await _fetchAllMatchingPages(reports);
 
-      List<dynamic> allMatchingPages = [];
-      if (reports.isNotEmpty) {
-        final detailRequests = reports.map((report) {
-          final reportId = report['id']?.toString();
-          return http.get(Uri.parse('$serverUrl/reports/details/$reportId'), headers: headers);
-        });
+      final matchesCountByArtwork = <String, int>{};
+      final urlsByArtwork = <String, List<String>>{};
 
-        final detailResponses = await Future.wait(detailRequests);
-
-        for (var res in detailResponses) {
-          if (res.statusCode == 200) {
-            final detailsData = jsonDecode(res.body);
-            final detailsRaw = detailsData['data'] ?? detailsData;
-            if (detailsRaw['matchingPages'] != null) {
-              allMatchingPages.addAll(detailsRaw['matchingPages']);
-            }
-          }
-        }
-      }
-
-      Map<String, int> matchesCountByArtwork = {};
-      Map<String, List<String>> urlsByArtwork = {}; 
-      
       for (var page in allMatchingPages) {
         final artId = page['artworkId']?.toString();
         final url = page['url']?.toString();
-        
         if (artId != null) {
           matchesCountByArtwork[artId] = (matchesCountByArtwork[artId] ?? 0) + 1;
-          
-          if (url != null) {
-            urlsByArtwork.putIfAbsent(artId, () => []).add(url);
-          }
+          if (url != null) urlsByArtwork.putIfAbsent(artId, () => []).add(url);
         }
       }
 
-      List<String> storageKeys = artworks.map((a) => a['storageKey']?.toString() ?? '').where((k) => k.isNotEmpty).toList();
-      Map<String, dynamic> downloadUrls = {};
-      
-      if (storageKeys.isNotEmpty) {
-        final urlsRes = await http.post(
-          Uri.parse('$serverUrl/storage/artworks/download-urls'),
-          headers: headers,
-          body: jsonEncode({'storageKeys': storageKeys}),
-        );
-        if (urlsRes.statusCode == 200 || urlsRes.statusCode == 201) {
-          final urlsData = jsonDecode(urlsRes.body);
-          downloadUrls = urlsData['data'] ?? urlsData;
-        }
-      }
+      final storageKeys = artworks.map((a) => a['storageKey']?.toString() ?? '').where((k) => k.isNotEmpty).toList();
+      final downloadUrls = await _getDownloadUrls(storageKeys);
 
       return artworks.map((art) {
         final artId = art['id'].toString();
         final storageKey = art['storageKey'];
         final imageUrl = storageKey != null ? downloadUrls[storageKey] : null;
-        
-        int matchesCount = matchesCountByArtwork[artId] ?? 0;
-        
+
+        final matchesCount = matchesCountByArtwork[artId] ?? 0;
+
         String status = 'scanning';
         if (matchesCount > 0) {
           status = 'scanned';
@@ -88,28 +47,96 @@ extension GalleryApi on ApiService {
 
         return {
           'id': artId,
-          'title': art['description'] ?? art['originalFilename'] ?? 'Untitled',          
+          'title': art['description'] ?? art['originalFilename'] ?? 'Untitled',
           'url': imageUrl ?? '',
           'date': art['createdAt'] ?? DateTime.now().toIso8601String(),
           'status': status,
           'matchesCount': matchesCount,
-          // FIXED: Map the stored URLs directly into the output payload
-          'infringingUrls': urlsByArtwork[artId] ?? [], 
+          'infringingUrls': urlsByArtwork[artId] ?? [],
         };
       }).toList();
-
     } catch (e) {
       return null;
     }
   }
 
+  Future<List<dynamic>> _fetchAllMatchingPages(List<dynamic> reports) async {
+    if (reports.isEmpty) return [];
+
+    final detailRequests = reports.map((report) {
+      final reportId = report['id']?.toString();
+      return authenticatedRequest((headers) => http.get(Uri.parse('$serverUrl/reports/details/$reportId'), headers: headers));
+    });
+
+    final detailResponses = await Future.wait(detailRequests);
+    final allMatchingPages = <dynamic>[];
+
+    for (var res in detailResponses) {
+      if (res.statusCode == 200) {
+        final detailsData = jsonDecode(res.body);
+        final detailsRaw = detailsData['data'] ?? detailsData;
+        if (detailsRaw['matchingPages'] != null) {
+          allMatchingPages.addAll(detailsRaw['matchingPages']);
+        }
+      }
+    }
+
+    return allMatchingPages;
+  }
+
+  Future<List<dynamic>?> _fetchUserArtworks(String userId) async {
+    final allArtworks = <dynamic>[];
+    String? cursor;
+
+    while (true) {
+      final uri = Uri.parse('$serverUrl/artworks/user/$userId').replace(queryParameters: {
+        'limit': '100',
+        if (cursor != null) 'cursor': cursor,
+      });
+      final artworksRes = await authenticatedRequest((headers) => http.get(uri, headers: headers));
+      if (artworksRes.statusCode != 200) return allArtworks.isEmpty ? null : allArtworks;
+
+      final artworksData = jsonDecode(artworksRes.body);
+      final payload = artworksData['data'] ?? artworksData;
+
+      if (payload is Map) {
+        allArtworks.addAll(payload['items'] ?? []);
+        final nextCursor = payload['nextCursor']?.toString();
+        if (nextCursor == null) break;
+        cursor = nextCursor;
+      } else {
+        allArtworks.addAll(payload as List<dynamic>);
+        break;
+      }
+    }
+
+    return allArtworks;
+  }
+
+  Future<List<dynamic>> _fetchUserReports(String userId) async {
+    final reportsRes = await authenticatedRequest((headers) => http.get(Uri.parse('$serverUrl/reports/user/$userId'), headers: headers));
+    if (reportsRes.statusCode != 200) return [];
+    final reportsData = jsonDecode(reportsRes.body);
+    return reportsData['data'] ?? [];
+  }
+
+  Future<Map<String, dynamic>> _getDownloadUrls(List<String> storageKeys) async {
+    if (storageKeys.isEmpty) return {};
+
+    final urlsRes = await authenticatedRequest((headers) => http.post(Uri.parse('$serverUrl/storage/artworks/download-urls'), headers: headers, body: jsonEncode({'storageKeys': storageKeys})),);
+    if (urlsRes.statusCode == 200 || urlsRes.statusCode == 201) {
+      final urlsData = jsonDecode(urlsRes.body);
+      return urlsData['data'] ?? urlsData;
+    }
+    return {};
+  }
+
   Future<bool> deleteArtwork(String artworkId) async {
     try {
-      final token = await getAccessToken();
       final url = Uri.parse('$serverUrl/artworks/$artworkId');
-      final response = await http.delete(
-        url,
-        headers: {'Authorization': 'Bearer $token'},
+      final response = await authenticatedRequest(
+        (headers) => http.delete(url, headers: headers),
+        includeContentType: false,
       );
       return response.statusCode == 200 || response.statusCode == 204;
     } catch (e) {

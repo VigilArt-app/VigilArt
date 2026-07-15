@@ -1,100 +1,175 @@
 "use client";
 
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "../../../components/ui/card";
+import { Loader2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { useTheme } from "next-themes";
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+  type TooltipContentProps,
+} from "recharts";
+import type { StatisticsTimelinePoint } from "@vigilart/shared";
+import { ReportMatchesModal } from "./statistics/ReportMatchesModal";
 
-const monthlyData = [
-  { month: "Jan", lastMonth: 3004, thisMonth: 4504 },
-  { month: "Feb", lastMonth: 3200, thisMonth: 4200 },
-  { month: "Mar", lastMonth: 2800, thisMonth: 4000 },
-  { month: "Apr", lastMonth: 3100, thisMonth: 4300 },
-  { month: "May", lastMonth: 2900, thisMonth: 4100 },
-  { month: "Jun", lastMonth: 3000, thisMonth: 4500 },
-];
+interface MonthlyComparisonProps {
+  timeline: StatisticsTimelinePoint[];
+  loading: boolean;
+}
 
-export default function MonthlyComparison() {
-  const { t } = useTranslation();
+// Single categorical series (dataviz slot 1, blue). One hue, so no legend is
+// needed — the card title names the series.
+const BAR_COLOR = "#2a78d6";
+
+// Concrete chart-chrome colors per theme (dataviz palette). Passed as SVG
+// presentation attributes, so they must be literal colors — CSS var() does not
+// resolve inside SVG attributes.
+const CHROME = {
+  light: { grid: "#e1e0d9", axis: "#c3c2b7", label: "#898781", cursor: "#000000" },
+  dark: { grid: "#2c2c2a", axis: "#383835", label: "#898781", cursor: "#ffffff" },
+};
+
+export default function MonthlyComparison({
+  timeline,
+  loading,
+}: MonthlyComparisonProps) {
+  const { t, i18n } = useTranslation();
+  const { resolvedTheme } = useTheme();
+  const chrome = resolvedTheme === "dark" ? CHROME.dark : CHROME.light;
+  const [selectedReport, setSelectedReport] =
+    useState<StatisticsTimelinePoint | null>(null);
+
+  const shortDate = (iso: string) =>
+    new Date(iso).toLocaleDateString(i18n.language, {
+      month: "short",
+      day: "numeric",
+    });
+
+  // Full date AND time: two scans can run the same day (separate bars), so the
+  // time is what tells them apart on hover.
+  const fullDate = (iso: string) =>
+    new Date(iso).toLocaleString(i18n.language, {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+
+  const renderTooltip = ({
+    active,
+    payload,
+  }: Partial<TooltipContentProps<number, string>>) => {
+    if (!active || !payload?.length) {
+      return null;
+    }
+    const point = payload[0].payload as StatisticsTimelinePoint;
+    return (
+      <div className="rounded-md border bg-popover px-3 py-2 text-sm shadow-md">
+        <p className="font-medium text-popover-foreground">{fullDate(point.date)}</p>
+        <p className="text-muted-foreground">
+          {point.totalMatches} {t("dashboard_page.graphs.reposts", "reposts")}
+        </p>
+      </div>
+    );
+  };
+
   return (
     <Card className="w-full">
       <CardHeader>
-        <CardTitle className="text-xl">{t("dashboard_page.graphs.monthly_comparison")}</CardTitle>
+        <CardTitle className="text-xl">
+          {t("dashboard_page.graphs.monthly_comparison")}
+        </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="rounded-lg border border-dashed p-8 text-center text-muted-foreground">
-          Coming soon
-        </div>
-
-        <div className="hidden" aria-hidden="true">
-        <div className="w-full h-72">
-          <svg viewBox="0 0 600 160" preserveAspectRatio="none" className="w-full">
-            <defs>
-              <linearGradient id="gThis" x1="0" x2="0" y1="0" y2="1">
-                <stop offset="0%" stopColor="#16a34a" stopOpacity="0.18" />
-                <stop offset="100%" stopColor="#16a34a" stopOpacity="0" />
-              </linearGradient>
-              <linearGradient id="gLast" x1="0" x2="0" y1="0" y2="1">
-                <stop offset="0%" stopColor="#2563eb" stopOpacity="0.18" />
-                <stop offset="100%" stopColor="#2563eb" stopOpacity="0" />
-              </linearGradient>
-            </defs>
-            {
-              (() => {
-                const width = 600;
-                const height = 120;
-                const padding = 20;
-                const max = Math.max(...monthlyData.map(d => Math.max(d.thisMonth, d.lastMonth)));
-                const pointsThis = monthlyData.map((d, i) => {
-                  const x = padding + (i * (width - padding * 2)) / (monthlyData.length - 1);
-                  const y = height - (d.thisMonth / max) * (height - 10) + 10;
-                  return [x, y];
-                });
-                const pointsLast = monthlyData.map((d, i) => {
-                  const x = padding + (i * (width - padding * 2)) / (monthlyData.length - 1);
-                  const y = height - (d.lastMonth / max) * (height - 10) + 10;
-                  return [x, y];
-                });
-
-                const pathFromPoints = (pts: number[][]) => pts.map((p, i) => `${i===0? 'M':'L'} ${p[0]} ${p[1]}`).join(' ');
-
-                const areaPath = (pts: number[][]) => {
-                  const line = pathFromPoints(pts);
-                  const last = pts[pts.length-1];
-                  const first = pts[0];
-                  return `${line} L ${last[0]} ${height+20} L ${first[0]} ${height+20} Z`;
-                }
-
-                return (
-                  <g>
-                    <path d={areaPath(pointsThis)} fill="url(#gThis)" stroke="none" />
-                    <path d={pathFromPoints(pointsThis)} fill="none" stroke="#16a34a" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
-
-                    <path d={areaPath(pointsLast)} fill="url(#gLast)" stroke="none" />
-                    <path d={pathFromPoints(pointsLast)} fill="none" stroke="#2563eb" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
-
-                    {pointsThis.map((p, i) => (
-                      <circle key={`t-${i}`} cx={p[0]} cy={p[1]} r={3.5} fill="#16a34a" />
-                    ))}
-                    {pointsLast.map((p, i) => (
-                      <circle key={`l-${i}`} cx={p[0]} cy={p[1]} r={3.5} fill="#2563eb" />
-                    ))}
-
-                    {monthlyData.map((d, i) => {
-                      const x = padding + (i * (600 - padding * 2)) / (monthlyData.length - 1);
-                      return <text key={`lab-${i}`} x={x} y={150} fontSize={10} textAnchor="middle" fill="#6b7280">{d.month}</text>
-                    })}
-                  </g>
-                )
-              })()
-            }
-          </svg>
-
-          <div className="flex items-center gap-6 mt-3 text-sm text-muted-foreground flex-wrap">
-            <div className="flex items-center gap-2"><span className="w-3 h-3 rounded bg-blue-500 inline-block"></span> <span>{t("dashboard_page.graphs.last_month")}</span> <span className="font-semibold ml-2">3,004 {t("dashboard_page.graphs.credit_matches")}</span></div>
-            <div className="flex items-center gap-2"><span className="w-3 h-3 rounded bg-green-500 inline-block"></span> <span>{t("dashboard_page.graphs.this_month")}</span> <span className="font-semibold ml-2">4,504 {t("dashboard_page.graphs.credit_matches")}</span></div>
+        {timeline.length === 0 ? (
+          loading ? (
+            <div className="flex items-center justify-center h-72">
+              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+            </div>
+          ) : (
+            <div className="rounded-lg border border-dashed p-8 text-center text-muted-foreground h-72 flex items-center justify-center">
+              {t("dashboard_page.graphs.no_data", "No reports yet")}
+            </div>
+          )
+        ) : (
+          <div className="w-full h-72">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={timeline} margin={{ top: 8, right: 8, bottom: 8, left: 0 }}>
+                <CartesianGrid vertical={false} stroke={chrome.grid} />
+                <XAxis
+                  dataKey="date"
+                  tickFormatter={shortDate}
+                  tickLine={false}
+                  axisLine={{ stroke: chrome.axis }}
+                  tick={{ fill: chrome.label, fontSize: 12 }}
+                  interval="preserveStartEnd"
+                  minTickGap={24}
+                />
+                <YAxis
+                  allowDecimals={false}
+                  tickLine={false}
+                  axisLine={false}
+                  width={32}
+                  tick={{ fill: chrome.label, fontSize: 12 }}
+                />
+                <Tooltip
+                  content={renderTooltip}
+                  cursor={{ fill: chrome.cursor, opacity: 0.06 }}
+                />
+                <Bar
+                  dataKey="totalMatches"
+                  fill={BAR_COLOR}
+                  radius={[4, 4, 0, 0]}
+                  maxBarSize={48}
+                  className="cursor-pointer"
+                  onClick={(data) => {
+                    const point = data as Partial<StatisticsTimelinePoint>;
+                    if (point.reportId) {
+                      setSelectedReport(point as StatisticsTimelinePoint);
+                    }
+                  }}
+                />
+              </BarChart>
+            </ResponsiveContainer>
           </div>
-        </div>
-        </div>
+        )}
+
+        {timeline.length > 0 && (
+          <p className="mt-2 text-center text-xs text-muted-foreground">
+            {t("dashboard_page.graphs.click_hint", "Click a bar to see that scan's reposts")}
+          </p>
+        )}
+
+        {/* Keyboard/screen-reader path to the same drill-down: the chart bars are
+            mouse-only, so mirror them as focusable buttons. */}
+        {timeline.length > 0 && (
+          <ul className="sr-only">
+            {timeline.map((point) => (
+              <li key={point.reportId}>
+                <button type="button" onClick={() => setSelectedReport(point)}>
+                  {t("dashboard_page.graphs.view_report_reposts", "View reposts from {{date}} ({{count}})", {
+                    date: fullDate(point.date),
+                    count: point.totalMatches,
+                  })}
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
       </CardContent>
+
+      <ReportMatchesModal
+        report={selectedReport}
+        dateLabel={selectedReport ? fullDate(selectedReport.date) : ""}
+        onClose={() => setSelectedReport(null)}
+      />
     </Card>
   );
 }
