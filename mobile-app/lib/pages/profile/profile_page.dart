@@ -176,7 +176,6 @@ class _ProfilePageState extends State<ProfilePage> {
         final Map<String, dynamic> updateData = {
           'firstName': _firstNameController.text.trim(),
           'lastName': _lastNameController.text.trim(),
-          'email': _emailController.text.trim(),
           'country': _countryController.text.trim(),
           'language': _languageController.text.trim(),
         };
