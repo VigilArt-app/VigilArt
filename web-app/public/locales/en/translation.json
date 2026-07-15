@@ -371,7 +371,16 @@
         "email_to": "To",
         "email_subject": "Subject",
         "generate_notice_first": "Generate the email and PDF first to see the content.",
-        "load": "Load"
+        "load": "Load",
+        "start_new_report": "Start new report",
+        "mark_submitted": "Mark as submitted",
+        "mark_submitted_warning": "Once you have submitted the DMCA report on the platform, mark it as submitted below. This will lock the report and prevent further modifications.",
+        "confirm_submit_title": "Mark notice as submitted?",
+        "confirm_submit_description": "This action is irreversible. Once marked as submitted, the notice can no longer be modified.",
+        "confirm_submit": "Confirm",
+        "cancel": "Cancel",
+        "status_updated": "Notice marked as submitted.",
+        "status_update_failed": "Failed to update notice status."
     },
     "matches": {
         "all_categories": "All categories",

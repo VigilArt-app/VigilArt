@@ -17,6 +17,7 @@ import {
   fetchUserDmcaNotices,
   generateDmcaNotice,
   updateDmcaNotice,
+  updateDmcaNoticeStatus,
   updateDmcaProfile,
 } from "./api";
 import { useAuth } from "@/src/components/contexts/authContext";
@@ -63,6 +64,7 @@ export function useDmcaPage() {
   const [generating, setGenerating] = useState(false);
   const [copiedField, setCopiedField] = useState<"subject" | "body" | null>(null);
   const [dataLoaded, setDataLoaded] = useState(false);
+  const [submittingStatus, setSubmittingStatus] = useState(false);
   const { user, loading: authLoading } = useAuth();
 
   const selectedPlatform = useMemo(
@@ -94,47 +96,68 @@ export function useDmcaPage() {
 
     const loadData = async () => {
       try {
-        const [allPlatforms, profile, userNotices] = await Promise.all([
+        const [platformsRes, profileRes, noticesRes] = await Promise.allSettled([
           fetchDmcaPlatforms(),
           fetchDmcaProfile(resolvedUserId),
           fetchUserDmcaNotices(resolvedUserId),
         ]);
 
-        setPlatforms(allPlatforms);
-
-        if (allPlatforms.length > 0) setSelectedPlatformSlug(allPlatforms[0].slug);
-
-        if (profile) {
-          setProfileExists(true);
-          setProfileForm({
-            fullName: profile.fullName || "",
-            street: profile.street || "",
-            aptSuite: profile.aptSuite || "",
-            city: profile.city || "",
-            postalCode: profile.postalCode || "",
-            country: profile.country || "",
-            email: profile.email || "",
-            phone: profile.phone || "",
-            signature: profile.signature || "",
-          });
+        if (platformsRes.status === "fulfilled") {
+          const allPlatforms = platformsRes.value;
+          setPlatforms(allPlatforms);
+          setSelectedPlatformSlug((prev) => prev || (allPlatforms.length > 0 ? allPlatforms[0].slug : null));
+        } else {
+          toast.error(
+            platformsRes.reason instanceof Error ? platformsRes.reason.message : t("dmca_page.failed_to_load"),
+          );
         }
 
-        setAllNotices(userNotices);
-
-        const mapped = userNotices.reduce<Record<string, DmcaNoticeGet>>((acc, notice) => {
-          const existing = acc[notice.dmcaPlatformSlug];
-          if (!existing) {
-            acc[notice.dmcaPlatformSlug] = notice;
-            return acc;
+        if (profileRes.status === "fulfilled") {
+          const profile = profileRes.value;
+          if (profile) {
+            setProfileExists(true);
+            setProfileForm({
+              fullName: profile.fullName || "",
+              street: profile.street || "",
+              aptSuite: profile.aptSuite || "",
+              city: profile.city || "",
+              postalCode: profile.postalCode || "",
+              country: profile.country || "",
+              email: profile.email || "",
+              phone: profile.phone || "",
+              signature: profile.signature || "",
+            });
           }
+        } else {
+          toast.error(
+            profileRes.reason instanceof Error ? profileRes.reason.message : t("dmca_page.failed_to_load"),
+          );
+        }
 
-          const existingDate = new Date(existing.updatedAt).getTime();
-          const currentDate = new Date(notice.updatedAt).getTime();
-          if (currentDate > existingDate) acc[notice.dmcaPlatformSlug] = notice;
-          return acc;
-        }, {});
+        if (noticesRes.status === "fulfilled") {
+          const userNotices = noticesRes.value;
+          setAllNotices(userNotices);
 
-        setNoticesByPlatform(mapped);
+          const mapped = userNotices.reduce<Record<string, DmcaNoticeGet>>((acc, notice) => {
+            const existing = acc[notice.dmcaPlatformSlug];
+            if (!existing) {
+              acc[notice.dmcaPlatformSlug] = notice;
+              return acc;
+            }
+
+            const existingDate = new Date(existing.updatedAt).getTime();
+            const currentDate = new Date(notice.updatedAt).getTime();
+            if (currentDate > existingDate) acc[notice.dmcaPlatformSlug] = notice;
+            return acc;
+          }, {});
+
+          setNoticesByPlatform(mapped);
+        } else {
+          toast.error(
+            noticesRes.reason instanceof Error ? noticesRes.reason.message : t("dmca_page.failed_to_load"),
+          );
+        }
+
         setDataLoaded(true);
       } catch (error) {
         toast.error(error instanceof Error ? error.message : t("dmca_page.failed_to_load"));
@@ -148,19 +171,16 @@ export function useDmcaPage() {
   }, [authLoading, t, user?.id]);
 
   useEffect(() => {
+    return () => {
+      initializedPayloadKeyRef.current = null;
+    };
+  }, []);
+
+  useEffect(() => {
     if (!selectedPlatform || !dataLoaded) return;
 
     const initializationKey = `${selectedPlatform.slug}::${artworkPrefillParam}`;
     if (initializedPayloadKeyRef.current === initializationKey) return;
-
-    const savedNotice = noticesByPlatform[selectedPlatform.slug];
-    if (savedNotice && savedNotice.payload) {
-      setActiveNotice(savedNotice);
-      setFormPayload(deepClone(savedNotice.payload as JsonLike));
-      setGeneratedContent(null);
-      initializedPayloadKeyRef.current = initializationKey;
-      return;
-    }
 
     const emptyPayload = createDefaultValueForItems(selectedPlatform.formSchema as any, artworkPrefill);
     setActiveNotice(null);
@@ -169,7 +189,7 @@ export function useDmcaPage() {
       clearPreselectedInfringingUrls(hydrateProfileInPayload(emptyPayload, profileForm), infringingRepeaters),
     );
     initializedPayloadKeyRef.current = initializationKey;
-  }, [artworkPrefillParam, artworkPrefill, dataLoaded, infringingRepeaters, noticesByPlatform, profileForm, selectedPlatform]);
+  }, [artworkPrefillParam, artworkPrefill, dataLoaded, infringingRepeaters, profileForm, selectedPlatform]);
 
   const handleProfileChange = (key: keyof ProfileFormState, value: string) => {
     setProfileForm((prev) => ({ ...prev, [key]: value }));
@@ -242,6 +262,15 @@ export function useDmcaPage() {
 
       setActiveNotice(prepared);
       setNoticesByPlatform((prev) => ({ ...prev, [selectedPlatform.slug]: prepared }));
+      setAllNotices((prev) => {
+        const idx = prev.findIndex((n) => n.id === prepared.id);
+        if (idx >= 0) {
+          const updated = [...prev];
+          updated[idx] = prepared;
+          return updated;
+        }
+        return [prepared, ...prev];
+      });
       setGeneratedContent(null);
       toast.success(t("dmca_page.notice_prepared"));
     } catch (error) {
@@ -289,9 +318,66 @@ export function useDmcaPage() {
       setActiveNotice(notice);
       setGeneratedContent(null);
       setSelectedPlatformSlug(notice.dmcaPlatformSlug);
+      initializedPayloadKeyRef.current = `${notice.dmcaPlatformSlug}::${artworkPrefillParam}`;
       setCurrentStep(3);
       toast.success(t("dmca_page.notice_loaded"));
       setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 100);
+    }
+  };
+
+  const startNewReport = async () => {
+    setActiveNotice(null);
+    setGeneratedContent(null);
+    setFormPayload({});
+    initializedPayloadKeyRef.current = null;
+    setCurrentStep(1);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+
+    if (userId) {
+      try {
+        const freshNotices = await fetchUserDmcaNotices(userId);
+        setAllNotices(freshNotices);
+
+        const mapped = freshNotices.reduce<Record<string, DmcaNoticeGet>>((acc, notice) => {
+          const existing = acc[notice.dmcaPlatformSlug];
+          if (!existing) {
+            acc[notice.dmcaPlatformSlug] = notice;
+            return acc;
+          }
+          const existingDate = new Date(existing.updatedAt).getTime();
+          const currentDate = new Date(notice.updatedAt).getTime();
+          if (currentDate > existingDate) acc[notice.dmcaPlatformSlug] = notice;
+          return acc;
+        }, {});
+        setNoticesByPlatform(mapped);
+      } catch (error) {
+        toast.error(error instanceof Error ? error.message : t("dmca_page.failed_to_load"));
+      }
+    }
+  };
+
+  const handleMarkSubmitted = async () => {
+    if (!activeNotice) return;
+    setSubmittingStatus(true);
+
+    try {
+      const updated = await updateDmcaNoticeStatus(activeNotice.id, "SUBMITTED");
+      setActiveNotice(updated);
+      setNoticesByPlatform((prev) => ({ ...prev, [updated.dmcaPlatformSlug]: updated }));
+      setAllNotices((prev) => {
+        const idx = prev.findIndex((n) => n.id === updated.id);
+        if (idx >= 0) {
+          const copy = [...prev];
+          copy[idx] = updated;
+          return copy;
+        }
+        return [updated, ...prev];
+      });
+      toast.success(t("dmca_page.status_updated"));
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : t("dmca_page.status_update_failed"));
+    } finally {
+      setSubmittingStatus(false);
     }
   };
 
@@ -331,6 +417,9 @@ export function useDmcaPage() {
     copyToClipboard,
     updatePath,
     handleLoadNotice,
+    startNewReport,
+    handleMarkSubmitted,
+    submittingStatus,
     mailtoHref,
   };
 }
