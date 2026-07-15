@@ -37,13 +37,15 @@ import { StorageService } from "../storage/storage.service";
 import { PrismaService } from "../prisma/prisma.service";
 import { MatchingPagesService } from "./matchingPage.service";
 import { GoogleLensService } from "../googlelens/googlelens.service";
+import { SerpApiLensService } from "../serpapilens/serpapilens.service";
 import { assertResourceOwnership } from "../common/utils/ownership";
 import { normalizeMatchUrl } from "../common/utils/website-class";
 import {
   MAX_SCANS_PER_WINDOW,
   SCAN_WINDOW_DAYS,
   REPORTS_QUEUE,
-  GENERATE_REPORT_JOB
+  GENERATE_REPORT_JOB,
+  REPORT_STATS_KEY
 } from "./reports.constants";
 
 const REPORTS_STATS_TTL = 30 * 24 * 60 * 60 * 1000;
@@ -60,18 +62,12 @@ export const MATCHES_MODAL_LIMIT = 100;
 // recent scans (chronological order preserved for display).
 export const TIMELINE_MAX_POINTS = 30;
 
-// Only the time-invariant "all" range is cached; the rolling "month" window and
-// report-scoped queries are recomputed every call so they never go stale. The
-// `v2` marker invalidates pre-existing `{ totalMatches }`-only cache entries.
-const REPORT_STATS_KEY = (userId: string, range: StatisticsRange = "all") => {
-  return `reports:statistics:v2:${userId}:${range}`;
-}
-
 @Injectable()
 export class ReportsService {
   constructor(
     private readonly visionService: VisionService,
     private readonly googleLensService: GoogleLensService,
+    private readonly serpApiLensService: SerpApiLensService,
     private readonly artworksService: ArtworksService,
     private readonly storageService: StorageService,
     private readonly matchingPagesService: MatchingPagesService,
@@ -86,9 +82,13 @@ export class ReportsService {
     imageDownloadUrl: string
   ): Promise<MatchingPageGet[]> {
     const settledResults = await Promise.allSettled([
-      this.googleLensService.searchImage(imageDownloadUrl)
+      // BrightData Google Lens disabled: the exact_matches tab regressed
+      // server-side (returns the "All" tab, no exact_matches array). Replaced
+      // by SerpAPI Google Lens below until BrightData resolves the zone.
+      // this.googleLensService.searchImage(imageDownloadUrl)
+      this.serpApiLensService.searchImage(imageDownloadUrl)
     ]);
-    const providers = ["googleLens"] as const;
+    const providers = ["serpApiLens"] as const;
     const matchingPages: MatchingPageGet[] = [];
     settledResults.forEach((result, index) => {
       if (result.status === "rejected") {
@@ -114,9 +114,8 @@ export class ReportsService {
     const imageDownloadUrl = await this.storageService.getDownloadUrl(
       artwork.storageKey
     );
-    const matchingPages = await this.aggregateVisualSearchResults(
-      imageDownloadUrl
-    );
+    const matchingPages =
+      await this.aggregateVisualSearchResults(imageDownloadUrl);
     const matchingPagesData = matchingPages.map((match) => ({
       artworkId: artwork.id,
       ...match,
@@ -330,7 +329,7 @@ export class ReportsService {
         state === "completed" && typeof job.returnvalue === "string"
           ? job.returnvalue
           : null,
-      error: state === "failed" ? job.failedReason ?? "Scan failed." : null
+      error: state === "failed" ? (job.failedReason ?? "Scan failed.") : null
     };
   }
 
@@ -422,11 +421,11 @@ export class ReportsService {
     const cacheable = !reportId && range === "all";
 
     if (cacheable) {
-      const cached = await this.cacheManager.get<ArtworksReportGlobalStatistics>(
-        REPORT_STATS_KEY(userId, range)
-      );
-      if (cached)
-        return cached;
+      const cached =
+        await this.cacheManager.get<ArtworksReportGlobalStatistics>(
+          REPORT_STATS_KEY(userId, range)
+        );
+      if (cached) return cached;
     }
 
     const [categoryDistribution, timeline] = await Promise.all([
@@ -487,7 +486,9 @@ export class ReportsService {
   ): Promise<CategoryDistributionItem[]> {
     const grouped = await this.prisma.matchingPage.groupBy({
       by: ["category"],
-      where: { reports: { some: this.buildReportFilter(userId, reportId, range) } },
+      where: {
+        reports: { some: this.buildReportFilter(userId, reportId, range) }
+      },
       _count: { _all: true }
     });
 

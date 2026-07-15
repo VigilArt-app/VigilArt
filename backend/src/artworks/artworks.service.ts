@@ -1,9 +1,12 @@
 import {
   BadRequestException,
+  Inject,
   Injectable,
   Logger,
   NotFoundException
 } from "@nestjs/common";
+import { CACHE_MANAGER } from "@nestjs/cache-manager";
+import type { Cache } from "cache-manager";
 import { PrismaService } from "../prisma/prisma.service";
 import {
   Artwork,
@@ -15,10 +18,14 @@ import {
   PaginatedResult
 } from "@vigilart/shared";
 import { assertResourceOwnership } from "../common/utils/ownership";
+import { REPORT_STATS_KEY } from "../reports/reports.constants";
 
 @Injectable()
 export class ArtworksService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
+  ) {}
 
   private readonly logger = new Logger(ArtworksService.name);
 
@@ -143,11 +150,12 @@ export class ArtworksService {
         id
       }
     });
+    await this.invalidateStatsCache(userId);
   }
 
   async removeMany(userId: string, ids: string[]): Promise<ApiBatchPayload> {
     this.logger.log(`Removing artworks ${ids.join(",")} for user ${userId}`);
-    return this.prisma.artwork.deleteMany({
+    const result = await this.prisma.artwork.deleteMany({
       where: {
         id: {
           in: ids
@@ -155,5 +163,15 @@ export class ArtworksService {
         userId
       }
     });
+    await this.invalidateStatsCache(userId);
+    return result;
+  }
+
+  // A report is a per-user scan run, so deleting artworks cascade-removes their
+  // MatchingPages (changing a user's match counts) without touching the reports.
+  // The scan runs are intentionally kept as history — including zero-match scans
+  // — so we only invalidate the cached statistics to keep the counts accurate.
+  private async invalidateStatsCache(userId: string): Promise<void> {
+    await this.cacheManager.del(REPORT_STATS_KEY(userId));
   }
 }

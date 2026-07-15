@@ -9,6 +9,7 @@ import { StorageModule } from "../storage/storage.module";
 import { MatchingPagesService } from "./matchingPage.service";
 import { PrismaModule } from "../prisma/prisma.module";
 import { GoogleLensModule } from "../googlelens/googlelens.module";
+import { SerpApiLensModule } from "../serpapilens/serpapilens.module";
 import { ReportsProcessor } from "./reports.processor";
 import { ReportsScheduler } from "./reports.scheduler";
 import { REPORTS_QUEUE } from "./reports.constants";
@@ -21,6 +22,7 @@ import { NotificationsModule } from "../notifications/notifications.module";
     ArtworksModule,
     StorageModule,
     GoogleLensModule,
+    SerpApiLensModule,
     NotificationsModule,
     BullModule.registerQueueAsync({
       name: REPORTS_QUEUE,
