@@ -1,16 +1,22 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { usePathname } from "next/navigation";
-import { SidebarProvider, SidebarTrigger } from "../components/ui/sidebar";
-import { AppSidebar } from "../components/app-sidebar";
 import { ThemeProvider } from "../components/theme-provider";
-import { ThemeToggle } from "../components/toggle-theme";
-import { LanguageToggle } from "../components/ui/languageToggle";
-import I18nProvider from "./i18n/I18nProvider";
 import { Toaster } from "sonner";
-import { AuthProvider } from "../components/contexts/authContext";
-import { SessionRefreshGate } from "../components/auth/session-refresh-gate";
-import { NotificationsProvider } from "../components/contexts/notificationsContext";
+
+// Split out of the shared bundle rather than imported directly: the shell pulls
+// in Firebase and i18next (85 kB gzipped between them), and the landing page is
+// the one route anonymous visitors reach. Server rendering is left on, so the
+// signed-in app still arrives as HTML.
+const AppShell = dynamic(() =>
+  import("./app-shell").then((module) => module.AppShell)
+);
+
+// Dynamic for the same reason: AppShell already pulls i18next in behind its own
+// split, so importing it statically here would put it back in every route's
+// shared bundle, including routes that never translate anything.
+const I18nProvider = dynamic(() => import("./i18n/I18nProvider"));
 
 type LayoutClientProps = Readonly<{
   children: React.ReactNode;
@@ -24,53 +30,25 @@ export function LayoutClient({
   hasRefreshToken,
 }: LayoutClientProps) {
   const pathname = usePathname();
-  const noSidebarRoutes = ["/login", "/sign-up"];
-  const showSidebar = !noSidebarRoutes.includes(pathname || "");
-  const shouldRefreshSession = showSidebar && !hasAuthToken && hasRefreshToken;
-  const sidebarShell = (
-    <SidebarProvider>
-      <AppSidebar />
-      <main className="w-full min-h-screen overflow-x-hidden">
-        <SidebarTrigger className="fixed top-4 left-4 z-50" />
-        <div className="fixed top-4 right-4 flex justify-evenly space-x-4 z-50">
-          <ThemeToggle />
-          <LanguageToggle />
-        </div>
-        {children}
-      </main>
-    </SidebarProvider>
-  );
+  // The landing page carries its own header, and its copy is rendered on the
+  // server so search engines see it. It skips the sidebar, the auth context
+  // (which calls /auth/me and bounces anonymous visitors to /login) and the
+  // floating toggles, which would sit on top of its own header.
+  const isLanding = pathname === "/";
 
   return (
-    <I18nProvider>
-      <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-        <Toaster position="top-right" richColors />
-        {showSidebar ? (
-          shouldRefreshSession ? (
-            <SessionRefreshGate enabled>
-              <AuthProvider>
-                <NotificationsProvider>
-                  {sidebarShell}
-                </NotificationsProvider>
-              </AuthProvider>
-            </SessionRefreshGate>
-          ) : (
-            <AuthProvider>
-              <NotificationsProvider>
-                {sidebarShell}
-              </NotificationsProvider>
-            </AuthProvider>
-          )
-        ) : (
-          <main className="w-full min-h-screen overflow-x-hidden">
-            <div className="fixed top-4 right-4 flex justify-evenly space-x-4 z-50">
-              <ThemeToggle />
-              <LanguageToggle />
-            </div>
-            {children}
-          </main>
-        )}
-      </ThemeProvider>
-    </I18nProvider>
+    <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+      <Toaster position="top-right" richColors />
+      {isLanding ? (
+        // The landing needs i18next for the shared dropzone, the category
+        // legend and the language toggle, but not the dashboard-shaped
+        // placeholder its provider paints by default.
+        <I18nProvider fallback={null}>{children}</I18nProvider>
+      ) : (
+        <AppShell hasAuthToken={hasAuthToken} hasRefreshToken={hasRefreshToken}>
+          {children}
+        </AppShell>
+      )}
+    </ThemeProvider>
   );
 }

@@ -160,7 +160,7 @@ export function useNotifications() {
         if (payload.notification) {
           new Notification(payload.notification.title ?? "VigilArt", {
             body: payload.notification.body,
-            icon: "/vigilart_w.png",
+            icon: "/VigilArt_logo_white.png",
           });
         }
       });

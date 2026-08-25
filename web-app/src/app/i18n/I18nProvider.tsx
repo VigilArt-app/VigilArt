@@ -1,7 +1,6 @@
 'use client';
 
 import { Skeleton } from "../../components/ui/skeleton";
-import { ThemeProvider } from "next-themes";
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import { useEffect, useState } from 'react';
@@ -9,7 +8,7 @@ import { getCookie, setCookie } from '../cookies';
 import i18next from 'i18next';
 import enTranslations from '../../../public/locales/en/translation.json';
 import frTranslations from '../../../public/locales/fr/translation.json';
-import { Toaster, toast } from "sonner";
+import { toast } from "sonner";
 
 function SkeletonLoader() {
 
@@ -39,7 +38,15 @@ function SkeletonLoader() {
   );
 }
 
-function I18nProvider({ children }: { children: React.ReactNode }) {
+function I18nProvider({
+  children,
+  fallback,
+}: {
+  children: React.ReactNode;
+  // The default placeholder is dashboard-shaped. Routes that look nothing like
+  // the dashboard (the landing page) pass their own, or null.
+  fallback?: React.ReactNode;
+}) {
   const [isInitialized, setIsInitialized] = useState(false);
   const [hasInitError, setHasInitError] = useState(false);
 
@@ -96,12 +103,7 @@ function I18nProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   if (!isInitialized) {
-    return (
-      <ThemeProvider attribute="class" defaultTheme="system" enableSystem >
-        <Toaster position="top-right" richColors />
-        <SkeletonLoader />
-      </ThemeProvider>
-    );
+    return fallback !== undefined ? <>{fallback}</> : <SkeletonLoader />;
   }
 
   return <>{children}</>;
