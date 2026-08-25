@@ -3,13 +3,11 @@ import { BullModule } from "@nestjs/bullmq";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { ReportsController } from "./reports.controller";
 import { ReportsService } from "./reports.service";
-import { VisionModule } from "../vision/vision.module";
 import { ArtworksModule } from "../artworks/artworks.module";
 import { StorageModule } from "../storage/storage.module";
 import { MatchingPagesService } from "./matchingPage.service";
 import { PrismaModule } from "../prisma/prisma.module";
-import { GoogleLensModule } from "../googlelens/googlelens.module";
-import { SerpApiLensModule } from "../serpapilens/serpapilens.module";
+import { VisualSearchModule } from "../visualsearch/visualsearch.module";
 import { ReportsProcessor } from "./reports.processor";
 import { ReportsScheduler } from "./reports.scheduler";
 import { REPORTS_QUEUE } from "./reports.constants";
@@ -18,11 +16,9 @@ import { NotificationsModule } from "../notifications/notifications.module";
 @Module({
   imports: [
     PrismaModule,
-    VisionModule,
     ArtworksModule,
     StorageModule,
-    GoogleLensModule,
-    SerpApiLensModule,
+    VisualSearchModule,
     NotificationsModule,
     BullModule.registerQueueAsync({
       name: REPORTS_QUEUE,

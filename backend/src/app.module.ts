@@ -13,6 +13,8 @@ import { ConfigModule, ConfigService } from "@nestjs/config";
 import { ScheduleModule } from "@nestjs/schedule";
 import { BullModule } from "@nestjs/bullmq";
 import { CacheModule } from "@nestjs/cache-manager";
+import { ThrottlerModule } from "@nestjs/throttler";
+import { ThrottlerStorageRedisService } from "@nest-lab/throttler-storage-redis";
 import { createKeyv } from "@keyv/redis";
 import { AuthModule } from "./auth/auth.module";
 import { VisionModule } from "./vision/vision.module";
@@ -26,6 +28,17 @@ import { DmcaNoticeModule } from "./dmca/notice/notice.module";
 import { GoogleLensModule } from "./googlelens/googlelens.module";
 import { SerpApiLensModule } from "./serpapilens/serpapilens.module";
 import { NotificationsModule } from "./notifications/notifications.module";
+import { VisualSearchModule } from "./visualsearch/visualsearch.module";
+import { TurnstileModule } from "./turnstile/turnstile.module";
+import { PublicScanModule } from "./public-scan/public-scan.module";
+import {
+  PUBLIC_SCAN_THROTTLER,
+  PUBLIC_SCAN_TTL_MS,
+  PUBLIC_SCAN_LIMIT,
+  PUBLIC_POLL_THROTTLER,
+  PUBLIC_POLL_TTL_MS,
+  PUBLIC_POLL_LIMIT
+} from "./common/throttler.constants";
 
 @Module({
   imports: [
@@ -41,6 +54,31 @@ import { NotificationsModule } from "./notifications/notifications.module";
         connection: {
           url: config.getOrThrow<string>("REDIS_URL")
         }
+      })
+    }),
+    // Registered without an APP_GUARD on purpose: applied per route via
+    // PublicThrottlerGuard. A global guard would also throttle the dashboard's
+    // own 2-second scan polling. Counters live in Redis so they survive a
+    // restart and are shared across containers.
+    ThrottlerModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        throttlers: [
+          {
+            name: PUBLIC_SCAN_THROTTLER,
+            ttl: PUBLIC_SCAN_TTL_MS,
+            limit: PUBLIC_SCAN_LIMIT
+          },
+          {
+            name: PUBLIC_POLL_THROTTLER,
+            ttl: PUBLIC_POLL_TTL_MS,
+            limit: PUBLIC_POLL_LIMIT
+          }
+        ],
+        storage: new ThrottlerStorageRedisService(
+          config.getOrThrow<string>("REDIS_URL")
+        )
       })
     }),
     CacheModule.registerAsync({
@@ -64,7 +102,10 @@ import { NotificationsModule } from "./notifications/notifications.module";
     DmcaNoticeModule,
     GoogleLensModule,
     SerpApiLensModule,
-    NotificationsModule
+    NotificationsModule,
+    VisualSearchModule,
+    TurnstileModule,
+    PublicScanModule
   ],
   controllers: [AppController],
   providers: [

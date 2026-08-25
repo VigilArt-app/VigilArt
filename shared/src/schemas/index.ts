@@ -14,3 +14,5 @@ export * from "./Dmca/Platform";
 export * from "./Dmca/Profile";
 
 export * from "./Notifications";
+
+export * from "./PublicScan";

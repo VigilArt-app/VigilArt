@@ -11,9 +11,7 @@ import {
   ReportsService,
   TIMELINE_MAX_POINTS
 } from "./reports.service";
-import { VisionService } from "../vision/vision.service";
-import { GoogleLensService } from "../googlelens/googlelens.service";
-import { SerpApiLensService } from "../serpapilens/serpapilens.service";
+import { VisualSearchService } from "../visualsearch/visual-search.service";
 import { ArtworksService } from "../artworks/artworks.service";
 import { StorageService } from "../storage/storage.service";
 import { MatchingPagesService } from "./matchingPage.service";
@@ -22,8 +20,7 @@ import { MAX_SCANS_PER_WINDOW, REPORTS_QUEUE } from "./reports.constants";
 
 describe("ReportsService", () => {
   let service: ReportsService;
-  let visionService: { searchImage: jest.Mock };
-  let serpApiLensService: { searchImage: jest.Mock };
+  let visualSearchService: { aggregate: jest.Mock };
   let artworksService: { findAllPerUser: jest.Mock };
   let storageService: { getImage: jest.Mock; getDownloadUrl: jest.Mock };
   let matchingPagesService: { createMany: jest.Mock };
@@ -44,9 +41,7 @@ describe("ReportsService", () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         ReportsService,
-        { provide: VisionService, useValue: { searchImage: jest.fn() } },
-        { provide: GoogleLensService, useValue: { searchImage: jest.fn() } },
-        { provide: SerpApiLensService, useValue: { searchImage: jest.fn() } },
+        { provide: VisualSearchService, useValue: { aggregate: jest.fn() } },
         { provide: ArtworksService, useValue: { findAllPerUser: jest.fn() } },
         {
           provide: StorageService,
@@ -78,8 +73,7 @@ describe("ReportsService", () => {
     }).compile();
 
     service = module.get(ReportsService);
-    visionService = module.get(VisionService);
-    serpApiLensService = module.get(SerpApiLensService);
+    visualSearchService = module.get(VisualSearchService);
     artworksService = module.get(ArtworksService);
     storageService = module.get(StorageService);
     matchingPagesService = module.get(MatchingPagesService);
@@ -94,58 +88,6 @@ describe("ReportsService", () => {
 
   it("Should be defined", () => {
     expect(service).toBeDefined();
-  });
-
-  describe("aggregateVisualSearchResults", () => {
-    it("Should return Google Lens matches", async () => {
-      serpApiLensService.searchImage.mockResolvedValue({
-        matchingPages: [{ url: "https://b.example" }]
-      });
-
-      const res = await service.aggregateVisualSearchResults(
-        "https://download.example"
-      );
-
-      expect(res).toEqual([{ url: "https://b.example" }]);
-    });
-
-    it("Should return the surviving provider's matches when one provider fails", async () => {
-      visionService.searchImage.mockRejectedValue(new Error("vision down"));
-      serpApiLensService.searchImage.mockResolvedValue({
-        matchingPages: [{ url: "https://b.example" }]
-      });
-
-      const res = await service.aggregateVisualSearchResults(
-        // Buffer.from(""),
-        "https://download.example"
-      );
-
-      expect(res).toEqual([{ url: "https://b.example" }]);
-    });
-
-    it("Should return an empty array for a genuine zero-match scan", async () => {
-      visionService.searchImage.mockResolvedValue(null);
-      serpApiLensService.searchImage.mockResolvedValue({ matchingPages: [] });
-
-      const res = await service.aggregateVisualSearchResults(
-        // Buffer.from(""),
-        "https://download.example"
-      );
-
-      expect(res).toEqual([]);
-    });
-
-    it("Should throw when all providers fail", async () => {
-      visionService.searchImage.mockRejectedValue(new Error("vision down"));
-      serpApiLensService.searchImage.mockRejectedValue(new Error("lens down"));
-
-      await expect(
-        service.aggregateVisualSearchResults(
-          // Buffer.from(""),
-          "https://download.example"
-        )
-      ).rejects.toBeInstanceOf(ServiceUnavailableException);
-    });
   });
 
   describe("checkScanQuota", () => {
@@ -185,8 +127,7 @@ describe("ReportsService", () => {
       ]);
       storageService.getImage.mockResolvedValue(Buffer.from(""));
       storageService.getDownloadUrl.mockResolvedValue("https://dl.example");
-      visionService.searchImage.mockResolvedValue({ matchingPages: [] });
-      serpApiLensService.searchImage.mockResolvedValue({ matchingPages: [] });
+      visualSearchService.aggregate.mockResolvedValue([]);
       matchingPagesService.createMany.mockResolvedValue({ matchingPages: [] });
       prisma.artworksReport.create.mockResolvedValue({ id: "report-1" });
       prisma.artwork.updateMany.mockResolvedValue({ count: 2 });
@@ -220,10 +161,10 @@ describe("ReportsService", () => {
     it("Should still complete the scan when one artwork's search fails", async () => {
       mockScanSuccess();
       // Two artworks; the first one's Lens call fails, the second succeeds.
-      serpApiLensService.searchImage
+      visualSearchService.aggregate
         .mockReset()
         .mockRejectedValueOnce(new Error("lens timeout"))
-        .mockResolvedValueOnce({ matchingPages: [] });
+        .mockResolvedValueOnce([]);
 
       const report = await service.generate("user-id");
 
@@ -232,7 +173,7 @@ describe("ReportsService", () => {
 
     it("Should fail the scan (no report) when every artwork's search fails", async () => {
       mockScanSuccess();
-      serpApiLensService.searchImage
+      visualSearchService.aggregate
         .mockReset()
         .mockRejectedValue(new Error("lens timeout"));
 
@@ -248,12 +189,10 @@ describe("ReportsService", () => {
         { id: "a1", storageKey: "k1" }
       ]);
       const base = "https://x.com/ayaka_s/status/1777995868702171417";
-      serpApiLensService.searchImage.mockReset().mockResolvedValue({
-        matchingPages: [
-          { url: `${base}?lang=es`, category: "SOCIAL" },
-          { url: base, category: "SOCIAL" }
-        ]
-      });
+      visualSearchService.aggregate.mockReset().mockResolvedValue([
+        { url: `${base}?lang=es`, category: "SOCIAL" },
+        { url: base, category: "SOCIAL" }
+      ]);
 
       await service.generate("user-id");
 

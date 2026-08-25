@@ -3,7 +3,9 @@
   "compilerOptions": {
     "outDir": "dist",
     "rootDir": "src",
-    "types": ["node"]
+    // multer only augments the global Express namespace; without it here,
+    // Express.Multer.File does not resolve in the public-scan upload route.
+    "types": ["node", "multer"]
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "test", "dist", "**/*spec.ts"]
