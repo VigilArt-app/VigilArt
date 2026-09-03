@@ -4,8 +4,8 @@ import Redis from "ioredis";
 import {
   PUBLIC_SCAN_BUDGET_KEY,
   DEFAULT_PUBLIC_SCAN_DAILY_BUDGET
-} from "./public-scan.constants";
-import { PUBLIC_SCAN_REDIS } from "./public-scan.redis";
+} from "../public-scan.constants";
+import { PUBLIC_SCAN_REDIS } from "../public-scan.redis";
 
 const DAY_SECONDS = 24 * 60 * 60;
 

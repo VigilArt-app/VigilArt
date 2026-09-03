@@ -5,8 +5,8 @@ import {
   HttpException,
   HttpStatus
 } from "@nestjs/common";
-import { PublicScanBudgetService } from "./public-scan-budget.service";
-import type { ReservedRequest } from "./public-scan-reservation.interceptor";
+import { PublicScanBudgetService } from "../services/public-scan-budget.service";
+import type { ReservedRequest } from "../interceptors/public-scan-reservation.interceptor";
 
 // Claims one scan from the day's budget before the request is allowed through.
 // Runs after the bot check and the per-visitor limit, so a rejected request

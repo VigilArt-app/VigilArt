@@ -10,6 +10,8 @@ import { FileDropzone, type DroppedFile } from "../../upload/FileDropzone";
 import { usePublicScan, type ScanErrorKind } from "../../../hooks/usePublicScan";
 import { ScanSweep } from "./scan-sweep";
 import { Turnstile } from "./turnstile";
+import { isPublicScanDisabled } from "./scan-availability";
+import { TURNSTILE_SITE_KEY } from "../../../config";
 import type { PublicScanResult } from "@vigilart/shared";
 import type { LandingStrings } from "../../../app/landing/locale";
 
@@ -230,7 +232,12 @@ export function ScanPanel({ strings }: { strings: LandingStrings }) {
 
       <Button
         className="mt-4 w-full shrink-0"
-        disabled={!picked || busy}
+        disabled={isPublicScanDisabled({
+          hasFile: Boolean(picked),
+          busy,
+          turnstileRequired: TURNSTILE_SITE_KEY !== null,
+          turnstileToken
+        })}
         onClick={onScan}
       >
         {u.scan_button}

@@ -1,7 +1,7 @@
 import { CallHandler, ExecutionContext } from "@nestjs/common";
 import { of, throwError, firstValueFrom } from "rxjs";
 import { PublicScanReservationInterceptor } from "./public-scan-reservation.interceptor";
-import { PublicScanBudgetService } from "./public-scan-budget.service";
+import { PublicScanBudgetService } from "../services/public-scan-budget.service";
 
 describe("PublicScanReservationInterceptor", () => {
   let budget: { release: jest.Mock };

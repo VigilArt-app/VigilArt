@@ -11,7 +11,7 @@ import {
 import { VisualSearchService } from "../visualsearch/visual-search.service";
 import { StorageService } from "../storage/storage.service";
 import { normalizeMatchUrl } from "../common/utils/website-class";
-import type { PublicScanJobData } from "./public-scan.service";
+import type { PublicScanJobData } from "./services/public-scan.service";
 import {
   PUBLIC_SCAN_QUEUE,
   PUBLIC_SCAN_JOB,

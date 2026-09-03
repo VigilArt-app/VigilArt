@@ -2,7 +2,7 @@
 
 import Script from "next/script";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { TURNSTILE_SITE_KEY } from "../../../lib/api-base-url";
+import { TURNSTILE_SITE_KEY } from "../../../config";
 
 interface TurnstileApi {
   render: (

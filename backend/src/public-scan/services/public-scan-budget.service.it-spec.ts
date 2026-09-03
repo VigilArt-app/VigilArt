@@ -1,7 +1,7 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { ConfigService } from "@nestjs/config";
 import { PublicScanBudgetService } from "./public-scan-budget.service";
-import { PUBLIC_SCAN_REDIS } from "./public-scan.redis";
+import { PUBLIC_SCAN_REDIS } from "../public-scan.redis";
 
 describe("PublicScanBudgetService", () => {
   let service: PublicScanBudgetService;

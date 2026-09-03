@@ -14,8 +14,7 @@ import { SkipThrottle } from "@nestjs/throttler";
 import {
   PublicScanAllowanceDTO,
   PublicScanEnqueuedDTO,
-  PublicScanStatusDTO,
-  API_PREFIX
+  PublicScanStatusDTO
 } from "@vigilart/shared";
 import { ApiEndpoint } from "../common/decorators/api-endpoint.decorator";
 import { PublicThrottlerGuard } from "../common/guards/public-throttler.guard";
@@ -24,9 +23,9 @@ import {
   PUBLIC_SCAN_THROTTLER,
   PUBLIC_POLL_THROTTLER
 } from "../common/throttler.constants";
-import { PublicScanBudgetGuard } from "./public-scan-budget.guard";
-import { PublicScanReservationInterceptor } from "./public-scan-reservation.interceptor";
-import { PublicScanService } from "./public-scan.service";
+import { PublicScanBudgetGuard } from "./guards/public-scan-budget.guard";
+import { PublicScanReservationInterceptor } from "./interceptors/public-scan-reservation.interceptor";
+import { PublicScanService } from "./services/public-scan.service";
 import { PUBLIC_SCAN_MAX_FILE_BYTES } from "./public-scan.constants";
 
 @ApiTags("public-scan")
@@ -63,6 +62,8 @@ export class PublicScanController {
     errors: [
       HttpStatus.BAD_REQUEST,
       HttpStatus.FORBIDDEN,
+      HttpStatus.PAYLOAD_TOO_LARGE,
+      HttpStatus.TOO_MANY_REQUESTS,
       HttpStatus.INTERNAL_SERVER_ERROR
     ]
   })

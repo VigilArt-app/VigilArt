@@ -14,11 +14,11 @@ import {
   PublicScanState,
   PublicScanStatus
 } from "@vigilart/shared";
-import { StorageService } from "../storage/storage.service";
+import { StorageService } from "../../storage/storage.service";
 import {
   sniffImageType,
   extensionForImageType
-} from "../common/utils/image-magic-bytes";
+} from "../../common/utils/image-magic-bytes";
 import { PublicScanBudgetService } from "./public-scan-budget.service";
 import {
   PUBLIC_SCAN_QUEUE,
@@ -26,7 +26,7 @@ import {
   PUBLIC_SCAN_MAX_FILE_BYTES,
   PUBLIC_SCAN_RESULT_TTL_SECONDS,
   PUBLIC_SCAN_STORAGE_PREFIX
-} from "./public-scan.constants";
+} from "../public-scan.constants";
 
 export interface PublicScanJobData {
   storageKey: string;

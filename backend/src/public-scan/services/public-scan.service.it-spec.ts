@@ -7,12 +7,12 @@ import {
 import { getQueueToken } from "@nestjs/bullmq";
 import { PublicScanService } from "./public-scan.service";
 import { PublicScanBudgetService } from "./public-scan-budget.service";
-import { StorageService } from "../storage/storage.service";
+import { StorageService } from "../../storage/storage.service";
 import {
   PUBLIC_SCAN_QUEUE,
   PUBLIC_SCAN_MAX_FILE_BYTES,
   PUBLIC_SCAN_STORAGE_PREFIX
-} from "./public-scan.constants";
+} from "../public-scan.constants";
 
 const PNG_HEADER = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
 

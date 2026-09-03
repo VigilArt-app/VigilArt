@@ -6,7 +6,7 @@ import {
 } from "@nestjs/common";
 import { Observable, catchError, tap, throwError } from "rxjs";
 import { Request } from "express";
-import { PublicScanBudgetService } from "./public-scan-budget.service";
+import { PublicScanBudgetService } from "../services/public-scan-budget.service";
 
 export interface ReservedRequest extends Request {
   publicScanReserved?: boolean;

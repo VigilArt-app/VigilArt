@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { PublicScanResult, PublicScanStatus } from "@vigilart/shared";
-import { API_BASE_URL } from "../lib/api-base-url";
+import { API_BASE_URL } from "../config";
 
 const POLL_INTERVAL_MS = 2000;
 // The Google Lens call can take 120 seconds; this leaves room for a queue wait

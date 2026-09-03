@@ -2,7 +2,8 @@
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import { getMessaging, getToken, onMessage, type Messaging } from "firebase/messaging";
-import { config, firebaseApp } from "../config";
+import { config } from "../config";
+import { firebaseApp } from "../lib/firebase";
 import { authenticatedFetch } from "../utils/auth/authenticatedFetch";
 import { toast } from "sonner";
 
