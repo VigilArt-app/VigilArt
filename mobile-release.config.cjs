@@ -8,7 +8,7 @@ module.exports = {
     [
       './scripts/semantic-release-mobile-filter.cjs',
       {
-        preset: 'conventionalcommits',
+        preset: 'angular',
         releaseRules: [
           { type: 'feat', release: 'minor' },
           { type: 'fix', release: 'patch' },
