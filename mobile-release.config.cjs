@@ -1,7 +1,6 @@
 module.exports = {
   branches: [
-    'main',
-    'feat/release-mobile-app'
+    'main'
   ],
   tagFormat: 'mobile-v${version}',
   plugins: [
@@ -34,6 +33,7 @@ module.exports = {
             label: 'VigilArt Android APK'
           }
         ],
+        releaseNameTemplate: 'Mobile App - v<%= nextRelease.version %>',
         successComment: false,
         failComment: false,
         addReleases: false
