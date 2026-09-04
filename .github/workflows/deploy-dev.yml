@@ -4,17 +4,21 @@ on:
   push:
     branches:
       - dev
+      - feat/release-mobile-app
     paths:
       - 'backend/**'
       - 'web-app/**'
       - 'shared/**'
       - 'mobile-app/**'
+      - 'scripts/**'
+      - 'mobile-release.config.cjs'
       - 'package.json'
       - 'pnpm-lock.yaml'
       - 'pnpm-workspace.yaml'
       - 'docker-compose.prod.yml'
       - '.github/workflows/deploy-dev.yml'
       - '.github/workflows/ci.yml'
+  workflow_dispatch:
 
 permissions:
   packages: write
@@ -48,6 +52,8 @@ jobs:
               - 'shared/**'
             mobile:
               - 'mobile-app/**'
+              - 'scripts/**'
+              - 'mobile-release.config.cjs'
 
   build-backend:
     name: 📦 Build & Push Backend
@@ -171,7 +177,7 @@ jobs:
       github.repository != 'EpitechPGE45-2025/G-EIP-700-PAR-7-1-eip-39' &&
       always() &&
       needs.run-ci.result == 'success' &&
-      needs.check-changes.outputs.mobile == 'true'
+      (needs.check-changes.outputs.mobile == 'true' || github.event_name == 'workflow_dispatch')
     environment:
       name: Development
 
@@ -227,7 +233,7 @@ jobs:
         run: |
           TAG="mobile-dev-latest"
           TITLE="Mobile App - Dev (Latest)"
-          NOTES="Continuous development build of the VigilArt mobile application for the \`dev\` branch.
+          NOTES="Continuous development build of the VigilArt mobile application for \`${{ github.ref_name }}\`.
 
           - **Commit:** \`${{ github.sha }}\`
           - **Run:** #${{ github.run_number }}
@@ -237,10 +243,10 @@ jobs:
           # Delete existing release and tag so the tag points to the current HEAD cleanly
           gh release delete "$TAG" --cleanup-tag -y || true
 
-          # Create fresh rolling pre-release with the new APK
+          # Create fresh rolling pre-release with the new APK pointing to the exact built commit
           gh release create "$TAG" "$APK_PATH" \
             --title "$TITLE" \
             --notes "$NOTES" \
             --prerelease \
-            --target dev
+            --target "${{ github.sha }}"
 

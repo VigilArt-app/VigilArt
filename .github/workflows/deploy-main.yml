@@ -4,21 +4,26 @@ on:
   push:
     branches:
       - main
+      - feat/release-mobile-app
     paths:
       - 'backend/**'
       - 'web-app/**'
       - 'shared/**'
       - 'mobile-app/**'
+      - 'scripts/**'
+      - 'mobile-release.config.cjs'
       - 'package.json'
       - 'pnpm-lock.yaml'
       - 'pnpm-workspace.yaml'
       - 'docker-compose.prod.yml'
       - '.github/workflows/deploy-main.yml'
       - '.github/workflows/ci.yml'
+  workflow_dispatch:
 
 permissions:
   packages: write
   contents: write
+  issues: write
 
 jobs:
   run-ci:
@@ -50,6 +55,8 @@ jobs:
               - 'shared/**'
             mobile:
               - 'mobile-app/**'
+              - 'scripts/**'
+              - 'mobile-release.config.cjs'
 
   build-backend:
     name: 📦 Build & Push Backend
@@ -178,7 +185,7 @@ jobs:
       github.repository != 'EpitechPGE45-2025/G-EIP-700-PAR-7-1-eip-39' &&
       always() &&
       needs.run-ci.result == 'success' &&
-      needs.check-changes.outputs.mobile == 'true'
+      (needs.check-changes.outputs.mobile == 'true' || github.event_name == 'workflow_dispatch')
     environment:
       name: Production
 

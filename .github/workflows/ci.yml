@@ -11,6 +11,8 @@ on:
       - 'web-app/**'
       - 'shared/**'
       - 'mobile-app/**'
+      - 'scripts/**'
+      - 'mobile-release.config.cjs'
       - 'package.json'
       - 'pnpm-lock.yaml'
       - 'pnpm-workspace.yaml'
@@ -49,6 +51,8 @@ jobs:
               - 'web-app/**'
             mobile:
               - 'mobile-app/**'
+              - 'scripts/**'
+              - 'mobile-release.config.cjs'
             shared:
               - 'shared/**'
               - 'package.json'

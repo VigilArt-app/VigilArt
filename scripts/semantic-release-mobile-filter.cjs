@@ -5,7 +5,7 @@ const releaseNotesGenerator = require('@semantic-release/release-notes-generator
 function getMobileCommitHashes(fromHash) {
   const range = fromHash ? `${fromHash}..HEAD` : 'HEAD';
   try {
-    const stdout = execSync(`git log ${range} --format="%H" -- mobile-app`, {
+    const stdout = execSync(`git log ${range} --format="%H" -- mobile-app scripts mobile-release.config.cjs`, {
       encoding: 'utf8',
       stdio: ['pipe', 'pipe', 'ignore']
     });

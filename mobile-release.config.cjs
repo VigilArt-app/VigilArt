@@ -1,6 +1,7 @@
 module.exports = {
   branches: [
-    'main'
+    'main',
+    'feat/release-mobile-app'
   ],
   tagFormat: 'mobile-v${version}',
   plugins: [
@@ -32,7 +33,10 @@ module.exports = {
             path: 'mobile-app/build/app/outputs/flutter-apk/vigilart-*.apk',
             label: 'VigilArt Android APK'
           }
-        ]
+        ],
+        successComment: false,
+        failComment: false,
+        addReleases: false
       }
     ]
   ]

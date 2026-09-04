@@ -33,5 +33,13 @@ if (!fs.existsSync(defaultApk)) {
   process.exit(1);
 }
 
+// Clean up any existing vigilart-*.apk to avoid duplicate/stale assets
+if (fs.existsSync(apkDir)) {
+  const existingApks = fs.readdirSync(apkDir).filter(f => f.startsWith('vigilart-') && f.endsWith('.apk'));
+  for (const f of existingApks) {
+    fs.unlinkSync(path.join(apkDir, f));
+  }
+}
+
 fs.copyFileSync(defaultApk, targetApk);
 console.log(`[build-mobile-apk] Successfully created APK asset: ${targetApk}`);
