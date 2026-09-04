@@ -222,8 +222,12 @@ jobs:
         run: |
           mkdir -p mobile-app/android/app
           echo "API_BASE_URL=${API_BASE_URL}" > mobile-app/.env
-          echo "${GOOGLE_SERVICES_JSON_B64}" | base64 -d > mobile-app/android/app/google-services.json
-          echo "${KEYSTORE_B64}" | base64 -d > /tmp/release.keystore
+          if [ -n "${GOOGLE_SERVICES_JSON_B64}" ]; then
+            echo "${GOOGLE_SERVICES_JSON_B64}" | base64 -d > mobile-app/android/app/google-services.json
+          fi
+          if [ -n "${KEYSTORE_B64}" ]; then
+            echo "${KEYSTORE_B64}" | base64 -d > /tmp/release.keystore
+          fi
 
       - name: Install Flutter dependencies
         run: |
