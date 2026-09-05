@@ -10,7 +10,6 @@ import { PublicScanProcessor } from "./public-scan.processor";
 import { PublicScanBudgetService } from "./services/public-scan-budget.service";
 import { PublicScanBudgetGuard } from "./guards/public-scan-budget.guard";
 import { PublicScanReservationInterceptor } from "./interceptors/public-scan-reservation.interceptor";
-import { publicScanRedisProvider } from "./public-scan.redis";
 import { PUBLIC_SCAN_QUEUE } from "./public-scan.constants";
 
 @Module({
@@ -31,7 +30,6 @@ import { PUBLIC_SCAN_QUEUE } from "./public-scan.constants";
   ],
   controllers: [PublicScanController],
   providers: [
-    publicScanRedisProvider,
     PublicScanService,
     PublicScanProcessor,
     PublicScanBudgetService,

@@ -1,11 +1,10 @@
-import { Inject, Injectable, Logger, OnModuleInit } from "@nestjs/common";
+import { Injectable, Logger, OnModuleInit } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
-import Redis from "ioredis";
+import { RedisService } from "../../redis/redis.service";
 import {
   PUBLIC_SCAN_BUDGET_KEY,
   DEFAULT_PUBLIC_SCAN_DAILY_BUDGET
 } from "../public-scan.constants";
-import { PUBLIC_SCAN_REDIS } from "../public-scan.redis";
 
 const DAY_SECONDS = 24 * 60 * 60;
 
@@ -18,7 +17,7 @@ export class PublicScanBudgetService implements OnModuleInit {
   private readonly enforced: boolean;
 
   constructor(
-    @Inject(PUBLIC_SCAN_REDIS) private readonly redis: Redis,
+    private readonly redis: RedisService,
     config: ConfigService
   ) {
     const configured = Number(config.get<string>("PUBLIC_SCAN_DAILY_BUDGET"));

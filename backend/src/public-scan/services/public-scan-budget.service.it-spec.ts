@@ -1,7 +1,7 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { ConfigService } from "@nestjs/config";
 import { PublicScanBudgetService } from "./public-scan-budget.service";
-import { PUBLIC_SCAN_REDIS } from "../public-scan.redis";
+import { RedisService } from "../../redis/redis.service";
 
 describe("PublicScanBudgetService", () => {
   let service: PublicScanBudgetService;
@@ -22,7 +22,7 @@ describe("PublicScanBudgetService", () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         PublicScanBudgetService,
-        { provide: PUBLIC_SCAN_REDIS, useValue: redis },
+        { provide: RedisService, useValue: redis },
         {
           provide: ConfigService,
           useValue: {

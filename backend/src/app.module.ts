@@ -16,6 +16,8 @@ import { CacheModule } from "@nestjs/cache-manager";
 import { ThrottlerModule } from "@nestjs/throttler";
 import { ThrottlerStorageRedisService } from "@nest-lab/throttler-storage-redis";
 import { createKeyv } from "@keyv/redis";
+import { RedisModule } from "./redis/redis.module";
+import { RedisService } from "./redis/redis.service";
 import { AuthModule } from "./auth/auth.module";
 import { VisionModule } from "./vision/vision.module";
 import { ArtworksModule } from "./artworks/artworks.module";
@@ -61,9 +63,9 @@ import {
     // own 2-second scan polling. Counters live in Redis so they survive a
     // restart and are shared across containers.
     ThrottlerModule.forRootAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: (config: ConfigService) => ({
+      imports: [RedisModule],
+      inject: [RedisService],
+      useFactory: (redis: RedisService) => ({
         throttlers: [
           {
             name: PUBLIC_SCAN_THROTTLER,
@@ -76,9 +78,7 @@ import {
             limit: PUBLIC_POLL_LIMIT
           }
         ],
-        storage: new ThrottlerStorageRedisService(
-          config.getOrThrow<string>("REDIS_URL")
-        )
+        storage: new ThrottlerStorageRedisService(redis)
       })
     }),
     CacheModule.registerAsync({
@@ -90,6 +90,7 @@ import {
         ttl: 1 * 60 * 60 * 1000
       })
     }),
+    RedisModule,
     UsersModule,
     AuthModule,
     VisionModule,
