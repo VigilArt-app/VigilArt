@@ -30,13 +30,28 @@ android {
     signingConfigs {
         create("release") {
             val keystorePath = System.getenv("KEYSTORE_PATH")
-            if (keystorePath != null && file(keystorePath).exists()) {
-                storeFile = file(keystorePath)
-                storePassword = System.getenv("KEYSTORE_PASSWORD")
-                keyAlias = System.getenv("KEY_ALIAS") ?: "upload"
-                keyPassword = System.getenv("KEYSTORE_PASSWORD")
+            val keystorePassword = System.getenv("KEYSTORE_PASSWORD")
+            val keyAliasEnv = System.getenv("KEY_ALIAS") ?: "upload"
+            val isCi = System.getenv("CI") == "true" || System.getenv("GITHUB_ACTIONS") == "true"
+
+            if (!keystorePath.isNullOrBlank()) {
+                val keystoreFile = file(keystorePath)
+                if (!keystoreFile.exists()) {
+                    throw GradleException("Release keystore file not found at: $keystorePath")
+                }
+                if (keystorePassword.isNullOrBlank()) {
+                    throw GradleException("KEYSTORE_PASSWORD environment variable is required when KEYSTORE_PATH is set.")
+                }
+                storeFile = keystoreFile
+                storePassword = keystorePassword
+                keyAlias = keyAliasEnv
+                keyPassword = keystorePassword
+            } else if (isCi) {
+                // In CI, never allow silent fallback to debug signing for release builds
+                throw GradleException("Missing KEYSTORE_PATH in CI environment. Release APK builds in CI must be signed with the release keystore.")
             } else {
-                // Fallback to debug keystore when KEYSTORE_PATH is not provided (e.g. local dev)
+                // Local development fallback: sign with debug key for convenience
+                logger.warn("[signing] KEYSTORE_PATH not provided. Using debug keystore for local release build.")
                 initWith(getByName("debug"))
             }
         }
