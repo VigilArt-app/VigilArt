@@ -7,10 +7,14 @@ function getMobileCommitHashes(fromHash) {
   try {
     const stdout = execSync(`git log ${range} --format="%H" -- mobile-app scripts mobile-release.config.cjs`, {
       encoding: 'utf8',
-      stdio: ['pipe', 'pipe', 'ignore']
+      stdio: 'pipe'
     });
     return new Set(stdout.trim().split('\n').map(h => h.trim()).filter(Boolean));
-  } catch {
+  } catch (error) {
+    const stderr = error.stderr ? error.stderr.toString().trim() : '';
+    console.warn(
+      `[mobile-release] Warning: Failed to retrieve git commit hashes for range "${range}": ${stderr || error.message}`
+    );
     return new Set();
   }
 }

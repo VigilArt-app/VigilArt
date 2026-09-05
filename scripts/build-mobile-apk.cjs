@@ -1,4 +1,4 @@
-const { execSync } = require('child_process');
+const { execFileSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
@@ -10,8 +10,13 @@ if (!version) {
   process.exit(1);
 }
 
+if (!/^[0-9A-Za-z.\-+]+$/.test(version)) {
+  console.error(`Error: Invalid version format: "${version}"`);
+  process.exit(1);
+}
+
 const isDev = channel === 'dev' || version.includes('-dev');
-const runNumber = process.env.GITHUB_RUN_NUMBER || '1';
+const runNumber = /^[0-9]+$/.test(process.env.GITHUB_RUN_NUMBER || '') ? process.env.GITHUB_RUN_NUMBER : '1';
 const apkTargetName = isDev ? `vigilart-dev-v${version}.apk` : `vigilart-v${version}.apk`;
 
 console.log(
@@ -19,10 +24,10 @@ console.log(
 );
 
 const mobileAppDir = path.resolve(__dirname, '..', 'mobile-app');
-const cmd = `flutter build apk --release --build-name=${version} --build-number=${runNumber}`;
+const flutterArgs = ['build', 'apk', '--release', `--build-name=${version}`, `--build-number=${runNumber}`];
 
-console.log(`[build-mobile-apk] Executing: ${cmd}`);
-execSync(cmd, { cwd: mobileAppDir, stdio: 'inherit' });
+console.log(`[build-mobile-apk] Executing: flutter ${flutterArgs.join(' ')}`);
+execFileSync('flutter', flutterArgs, { cwd: mobileAppDir, stdio: 'inherit' });
 
 const apkDir = path.join(mobileAppDir, 'build', 'app', 'outputs', 'flutter-apk');
 const defaultApk = path.join(apkDir, 'app-release.apk');
