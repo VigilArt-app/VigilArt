@@ -22,7 +22,6 @@ on:
 permissions:
   packages: write
   contents: write
-  issues: write
 
 jobs:
   run-ci:
