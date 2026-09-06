@@ -4,9 +4,6 @@ import 'package:vigilart/pages/dashboard/statistics/models/statistics_model.dart
 import 'auth.dart';
 
 extension StatisticsApi on ApiService {
-  /// Global statistics for the dashboard: total matches + per-category
-  /// distribution (scoped by [range]) and the per-report timeline (all reports,
-  /// capped backend-side to the 30 most recent).
   Future<GlobalStatistics> fetchGlobalStatistics(
     String userId,
     StatisticsRange range,
@@ -21,8 +18,6 @@ extension StatisticsApi on ApiService {
     return GlobalStatistics.fromJson(Map<String, dynamic>.from(data as Map));
   }
 
-  /// Distinct matches in one website category, scoped by [range] — backs the
-  /// category drill-down opened from a pie slice. Returns raw matching-page maps.
   Future<List<Map<String, dynamic>>> fetchMatchesByCategory(
     String userId,
     String category,
@@ -37,8 +32,6 @@ extension StatisticsApi on ApiService {
     return _extractMatches(res);
   }
 
-  /// The matches found in a single report — backs the drill-down opened from a
-  /// monthly-comparison bar. Returns raw matching-page maps.
   Future<List<Map<String, dynamic>>> fetchMatchesByReport(String reportId) async {
     final res = await authenticatedRequest(
       (headers) => http.get(
