@@ -29,7 +29,7 @@ class _ArtworkDetailsSheetState extends State<ArtworkDetailsSheet> {
   @override
   Widget build(BuildContext context) {
     final List<dynamic> matches = widget.artwork['matchingPages'] ?? [];
-    final List<String> categories = presentCategories(matches);
+    presentCategories(matches);
     final List<Map<String, dynamic>> visibleMatches =
         filterAndSortMatches(matches, _category);
 
@@ -154,34 +154,6 @@ class _ArtworkDetailsSheetState extends State<ArtworkDetailsSheet> {
                   ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildCategoryFilter(List<String> categories) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12),
-      decoration: BoxDecoration(
-        color: Colors.grey[50],
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: Colors.grey[200]!),
-      ),
-      child: DropdownButtonHideUnderline(
-        child: DropdownButton<String>(
-          value: _category,
-          isDense: true,
-          borderRadius: BorderRadius.circular(12),
-          style: const TextStyle(fontSize: 13, color: Colors.black87, fontWeight: FontWeight.w600),
-          items: [
-            const DropdownMenuItem(value: kAllCategories, child: Text('All categories')),
-            ...categories.map(
-              (c) => DropdownMenuItem(value: c, child: Text(categoryLabel(c))),
-            ),
-          ],
-          onChanged: (value) {
-            if (value != null) setState(() => _category = value);
-          },
-        ),
       ),
     );
   }

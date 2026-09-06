@@ -3,9 +3,6 @@ import 'package:flutter/material.dart';
 import '../categories.dart';
 import 'models/statistics_model.dart';
 
-/// Per-category distribution donut. Renders one slice per non-empty category in
-/// the canonical order; tapping a slice (or a legend row) drills into that
-/// category's matches. Mirrors the web `StatisticsPanel` pie + legend.
 class CategoryPieChart extends StatelessWidget {
   final List<CategoryDistributionItem> distribution;
   final int totalMatches;

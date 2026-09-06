@@ -1,14 +1,7 @@
-// Real statistics models, mirroring the backend
-// `ArtworksReportGlobalStatistics` shape (see shared `schemas/Reports`).
-// Replaces the previous mock `UserStatistics`/`ChartPoint`/`SourceData`.
-
-/// Time window for the totals/distribution. Mirrors the shared
-/// `StatisticsRangeSchema` (`"all" | "month"`).
 enum StatisticsRange {
   all,
   month;
 
-  /// The wire value sent as the `range` query param.
   String get value => name;
 }
 

@@ -22,13 +22,13 @@ class _DragDropUploadZoneState extends State<DragDropUploadZone> {
 
   Future<void> _pickFiles() async {
     try {
-      FilePickerResult? result = await FilePicker.pickFiles(
+      final List<PlatformFile> files = await FilePicker.pickFiles(
         type: FileType.image,
       );
 
-      if (result != null) {
+      if (files.isNotEmpty) {
         List<String> filePaths =
-            result.files.map((file) => file.path ?? '').toList();
+            files.map((file) => file.path ?? '').toList();
         widget.onFilesSelected(filePaths);
       }
     } catch (e) {
