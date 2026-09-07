@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import { usePathname } from "next/navigation";
 import { ThemeProvider } from "../components/theme-provider";
 import { Toaster } from "sonner";
+import { PUBLIC_SHELL_ROUTES } from "./public-routes";
 
 // Split out of the shared bundle rather than imported directly: the shell pulls
 // in Firebase and i18next (85 kB gzipped between them), and the landing page is
@@ -24,25 +25,22 @@ type LayoutClientProps = Readonly<{
   hasRefreshToken: boolean;
 }>;
 
-export function LayoutClient({
+export const LayoutClient = ({
   children,
   hasAuthToken,
   hasRefreshToken,
-}: LayoutClientProps) {
+}: LayoutClientProps): React.JSX.Element => {
   const pathname = usePathname();
-  // The landing page carries its own header, and its copy is rendered on the
-  // server so search engines see it. It skips the sidebar, the auth context
-  // (which calls /auth/me and bounces anonymous visitors to /login) and the
-  // floating toggles, which would sit on top of its own header.
-  const isLanding = pathname === "/";
+  // Public-shell pages carry their own header and footer. They skip the auth
+  // context, which calls /auth/me and redirects anonymous visitors to /login.
+  const isPublicShell = PUBLIC_SHELL_ROUTES.includes(pathname);
 
   return (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
       <Toaster position="top-right" richColors />
-      {isLanding ? (
-        // The landing needs i18next for the shared dropzone, the category
-        // legend and the language toggle, but not the dashboard-shaped
-        // placeholder its provider paints by default.
+      {isPublicShell ? (
+        // Public pages need i18next for their language toggle, but not the
+        // dashboard-shaped placeholder the provider paints by default.
         <I18nProvider fallback={null}>{children}</I18nProvider>
       ) : (
         <AppShell hasAuthToken={hasAuthToken} hasRefreshToken={hasRefreshToken}>
@@ -51,4 +49,4 @@ export function LayoutClient({
       )}
     </ThemeProvider>
   );
-}
+};

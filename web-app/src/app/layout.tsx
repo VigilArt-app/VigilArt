@@ -7,15 +7,7 @@ import { getLandingLocale } from "./landing/locale";
 
 export const metadata: Metadata = {
   icons: {
-    icon: [
-      { url: "/icon.png" },
-      // A black mark disappears against a dark browser tab, so hand the white
-      // one to browsers that report a dark theme.
-      {
-        url: "/VigilArt_logo_white.png",
-        media: "(prefers-color-scheme: dark)"
-      }
-    ],
+    icon: "/VigilArt_logo_white.png",
     apple: "/apple-icon.png"
   }
 };

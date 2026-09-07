@@ -1,6 +1,7 @@
 import { NextResponse, NextRequest } from 'next/server';
+import { getRouteRedirect } from './app/public-routes';
 
-export async function middleware(req: NextRequest) {
+export const middleware = async (req: NextRequest): Promise<NextResponse> => {
   const { pathname, origin } = req.nextUrl;
 
   if (
@@ -13,22 +14,17 @@ export async function middleware(req: NextRequest) {
 
   const token = req.cookies.get('auth_token')?.value;
   const refreshToken = req.cookies.get('refresh_token')?.value;
-  // '/' is the public landing page. Logged-in visitors are sent on to the
-  // dashboard by the rule below, so it never competes with the app.
-  const unprotectedRoutes = ['/', '/login', '/sign-up'];
-  const hasAuthToken = !!token;
-  const hasRefreshToken = !!refreshToken;
+  const redirect = getRouteRedirect(pathname, {
+    hasAuthToken: !!token,
+    hasRefreshToken: !!refreshToken,
+  });
 
-  if (!hasAuthToken && !hasRefreshToken && !unprotectedRoutes.includes(pathname)) {
-    return NextResponse.redirect(new URL('/login', origin));
-  }
-
-  if (hasAuthToken && unprotectedRoutes.includes(pathname)) {
-    return NextResponse.redirect(new URL('/dashboard', origin));
+  if (redirect) {
+    return NextResponse.redirect(new URL(redirect, origin));
   }
 
   return NextResponse.next();
-}
+};
 
 export const config = {
   matcher: ['/:path*'],
