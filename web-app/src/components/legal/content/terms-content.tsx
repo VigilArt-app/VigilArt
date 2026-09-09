@@ -4,46 +4,64 @@ const ENGLISH_TERMS = (
   <>
     <h1>Terms of Service</h1>
     <p>
-      <strong>Last updated: September 3, 2026</strong>
+      <strong>Last updated: September 9, 2026</strong>
     </p>
 
     <h2>1. About VigilArt</h2>
-    <p>VigilArt is a student project developed as part of Epitech&apos;s EIP program.</p>
     <p>
-      The service allows artists to upload their artwork and search for potential
-      matches found online.
+      VigilArt is a student project developed as part of Epitech&apos;s EIP
+      program.
     </p>
-    <p>By creating an account or using VigilArt, you agree to these Terms.</p>
+    <p>
+      The service allows artists to upload their artwork and search for
+      potential matches found online.
+    </p>
+    <p>
+      VigilArt is currently available as a public beta. By creating an account
+      or using VigilArt, you agree to these Terms.
+    </p>
 
     <h2>2. Eligibility and Accounts</h2>
-    <p>
-      You must be at least <strong>18 years old</strong> to use VigilArt.
-    </p>
+    <p>You must be at least 18 years old to use VigilArt.</p>
     <p>
       You are responsible for providing accurate account information and keeping
       your login credentials secure.
     </p>
     <p>You may delete your account at any time.</p>
+    <p>
+      At present, account deletion removes the account and most associated
+      records from VigilArt&apos;s main database. DMCA notice records are
+      retained without a link to the deleted account, and uploaded artwork files
+      or profile images are not automatically removed from object storage. See
+      the Privacy Policy for details.
+    </p>
 
     <h2>3. Your Artwork</h2>
     <p>You retain ownership of artwork you upload to VigilArt.</p>
-    <p>You must own the artwork or have the necessary rights to use it.</p>
     <p>
-      By uploading artwork, you allow VigilArt to store and process it only as
+      You must own the artwork or have the necessary rights or permission to
+      upload and process it through VigilArt.
+    </p>
+    <p>
+      By uploading artwork, you grant VigilArt a limited, non-exclusive
+      permission to store, reproduce, transmit, and process it solely as
       necessary to provide the service.
     </p>
     <p>VigilArt does not use your artwork to train AI models.</p>
 
     <h2>4. Search Results</h2>
     <p>
-      VigilArt uses third-party services to search for images that may match your
-      artwork.
+      VigilArt uses third-party service SerpApi&apos;s Google Lens API to search
+      for images that may match your artwork.
     </p>
     <p>
       Search results may contain false positives. A match does not automatically
       mean that copyright infringement has occurred.
     </p>
-    <p>VigilArt does not guarantee that every repost or unauthorized use will be found.</p>
+    <p>
+      VigilArt does not guarantee that every repost or unauthorized use will be
+      found.
+    </p>
 
     <h2>5. Copyright and DMCA Tools</h2>
     <p>VigilArt may:</p>
@@ -59,8 +77,8 @@ const ENGLISH_TERMS = (
       </li>
     </ul>
     <p>
-      You are responsible for reviewing the information before submitting a report
-      and for ensuring that your claim is accurate and legitimate.
+      You are responsible for reviewing the information before submitting a
+      report and for ensuring that your claim is accurate and legitimate.
     </p>
     <p>
       VigilArt does not provide legal advice and cannot guarantee that reported
@@ -69,8 +87,8 @@ const ENGLISH_TERMS = (
 
     <h2>6. External Websites</h2>
     <p>
-      Search results may lead to third-party websites containing NSFW, unsafe, or
-      otherwise inappropriate content.
+      Search results may lead to third-party websites containing NSFW, unsafe,
+      or otherwise inappropriate content.
     </p>
     <p>
       VigilArt may display a warning before you access these websites, but we do
@@ -82,6 +100,10 @@ const ENGLISH_TERMS = (
     <p>You may not:</p>
     <ul>
       <li>upload artwork you do not have the right to use;</li>
+      <li>
+        upload NSFW, sexually explicit, pornographic, or otherwise adult-only
+        artwork;
+      </li>
       <li>knowingly make false or abusive copyright claims;</li>
       <li>interfere with or attempt to compromise the service;</li>
       <li>attempt unauthorized access to VigilArt or its systems; or</li>
@@ -89,14 +111,22 @@ const ENGLISH_TERMS = (
     </ul>
     <p>We may restrict or terminate access where these Terms are violated.</p>
 
-    <h2>8. Service Availability</h2>
-    <p>VigilArt is currently provided free of charge as a student project.</p>
+    <h2>8. Public Beta and Service Availability</h2>
+    <p>
+      VigilArt is currently provided free of charge as a public beta student
+      project.
+    </p>
+    <p>
+      During the public beta, usage limits may apply and access to the service
+      or specific features may be limited, suspended, or temporarily unavailable
+      while VigilArt is being tested and improved.
+    </p>
     <p>Features may change, become unavailable, or be discontinued.</p>
     <p>
       To the extent permitted by law, VigilArt is not responsible for losses
-      resulting from inaccurate search results, unavailable third-party services,
-      decisions made by third-party platforms, or content hosted on external
-      websites.
+      resulting from inaccurate search results, unavailable third-party
+      services, decisions made by third-party platforms, or content hosted on
+      external websites.
     </p>
 
     <h2>9. Changes</h2>
@@ -117,57 +147,72 @@ const FRENCH_TERMS = (
   <>
     <h1>Conditions d’utilisation</h1>
     <p>
-      <strong>Dernière mise à jour : 3 septembre 2026</strong>
+      <strong>Dernière mise à jour : 9 septembre 2026</strong>
     </p>
 
     <h2>1. À propos de VigilArt</h2>
-    <p>VigilArt est un projet étudiant développé dans le cadre du programme EIP d’Epitech.</p>
     <p>
-      Le service permet aux artistes d’importer leurs œuvres et de rechercher des
-      correspondances potentielles trouvées en ligne.
+      VigilArt est un projet étudiant développé dans le cadre du programme EIP
+      d’Epitech.
     </p>
     <p>
-      En créant un compte ou en utilisant VigilArt, vous acceptez les présentes
+      Le service permet aux artistes d’importer leurs œuvres et de rechercher
+      des correspondances potentielles trouvées en ligne.
+    </p>
+    <p>
+      VigilArt est actuellement disponible sous la forme d’une bêta publique. En
+      créant un compte ou en utilisant VigilArt, vous acceptez les présentes
       Conditions.
     </p>
 
     <h2>2. Conditions d’accès et comptes</h2>
-    <p>
-      Vous devez avoir au moins <strong>18 ans</strong> pour utiliser VigilArt.
-    </p>
+    <p>Vous devez avoir au moins 18 ans pour utiliser VigilArt.</p>
     <p>
       Vous êtes responsable de l’exactitude des informations fournies lors de la
-      création de votre compte et de la sécurité de vos identifiants de connexion.
+      création de votre compte et de la sécurité de vos identifiants de
+      connexion.
     </p>
     <p>Vous pouvez supprimer votre compte à tout moment.</p>
+    <p>
+      À l’heure actuelle, la suppression du compte efface le compte et la
+      plupart des enregistrements associés de la base de données principale de
+      VigilArt. Les notifications DMCA sont conservées sans lien avec le compte
+      supprimé, et les fichiers d’œuvres ou images de profil ne sont pas
+      automatiquement supprimés du stockage d’objets. Consultez la Politique de
+      confidentialité pour plus de détails.
+    </p>
 
     <h2>3. Vos œuvres</h2>
-    <p>Vous conservez tous les droits sur les œuvres que vous importez sur VigilArt.</p>
+    <p>
+      Vous conservez vos droits sur les œuvres que vous importez sur VigilArt.
+    </p>
     <p>
       Vous devez être propriétaire des œuvres importées ou disposer des droits
-      nécessaires pour les utiliser.
+      ou autorisations nécessaires pour les importer et les traiter via
+      VigilArt.
     </p>
     <p>
-      En important une œuvre, vous autorisez VigilArt à la stocker et à la traiter
-      uniquement dans la mesure nécessaire à la fourniture du service.
+      En important une œuvre, vous accordez à VigilArt une autorisation limitée
+      et non exclusive de la stocker, la reproduire, la transmettre et la
+      traiter uniquement dans la mesure nécessaire à la fourniture du service.
     </p>
     <p>
-      VigilArt n’utilise pas vos œuvres pour entraîner des modèles d’intelligence
-      artificielle.
+      VigilArt n’utilise pas vos œuvres pour entraîner des modèles
+      d’intelligence artificielle.
     </p>
 
     <h2>4. Résultats de recherche</h2>
     <p>
-      VigilArt utilise des services tiers pour rechercher des images susceptibles
-      de correspondre à vos œuvres.
+      VigilArt utilise des services tiers pour rechercher des images
+      susceptibles de correspondre à vos œuvres.
     </p>
     <p>
       Les résultats peuvent contenir des faux positifs. Une correspondance ne
       signifie pas automatiquement qu’une violation du droit d’auteur a eu lieu.
     </p>
     <p>
-      VigilArt ne garantit pas que chaque republication ou utilisation non autorisée
-      sera détectée.
+      VigilArt ne garantit pas que chaque republication ou utilisation non
+      autorisée sera détectée.
     </p>
 
     <h2>5. Outils de signalement et DMCA</h2>
@@ -179,8 +224,8 @@ const FRENCH_TERMS = (
       </li>
       <li>générer ce document sous forme de PDF ou d’e-mail ; et</li>
       <li>
-        vous rediriger vers le formulaire de signalement approprié fourni par une
-        plateforme tierce.
+        vous rediriger vers le formulaire de signalement approprié fourni par
+        une plateforme tierce.
       </li>
     </ul>
     <p>
@@ -189,8 +234,8 @@ const FRENCH_TERMS = (
       légitime.
     </p>
     <p>
-      VigilArt ne fournit pas de conseil juridique et ne garantit pas que le contenu
-      signalé sera supprimé.
+      VigilArt ne fournit pas de conseil juridique et ne garantit pas que le
+      contenu signalé sera supprimé.
     </p>
 
     <h2>6. Sites externes</h2>
@@ -199,8 +244,9 @@ const FRENCH_TERMS = (
       contenu NSFW, dangereux ou autrement inapproprié.
     </p>
     <p>
-      VigilArt peut afficher un avertissement avant l’ouverture de ces sites, mais
-      nous ne contrôlons ni leur contenu, ni leur disponibilité, ni leur sécurité.
+      VigilArt peut afficher un avertissement avant l’ouverture de ces sites,
+      mais nous ne contrôlons ni leur contenu, ni leur disponibilité, ni leur
+      sécurité.
     </p>
     <p>Vous accédez aux sites externes sous votre propre responsabilité.</p>
 
@@ -209,11 +255,19 @@ const FRENCH_TERMS = (
     <ul>
       <li>importer une œuvre que vous n’avez pas le droit d’utiliser ;</li>
       <li>
-        effectuer sciemment de faux signalements ou des signalements abusifs liés
-        au droit d’auteur ;
+        importer des œuvres NSFW, sexuellement explicites, pornographiques ou
+        autrement réservées à un public adulte ;
       </li>
-      <li>perturber ou tenter de compromettre le fonctionnement du service ;</li>
-      <li>tenter d’accéder sans autorisation à VigilArt ou à ses systèmes ; ou</li>
+      <li>
+        effectuer sciemment de faux signalements ou des signalements abusifs
+        liés au droit d’auteur ;
+      </li>
+      <li>
+        perturber ou tenter de compromettre le fonctionnement du service ;
+      </li>
+      <li>
+        tenter d’accéder sans autorisation à VigilArt ou à ses systèmes ; ou
+      </li>
       <li>utiliser VigilArt à des fins illégales.</li>
     </ul>
     <p>
@@ -221,10 +275,16 @@ const FRENCH_TERMS = (
       violation des présentes Conditions.
     </p>
 
-    <h2>8. Disponibilité du service</h2>
+    <h2>8. Bêta publique et disponibilité du service</h2>
     <p>
-      VigilArt est actuellement proposé gratuitement dans le cadre d’un projet
-      étudiant.
+      VigilArt est actuellement proposé gratuitement sous la forme d’une bêta
+      publique dans le cadre d’un projet étudiant.
+    </p>
+    <p>
+      Pendant la bêta publique, des limites d’utilisation peuvent s’appliquer et
+      l’accès au service ou à certaines fonctionnalités peut être limité,
+      suspendu ou temporairement indisponible pendant les phases de test et
+      d’amélioration de VigilArt.
     </p>
     <p>
       Certaines fonctionnalités peuvent être modifiées, devenir indisponibles ou
@@ -232,13 +292,16 @@ const FRENCH_TERMS = (
     </p>
     <p>
       Dans les limites autorisées par la loi, VigilArt n’est pas responsable des
-      pertes résultant de résultats de recherche inexacts, de l’indisponibilité de
-      services tiers, de décisions prises par des plateformes tierces ou de
+      pertes résultant de résultats de recherche inexacts, de l’indisponibilité
+      de services tiers, de décisions prises par des plateformes tierces ou de
       contenus hébergés sur des sites externes.
     </p>
 
     <h2>9. Modifications</h2>
-    <p>Nous pouvons mettre à jour les présentes Conditions à mesure que VigilArt évolue.</p>
+    <p>
+      Nous pouvons mettre à jour les présentes Conditions à mesure que VigilArt
+      évolue.
+    </p>
     <p>La version en vigueur sera mise à disposition via le service.</p>
 
     <h2>10. Contact</h2>
@@ -251,9 +314,8 @@ const FRENCH_TERMS = (
   </>
 );
 
-export const TERMS_CONTENT: Readonly<
-  Record<LandingLocale, React.JSX.Element>
-> = {
-  en: ENGLISH_TERMS,
-  fr: FRENCH_TERMS,
-};
+export const TERMS_CONTENT: Readonly<Record<LandingLocale, React.JSX.Element>> =
+  {
+    en: ENGLISH_TERMS,
+    fr: FRENCH_TERMS
+  };
