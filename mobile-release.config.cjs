@@ -1,7 +1,6 @@
 module.exports = {
   branches: [
-    'main',
-    'feat/release-mobile-app'
+    'main'
   ],
   tagFormat: 'mobile-v${version}',
   plugins: [
