@@ -19,6 +19,10 @@ on:
       - '.github/workflows/ci.yml'
   workflow_dispatch:
 
+concurrency:
+  group: deploy-prod
+  cancel-in-progress: false
+
 permissions:
   packages: write
   contents: write
