@@ -1,11 +1,11 @@
-const { execSync } = require('child_process');
+const { execFileSync } = require('child_process');
 const commitAnalyzer = require('@semantic-release/commit-analyzer');
 const releaseNotesGenerator = require('@semantic-release/release-notes-generator');
 
 function getMobileCommitHashes(fromHash) {
   const range = fromHash ? `${fromHash}..HEAD` : 'HEAD';
   try {
-    const stdout = execSync(`git log ${range} --format="%H" -- mobile-app scripts mobile-release.config.cjs`, {
+    const stdout = execFileSync('git', ['log', range, '--format=%H', '--', 'mobile-app', 'scripts', 'mobile-release.config.cjs'], {
       encoding: 'utf8',
       stdio: 'pipe'
     });
