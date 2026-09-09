@@ -32,8 +32,9 @@ Before running any commands, you must prepare your phone to allow installations 
    ```
 3. Launch the app on your connected phone:
    ```bash
-   flutter run
+   flutter run --flavor dev
    ```
+   *(Or `flutter run --flavor prod` for production configuration)*
 
 ---
 
@@ -41,10 +42,14 @@ Before running any commands, you must prepare your phone to allow installations 
 
 1. Build the Release APK
 ```bash
-flutter build apk --release
+# For Development flavor (applicationId: app.vigilart.dev)
+flutter build apk --release --flavor dev
+
+# For Production flavor (applicationId: app.vigilart)
+flutter build apk --release --flavor prod
 ```
 Once completed, the generated file will be located at:
-📁 build/app/outputs/flutter-apk/app-release.apk
+📁 `build/app/outputs/flutter-apk/app-dev-release.apk` (or `app-prod-release.apk`)
 
 2. Install it on your device
 

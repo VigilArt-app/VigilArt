@@ -5,6 +5,10 @@ on:
     branches:
       - main
 
+concurrency:
+  group: mirror-epitech
+  cancel-in-progress: false
+
 jobs:
   mirror:
     if: github.repository != 'EpitechPGE45-2025/G-EIP-700-PAR-7-1-eip-39'
