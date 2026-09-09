@@ -246,14 +246,34 @@ jobs:
           - **Run:** #${{ github.run_number }}
           - **Triggered by:** ${{ github.actor }}"
           APK_PATH="mobile-app/build/app/outputs/flutter-apk/vigilart-dev.apk"
+          TARGET_ASSET_NAME="vigilart-dev.apk"
+          STAGED_ASSET_NAME="vigilart-dev-incoming.apk"
 
-          # Delete existing release and tag so the tag points to the current HEAD cleanly
-          gh release delete "$TAG" --cleanup-tag -y || true
+          if ! gh release view "$TAG" >/dev/null 2>&1; then
+            gh release create "$TAG" "$APK_PATH" \
+              --title "$TITLE" \
+              --notes "$NOTES" \
+              --prerelease \
+              --target "${{ github.sha }}"
+            gh release view "$TAG" --json assets --jq ".assets[] | select(.name==\"${TARGET_ASSET_NAME}\") | .name" | grep -Fqx "${TARGET_ASSET_NAME}"
+          else
+            if gh release view "$TAG" --json assets --jq ".assets[] | select(.name==\"${STAGED_ASSET_NAME}\") | .name" | grep -Fqx "${STAGED_ASSET_NAME}"; then
+              gh release delete-asset "$TAG" "${STAGED_ASSET_NAME}" -y
+            fi
+            STAGED_APK="mobile-app/build/app/outputs/flutter-apk/${STAGED_ASSET_NAME}"
+            cp "$APK_PATH" "$STAGED_APK"
+            gh release upload "$TAG" "$STAGED_APK"
+            gh release view "$TAG" --json assets --jq ".assets[] | select(.name==\"${STAGED_ASSET_NAME}\") | .name" | grep -Fqx "${STAGED_ASSET_NAME}"
 
-          # Create fresh rolling pre-release with the new APK pointing to the exact built commit
-          gh release create "$TAG" "$APK_PATH" \
-            --title "$TITLE" \
-            --notes "$NOTES" \
-            --prerelease \
-            --target "${{ github.sha }}"
+            if gh release view "$TAG" --json assets --jq ".assets[] | select(.name==\"${TARGET_ASSET_NAME}\") | .name" | grep -Fqx "${TARGET_ASSET_NAME}"; then
+              gh release delete-asset "$TAG" "${TARGET_ASSET_NAME}" -y
+            fi
 
+            STAGED_ASSET_ID=$(gh api "repos/${GITHUB_REPOSITORY}/releases/tags/${TAG}" --jq ".assets[] | select(.name==\"${STAGED_ASSET_NAME}\") | .id")
+            gh api -X PATCH "repos/${GITHUB_REPOSITORY}/releases/assets/${STAGED_ASSET_ID}" -f name="${TARGET_ASSET_NAME}"
+
+            gh release view "$TAG" --json assets --jq ".assets[] | select(.name==\"${TARGET_ASSET_NAME}\") | .name" | grep -Fqx "${TARGET_ASSET_NAME}"
+
+            gh release edit "$TAG" --title "$TITLE" --notes "$NOTES" --target "${{ github.sha }}"
+            gh api -X PATCH "repos/${GITHUB_REPOSITORY}/git/refs/tags/${TAG}" -f sha="${{ github.sha }}" -F force=true
+          fi
