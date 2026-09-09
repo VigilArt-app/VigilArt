@@ -27,6 +27,19 @@ android {
         versionName = flutter.versionName
     }
 
+    flavorDimensions += listOf("default")
+    productFlavors {
+        create("dev") {
+            dimension = "default"
+            applicationIdSuffix = ".dev"
+            resValue("string", "app_name", "VigilArt Dev")
+        }
+        create("prod") {
+            dimension = "default"
+            resValue("string", "app_name", "VigilArt")
+        }
+    }
+
     signingConfigs {
         create("release") {
             val keystorePath = System.getenv("KEYSTORE_PATH")
