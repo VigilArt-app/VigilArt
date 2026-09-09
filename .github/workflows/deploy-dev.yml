@@ -25,7 +25,7 @@ concurrency:
 
 permissions:
   packages: write
-  contents: write
+  contents: read
 
 jobs:
   run-ci:
@@ -176,6 +176,8 @@ jobs:
     name: 📱 Release Mobile App (dev)
     runs-on: ubuntu-latest
     needs: [run-ci, check-changes]
+    permissions:
+      contents: write
     if: |
       github.repository != 'EpitechPGE45-2025/G-EIP-700-PAR-7-1-eip-39' &&
       always() &&
