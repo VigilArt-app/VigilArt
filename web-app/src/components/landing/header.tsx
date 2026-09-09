@@ -33,9 +33,9 @@ export function LandingHeader({ strings }: { strings: LandingStrings }) {
         <nav className="flex items-center gap-1 sm:gap-2">
           <LanguageToggle />
           <ThemeToggle />
-          {/* Hidden on the narrowest phones: at 320px the two labels plus the
-              toggles push the nav past the viewport. Sign-up links to log in. */}
-          <Button asChild variant="ghost" size="sm" className="max-[359px]:hidden">
+          {/* French authentication labels collapse the logo below 480px, so
+              the secondary action yields that space to the brand and sign-up. */}
+          <Button asChild variant="ghost" size="sm" className="max-[479px]:hidden">
             <Link href="/login">{strings.nav.log_in}</Link>
           </Button>
           <Button asChild size="sm">

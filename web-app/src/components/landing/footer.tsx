@@ -25,7 +25,7 @@ export const LandingFooter = ({
           className="hidden h-7 w-auto dark:block"
         />
         <nav
-          aria-label={`${strings.footer.privacy}, ${strings.footer.terms}`}
+          aria-label={`${strings.footer.privacy}, ${strings.footer.terms}, ${strings.footer.faq}`}
           className="flex items-center gap-6 text-sm text-muted-foreground"
         >
           <Link href="/privacy" className="transition-colors hover:text-foreground">
@@ -33,6 +33,9 @@ export const LandingFooter = ({
           </Link>
           <Link href="/terms" className="transition-colors hover:text-foreground">
             {strings.footer.terms}
+          </Link>
+          <Link href="/faq" className="transition-colors hover:text-foreground">
+            {strings.footer.faq}
           </Link>
         </nav>
       </div>

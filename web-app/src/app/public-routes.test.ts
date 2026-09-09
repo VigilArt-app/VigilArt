@@ -7,23 +7,26 @@ const {
   PUBLIC_SHELL_ROUTES,
 } = (await import(publicRoutesUrl.href)) as typeof import("./public-routes");
 
-test("anonymous visitors can read both legal pages", () => {
+test("anonymous visitors can read public information pages", () => {
   const anonymous = { hasAuthToken: false, hasRefreshToken: false };
 
   assert.equal(getRouteRedirect("/terms", anonymous), null);
   assert.equal(getRouteRedirect("/privacy", anonymous), null);
+  assert.equal(getRouteRedirect("/faq", anonymous), null);
 });
 
-test("signed-in visitors can read both legal pages", () => {
+test("signed-in visitors can read public information pages", () => {
   const signedIn = { hasAuthToken: true, hasRefreshToken: true };
 
   assert.equal(getRouteRedirect("/terms", signedIn), null);
   assert.equal(getRouteRedirect("/privacy", signedIn), null);
+  assert.equal(getRouteRedirect("/faq", signedIn), null);
 });
 
-test("legal pages use the public shell while app pages keep the app shell", () => {
+test("public information pages use the public shell while app pages keep the app shell", () => {
   assert.equal(PUBLIC_SHELL_ROUTES.includes("/terms"), true);
   assert.equal(PUBLIC_SHELL_ROUTES.includes("/privacy"), true);
+  assert.equal(PUBLIC_SHELL_ROUTES.includes("/faq"), true);
   assert.equal(PUBLIC_SHELL_ROUTES.includes("/dashboard"), false);
 });
 

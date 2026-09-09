@@ -4,6 +4,7 @@ export const ANONYMOUS_ROUTES: readonly string[] = [
   "/sign-up",
   "/terms",
   "/privacy",
+  "/faq",
 ];
 
 export const SIGNED_IN_REDIRECT_ROUTES: readonly string[] = [
@@ -16,6 +17,7 @@ export const PUBLIC_SHELL_ROUTES: readonly string[] = [
   "/",
   "/terms",
   "/privacy",
+  "/faq",
 ];
 
 export type RouteSession = Readonly<{
