@@ -28,6 +28,30 @@ console.log(
 
 const mobileAppDir = path.resolve(__dirname, '..', 'mobile-app');
 
+// Ensure google-services.json has a client matching the flavor's applicationId
+const googleServicesPath = path.join(mobileAppDir, 'android', 'app', 'google-services.json');
+if (fs.existsSync(googleServicesPath)) {
+  try {
+    const gsData = JSON.parse(fs.readFileSync(googleServicesPath, 'utf8'));
+    const targetPackageName = flavor === 'dev' ? 'app.vigilart.dev' : 'app.vigilart';
+    const hasClient = (gsData.client || []).some(
+      c => c.client_info?.android_client_info?.package_name === targetPackageName
+    );
+    if (!hasClient && (gsData.client || []).length > 0) {
+      const templateClient = gsData.client[0];
+      const newClient = JSON.parse(JSON.stringify(templateClient));
+      newClient.client_info = newClient.client_info || {};
+      newClient.client_info.android_client_info = newClient.client_info.android_client_info || {};
+      newClient.client_info.android_client_info.package_name = targetPackageName;
+      gsData.client.push(newClient);
+      fs.writeFileSync(googleServicesPath, JSON.stringify(gsData, null, 2));
+      console.log(`[build-mobile-apk] Added ${targetPackageName} client entry to google-services.json`);
+    }
+  } catch (err) {
+    console.warn(`[build-mobile-apk] Warning: Could not verify/patch google-services.json: ${err.message}`);
+  }
+}
+
 const flutterArgs = [
   'build',
   'apk',
