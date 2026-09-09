@@ -7,7 +7,15 @@ import { getLandingLocale } from "./landing/locale";
 
 export const metadata: Metadata = {
   icons: {
-    icon: "/VigilArt_logo_white.png",
+    icon: [
+      { url: "/icon.png", sizes: "48x48", type: "image/png" },
+      {
+        url: "/icon-dark.png",
+        media: "(prefers-color-scheme: dark)",
+        sizes: "48x48",
+        type: "image/png",
+      },
+    ],
     apple: "/apple-icon.png"
   }
 };
