@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - dev
+      - feat/release-mobile-app
     paths:
       - 'backend/**'
       - 'web-app/**'
