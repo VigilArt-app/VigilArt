@@ -25,6 +25,7 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        manifestPlaceholders["appName"] = "VigilArt"
     }
 
     flavorDimensions += listOf("default")
@@ -32,11 +33,11 @@ android {
         create("dev") {
             dimension = "default"
             applicationIdSuffix = ".dev"
-            resValue("string", "app_name", "VigilArt Dev")
+            manifestPlaceholders["appName"] = "VigilArt Dev"
         }
         create("prod") {
             dimension = "default"
-            resValue("string", "app_name", "VigilArt")
+            manifestPlaceholders["appName"] = "VigilArt"
         }
     }
 
