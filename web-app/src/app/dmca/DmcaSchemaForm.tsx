@@ -82,10 +82,12 @@ export function DmcaSchemaForm({
     const fieldLabel = getFieldLabel(field);
     const fieldDescription = getFieldDescription(field);
     const fieldPlaceholder = getFieldPlaceholder(field);
+    const isFullWidth = field.key === "infringing_url" || field.type === "textarea";
+    const wrapperClass = `space-y-2${isFullWidth ? " md:col-span-2" : ""}`;
 
     if (field.type === "textarea") {
       return (
-        <div key={path.join("-")} className="space-y-2">
+        <div key={path.join("-")} className={wrapperClass}>
           <Label>{fieldLabel}{field.required ? " *" : ""}</Label>
           {fieldDescription && (
             <p className="text-xs text-muted-foreground">{fieldDescription}</p>
@@ -103,7 +105,7 @@ export function DmcaSchemaForm({
 
     if (shouldUseDetectedUrlDropdown(field, path)) {
       return (
-        <div key={path.join("-")} className="space-y-2">
+        <div key={path.join("-")} className={wrapperClass}>
           <Label>{fieldLabel}{field.required ? " *" : ""}</Label>
           {fieldDescription && (
             <p className="text-xs text-muted-foreground">{fieldDescription}</p>
@@ -126,7 +128,7 @@ export function DmcaSchemaForm({
     }
 
     return (
-      <div key={path.join("-")} className="space-y-2">
+      <div key={path.join("-")} className={wrapperClass}>
         <Label>{fieldLabel}{field.required ? " *" : ""}</Label>
         {fieldDescription && (
           <p className="text-xs text-muted-foreground">{fieldDescription}</p>
@@ -140,7 +142,6 @@ export function DmcaSchemaForm({
               onUpdatePath(path, raw === "" ? "" : Number(raw));
               return;
             }
-
             onUpdatePath(path, event.target.value);
           }}
           placeholder={fieldPlaceholder}
@@ -160,7 +161,14 @@ export function DmcaSchemaForm({
           )}
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {group.items.map((item) => renderItem(item, [...path, item.key]))}
+          {group.items.map((item) => (
+            <div
+              key={item.key}
+              className={item.kind === "array" || item.kind === "group" ? "md:col-span-2" : ""}
+            >
+              {renderItem(item, [...path, item.key])}
+            </div>
+          ))}
         </div>
       </div>
     );
@@ -191,14 +199,14 @@ export function DmcaSchemaForm({
 
     return (
       <div key={path.join("-")} className="space-y-3 rounded-lg border p-4">
-        <div className="flex items-center justify-between gap-2">
-          <div>
+        <div className="flex items-center justify-between gap-2 flex-wrap">
+          <div className="min-w-0">
             <h3 className="font-semibold">{repeater.title}</h3>
             {repeater.description && (
               <p className="text-sm text-muted-foreground mt-1">{repeater.description}</p>
             )}
           </div>
-          <Button type="button" variant="outline" size="sm" onClick={addItem}>
+          <Button type="button" variant="outline" size="sm" onClick={addItem} className="flex-shrink-0">
             <Plus className="h-4 w-4 mr-2" />
             {t("dmca_page.add_entry")}
           </Button>
