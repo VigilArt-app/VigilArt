@@ -1,11 +1,5 @@
 @import "tailwindcss";
 
-/* Utility class to apply serif font to headings */
-.font-giaza {
-  font-family: ui-serif, Georgia, 'Times New Roman', Times, serif;
-  font-weight: 700;
-}
-
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
@@ -56,8 +50,10 @@
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
+  /* VigilArt plum, #5E3B7D. 8.76:1 against white, so a white label on the
+     button clears the 4.5:1 readable text needs. */
+  --primary: oklch(0.424 0.1111 306.76);
+  --primary-foreground: oklch(1 0 0);
   --secondary: oklch(0.97 0 0);
   --secondary-foreground: oklch(0.205 0 0);
   --muted: oklch(0.97 0 0);
@@ -90,7 +86,9 @@
   --card-foreground: oklch(0.985 0 0);
   --popover: oklch(0.205 0 0);
   --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
+  /* The plum itself is only 2.26:1 on the dark page, so dark mode takes a
+     lighter step of the same hue: 7.65:1 on the page, 6.93:1 on a card. */
+  --primary: oklch(0.72 0.11 306.76);
   --primary-foreground: oklch(0.205 0 0);
   --secondary: oklch(0.269 0 0);
   --secondary-foreground: oklch(0.985 0 0);
@@ -122,7 +120,9 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    /* font-sans was never applied anywhere, so the whole app fell back to the
+       browser default and looked different on each operating system. */
+    @apply bg-background text-foreground font-sans;
   }
 }
 

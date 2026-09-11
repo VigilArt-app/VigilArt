@@ -31,7 +31,7 @@ messaging.onBackgroundMessage((payload) => {
   const title = payload.notification?.title ?? "VigilArt";
   const options = {
     body: payload.notification?.body ?? "",
-    icon: "/vigilart_b.png",
+    icon: "/VigilArt_logo_black.png",
   };
 
   self.registration.showNotification(title, options);

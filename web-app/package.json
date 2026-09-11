@@ -6,6 +6,7 @@
     "dev": "pnpm predev && dotenv -e ../.env -- next dev --turbopack",
     "prebuild": "node scripts/generate-sw.js",
     "build": "pnpm prebuild && next build --turbopack",
+    "test": "node test/config.test.mjs && node --experimental-strip-types --test test/scan-availability.test.mjs && node --no-warnings --experimental-strip-types src/app/public-routes.test.ts",
     "start": "next start"
   },
   "dependencies": {

@@ -1,4 +1,5 @@
 import { INestApplication } from "@nestjs/common";
+import { NestExpressApplication } from "@nestjs/platform-express";
 import { ConfigService } from "@nestjs/config";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import { cleanupOpenApiDoc } from "nestjs-zod";
@@ -18,6 +19,18 @@ export const setupApp = (app: INestApplication) => {
     .map((origin) => origin.trim())
     .filter(Boolean);
   const isProd = nodeEnv === "production";
+
+  // Behind Cloudflare, every request reaches the container from the proxy's own
+  // address. Without this, req.ip is that address and all rate limiting collapses
+  // into one bucket shared by the entire internet. The value is a hop count, not
+  // `true`: trusting every hop would let a client spoof its own IP by sending an
+  // X-Forwarded-For header of its choosing.
+  const trustProxyHops = Number(
+    configService.get<string>("TRUST_PROXY_HOPS") ?? (isProd ? "1" : "0")
+  );
+  if (Number.isFinite(trustProxyHops) && trustProxyHops > 0) {
+    (app as NestExpressApplication).set("trust proxy", trustProxyHops);
+  }
 
   app.use(helmet({
     hsts: isProd,
