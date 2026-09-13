@@ -10,8 +10,7 @@ export async function middleware(req: NextRequest) {
   if (
     pathname.startsWith('/_next/') ||
     pathname.startsWith('/api/') ||
-    pathname.startsWith('/downloads/') ||
-    pathname.match(/\.(jpg|jpeg|png|gif|svg|ico|css|js|woff2?|apk)$/)
+    pathname.match(/\.(jpg|jpeg|png|gif|svg|ico|css|js|woff2?)$/)
   ) {
     return NextResponse.next();
   }
