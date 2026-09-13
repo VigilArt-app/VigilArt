@@ -13,7 +13,7 @@ class ArtworkDetailsSheet extends StatefulWidget {
 }
 
 class _ArtworkDetailsSheetState extends State<ArtworkDetailsSheet> {
-  String _category = kAllCategories;
+  final String _category = kAllCategories;
 
   Future<void> _openLink(BuildContext context, String urlString) async {
     final Uri url = Uri.parse(urlString);
@@ -29,7 +29,6 @@ class _ArtworkDetailsSheetState extends State<ArtworkDetailsSheet> {
   @override
   Widget build(BuildContext context) {
     final List<dynamic> matches = widget.artwork['matchingPages'] ?? [];
-    presentCategories(matches);
     final List<Map<String, dynamic>> visibleMatches =
         filterAndSortMatches(matches, _category);
 
