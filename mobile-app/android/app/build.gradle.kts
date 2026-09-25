@@ -25,13 +25,55 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        manifestPlaceholders["appName"] = "VigilArt"
+    }
+
+    flavorDimensions += listOf("default")
+    productFlavors {
+        create("dev") {
+            dimension = "default"
+            applicationIdSuffix = ".dev"
+            manifestPlaceholders["appName"] = "VigilArt Dev"
+        }
+        create("prod") {
+            dimension = "default"
+            manifestPlaceholders["appName"] = "VigilArt"
+        }
+    }
+
+    signingConfigs {
+        create("release") {
+            val keystorePath = System.getenv("KEYSTORE_PATH")
+            val keystorePassword = System.getenv("KEYSTORE_PASSWORD")
+            val keyAliasEnv = System.getenv("KEY_ALIAS") ?: "upload"
+            val isCi = System.getenv("CI") == "true" || System.getenv("GITHUB_ACTIONS") == "true"
+
+            if (!keystorePath.isNullOrBlank()) {
+                val keystoreFile = file(keystorePath)
+                if (!keystoreFile.exists()) {
+                    throw GradleException("Release keystore file not found at: $keystorePath")
+                }
+                if (keystorePassword.isNullOrBlank()) {
+                    throw GradleException("KEYSTORE_PASSWORD environment variable is required when KEYSTORE_PATH is set.")
+                }
+                storeFile = keystoreFile
+                storePassword = keystorePassword
+                keyAlias = keyAliasEnv
+                keyPassword = keystorePassword
+            } else if (isCi) {
+                // In CI, never allow silent fallback to debug signing for release builds
+                throw GradleException("Missing KEYSTORE_PATH in CI environment. Release APK builds in CI must be signed with the release keystore.")
+            } else {
+                // Local development fallback: sign with debug key for convenience
+                logger.warn("[signing] KEYSTORE_PATH not provided. Using debug keystore for local release build.")
+                initWith(getByName("debug"))
+            }
+        }
     }
 
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig = signingConfigs.getByName("release")
         }
     }
 }

@@ -135,17 +135,19 @@ class _ProfilePageState extends State<ProfilePage> {
             await _apiService.secureStorage
                 .write(key: ApiService.keyUserAvatar, value: storageKey);
 
-            if (mounted)
+            if (mounted) {
               _showSnackBar(
                   '✓ Photo de profil mise à jour !', const Color(0xFF22C55E));
+            }
             await _loadRemoteUserData();
             return;
           }
         }
       }
 
-      if (mounted)
+      if (mounted) {
         _showSnackBar('Échec du téléchargement de l\'image', Colors.red);
+      }
     } catch (e) {
       if (mounted) _showSnackBar('Erreur : $e', Colors.red);
     } finally {

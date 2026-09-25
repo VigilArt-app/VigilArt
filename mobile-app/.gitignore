@@ -10,7 +10,6 @@ coverage/
 # Dart/Flutter Cache & Pub
 .pub-cache/
 .pub/
-pubspec.lock
 
 # iOS Build Artifacts (NOT source files)
 ios/Flutter/Flutter.framework
