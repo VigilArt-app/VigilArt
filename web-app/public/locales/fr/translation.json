@@ -1,4 +1,7 @@
 {
+    "common": {
+        "download_apk": "Télécharger l'APK"
+    },
     "login_page": {
         "welcome": "Bienvenue",
         "on": "sur",
