@@ -3,6 +3,7 @@
 import { usePathname } from "next/navigation";
 import { SidebarProvider, SidebarTrigger } from "../components/ui/sidebar";
 import { AppSidebar } from "../components/app-sidebar";
+import { DownloadApkButton } from "../components/download-apk-button";
 import { ThemeToggle } from "../components/toggle-theme";
 import { LanguageToggle } from "../components/ui/languageToggle";
 import I18nProvider from "./i18n/I18nProvider";
@@ -33,7 +34,8 @@ export function AppShell({
       <AppSidebar />
       <main className="w-full min-h-screen overflow-x-hidden">
         <SidebarTrigger className="fixed top-4 left-4 z-50" />
-        <div className="fixed top-4 right-4 flex justify-evenly space-x-4 z-50">
+        <div className="fixed top-4 right-4 flex items-center justify-evenly space-x-4 z-50">
+          <DownloadApkButton />
           <ThemeToggle />
           <LanguageToggle />
         </div>
@@ -62,7 +64,8 @@ export function AppShell({
         )
       ) : (
         <main className="w-full min-h-screen overflow-x-hidden">
-          <div className="fixed top-4 right-4 flex justify-evenly space-x-4 z-50">
+          <div className="fixed top-4 right-4 flex items-center justify-evenly space-x-4 z-50">
+            <DownloadApkButton />
             <ThemeToggle />
             <LanguageToggle />
           </div>
