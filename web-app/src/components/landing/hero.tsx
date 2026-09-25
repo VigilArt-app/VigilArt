@@ -14,6 +14,9 @@ export const LandingHero = ({ strings }: { strings: LandingStrings }) => (
       <p className="mt-6 max-w-[52ch] text-pretty leading-relaxed text-muted-foreground">
         {strings.hero.subhead}
       </p>
+      <p className="mt-4 max-w-[52ch] text-pretty font-semibold leading-relaxed">
+        {strings.hero.artwork_use}
+      </p>
     </div>
 
     <div className="min-w-0">

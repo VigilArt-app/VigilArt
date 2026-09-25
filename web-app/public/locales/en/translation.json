@@ -395,13 +395,15 @@
     "nav": {
       "log_in": "Log in",
       "sign_up": "Sign up",
+      "beta": "Beta",
       "language": "Language",
       "skip_to_scan": "Skip to the free scan"
     },
     "hero": {
       "headline_line_1": "See where your artwork appears",
       "headline_line_2": "online.",
-      "subhead": "Your followers shouldn't be the ones telling you your art was reused. VigilArt tracks where your work appears online and helps you prepare takedown notices."
+      "subhead": "Your followers shouldn't be the ones telling you your art was reused. VigilArt tracks where your work appears online and helps you prepare takedown notices.",
+      "artwork_use": "VigilArt stores your artwork privately and uses it only to find reposts online. It never publishes it or uses it to train AI models."
     },
     "upload": {
       "context_social_media": "Social media?",
