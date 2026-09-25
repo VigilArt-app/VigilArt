@@ -399,12 +399,14 @@
       "skip_to_scan": "Aller au scan gratuit"
     },
     "hero": {
-      "headline_line_1": "Trouvez où vos œuvres",
-      "headline_line_2": "ont été repartagées.",
-      "subhead": "Ce n'est pas à vos abonnés de vous apprendre que votre travail a été réutilisé. VigilArt suit où vos œuvres apparaissent en ligne et vous aide à préparer la demande de retrait.",
-      "how_it_works": "Vous envoyez votre œuvre, nous la recherchons par l'image sur le web et vous rapportons les republications trouvées."
+      "headline_line_1": "Découvrez où vos œuvres apparaissent",
+      "headline_line_2": "en ligne.",
+      "subhead": "Ce n'est pas à vos abonnés de vous apprendre que votre travail a été réutilisé. VigilArt suit où vos œuvres apparaissent en ligne et vous aide à préparer les demandes de retrait."
     },
     "upload": {
+      "context_social_media": "Réseaux sociaux ?",
+      "context_art_platforms": "Plateformes pour artistes ?",
+      "context_marketplace": "Marketplace ?",
       "drop_here": "Déposez un JPEG ou un PNG ici",
       "or_browse": "ou choisissez un fichier",
       "scan_button": "Scanner mon œuvre",

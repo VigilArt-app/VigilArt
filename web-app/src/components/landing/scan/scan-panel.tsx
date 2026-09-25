@@ -3,7 +3,13 @@
 import { useCallback, useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import { ExternalLink, RotateCcw } from "lucide-react";
+import {
+  ExternalLink,
+  Images,
+  Instagram,
+  RotateCcw,
+  ShoppingCart
+} from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Button } from "../../ui/button";
 import { FileDropzone, type DroppedFile } from "../../upload/FileDropzone";
@@ -23,7 +29,7 @@ const CategoryBreakdown = dynamic(
   { ssr: false }
 );
 
-export function ScanPanel({ strings }: { strings: LandingStrings }) {
+export const ScanPanel = ({ strings }: { strings: LandingStrings }) => {
   const { t } = useTranslation();
   const { phase, result, errorKind, remainingToday, start, reset } =
     usePublicScan();
@@ -81,12 +87,12 @@ export function ScanPanel({ strings }: { strings: LandingStrings }) {
   //
   // One fixed height in every state from `lg` up: the hero row is centred, so a
   // panel that grows with its content drags the headline beside it upwards.
-  // 25rem is roughly what the idle state wants on its own, so the card stays
+  // 24rem is roughly what the idle state wants on its own, so the card stays
   // compact and the result scrolls inside it rather than the reverse.
   // Below `lg` the columns are stacked and nothing sits beside it, so it grows
   // naturally there.
   const shell =
-    "flex flex-col rounded-xl border bg-muted p-6 shadow-sm lg:h-[25rem]";
+    "flex flex-col rounded-xl border bg-accent p-6 shadow-sm lg:h-96";
 
   if (budgetSpent) {
     return (
@@ -192,74 +198,107 @@ export function ScanPanel({ strings }: { strings: LandingStrings }) {
   }
 
   return (
-    <div className={shell}>
-      {picked ? (
-        <div className="flex min-h-0 flex-1 flex-col items-center justify-center rounded-lg border border-dashed border-input p-6 text-center">
-          {/* eslint-disable-next-line @next/next/no-img-element -- object URL
-              of a file the visitor just picked; next/image cannot optimise a
-              blob. */}
-          <img
-            src={picked.preview}
-            alt={picked.file.name}
-            className="mx-auto max-h-40 w-auto rounded-sm"
-          />
+    <div className="relative">
+      {!picked && (
+        <div className="mb-4 flex flex-wrap justify-center gap-2 lg:contents">
+          <ScanContextLabel className="lg:-left-3 lg:top-8 xl:-left-8">
+            <Instagram className="size-4 text-primary" aria-hidden="true" />
+            {u.context_social_media}
+          </ScanContextLabel>
+          <ScanContextLabel className="lg:-right-3 lg:top-24 xl:-right-8">
+            <ShoppingCart className="size-4 text-primary" aria-hidden="true" />
+            {u.context_marketplace}
+          </ScanContextLabel>
+          <ScanContextLabel className="lg:-left-3 lg:bottom-28 xl:-left-8">
+            <Images className="size-4 text-primary" aria-hidden="true" />
+            {u.context_art_platforms}
+          </ScanContextLabel>
+        </div>
+      )}
+
+      <div className={shell}>
+        {picked ? (
+          <div className="flex min-h-0 flex-1 flex-col items-center justify-center rounded-lg border border-dashed border-input p-6 text-center">
+            {/* eslint-disable-next-line @next/next/no-img-element -- object URL
+                of a file the visitor just picked; next/image cannot optimise a
+                blob. */}
+            <img
+              src={picked.preview}
+              alt={picked.file.name}
+              className="mx-auto max-h-40 w-auto rounded-sm"
+            />
+            <Button
+              variant="link"
+              size="sm"
+              className="mt-3"
+              onClick={onStartOver}
+            >
+              {u.change_file}
+            </Button>
+          </div>
+        ) : (
+          <div className="flex min-h-0 flex-1 flex-col justify-center">
+            <FileDropzone
+              onFilesAdded={onFilesAdded}
+              multiple={false}
+              inputId="public-scan-file"
+            />
+          </div>
+        )}
+
+        {errorMessage && (
+          <p className="mt-3 text-sm text-destructive" role="alert">
+            {errorMessage}
+          </p>
+        )}
+
+        <Turnstile onToken={setTurnstileToken} resetSignal={tokensSpent} />
+
+        <Button
+          className="mt-4 w-full shrink-0"
+          disabled={isPublicScanDisabled({
+            hasFile: Boolean(picked),
+            busy,
+            turnstileRequired: TURNSTILE_SITE_KEY !== null,
+            turnstileToken
+          })}
+          onClick={onScan}
+        >
+          {u.scan_button}
+        </Button>
+
+        {phase === "error" && (
           <Button
-            variant="link"
+            variant="ghost"
             size="sm"
-            className="mt-3"
+            className="mt-2 w-full"
             onClick={onStartOver}
           >
-            {u.change_file}
+            {u.retry}
           </Button>
-        </div>
-      ) : (
-        <div className="flex min-h-0 flex-1 flex-col justify-center">
-          <FileDropzone
-            onFilesAdded={onFilesAdded}
-            multiple={false}
-            inputId="public-scan-file"
-          />
-        </div>
-      )}
+        )}
 
-      {errorMessage && (
-        <p className="mt-3 text-sm text-destructive" role="alert">
-          {errorMessage}
+        <p className="mt-4 shrink-0 text-sm text-muted-foreground">
+          {u.deleted_after}
         </p>
-      )}
-
-      <Turnstile onToken={setTurnstileToken} resetSignal={tokensSpent} />
-
-      <Button
-        className="mt-4 w-full shrink-0"
-        disabled={isPublicScanDisabled({
-          hasFile: Boolean(picked),
-          busy,
-          turnstileRequired: TURNSTILE_SITE_KEY !== null,
-          turnstileToken
-        })}
-        onClick={onScan}
-      >
-        {u.scan_button}
-      </Button>
-
-      {phase === "error" && (
-        <Button
-          variant="ghost"
-          size="sm"
-          className="mt-2 w-full"
-          onClick={onStartOver}
-        >
-          {u.retry}
-        </Button>
-      )}
-
-      <p className="mt-4 shrink-0 text-sm text-muted-foreground">
-        {u.deleted_after}
-      </p>
+      </div>
     </div>
   );
-}
+};
+
+const ScanContextLabel = ({
+  children,
+  className
+}: {
+  children: React.ReactNode;
+  className: string;
+}) => (
+  <div
+    className={`flex items-center gap-2 rounded-lg border bg-card px-3 py-2 text-xs font-medium whitespace-nowrap shadow-sm lg:absolute lg:z-10 ${className}`}
+  >
+    {children}
+  </div>
+);
 
 function MatchRow({
   match,

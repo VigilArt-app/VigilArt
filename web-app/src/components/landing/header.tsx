@@ -7,25 +7,23 @@ import type { LandingStrings } from "../../app/landing/locale";
 
 export function LandingHeader({ strings }: { strings: LandingStrings }) {
   return (
-    // A rounded block inset from the page, the same radius every Card uses, so
-    // the header belongs to the same system as the rest of the app.
-    <header className="px-4 pt-4 sm:px-6 sm:pt-6">
-      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 rounded-xl border bg-background px-4 shadow-sm sm:px-6">
+    <header className="px-4 pt-4 sm:px-6 sm:pt-6 lg:px-8 lg:pt-8">
+      <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between gap-4">
         <Link href="/" className="flex items-center" aria-label="VigilArt">
           <Image
-            src="/VigilArt_logo_black.png"
+            src="/VigilArt_wordmark_black.png"
             alt="VigilArt"
-            width={300}
-            height={300}
-            className="h-9 w-9 dark:hidden"
+            width={600}
+            height={164}
+            className="h-auto w-[7.5rem] dark:hidden"
             priority
           />
           <Image
-            src="/VigilArt_logo_white.png"
+            src="/VigilArt_wordmark_white.png"
             alt="VigilArt"
-            width={300}
-            height={300}
-            className="hidden h-9 w-9 dark:block"
+            width={600}
+            height={164}
+            className="hidden h-auto w-[7.5rem] dark:block"
             priority
           />
         </Link>
@@ -33,8 +31,8 @@ export function LandingHeader({ strings }: { strings: LandingStrings }) {
         <nav className="flex items-center gap-1 sm:gap-2">
           <LanguageToggle />
           <ThemeToggle />
-          {/* French authentication labels collapse the logo below 480px, so
-              the secondary action yields that space to the brand and sign-up. */}
+          {/* French authentication labels exceed the available header width
+              below 480px, so login yields that space to the primary action. */}
           <Button asChild variant="ghost" size="sm" className="max-[479px]:hidden">
             <Link href="/login">{strings.nav.log_in}</Link>
           </Button>
