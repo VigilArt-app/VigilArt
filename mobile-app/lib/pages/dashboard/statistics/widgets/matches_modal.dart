@@ -4,6 +4,10 @@ import '../../scan_report/match_category_filter.dart';
 
 typedef MatchesFetcher = Future<List<Map<String, dynamic>>> Function();
 
+/// Opens the statistics drill-down modal (shared by the pie category and the
+/// bar report). [fetcher] loads the matches; [totalCount] is the true total for
+/// the selection so we can show "showing N most recent of total" when the
+/// backend-capped list is shorter.
 void showMatchesModal(
   BuildContext context, {
   required String title,
@@ -60,6 +64,7 @@ class _MatchesModalState extends State<_MatchesModal> {
       final result = await widget.fetcher();
       if (!mounted) return;
       setState(() {
+        // Newest-first, mirroring the web drill-down.
         _matches = filterAndSortMatches(result, kAllCategories);
         _loading = false;
       });
