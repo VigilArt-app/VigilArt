@@ -405,7 +405,7 @@
     "hero": {
       "headline_line_1": "Découvrez où vos œuvres apparaissent",
       "headline_line_2": "en ligne.",
-      "subhead": "Ce n'est pas à vos abonnés de vous apprendre que votre travail a été réutilisé. VigilArt suit où vos œuvres apparaissent en ligne et vous aide à préparer les demandes de retrait.",
+      "subhead": "Vos abonnés ne devraient pas avoir à vous signaler que votre art a été réutilisé. VigilArt vous aide à trouver où votre travail apparaît en ligne et à préparer des demandes de retrait.",
       "artwork_use": "VigilArt stocke vos œuvres de manière privée et les utilise uniquement pour trouver leurs republications en ligne. Il ne les publie jamais et ne les utilise pas pour entraîner des modèles d’IA."
     },
     "upload": {
