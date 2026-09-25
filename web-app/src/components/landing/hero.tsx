@@ -6,20 +6,20 @@ export const LandingHero = ({ strings }: { strings: LandingStrings }) => (
     {/* Deliberately not a card: the headline is the page speaking, not a
         block of data. Only the scan panel is a surface. */}
     <div className="min-w-0 max-w-xl">
-      <h1 className="text-balance text-4xl leading-[1.05] font-medium tracking-[-0.03em] sm:text-5xl">
+      <h1 className="landing-reveal-headline text-balance text-4xl leading-[1.05] font-medium tracking-[-0.03em] sm:text-5xl">
         {strings.hero.headline_line_1}
         <br />
         <span className="text-primary">{strings.hero.headline_line_2}</span>
       </h1>
-      <p className="mt-6 max-w-[52ch] text-pretty leading-relaxed text-muted-foreground">
+      <p className="landing-reveal-subhead mt-6 max-w-[52ch] text-pretty leading-relaxed text-muted-foreground">
         {strings.hero.subhead}
       </p>
-      <p className="mt-4 max-w-[52ch] text-pretty font-semibold leading-relaxed">
+      <p className="landing-reveal-trust mt-4 max-w-[52ch] text-pretty font-semibold leading-relaxed">
         {strings.hero.artwork_use}
       </p>
     </div>
 
-    <div className="min-w-0">
+    <div className="landing-reveal-scan min-w-0">
       <ScanPanel strings={strings} />
     </div>
   </section>

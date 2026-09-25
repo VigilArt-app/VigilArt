@@ -52,7 +52,7 @@ export function LandingHeader({ strings }: { strings: LandingStrings }) {
           </span>
           <span
             aria-hidden="true"
-            className="rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary"
+            className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary"
           >
             {strings.nav.beta}
           </span>

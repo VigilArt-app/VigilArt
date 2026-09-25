@@ -294,7 +294,7 @@ const ScanContextLabel = ({
   className: string;
 }) => (
   <div
-    className={`flex items-center gap-2 rounded-lg border bg-card px-3 py-2 text-xs font-medium whitespace-nowrap shadow-sm lg:absolute lg:z-10 ${className}`}
+    className={`landing-context-reveal flex items-center gap-2 rounded-lg border bg-card px-3 py-2 text-xs font-medium whitespace-nowrap shadow-sm lg:absolute lg:z-10 ${className}`}
   >
     {children}
   </div>
