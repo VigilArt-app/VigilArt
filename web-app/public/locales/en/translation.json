@@ -1,4 +1,7 @@
 {
+    "common": {
+        "download_apk": "Download APK"
+    },
     "login_page": {
         "welcome": "Welcome",
         "on": "on",
