@@ -52,7 +52,8 @@ export function AppSidebar() {
     <Sidebar>
       <SidebarHeader>
         <div className="w-full flex items-center justify-center py-4">
-          <Image src="/vigilart_b.png" alt="VigilArt logo" width={100} height={100} className="invert-0 dark:invert" priority />
+          <Image src="/VigilArt_logo_black.png" alt="VigilArt logo" width={100} height={100} className="dark:hidden" priority />
+          <Image src="/VigilArt_logo_white.png" alt="VigilArt logo" width={100} height={100} className="hidden dark:block" priority />
         </div>
       </SidebarHeader>
       <SidebarContent>

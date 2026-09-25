@@ -1,36 +1,30 @@
 import { NextResponse, NextRequest } from 'next/server';
+import { getRouteRedirect } from './app/public-routes';
 
-export async function middleware(req: NextRequest) {
+export const middleware = async (req: NextRequest): Promise<NextResponse> => {
   const { pathname, origin } = req.nextUrl;
-
-  if (pathname === '/') {
-    return NextResponse.redirect(new URL('/login', origin));
-  }
 
   if (
     pathname.startsWith('/_next/') ||
     pathname.startsWith('/api/') ||
-    pathname.match(/\.(jpg|jpeg|png|gif|svg|ico|css|js|woff2?)$/)
+    pathname.match(/\.(jpg|jpeg|png|webp|avif|gif|svg|ico|css|js|json|woff2?)$/)
   ) {
     return NextResponse.next();
   }
 
   const token = req.cookies.get('auth_token')?.value;
   const refreshToken = req.cookies.get('refresh_token')?.value;
-  const unprotectedRoutes = ['/login', '/sign-up'];
-  const hasAuthToken = !!token;
-  const hasRefreshToken = !!refreshToken;
+  const redirect = getRouteRedirect(pathname, {
+    hasAuthToken: !!token,
+    hasRefreshToken: !!refreshToken,
+  });
 
-  if (!hasAuthToken && !hasRefreshToken && !unprotectedRoutes.includes(pathname)) {
-    return NextResponse.redirect(new URL('/login', origin));
-  }
-
-  if (hasAuthToken && unprotectedRoutes.includes(pathname)) {
-    return NextResponse.redirect(new URL('/dashboard', origin));
+  if (redirect) {
+    return NextResponse.redirect(new URL(redirect, origin));
   }
 
   return NextResponse.next();
-}
+};
 
 export const config = {
   matcher: ['/:path*'],

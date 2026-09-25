@@ -10,7 +10,6 @@ import { CACHE_MANAGER } from "@nestjs/cache-manager";
 import type { Cache } from "cache-manager";
 import { InjectQueue } from "@nestjs/bullmq";
 import { Job, JobsOptions, Queue } from "bullmq";
-import { VisionService } from "../vision/vision.service";
 import {
   ArtworksReport,
   Artwork,
@@ -36,8 +35,7 @@ import { ArtworksService } from "../artworks/artworks.service";
 import { StorageService } from "../storage/storage.service";
 import { PrismaService } from "../prisma/prisma.service";
 import { MatchingPagesService } from "./matchingPage.service";
-import { GoogleLensService } from "../googlelens/googlelens.service";
-import { SerpApiLensService } from "../serpapilens/serpapilens.service";
+import { VisualSearchService } from "../visualsearch/visual-search.service";
 import { assertResourceOwnership } from "../common/utils/ownership";
 import { normalizeMatchUrl } from "../common/utils/website-class";
 import {
@@ -65,9 +63,7 @@ export const TIMELINE_MAX_POINTS = 30;
 @Injectable()
 export class ReportsService {
   constructor(
-    private readonly visionService: VisionService,
-    private readonly googleLensService: GoogleLensService,
-    private readonly serpApiLensService: SerpApiLensService,
+    private readonly visualSearchService: VisualSearchService,
     private readonly artworksService: ArtworksService,
     private readonly storageService: StorageService,
     private readonly matchingPagesService: MatchingPagesService,
@@ -78,36 +74,12 @@ export class ReportsService {
 
   private readonly logger = new Logger(ReportsService.name);
 
+  // Kept as a forward so the logged-in scan path and its callers are
+  // unchanged; the fan-out itself now lives in VisualSearchService.
   async aggregateVisualSearchResults(
     imageDownloadUrl: string
   ): Promise<MatchingPageGet[]> {
-    const settledResults = await Promise.allSettled([
-      // BrightData Google Lens disabled: the exact_matches tab regressed
-      // server-side (returns the "All" tab, no exact_matches array). Replaced
-      // by SerpAPI Google Lens below until BrightData resolves the zone.
-      // this.googleLensService.searchImage(imageDownloadUrl)
-      this.serpApiLensService.searchImage(imageDownloadUrl)
-    ]);
-    const providers = ["serpApiLens"] as const;
-    const matchingPages: MatchingPageGet[] = [];
-    settledResults.forEach((result, index) => {
-      if (result.status === "rejected") {
-        this.logger.error(
-          `Visual search provider "${providers[index]}" failed`,
-          result.reason
-        );
-        return;
-      }
-      if (result.value) {
-        matchingPages.push(...result.value.matchingPages);
-      }
-    });
-    if (settledResults.every((result) => result.status === "rejected")) {
-      throw new ServiceUnavailableException(
-        "Visual search providers are currently unavailable. Please try again later."
-      );
-    }
-    return matchingPages;
+    return this.visualSearchService.aggregate(imageDownloadUrl);
   }
 
   async findArtworkMatches(artwork: Artwork): Promise<MatchingPageCreateMany> {
