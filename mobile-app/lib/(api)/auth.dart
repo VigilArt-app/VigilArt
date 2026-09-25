@@ -5,15 +5,8 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class ApiService {
   final FlutterSecureStorage secureStorage = const FlutterSecureStorage();
-  final String serverUrl = _requireApiBaseUrl();
-
-  static String _requireApiBaseUrl() {
-    final String? value = dotenv.env['API_BASE_URL'];
-    if (value == null || value.isEmpty) {
-      throw Exception('CRITICAL: API_BASE_URL is not set in the .env file.');
-    }
-    return value;
-  }
+  final String serverUrl = dotenv.env['API_BASE_URL'] ?? 
+      (throw Exception('CRITICAL: API_BASE_URL is not set in the .env file.'));
 
   static const String keyAccessToken = 'accessToken';
   static const String keyRefreshToken = 'refreshToken';
