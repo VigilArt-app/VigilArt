@@ -1,18 +1,22 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
+import { useTranslation } from "react-i18next";
 import { Button } from "../ui/button";
 import { ThemeToggle } from "../toggle-theme";
 import { LanguageToggle } from "../ui/languageToggle";
-import type { LandingStrings } from "../../app/landing/locale";
 
-export function LandingHeader({ strings }: { strings: LandingStrings }) {
+export const LandingHeader = (): React.JSX.Element => {
+  const { t } = useTranslation();
+
   return (
     <header className="px-4 pt-4 sm:px-6 sm:pt-6 lg:px-8 lg:pt-8">
       <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between gap-2 sm:gap-4">
         <Link
           href="/"
           className="flex shrink-0 items-center gap-2"
-          aria-label={`VigilArt — ${strings.nav.beta}`}
+          aria-label={`VigilArt — ${t("landing_page.nav.beta")}`}
         >
           <span className="shrink-0 sm:hidden">
             <Image
@@ -54,7 +58,7 @@ export function LandingHeader({ strings }: { strings: LandingStrings }) {
             aria-hidden="true"
             className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary"
           >
-            {strings.nav.beta}
+            {t("landing_page.nav.beta")}
           </span>
         </Link>
 
@@ -64,13 +68,13 @@ export function LandingHeader({ strings }: { strings: LandingStrings }) {
           {/* French authentication labels exceed the available header width
               below 480px, so login yields that space to the primary action. */}
           <Button asChild variant="ghost" size="sm" className="max-[479px]:hidden">
-            <Link href="/login">{strings.nav.log_in}</Link>
+            <Link href="/login">{t("landing_page.nav.log_in")}</Link>
           </Button>
           <Button asChild size="sm">
-            <Link href="/sign-up">{strings.nav.sign_up}</Link>
+            <Link href="/sign-up">{t("landing_page.nav.sign_up")}</Link>
           </Button>
         </nav>
       </div>
     </header>
   );
-}
+};

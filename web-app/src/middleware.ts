@@ -1,5 +1,5 @@
 import { NextResponse, NextRequest } from 'next/server';
-import { getRouteRedirect } from './app/public-routes';
+import { getRouteRedirect } from './lib/route-access';
 
 export const middleware = async (req: NextRequest): Promise<NextResponse> => {
   const { pathname, origin } = req.nextUrl;

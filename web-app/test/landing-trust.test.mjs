@@ -25,7 +25,7 @@ test("renders the Beta pin as a flat tinted surface without a border", () => {
     new URL("../src/components/landing/header.tsx", import.meta.url),
     "utf8"
   );
-  const labelPosition = header.lastIndexOf("{strings.nav.beta}");
+  const labelPosition = header.lastIndexOf('t("landing_page.nav.beta")');
   const badgeStart = header.lastIndexOf("<span", labelPosition);
   const badgeEnd = header.indexOf("</span>", labelPosition);
   const badge = header.slice(badgeStart, badgeEnd);

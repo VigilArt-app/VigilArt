@@ -1,24 +1,20 @@
-import type { Metadata } from "next";
+"use client";
+
+import { useTranslation } from "react-i18next";
 import { LegalPageShell } from "../../components/legal/legal-page-shell";
-import { TERMS_CONTENT } from "../../components/legal/content/terms-content";
-import { getLandingLocale } from "../landing/locale";
+import { TranslatedLegalContent } from "../../components/legal/translated-legal-content";
 
-export const generateMetadata = async (): Promise<Metadata> => {
-  const locale = await getLandingLocale();
-
-  return {
-    title:
-      locale === "fr"
-        ? "Conditions d’utilisation | VigilArt"
-        : "Terms of Service | VigilArt",
-  };
-};
-
-const TermsPage = async (): Promise<React.JSX.Element> => {
-  const locale = await getLandingLocale();
+const TermsPage = (): React.JSX.Element => {
+  const { t } = useTranslation();
 
   return (
-    <LegalPageShell locale={locale}>{TERMS_CONTENT[locale]}</LegalPageShell>
+    <LegalPageShell>
+      <h1>{t("terms_page.title")}</h1>
+      <p>
+        <strong>{t("terms_page.last_updated")}</strong>
+      </p>
+      <TranslatedLegalContent translationKey="terms_page.blocks" />
+    </LegalPageShell>
   );
 };
 

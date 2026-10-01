@@ -1,26 +1,26 @@
-import Link from "next/link";
-import type { LandingStrings } from "../../app/landing/locale";
+"use client";
 
-export const LandingFooter = ({
-  strings,
-}: {
-  strings: LandingStrings;
-}): React.JSX.Element => {
+import Link from "next/link";
+import { useTranslation } from "react-i18next";
+
+export const LandingFooter = (): React.JSX.Element => {
+  const { t } = useTranslation();
+
   return (
     <footer>
       <div className="flex w-full justify-center px-4 py-10 sm:px-6 lg:px-8">
         <nav
-          aria-label={`${strings.footer.privacy}, ${strings.footer.terms}, ${strings.footer.faq}`}
+          aria-label={`${t("landing_page.footer.privacy")}, ${t("landing_page.footer.terms")}, ${t("landing_page.footer.faq")}`}
           className="flex items-center gap-6 text-sm text-muted-foreground"
         >
           <Link href="/privacy" className="transition-colors hover:text-foreground">
-            {strings.footer.privacy}
+            {t("landing_page.footer.privacy")}
           </Link>
           <Link href="/terms" className="transition-colors hover:text-foreground">
-            {strings.footer.terms}
+            {t("landing_page.footer.terms")}
           </Link>
           <Link href="/faq" className="transition-colors hover:text-foreground">
-            {strings.footer.faq}
+            {t("landing_page.footer.faq")}
           </Link>
         </nav>
       </div>

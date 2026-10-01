@@ -447,5 +447,171 @@
       "faq": "FAQ",
       "wordmark_alt": "VigilArt"
     }
+  },
+  "faq_page": {
+    "metadata_title": "Frequently Asked Questions | VigilArt",
+    "title": "Frequently asked questions",
+    "introduction": "Find clear answers about your data, your artwork, and how VigilArt works.",
+    "items": {
+      "data": {
+        "question": "What data does VigilArt collect?",
+        "answer_1": "We currently collect your name and email address. If you filled out the “Join the private beta” registration form, we also have the email address and social media usernames you provided.",
+        "answer_2": "We process and store the artwork you upload to the app."
+      },
+      "storage": {
+        "question": "How is my data stored, secured, and used?",
+        "answer_1": "Uploaded artwork is stored in a private Cloudflare R2 bucket, and user data is stored in a private PostgreSQL database.",
+        "answer_2": "Passwords are hashed with bcrypt, all traffic is served over HTTPS, and we use pre-signed URLs to upload and access artwork.",
+        "answer_3": "Uploaded artwork is sent to a third-party provider, SerpApi, which we currently use to query Google Lens and detect matches on the web."
+      },
+      "ai_training": {
+        "question": "Does VigilArt use my artwork to train AI models?",
+        "answer_1": "No. VigilArt does not use your artwork or personal data to train AI models."
+      },
+      "deletion": {
+        "question": "Can I withdraw and delete my data?",
+        "answer_1": "You can delete your account at any time. Account deletion removes your account records, although some uploaded files may temporarily remain in object storage while we improve the deletion process.",
+        "answer_2": "If you want us to delete the information you provided through the beta registration form, contact us at <email>vigilart.app@gmail.com</email>."
+      },
+      "permissions": {
+        "question": "Does VigilArt request intrusive permissions unrelated to its core features, such as geolocation?",
+        "answer_1": "No. VigilArt does not request geolocation or other unrelated device permissions."
+      },
+      "workflow": {
+        "question": "How can an artist check where their work has been reposted? Do I need to upload my artwork to the app?",
+        "answer_1": "Yes. Artists upload their artwork to VigilArt, which then searches for matching images across the web."
+      },
+      "progress": {
+        "question": "What is the current progress?",
+        "answer_1": "VigilArt is still in development. The core features are available, and we are currently improving and testing the app."
+      },
+      "source": {
+        "question": "Is the codebase publicly available?",
+        "answer_1": "Yes. You can view the code on our GitHub repository: <github>github.com/VigilArt-app/VigilArt</github>."
+      }
+    }
+  },
+  "privacy_page": {
+    "metadata_title": "Privacy Policy | VigilArt",
+    "title": "Privacy Policy",
+    "last_updated": "Last updated: September 9, 2026",
+    "blocks": [
+      { "type": "h2", "content": ["1. About This Policy"] },
+      { "type": "p", "content": ["This Privacy Policy explains what personal data VigilArt processes and how we use it."] },
+      { "type": "p", "content": ["VigilArt is a student project developed as part of Epitech's EIP program."] },
+      { "type": "p", "content": ["For privacy-related questions or requests:"] },
+      { "type": "p", "content": [{ "text": "vigilart.app@gmail.com", "href": "mailto:vigilart.app@gmail.com", "strong": true }] },
+      { "type": "h2", "content": ["2. Data We Process and Why"] },
+      { "type": "p", "content": ["When you use VigilArt, we may process:"] },
+      { "type": "ul", "items": [
+        ["your name, email address, profile information, and notification preferences;"],
+        ["artwork you upload and related information;"],
+        ["scan history and potential matches found online;"],
+        ["information used to generate copyright or DMCA reports;"],
+        ["your IP address, session information, device information, and technical logs necessary to operate and secure the service."]
+      ] },
+      { "type": "p", "content": ["We use this data to provide VigilArt's features, perform reverse-image searches, secure and maintain the service, prevent abuse, and provide requested notifications."] },
+      { "type": "p", "content": ["If you voluntarily complete a feedback or beta-testing form, we may also process the information you provide to improve VigilArt and contact you about your feedback."] },
+      { "type": "p", "content": ["Depending on the purpose, we process your data because it is necessary to provide VigilArt's features, to keep the service secure and operational, because you have given consent where required, or because the law requires it."] },
+      { "type": "p", "content": ["VigilArt does not use your artwork or personal data to train AI models."] },
+      { "type": "h2", "content": ["3. Artwork and Third-Party Services"] },
+      { "type": "p", "content": ["Uploaded artwork is stored privately and is not published by VigilArt."] },
+      { "type": "p", "content": ["VigilArt currently uses:"] },
+      { "type": "p", "content": [{ "text": "SerpApi Google Lens API", "href": "https://serpapi.com/legal", "strong": true }, " — used for reverse-image searches. A temporary URL allowing access to the artwork being searched is sent to SerpApi. SerpApi states that search data is automatically deleted 31 days after a search is completed."] },
+      { "type": "p", "content": [{ "text": "Cloudflare R2", "href": "https://www.cloudflare.com/cloudflare-customer-dpa/", "strong": true }, " — used to store uploaded artwork and temporary guest-scan images."] },
+      { "type": "p", "content": [{ "text": "Cloudflare Turnstile", "strong": true }, " — used to prevent automated abuse and may process technical information such as your IP address and browser information."] },
+      { "type": "p", "content": [{ "text": "Firebase Cloud Messaging (Google)", "href": "https://firebase.google.com/terms/data-processing-terms", "strong": true }, " — used for push notifications where enabled."] },
+      { "type": "p", "content": [{ "text": "Google Forms / Google Sheets", "strong": true }, " — used for optional beta-testing and feedback forms."] },
+      { "type": "p", "content": [{ "text": "Epitech infrastructure", "strong": true }, " — VigilArt's production backend, PostgreSQL database, and cache are hosted on an Epitech-provided virtual machine."] },
+      { "type": "p", "content": ["VigilArt does not sell your personal data."] },
+      { "type": "h2", "content": ["4. Data Retention and Deletion"] },
+      { "type": "p", "content": ["Account data, artwork records, scan history, and matches are generally retained while your account is active or until you delete them."] },
+      { "type": "p", "content": ["Guest-scan results are currently retained for approximately one hour. Temporary guest-scan images are deleted after processing completes. A storage lifecycle rule removes abandoned guest-scan images within one day if processing does not complete normally."] },
+      { "type": "p", "content": ["SerpApi retains search data for 31 days under its own policy."] },
+      { "type": "p", "content": ["Feedback-form responses are retained only as long as reasonably necessary to analyze feedback and improve VigilArt."] },
+      { "type": "p", "content": ["You may delete individual artworks or your account through VigilArt."] },
+      { "type": "p", "content": ["At present, deleting your account removes the account and most associated records from VigilArt's main database. DMCA notice records are retained without a link to the deleted account. Artwork files and profile images are not automatically removed from object storage when the account is deleted."] },
+      { "type": "p", "content": ["For requests concerning your data, including feedback-form data, contact ", { "text": "vigilart.app@gmail.com", "href": "mailto:vigilart.app@gmail.com" }, "."] },
+      { "type": "h2", "content": ["5. International Data Transfers"] },
+      { "type": "p", "content": ["Some third-party providers used by VigilArt may process data outside the European Economic Area, including:"] },
+      { "type": "ul", "items": [
+        [{ "text": "SerpApi legal and privacy terms", "href": "https://serpapi.com/legal" }],
+        [{ "text": "Cloudflare Data Processing Addendum", "href": "https://www.cloudflare.com/cloudflare-customer-dpa/" }],
+        ["Google services, including ", { "text": "Firebase Cloud Messaging", "href": "https://firebase.google.com/terms/data-processing-terms" }, ", Google Forms, and Google Sheets."]
+      ] },
+      { "type": "p", "content": ["When personal data is transferred outside the European Economic Area, our providers may rely on recognized transfer mechanisms, including adequacy decisions or Standard Contractual Clauses. The mechanism applicable to each provider depends on its terms and our account arrangements."] },
+      { "type": "p", "content": ["European Commission guidance: ", { "text": "Rules on international data transfers", "href": "https://commission.europa.eu/law/law-topic/data-protection/international-dimension-data-protection/rules-international-data-transfers_en" }] },
+      { "type": "h2", "content": ["6. Your Rights"] },
+      { "type": "p", "content": ["Under applicable data-protection law, you may have the right to access, correct, delete, or obtain a copy of your personal data, restrict or object to certain processing, and withdraw consent where processing is based on consent."] },
+      { "type": "p", "content": ["To exercise these rights, contact:"] },
+      { "type": "p", "content": [{ "text": "vigilart.app@gmail.com", "href": "mailto:vigilart.app@gmail.com", "strong": true }] },
+      { "type": "p", "content": ["You may also lodge a complaint with the CNIL or another competent data-protection authority."] },
+      { "type": "h2", "content": ["7. Security"] },
+      { "type": "p", "content": ["We use measures including hashed passwords, HTTPS, authentication tokens, pre-signed URLs for stored artwork, and abuse-prevention mechanisms."] },
+      { "type": "p", "content": ["However, no online service can guarantee complete security."] },
+      { "type": "h2", "content": ["8. Changes"] },
+      { "type": "p", "content": ["We may update this Privacy Policy as VigilArt and its data practices evolve."] },
+      { "type": "p", "content": ["The latest version will be available through the service."] }
+    ]
+  },
+  "terms_page": {
+    "metadata_title": "Terms of Service | VigilArt",
+    "title": "Terms of Service",
+    "last_updated": "Last updated: September 9, 2026",
+    "blocks": [
+      { "type": "h2", "content": ["1. About VigilArt"] },
+      { "type": "p", "content": ["VigilArt is a student project developed as part of Epitech's EIP program."] },
+      { "type": "p", "content": ["The service allows artists to upload their artwork and search for potential matches found online."] },
+      { "type": "p", "content": ["VigilArt is currently available as a public beta. By creating an account or using VigilArt, you agree to these Terms."] },
+      { "type": "h2", "content": ["2. Eligibility and Accounts"] },
+      { "type": "p", "content": ["You must be at least 18 years old to use VigilArt."] },
+      { "type": "p", "content": ["You are responsible for providing accurate account information and keeping your login credentials secure."] },
+      { "type": "p", "content": ["You may delete your account at any time."] },
+      { "type": "p", "content": ["At present, account deletion removes the account and most associated records from VigilArt's main database. DMCA notice records are retained without a link to the deleted account, and uploaded artwork files or profile images are not automatically removed from object storage. See the Privacy Policy for details."] },
+      { "type": "h2", "content": ["3. Your Artwork"] },
+      { "type": "p", "content": ["You retain ownership of artwork you upload to VigilArt."] },
+      { "type": "p", "content": ["You must own the artwork or have the necessary rights or permission to upload and process it through VigilArt."] },
+      { "type": "p", "content": ["By uploading artwork, you grant VigilArt a limited, non-exclusive permission to store, reproduce, transmit, and process it solely as necessary to provide the service."] },
+      { "type": "p", "content": ["VigilArt does not use your artwork to train AI models."] },
+      { "type": "h2", "content": ["4. Search Results"] },
+      { "type": "p", "content": ["VigilArt uses third-party service SerpApi's Google Lens API to search for images that may match your artwork."] },
+      { "type": "p", "content": ["Search results may contain false positives. A match does not automatically mean that copyright infringement has occurred."] },
+      { "type": "p", "content": ["VigilArt does not guarantee that every repost or unauthorized use will be found."] },
+      { "type": "h2", "content": ["5. Copyright and DMCA Tools"] },
+      { "type": "p", "content": ["VigilArt may:"] },
+      { "type": "ul", "items": [
+        ["generate a draft copyright infringement report or DMCA takedown notice, where applicable;"],
+        ["generate the document as a PDF or email; and"],
+        ["direct you to the relevant reporting form provided by a third-party platform."]
+      ] },
+      { "type": "p", "content": ["You are responsible for reviewing the information before submitting a report and for ensuring that your claim is accurate and legitimate."] },
+      { "type": "p", "content": ["VigilArt does not provide legal advice and cannot guarantee that reported content will be removed."] },
+      { "type": "h2", "content": ["6. External Websites"] },
+      { "type": "p", "content": ["Search results may lead to third-party websites containing NSFW, unsafe, or otherwise inappropriate content."] },
+      { "type": "p", "content": ["VigilArt may display a warning before you access these websites, but we do not control their content, availability, or security."] },
+      { "type": "p", "content": ["You access external websites at your own discretion."] },
+      { "type": "h2", "content": ["7. Prohibited Use"] },
+      { "type": "p", "content": ["You may not:"] },
+      { "type": "ul", "items": [
+        ["upload artwork you do not have the right to use;"],
+        ["upload NSFW, sexually explicit, pornographic, or otherwise adult-only artwork;"],
+        ["knowingly make false or abusive copyright claims;"],
+        ["interfere with or attempt to compromise the service;"],
+        ["attempt unauthorized access to VigilArt or its systems; or"],
+        ["use VigilArt for unlawful purposes."]
+      ] },
+      { "type": "p", "content": ["We may restrict or terminate access where these Terms are violated."] },
+      { "type": "h2", "content": ["8. Public Beta and Service Availability"] },
+      { "type": "p", "content": ["VigilArt is currently provided free of charge as a public beta student project."] },
+      { "type": "p", "content": ["During the public beta, usage limits may apply and access to the service or specific features may be limited, suspended, or temporarily unavailable while VigilArt is being tested and improved."] },
+      { "type": "p", "content": ["Features may change, become unavailable, or be discontinued."] },
+      { "type": "p", "content": ["To the extent permitted by law, VigilArt is not responsible for losses resulting from inaccurate search results, unavailable third-party services, decisions made by third-party platforms, or content hosted on external websites."] },
+      { "type": "h2", "content": ["9. Changes"] },
+      { "type": "p", "content": ["We may update these Terms as VigilArt evolves."] },
+      { "type": "p", "content": ["The current version will be made available through the service."] },
+      { "type": "h2", "content": ["10. Contact"] },
+      { "type": "p", "content": ["For questions about these Terms:"] },
+      { "type": "p", "content": [{ "text": "vigilart.app@gmail.com", "href": "mailto:vigilart.app@gmail.com", "strong": true }] }
+    ]
   }
 }

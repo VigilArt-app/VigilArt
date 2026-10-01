@@ -19,7 +19,6 @@ import { Turnstile } from "./turnstile";
 import { isPublicScanDisabled } from "./scan-availability";
 import { TURNSTILE_SITE_KEY } from "../../../config";
 import type { PublicScanResult } from "@vigilart/shared";
-import type { LandingStrings } from "../../../app/landing/locale";
 
 // recharts is around 100 kB. A visitor who never runs a scan never sees a
 // chart, so it must not sit in the landing page's first load.
@@ -29,7 +28,7 @@ const CategoryBreakdown = dynamic(
   { ssr: false }
 );
 
-export const ScanPanel = ({ strings }: { strings: LandingStrings }) => {
+export const ScanPanel = (): React.JSX.Element => {
   const { t } = useTranslation();
   const { phase, result, errorKind, remainingToday, start, reset } =
     usePublicScan();
@@ -41,7 +40,6 @@ export const ScanPanel = ({ strings }: { strings: LandingStrings }) => {
   const [tokensSpent, setTokensSpent] = useState(0);
   const previewRef = useRef<string | null>(null);
 
-  const u = strings.upload;
   const busy = phase === "uploading" || phase === "scanning";
   const budgetSpent = remainingToday === 0 && phase === "idle";
 
@@ -49,14 +47,14 @@ export const ScanPanel = ({ strings }: { strings: LandingStrings }) => {
     const kind = localError ?? errorKind;
     if (!kind) return null;
     const messages: Record<ScanErrorKind, string> = {
-      wrong_type: u.error_wrong_type,
-      too_large: u.error_too_large,
-      bot_check: u.error_bot_check,
-      rate_limited: u.error_rate_limited,
-      generic: u.error_generic
+      wrong_type: t("landing_page.upload.error_wrong_type"),
+      too_large: t("landing_page.upload.error_too_large"),
+      bot_check: t("landing_page.upload.error_bot_check"),
+      rate_limited: t("landing_page.upload.error_rate_limited"),
+      generic: t("landing_page.upload.error_generic")
     };
     return messages[kind];
-  }, [localError, errorKind, u]);
+  }, [localError, errorKind, t]);
 
   const onFilesAdded = useCallback((files: DroppedFile[]) => {
     const next = files[0];
@@ -97,12 +95,16 @@ export const ScanPanel = ({ strings }: { strings: LandingStrings }) => {
   if (budgetSpent) {
     return (
       <div className={`${shell} justify-center`}>
-        <p className="font-medium">{u.budget_spent_title}</p>
+        <p className="font-medium">
+          {t("landing_page.upload.budget_spent_title")}
+        </p>
         <p className="mt-2 text-sm text-muted-foreground">
-          {u.budget_spent_body}
+          {t("landing_page.upload.budget_spent_body")}
         </p>
         <Button asChild className="mt-5 w-full">
-          <Link href="/sign-up">{u.create_account}</Link>
+          <Link href="/sign-up">
+            {t("landing_page.upload.create_account")}
+          </Link>
         </Button>
       </div>
     );
@@ -117,9 +119,11 @@ export const ScanPanel = ({ strings }: { strings: LandingStrings }) => {
         <div className="min-h-0 flex-1 overflow-y-auto">
         {result.totalMatches === 0 ? (
           <>
-            <p className="font-medium">{strings.result.no_matches_title}</p>
+            <p className="font-medium">
+              {t("landing_page.result.no_matches_title")}
+            </p>
             <p className="mt-2 text-sm text-muted-foreground">
-              {strings.result.no_matches_body}
+              {t("landing_page.result.no_matches_body")}
             </p>
           </>
         ) : (
@@ -144,13 +148,13 @@ export const ScanPanel = ({ strings }: { strings: LandingStrings }) => {
             <ul className="space-y-3 pt-2">
               {result.matches.map((match) => (
                 <li key={match.url}>
-                  <MatchRow match={match} strings={strings} />
+                  <MatchRow match={match} />
                 </li>
               ))}
             </ul>
 
             <p className="text-xs text-muted-foreground">
-              {strings.result.a_match_is_a_lead}
+              {t("landing_page.result.a_match_is_a_lead")}
             </p>
           </div>
         )}
@@ -165,10 +169,7 @@ export const ScanPanel = ({ strings }: { strings: LandingStrings }) => {
             className="mt-4 h-auto w-full shrink-0 whitespace-normal py-2.5 text-center"
           >
             <Link href="/sign-up">
-              {(hidden === 1
-                ? strings.result.see_the_rest_one
-                : strings.result.see_the_rest_other
-              ).replace("{{count}}", String(hidden))}
+              {t("landing_page.result.see_the_rest", { count: hidden })}
             </Link>
           </Button>
         )}
@@ -179,7 +180,7 @@ export const ScanPanel = ({ strings }: { strings: LandingStrings }) => {
           onClick={onStartOver}
         >
           <RotateCcw aria-hidden="true" />
-          {u.change_file}
+          {t("landing_page.upload.change_file")}
         </Button>
       </div>
     );
@@ -190,9 +191,11 @@ export const ScanPanel = ({ strings }: { strings: LandingStrings }) => {
       <div className={`${shell} justify-center`}>
         <ScanSweep src={picked.preview} alt={picked.file.name} />
         <p className="mt-4 font-medium" role="status" aria-live="polite">
-          {u.scanning}
+          {t("landing_page.upload.scanning")}
         </p>
-        <p className="mt-1 text-sm text-muted-foreground">{u.scanning_note}</p>
+        <p className="mt-1 text-sm text-muted-foreground">
+          {t("landing_page.upload.scanning_note")}
+        </p>
       </div>
     );
   }
@@ -203,15 +206,15 @@ export const ScanPanel = ({ strings }: { strings: LandingStrings }) => {
         <div className="mb-4 flex flex-wrap justify-center gap-2 lg:contents">
           <ScanContextLabel className="lg:-left-3 lg:top-8 xl:-left-8">
             <Instagram className="size-4 text-primary" aria-hidden="true" />
-            {u.context_social_media}
+            {t("landing_page.upload.context_social_media")}
           </ScanContextLabel>
           <ScanContextLabel className="lg:-right-3 lg:top-24 xl:-right-8">
             <ShoppingCart className="size-4 text-primary" aria-hidden="true" />
-            {u.context_marketplace}
+            {t("landing_page.upload.context_marketplace")}
           </ScanContextLabel>
           <ScanContextLabel className="lg:-left-3 lg:bottom-28 xl:-left-8">
             <Images className="size-4 text-primary" aria-hidden="true" />
-            {u.context_art_platforms}
+            {t("landing_page.upload.context_art_platforms")}
           </ScanContextLabel>
         </div>
       )}
@@ -233,7 +236,7 @@ export const ScanPanel = ({ strings }: { strings: LandingStrings }) => {
               className="mt-3"
               onClick={onStartOver}
             >
-              {u.change_file}
+              {t("landing_page.upload.change_file")}
             </Button>
           </div>
         ) : (
@@ -264,7 +267,7 @@ export const ScanPanel = ({ strings }: { strings: LandingStrings }) => {
           })}
           onClick={onScan}
         >
-          {u.scan_button}
+          {t("landing_page.upload.scan_button")}
         </Button>
 
         {phase === "error" && (
@@ -274,12 +277,12 @@ export const ScanPanel = ({ strings }: { strings: LandingStrings }) => {
             className="mt-2 w-full"
             onClick={onStartOver}
           >
-            {u.retry}
+            {t("landing_page.upload.retry")}
           </Button>
         )}
 
         <p className="mt-4 shrink-0 text-sm text-muted-foreground">
-          {u.deleted_after}
+          {t("landing_page.upload.deleted_after")}
         </p>
       </div>
     </div>
@@ -300,13 +303,12 @@ const ScanContextLabel = ({
   </div>
 );
 
-function MatchRow({
+const MatchRow = ({
   match,
-  strings
 }: {
   match: PublicScanResult["matches"][number];
-  strings: LandingStrings;
-}) {
+}): React.JSX.Element => {
+  const { t } = useTranslation();
   const title = match.pageTitle || match.url;
 
   // `unsafeDomain` is set by isBlacklisted() against a list of adult image
@@ -318,10 +320,10 @@ function MatchRow({
         <span className="flex flex-wrap items-center gap-x-2 gap-y-1 font-medium">
           {match.websiteName}
           <span className="rounded-sm border border-destructive/40 px-1.5 py-0.5 text-[11px] font-normal text-destructive">
-            {strings.result.unsafe_flag}
+            {t("landing_page.result.unsafe_flag")}
           </span>
           <span className="text-[11px] font-normal text-muted-foreground">
-            {strings.result.unsafe_not_linked}
+            {t("landing_page.result.unsafe_not_linked")}
           </span>
         </span>
         <span className="mt-0.5 block truncate text-muted-foreground">
@@ -349,4 +351,4 @@ function MatchRow({
       </span>
     </a>
   );
-}
+};

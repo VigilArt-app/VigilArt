@@ -6,7 +6,6 @@ import { AppSidebar } from "../components/app-sidebar";
 import { DownloadApkButton } from "../components/download-apk-button";
 import { ThemeToggle } from "../components/toggle-theme";
 import { LanguageToggle } from "../components/ui/languageToggle";
-import I18nProvider from "./i18n/I18nProvider";
 import { AuthProvider } from "../components/contexts/authContext";
 import { SessionRefreshGate } from "../components/auth/session-refresh-gate";
 import { NotificationsProvider } from "../components/contexts/notificationsContext";
@@ -44,34 +43,26 @@ export function AppShell({
     </SidebarProvider>
   );
 
-  return (
-    <I18nProvider>
-      {showSidebar ? (
-        shouldRefreshSession ? (
-          <SessionRefreshGate enabled>
-            <AuthProvider>
-              <NotificationsProvider>
-                {sidebarShell}
-              </NotificationsProvider>
-            </AuthProvider>
-          </SessionRefreshGate>
-        ) : (
-          <AuthProvider>
-            <NotificationsProvider>
-              {sidebarShell}
-            </NotificationsProvider>
-          </AuthProvider>
-        )
-      ) : (
-        <main className="w-full min-h-screen overflow-x-hidden">
-          <div className="fixed top-4 right-4 flex items-center justify-evenly space-x-4 z-50">
-            <DownloadApkButton />
-            <ThemeToggle />
-            <LanguageToggle />
-          </div>
-          {children}
-        </main>
-      )}
-    </I18nProvider>
+  return showSidebar ? (
+    shouldRefreshSession ? (
+      <SessionRefreshGate enabled>
+        <AuthProvider>
+          <NotificationsProvider>{sidebarShell}</NotificationsProvider>
+        </AuthProvider>
+      </SessionRefreshGate>
+    ) : (
+      <AuthProvider>
+        <NotificationsProvider>{sidebarShell}</NotificationsProvider>
+      </AuthProvider>
+    )
+  ) : (
+    <main className="w-full min-h-screen overflow-x-hidden">
+      <div className="fixed top-4 right-4 flex items-center justify-evenly space-x-4 z-50">
+        <DownloadApkButton />
+        <ThemeToggle />
+        <LanguageToggle />
+      </div>
+      {children}
+    </main>
   );
 }
