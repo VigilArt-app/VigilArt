@@ -1,10 +1,10 @@
 import { normalizeMatchUrl } from "./website-class";
 
 describe("normalizeMatchUrl", () => {
-  it("Should strip the query string", () => {
+  it("Should preserve query parameters that can identify a resource", () => {
     expect(
       normalizeMatchUrl("https://x.com/ayaka_s/status/1777995868702171417?lang=es")
-    ).toBe("https://x.com/ayaka_s/status/1777995868702171417");
+    ).toBe("https://x.com/ayaka_s/status/1777995868702171417?lang=es");
   });
 
   it("Should strip the fragment", () => {
@@ -13,17 +13,67 @@ describe("normalizeMatchUrl", () => {
     );
   });
 
-  it("Should strip both query string and fragment", () => {
+  it("Should strip tracking parameters and the fragment", () => {
     expect(
-      normalizeMatchUrl("https://example.com/page?utm=1&x=2#section")
-    ).toBe("https://example.com/page");
+      normalizeMatchUrl(
+        "https://example.com/page?utm_source=newsletter&resource=two&fbclid=abc&gclid=def#section"
+      )
+    ).toBe("https://example.com/page?resource=two");
   });
 
-  it("Should collapse query-only variants of the same page to one value", () => {
+  it("Should collapse variants that differ only by tracking parameters", () => {
     const base = "https://x.com/ayaka_s/status/1777995868702171417";
-    expect(normalizeMatchUrl(`${base}?lang=es`)).toBe(
+    expect(normalizeMatchUrl(`${base}?utm_medium=social&fbclid=abc`)).toBe(
       normalizeMatchUrl(base)
     );
+  });
+
+  it("Should keep query-identified resources distinct", () => {
+    expect(normalizeMatchUrl("https://youtube.com/watch?v=one")).not.toBe(
+      normalizeMatchUrl("https://youtube.com/watch?v=two")
+    );
+  });
+
+  it.each(["art%20print", "a~b", "a%2fb", "art+print"])(
+    "Should preserve resource encoding %s when removing tracking parameters",
+    (value) => {
+      const clean = `https://example.com/page?q=${value}`;
+      expect(normalizeMatchUrl(`${clean}&utm_source=email`)).toBe(clean);
+      expect(normalizeMatchUrl(`${clean}&utm_source=email`)).toBe(
+        normalizeMatchUrl(clean)
+      );
+    }
+  );
+
+  it("Should recognize encoded tracking names without re-encoding other parameters", () => {
+    expect(
+      normalizeMatchUrl("https://example.com/page?%75tm_source=email&q=art%20print")
+    ).toBe("https://example.com/page?q=art%20print");
+  });
+
+  it.each(["?id", "?gclid", "?utm_source"])(
+    "Should preserve a literal leading question mark in parameter %s",
+    (name) => {
+      const clean = `https://example.com/page?${name}=42`;
+      expect(normalizeMatchUrl(`${clean}&utm_source=email`)).toBe(clean);
+      expect(
+        normalizeMatchUrl(`https://example.com/page?utm_source=email&${name}=42`)
+      ).toBe(clean);
+    }
+  );
+
+  it("Should remove tracking parameter names case-insensitively", () => {
+    expect(
+      normalizeMatchUrl(
+        "https://example.com/page?UTM_Campaign=launch&FbClId=abc&id=42"
+      )
+    ).toBe("https://example.com/page?id=42");
+  });
+
+  it("Should preserve repeated resource-identifying parameters", () => {
+    expect(
+      normalizeMatchUrl("https://example.com/search?tag=art&tag=painting")
+    ).toBe("https://example.com/search?tag=art&tag=painting");
   });
 
   it("Should leave a clean URL unchanged", () => {
@@ -34,7 +84,7 @@ describe("normalizeMatchUrl", () => {
 
   it("Should preserve the path and trailing slash", () => {
     expect(normalizeMatchUrl("https://example.com/a/b/?q=1")).toBe(
-      "https://example.com/a/b/"
+      "https://example.com/a/b/?q=1"
     );
   });
 

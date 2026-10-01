@@ -242,7 +242,7 @@ describe("ReportsService", () => {
       expect(prisma.artworksReport.create).not.toHaveBeenCalled();
     });
 
-    it("Should normalize match URLs (strip query/fragment) before persisting", async () => {
+    it("Should remove tracking data without discarding resource parameters before persisting", async () => {
       mockScanSuccess();
       artworksService.findAllPerUser.mockResolvedValue([
         { id: "a1", storageKey: "k1" }
@@ -250,8 +250,11 @@ describe("ReportsService", () => {
       const base = "https://x.com/ayaka_s/status/1777995868702171417";
       serpApiLensService.searchImage.mockReset().mockResolvedValue({
         matchingPages: [
-          { url: `${base}?lang=es`, category: "SOCIAL" },
-          { url: base, category: "SOCIAL" }
+          {
+            url: `${base}?lang=es&utm_source=provider#results`,
+            category: "SOCIAL"
+          },
+          { url: `${base}?lang=es&fbclid=abc`, category: "SOCIAL" }
         ]
       });
 
@@ -260,7 +263,10 @@ describe("ReportsService", () => {
       // Both provider results collapse onto the same canonical URL; the DB's
       // `skipDuplicates` on `[url, artworkId]` then dedupes them to one row.
       const persisted = matchingPagesService.createMany.mock.calls[0][0];
-      expect(persisted.map((m: { url: string }) => m.url)).toEqual([base, base]);
+      expect(persisted.map((m: { url: string }) => m.url)).toEqual([
+        `${base}?lang=es`,
+        `${base}?lang=es`
+      ]);
     });
 
     it("Should not create a report when over quota", async () => {

@@ -99,15 +99,31 @@ const normalizeHost = (hostname: string): string => {
   return hostname;
 };
 
-// Two URLs that point at the same page but differ only by query string,
-// fragment, or a `www.`/country-code host variant (e.g. `.../status/123?lang=es`
-// vs `.../status/123`, or `uk.pinterest.com` vs `www.pinterest.com`) must be
-// treated as the same match. Canonicalize so dedup keys on one page URL; leave
-// the scheme, path, and trailing slash untouched.
+const TRACKING_QUERY_PARAMETERS = new Set(["fbclid", "gclid"]);
+
+const isTrackingQueryParameter = (name: string): boolean => {
+  const normalizedName = name.toLowerCase();
+  return (
+    normalizedName.startsWith("utm_") ||
+    TRACKING_QUERY_PARAMETERS.has(normalizedName)
+  );
+};
+
+// Canonicalize host variants and remove visit-tracking data while preserving
+// query parameters that may identify the matched resource itself.
 export const normalizeMatchUrl = (rawUrl: string): string => {
   try {
     const url = new URL(rawUrl);
-    url.search = "";
+    const queryEntries = url.search.slice(1).split("&");
+    const retainedEntries = queryEntries.filter((entry) => {
+      const name = new URLSearchParams(`?${entry}`).keys().next().value;
+      return name === undefined || !isTrackingQueryParameter(name);
+    });
+    if (retainedEntries.length !== queryEntries.length) {
+      // Mutating searchParams also re-encodes retained values, breaking deduplication.
+      const retainedQuery = retainedEntries.join("&");
+      url.search = retainedQuery ? `?${retainedQuery}` : "";
+    }
     url.hash = "";
     url.hostname = normalizeHost(url.hostname);
     return url.toString();
@@ -148,4 +164,3 @@ export function isBlacklisted(url: string): boolean {
     (blocked) => domain === blocked || domain.endsWith(`.${blocked}`),
   );
 }
-
