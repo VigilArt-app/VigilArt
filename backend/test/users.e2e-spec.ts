@@ -7,6 +7,7 @@ import { ApiClient } from "./api-client";
 import { SubscriptionTier, type UserGet } from "@vigilart/shared";
 import { CACHE_MANAGER } from "@nestjs/cache-manager";
 import type { Cache } from "cache-manager";
+import { addUsers, initialUsers } from "../src/prisma/seeds/add-users";
 
 describe("Users E2E", () => {
   let app: INestApplication;
@@ -48,6 +49,35 @@ describe("Users E2E", () => {
     await api.logout();
     await prismaService.user.deleteMany();
     await cacheManager.clear();
+  });
+
+  describe("seeded users", () => {
+    it("creates nameless demo users without recording legal acceptance", async () => {
+      await addUsers(prismaService);
+      const users = await prismaService.user.findMany({
+        where: { id: { in: initialUsers.map(({ id }) => id) } },
+      });
+      expect(users).toHaveLength(2);
+      for (const user of users) {
+        expect(user.firstName).toBeNull();
+        expect(user.lastName).toBeNull();
+        expect(user.termsAcceptedAt).toBeNull();
+        expect(user.termsVersion).toBeNull();
+        expect(user.privacyVersion).toBeNull();
+      }
+    });
+
+    it("does not rewrite existing seeded accounts when rerun", async () => {
+      const existing = await prismaService.user.create({ data: {
+        id: initialUsers[0].id, email: initialUsers[0].email,
+        password: "existing-password-hash", firstName: "Legacy", lastName: "Artist",
+        termsAcceptedAt: new Date("2026-09-10T12:00:00.000Z"),
+        termsVersion: "previous-terms", privacyVersion: "previous-privacy",
+      } });
+      await addUsers(prismaService);
+      await addUsers(prismaService);
+      expect(await prismaService.user.findUniqueOrThrow({ where: { id: existing.id } })).toEqual(existing);
+    });
   });
 
   describe("POST /users", () => {
@@ -168,8 +198,8 @@ describe("Users E2E", () => {
         {
           id: expect.any(String),
           email: "test.auth@mail.com",
-          firstName: "Test",
-          lastName: "User",
+          firstName: null,
+          lastName: null,
           subscriptionTier: SubscriptionTier.FREE,
           avatar: null,
           createdAt: expect.any(String),
@@ -222,8 +252,8 @@ describe("Users E2E", () => {
         data: {
           id: expect.any(String),
           email: "test.auth@mail.com",
-          firstName: "Test",
-          lastName: "User",
+          firstName: null,
+          lastName: null,
           subscriptionTier: SubscriptionTier.FREE,
           avatar: null,
           createdAt: expect.any(String),
@@ -275,8 +305,8 @@ describe("Users E2E", () => {
         data: {
           id: expect.any(String),
           email: "test.auth@mail.com",
-          firstName: "Test",
-          lastName: "User",
+          firstName: null,
+          lastName: null,
           subscriptionTier: SubscriptionTier.FREE,
           avatar: "new_url",
           createdAt: expect.any(String),

@@ -19,7 +19,12 @@ export const UserSchema = base.extend({
 });
 export class UserDTO extends createZodDto(UserSchema) {}
 
-export const UserGetSchema = UserSchema.omit({ password: true });
+export const UserGetSchema = UserSchema.omit({
+  password: true,
+  termsAcceptedAt: true,
+  termsVersion: true,
+  privacyVersion: true,
+});
 export class UserGetDTO extends createZodDto(UserGetSchema) {}
 
 export const UserCreateSchema = UserSchema.pick({
@@ -70,13 +75,13 @@ export const UserCreateSchema = UserSchema.pick({
       error: (e) =>
         e.input === undefined ? "First name is required." : undefined,
     })
-    .min(1),
+    .min(1).nullable().optional(),
   lastName: z
     .string({
       error: (e) =>
         e.input === undefined ? "Last name is required." : undefined,
     })
-    .min(1),
+    .min(1).nullable().optional(),
 });
 
 export class UserCreateDTO extends createZodDto(UserCreateSchema) {}

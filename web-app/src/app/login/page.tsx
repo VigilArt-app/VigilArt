@@ -7,14 +7,12 @@ import { useTranslation } from "react-i18next"
 import { Button } from "../../components/ui/button"
 import { Input } from "../../components/ui/input"
 import { Label } from "../../components/ui/label"
-import { Switch } from "../../components/ui/switch"
 import { authenticatedFetch } from "@/src/utils/auth/authenticatedFetch"
 
 export default function LoginPage() {
     const { t } = useTranslation()
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
-    const [remember, setRemember] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
 
@@ -75,16 +73,6 @@ export default function LoginPage() {
                                 <div>
                                     <Label htmlFor="password" className="mb-2">{t("login_page.password")}</Label>
                                     <Input id="password" type="password" placeholder={t("login_page.placeholder_password")} value={password} onChange={(e) => setPassword(e.target.value)}/>
-                                </div>
-
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-3">
-                                        <Switch checked={remember} onCheckedChange={(val) => setRemember(Boolean(val))} aria-label="Remember me" />
-                                        <span className="text-sm">{t("login_page.remember_me")}</span>
-                                    </div>
-                                    <Link href="#" className="text-sm text-primary">
-                                        {t("login_page.forgot_password")}
-                                    </Link>
                                 </div>
 
                                 {error && (

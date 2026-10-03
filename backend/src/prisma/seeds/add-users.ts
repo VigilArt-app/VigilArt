@@ -10,8 +10,8 @@ export const initialUsers = [
       "H4shed_password_",
       Number(process.env["SALT_ROUNDS"] || 10)
     ),
-    firstName: "Ayaka",
-    lastName: "Suda",
+    firstName: null,
+    lastName: null,
     avatar: null,
     subscriptionTier: SubscriptionTier.FREE
   },
@@ -22,8 +22,8 @@ export const initialUsers = [
       "H4shed_password#",
       Number(process.env["SALT_ROUNDS"] || 10)
     ),
-    firstName: "Amanda",
-    lastName: "Rowles",
+    firstName: null,
+    lastName: null,
     avatar: null,
     subscriptionTier: SubscriptionTier.FREE
   }

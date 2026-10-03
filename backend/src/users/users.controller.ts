@@ -18,8 +18,7 @@ import { ApiBody, ApiParam } from "@nestjs/swagger";
 import {
   UserCreateDTO,
   UserUpdateDTO,
-  UserGetDTO,
-  UserDTO
+  UserGetDTO
 } from "@vigilart/shared/schemas";
 import type { UserGet } from "@vigilart/shared/types";
 
@@ -60,7 +59,7 @@ export class UsersController {
     summary: "Retrieve a user by ID",
     success: {
       status: HttpStatus.OK,
-      type: UserDTO
+      type: UserGetDTO
     },
     errors: [HttpStatus.NOT_FOUND],
     protected: true,
@@ -76,7 +75,7 @@ export class UsersController {
     summary: "Retrieve a user by email",
     success: {
       status: HttpStatus.OK,
-      type: UserDTO
+      type: UserGetDTO
     },
     errors: [HttpStatus.NOT_FOUND],
     protected: true,

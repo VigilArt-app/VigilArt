@@ -193,7 +193,13 @@ export class AuthService {
       throw new UnauthorizedException("Invalid credentials");
 
     const tokens = await this.generateTokens(user.id, user.email, request, clientType);
-    const { password: hashedPassword, ...userProfile } = user;
+    const {
+      password: hashedPassword,
+      termsAcceptedAt,
+      termsVersion,
+      privacyVersion,
+      ...userProfile
+    } = user;
 
     this.setAuthCookies(response, tokens);
     return { user: userProfile, tokens };
@@ -220,8 +226,8 @@ export class AuthService {
   async signUp({
     email,
     password,
-    firstName,
-    lastName
+    termsVersion,
+    privacyVersion
   }: SignUp): Promise<UserGet> {
     const userExists = await this.usersService.findByEmail(email);
     if (userExists) throw new ConflictException("Email already in use");
@@ -231,8 +237,12 @@ export class AuthService {
     return this.usersService.create({
       email,
       password: hashedPassword,
-      firstName,
-      lastName
+      firstName: null,
+      lastName: null
+    }, {
+      termsAcceptedAt: new Date(),
+      termsVersion,
+      privacyVersion
     });
   }
 
