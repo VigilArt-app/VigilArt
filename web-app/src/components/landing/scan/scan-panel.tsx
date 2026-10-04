@@ -257,6 +257,10 @@ export const ScanPanel = (): React.JSX.Element => {
 
         <Turnstile onToken={setTurnstileToken} resetSignal={tokensSpent} />
 
+        <p className="mt-4 shrink-0 text-sm text-muted-foreground">
+          {t("scan_coverage.result_note")}
+        </p>
+
         <Button
           className="mt-4 w-full shrink-0"
           disabled={isPublicScanDisabled({

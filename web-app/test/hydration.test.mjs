@@ -6,7 +6,8 @@ import test from "node:test";
 const baseUrl = process.env.HYDRATION_TEST_URL ?? "http://localhost:3100";
 const browser = process.env.CHROMIUM_BIN ?? "chromium-browser";
 
-for (const path of ["/", "/faq", "/privacy", "/terms"]) {
+// Login and sign-up also exercise the application shell's Radix controls.
+for (const path of ["/", "/faq", "/privacy", "/terms", "/login", "/sign-up"]) {
   test(`${path} hydrates without server/client mismatches`, async () => {
     const response = await fetch(new URL(path, baseUrl));
     assert.equal(response.status, 200, "start the Next.js dev server first");

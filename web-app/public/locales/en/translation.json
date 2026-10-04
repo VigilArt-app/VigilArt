@@ -55,7 +55,7 @@
       "supported_formats": "Supported formats: JPEG, PNG",
       "cancel": "Cancel",
       "upload": "Upload",
-      "uploaded_files": "Uploaded files",
+      "uploaded_files": "Upload files",
       "uploading": "Uploading...",
       "add_description": "Add a description (optional)",
       "artworks": "artworks",
@@ -236,9 +236,11 @@
   "artwork_gallery_page": {
     "artwork_gallery": "Artwork Gallery",
     "all": "All",
-    "scanned": "Scanned",
-    "scanning": "Scanning",
-    "protected": "Protected",
+    "not_scanned": "Not scanned yet",
+    "not_scanned_body": "This artwork has not been scanned yet.",
+    "results_unavailable": "Results unavailable",
+    "no_matches_found": "No matches found",
+    "matches_found": "Matches found",
     "untitled": "Untitled",
     "uploaded": "Uploaded",
     "encod_date": "en-US",
@@ -251,7 +253,7 @@
     "file_size": "File size:",
     "id": "ID:",
     "all_links_matches": "All links of matches:",
-    "no_matches": "No matches found for this artwork.",
+    "no_matches": "No matches recorded for this artwork.",
     "matches": "Matches",
     "last_source": "Most recent source",
     "last_detected": "Last detected",
@@ -433,7 +435,7 @@
       "appears_on_one": "Your artwork appears on 1 page.",
       "appears_on_other": "Your artwork appears on {{count}} pages.",
       "no_matches_title": "Nothing found this time.",
-      "no_matches_body": "Your artwork does not appear anywhere the search reached. That can change, which is why an account rescans it for you.",
+      "no_matches_body": "This scan returned no matching pages. You can search again later.",
       "showing_first": "Showing the first {{count}}.",
       "see_the_rest_one": "Create an account to see the remaining page",
       "see_the_rest_other": "Create an account to see the remaining {{count}} pages",
@@ -447,6 +449,9 @@
       "faq": "FAQ",
       "wordmark_alt": "VigilArt"
     }
+  },
+  "scan_coverage": {
+    "result_note": "This scan is not exhaustive: some content may not be detected."
   },
   "faq_page": {
     "metadata_title": "Frequently Asked Questions | VigilArt",
@@ -480,6 +485,10 @@
       "workflow": {
         "question": "How can an artist check where their work has been reposted? Do I need to upload my artwork to the app?",
         "answer_1": "Yes. Artists upload their artwork to VigilArt, which then searches for matching images across the web."
+      },
+      "coverage": {
+        "question": "What are the limits of scans?",
+        "answer_1": "VigilArt relies on third-party image search services, whose coverage is not exhaustive. Some content, including Instagram posts, private content, or content that is not indexed, may be missed by a scan. No results therefore does not necessarily mean that your artwork has not been reused."
       },
       "progress": {
         "question": "What is the current progress?",

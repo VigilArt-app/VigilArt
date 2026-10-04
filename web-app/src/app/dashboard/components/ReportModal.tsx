@@ -161,6 +161,9 @@ export function ReportModal({
                 </div>
               </div>
             )}
+            <p className="text-sm text-muted-foreground">
+              {t("scan_coverage.result_note")}
+            </p>
           </div>
         ) : null}
 
