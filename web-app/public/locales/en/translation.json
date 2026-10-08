@@ -488,7 +488,7 @@
       },
       "coverage": {
         "question": "What are the limits of scans?",
-        "answer_1": "VigilArt relies on third-party image search services, whose coverage is not exhaustive. Some content, including Instagram posts, private content, or content that is not indexed, may be missed by a scan. No results therefore does not necessarily mean that your artwork has not been reused."
+        "answer_1": "VigilArt currently relies on Google Lens, through the third-party service SerpApi: only content indexed by Google can be found. Some content, including Instagram posts, private content or content that is not indexed, may therefore be missed by a scan. No results does not prove that your artwork has not been reused."
       },
       "progress": {
         "question": "What is the current progress?",

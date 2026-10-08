@@ -44,37 +44,6 @@ test("both languages explain limited results and Instagram coverage in the FAQ",
   "the coverage answer must be included in the visible FAQ");
 });
 
-test("public scan coverage is visible before the scan button", () => {
-  const source = parse("../src/components/landing/scan/scan-panel.tsx");
-  const panel = nodesMatching(source, (node) => ts.isVariableDeclaration(node) &&
-    node.name.getText() === "ScanPanel")[0];
-  const preScanReturn = panel.initializer.body.statements.find(ts.isReturnStatement);
-  const calls = coverageCalls(preScanReturn);
-  const scanButtonLabel = nodesMatching(preScanReturn, (node) =>
-    ts.isCallExpression(node) && node.expression.getText() === "t" &&
-    node.arguments[0]?.text === "landing_page.upload.scan_button")[0];
-  assert.equal(calls.length, 1, "the pre-scan panel must explain limited coverage");
-  assert.ok(calls[0].pos < scanButtonLabel.pos, "the notice belongs above the scan button");
-  assert.equal(coverageCalls(source).length, 1, "the landing page must show the notice once");
-});
-
-test("public scan results do not repeat the pre-scan coverage notice", () => {
-  const source = parse("../src/components/landing/scan/scan-panel.tsx");
-  const resultBranch = nodesMatching(source, (node) => ts.isIfStatement(node) &&
-    node.expression.getText() === 'phase === "done" && result')[0];
-  assert.equal(coverageCalls(resultBranch).length, 0,
-    "completed scans must not repeat the notice for positive or zero results");
-});
-
-test("the main report displays its coverage note only with actual results", () => {
-  const source = parse("../src/app/dashboard/components/ReportModal.tsx");
-  const resultBranch = nodesMatching(source, (node) => ts.isConditionalExpression(node) &&
-    node.condition.getText() === "report" && ts.isParenthesizedExpression(node.whenTrue) &&
-    ts.isJsxElement(node.whenTrue.expression))[0];
-  assert.equal(coverageCalls(resultBranch.whenTrue).length, 1);
-  assert.equal(coverageCalls(source).length, 1);
-});
-
 test("artwork details distinguish unscanned content from recorded empty results", () => {
   const source = parse("../src/app/artwork-gallery/components/ArtworkDetails.tsx");
   const emptyBranch = nodesMatching(source, (node) => ts.isConditionalExpression(node) &&

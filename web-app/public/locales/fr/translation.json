@@ -488,7 +488,7 @@
       },
       "coverage": {
         "question": "Quelles sont les limites des scans ?",
-        "answer_1": "VigilArt dépend de services tiers de recherche d’images : leur couverture n’est pas exhaustive. Certains contenus, notamment sur Instagram, privés ou non indexés, peuvent échapper au scan. Aucun résultat ne signifie donc pas forcément qu’aucune réutilisation n’existe."
+        "answer_1": "VigilArt s’appuie actuellement sur Google Lens, via le service tiers SerpApi : seuls les contenus indexés par Google peuvent être trouvés. Certains contenus, notamment sur Instagram, privés ou non indexés, peuvent donc échapper au scan. Une absence de résultat ne prouve pas qu’aucune réutilisation n’existe."
       },
       "progress": {
         "question": "Où en est le développement ?",
