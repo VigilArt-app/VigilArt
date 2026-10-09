@@ -254,18 +254,23 @@ describe("ReportsService", () => {
             url: `${base}?lang=es&utm_source=provider#results`,
             category: "SOCIAL"
           },
-          { url: `${base}?lang=es&fbclid=abc`, category: "SOCIAL" }
+          { url: `${base}?s=20&fbclid=abc`, category: "SOCIAL" },
+          {
+            url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ&si=AbC123xyz",
+            category: "SOCIAL"
+          }
         ]
       });
 
       await service.generate("user-id");
 
-      // Both provider results collapse onto the same canonical URL; the DB's
+      // Both tweet results collapse onto the same canonical URL; the DB's
       // `skipDuplicates` on `[url, artworkId]` then dedupes them to one row.
       const persisted = matchingPagesService.createMany.mock.calls[0][0];
       expect(persisted.map((m: { url: string }) => m.url)).toEqual([
-        `${base}?lang=es`,
-        `${base}?lang=es`
+        base,
+        base,
+        "https://youtube.com/watch?v=dQw4w9WgXcQ"
       ]);
     });
 

@@ -99,25 +99,49 @@ const normalizeHost = (hostname: string): string => {
   return hostname;
 };
 
-const TRACKING_QUERY_PARAMETERS = new Set(["fbclid", "gclid"]);
+// `lang` is dropped on every site: it only picks the display language of the
+// same page, so language variants must dedupe to one match.
+const IGNORED_QUERY_PARAMETERS = new Set([
+  "fbclid",
+  "gclid",
+  "igsh",
+  "igshid",
+  "lang"
+]);
 
-const isTrackingQueryParameter = (name: string): boolean => {
+// Share params that identify a resource elsewhere, so only dropped on these
+// sites (YouTube `t` is a timestamp and is kept).
+const SITE_IGNORED_QUERY_PARAMETERS = new Map([
+  ["x.com", new Set(["s", "t"])],
+  ["twitter.com", new Set(["s", "t"])],
+  ["youtube.com", new Set(["si", "feature"])],
+  ["youtu.be", new Set(["si", "feature"])]
+]);
+
+const isIgnoredQueryParameter = (
+  name: string,
+  siteParameters: Set<string> | undefined
+): boolean => {
   const normalizedName = name.toLowerCase();
   return (
     normalizedName.startsWith("utm_") ||
-    TRACKING_QUERY_PARAMETERS.has(normalizedName)
+    IGNORED_QUERY_PARAMETERS.has(normalizedName) ||
+    (siteParameters?.has(normalizedName) ?? false)
   );
 };
 
-// Canonicalize host variants and remove visit-tracking data while preserving
-// query parameters that may identify the matched resource itself.
+// Canonicalize host variants and remove tracking, share and locale data while
+// preserving query parameters that may identify the matched resource itself.
 export const normalizeMatchUrl = (rawUrl: string): string => {
   try {
     const url = new URL(rawUrl);
+    const siteParameters = SITE_IGNORED_QUERY_PARAMETERS.get(
+      getDomain(url.hostname) ?? url.hostname
+    );
     const queryEntries = url.search.slice(1).split("&");
     const retainedEntries = queryEntries.filter((entry) => {
       const name = new URLSearchParams(`?${entry}`).keys().next().value;
-      return name === undefined || !isTrackingQueryParameter(name);
+      return name === undefined || !isIgnoredQueryParameter(name, siteParameters);
     });
     if (retainedEntries.length !== queryEntries.length) {
       // Mutating searchParams also re-encodes retained values, breaking deduplication.

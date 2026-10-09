@@ -1,10 +1,55 @@
 import { normalizeMatchUrl } from "./website-class";
 
 describe("normalizeMatchUrl", () => {
-  it("Should preserve query parameters that can identify a resource", () => {
+  it("Should collapse a tweet with and without ?lang=es to one value", () => {
+    const base = "https://x.com/ayaka_s/status/1777995868702171417";
+    expect(normalizeMatchUrl(`${base}?lang=es`)).toBe(normalizeMatchUrl(base));
+  });
+
+  it.each([
+    ["https://x.com/ayaka_s/status/1777995868702171417?s=20", "x.com"],
+    [
+      "https://x.com/ayaka_s/status/1777995868702171417?t=Xy3aB9cD1eF2gH4iJ5kL6m&s=19",
+      "x.com"
+    ],
+    [
+      "https://twitter.com/ayaka_s/status/1777995868702171417?s=46&t=Xy3aB9cD1eF2gH4iJ5kL6m",
+      "twitter.com"
+    ]
+  ])("Should drop X share parameters from %s", (sharedUrl, host) => {
+    expect(normalizeMatchUrl(sharedUrl)).toBe(
+      `https://${host}/ayaka_s/status/1777995868702171417`
+    );
+  });
+
+  it.each([
+    "https://www.youtube.com/watch?v=dQw4w9WgXcQ&si=AbC123xyz",
+    "https://www.youtube.com/watch?v=dQw4w9WgXcQ&feature=shared"
+  ])("Should drop YouTube share parameters from %s and keep the video", (sharedUrl) => {
+    expect(normalizeMatchUrl(sharedUrl)).toBe(
+      "https://youtube.com/watch?v=dQw4w9WgXcQ"
+    );
+  });
+
+  it("Should keep the YouTube timestamp t", () => {
     expect(
-      normalizeMatchUrl("https://x.com/ayaka_s/status/1777995868702171417?lang=es")
-    ).toBe("https://x.com/ayaka_s/status/1777995868702171417?lang=es");
+      normalizeMatchUrl("https://www.youtube.com/watch?v=dQw4w9WgXcQ&t=42")
+    ).toBe("https://youtube.com/watch?v=dQw4w9WgXcQ&t=42");
+  });
+
+  it.each(["igsh=MWZ4a2N0bXg5ZHB2Mg==", "igshid=YmMyMTA2M2Y="])(
+    "Should drop the Instagram share parameter %s",
+    (shareParameter) => {
+      expect(
+        normalizeMatchUrl(`https://www.instagram.com/p/C1a2B3c4D5e/?${shareParameter}`)
+      ).toBe("https://instagram.com/p/C1a2B3c4D5e/");
+    }
+  );
+
+  it("Should keep s and t outside X", () => {
+    expect(normalizeMatchUrl("https://example.com/search?s=art&t=42")).toBe(
+      "https://example.com/search?s=art&t=42"
+    );
   });
 
   it("Should strip the fragment", () => {
