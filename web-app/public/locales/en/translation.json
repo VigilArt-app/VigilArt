@@ -494,7 +494,7 @@
   "privacy_page": {
     "metadata_title": "Privacy Policy | VigilArt",
     "title": "Privacy Policy",
-    "last_updated": "Last updated: September 9, 2026",
+    "last_updated": "Last updated: October 4, 2026",
     "blocks": [
       { "type": "h2", "content": ["1. About This Policy"] },
       { "type": "p", "content": ["This Privacy Policy explains what personal data VigilArt processes and how we use it."] },
@@ -526,10 +526,11 @@
       { "type": "p", "content": ["VigilArt does not sell your personal data."] },
       { "type": "h2", "content": ["4. Data Retention and Deletion"] },
       { "type": "p", "content": ["Account data, artwork records, scan history, and matches are generally retained while your account is active or until you delete them."] },
-      { "type": "p", "content": ["Guest-scan results are currently retained for approximately one hour. Temporary guest-scan images are deleted after processing completes. A storage lifecycle rule removes abandoned guest-scan images within one day if processing does not complete normally."] },
+      { "type": "p", "content": ["Guest-scan results become eligible for automatic cleanup one hour after a scan completes or fails. Cleanup is triggered when another scan completes or fails, so results may remain stored and accessible for longer."] },
+      { "type": "p", "content": ["VigilArt attempts to delete temporary guest-scan images when processing ends, including after a scan fails. Images may remain if processing is interrupted or deletion fails. Additional automatic cleanup depends on the configured storage lifecycle rules; deletion within one day is not guaranteed."] },
       { "type": "p", "content": ["SerpApi retains search data for 31 days under its own policy."] },
       { "type": "p", "content": ["Feedback-form responses are retained only as long as reasonably necessary to analyze feedback and improve VigilArt."] },
-      { "type": "p", "content": ["You may delete individual artworks or your account through VigilArt."] },
+      { "type": "p", "content": ["You may delete individual artworks or your account through VigilArt. Deleting an artwork removes its database record and attempts to delete its uploaded file. The file may remain if storage cleanup fails or is interrupted."] },
       { "type": "p", "content": ["At present, deleting your account removes the account and most associated records from VigilArt's main database. DMCA notice records are retained without a link to the deleted account. Artwork files and profile images are not automatically removed from object storage when the account is deleted."] },
       { "type": "p", "content": ["For requests concerning your data, including feedback-form data, contact ", { "text": "vigilart.app@gmail.com", "href": "mailto:vigilart.app@gmail.com" }, "."] },
       { "type": "h2", "content": ["5. International Data Transfers"] },

@@ -30,7 +30,7 @@ test("signup requires unchecked consent, links policies, and has no name fields"
   await page.getByRole("button", { name: "Sign up", exact: true }).click();
   expect((await request).postDataJSON()).toEqual({
     email: "artist@example.com", password: "Secure_P4ssword", acceptedTerms: true,
-    termsVersion: "2026-09-09", privacyVersion: "2026-09-09",
+    termsVersion: "2026-09-09", privacyVersion: "2026-10-04",
   });
   await expect(page).toHaveURL(/\/login$/);
 });

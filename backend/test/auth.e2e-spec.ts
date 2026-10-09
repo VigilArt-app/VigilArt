@@ -37,6 +37,7 @@ describe("Auth E2E", () => {
       { acceptedTerms: undefined }, { acceptedTerms: false }, { acceptedTerms: "true" },
       { termsVersion: undefined }, { privacyVersion: undefined },
       { termsVersion: "outdated" }, { privacyVersion: "outdated" },
+      { privacyVersion: "2026-09-09" },
     ])("rejects invalid consent without creating an account: %p", async (invalidConsent) => {
       await api.post("/auth/signup").send({
         email: "no-consent@example.com", password: "Secure_P4ssword",
@@ -55,7 +56,7 @@ describe("Auth E2E", () => {
       expect(user.firstName).toBeNull();
       expect(user.lastName).toBeNull();
       expect(user.termsVersion).toBe("2026-09-09");
-      expect(user.privacyVersion).toBe("2026-09-09");
+      expect(user.privacyVersion).toBe("2026-10-04");
       expect(user.termsAcceptedAt!.getTime()).toBeGreaterThanOrEqual(before);
       expect(user.termsAcceptedAt!.getTime()).toBeLessThanOrEqual(Date.now());
     });
@@ -226,7 +227,24 @@ describe("Auth E2E", () => {
       const after = await prismaService.user.findUniqueOrThrow({ where: { id: before.id } });
       expect(after.termsAcceptedAt).toEqual(before.termsAcceptedAt);
       expect(after.termsVersion).toBe("2026-09-09");
+      expect(after.privacyVersion).toBe("2026-10-04");
+    });
+
+    it("allows login without rewriting an earlier recorded privacy acceptance", async () => {
+      await api.signup("earlier-policy@example.com", "Secure_P4ssword");
+      const acceptedAt = new Date("2026-09-09T00:00:00.000Z");
+      const before = await prismaService.user.update({
+        where: { email: "earlier-policy@example.com" },
+        data: { privacyVersion: "2026-09-09", termsAcceptedAt: acceptedAt },
+      });
+
+      await api.post("/auth/login").send({
+        email: before.email, password: "Secure_P4ssword",
+      }).expect(HttpStatus.OK);
+
+      const after = await prismaService.user.findUniqueOrThrow({ where: { id: before.id } });
       expect(after.privacyVersion).toBe("2026-09-09");
+      expect(after.termsAcceptedAt).toEqual(acceptedAt);
     });
 
     it("Should login successfully", async () => {
