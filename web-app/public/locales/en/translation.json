@@ -494,7 +494,7 @@
   "privacy_page": {
     "metadata_title": "Privacy Policy | VigilArt",
     "title": "Privacy Policy",
-    "last_updated": "Last updated: October 4, 2026",
+    "last_updated": "Last updated: October 9, 2026",
     "blocks": [
       { "type": "h2", "content": ["1. About This Policy"] },
       { "type": "p", "content": ["This Privacy Policy explains what personal data VigilArt processes and how we use it."] },
@@ -528,6 +528,7 @@
       { "type": "p", "content": ["Account data, artwork records, scan history, and matches are generally retained while your account is active or until you delete them."] },
       { "type": "p", "content": ["Guest-scan results become eligible for automatic cleanup one hour after a scan completes or fails. Cleanup is triggered when another scan completes or fails, so results may remain stored and accessible for longer."] },
       { "type": "p", "content": ["VigilArt deletes temporary guest-scan images when processing ends, including after a scan fails. If that deletion fails or processing is interrupted, a storage rule automatically deletes them within one day."] },
+      { "type": "p", "content": ["When you generate a DMCA notice, VigilArt creates a PDF containing the notice details (your name, address, phone number, email, signature and the reported URLs), stores it with Cloudflare R2 so you can download it, and a storage rule automatically deletes it after one day."] },
       { "type": "p", "content": ["SerpApi retains search data for 31 days under its own policy."] },
       { "type": "p", "content": ["Feedback-form responses are retained only as long as reasonably necessary to analyze feedback and improve VigilArt."] },
       { "type": "p", "content": ["You may delete individual artworks or your account through VigilArt. Deleting an artwork removes its database record and attempts to delete its uploaded file. The file may remain if storage cleanup fails or is interrupted."] },

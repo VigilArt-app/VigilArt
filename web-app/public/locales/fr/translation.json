@@ -494,7 +494,7 @@
   "privacy_page": {
     "metadata_title": "Politique de confidentialité | VigilArt",
     "title": "Politique de confidentialité",
-    "last_updated": "Dernière mise à jour : 4 octobre 2026",
+    "last_updated": "Dernière mise à jour : 9 octobre 2026",
     "blocks": [
       { "type": "h2", "content": ["1. À propos de cette politique"] },
       { "type": "p", "content": ["Cette Politique de confidentialité explique quelles données personnelles VigilArt traite et comment nous les utilisons."] },
@@ -528,6 +528,7 @@
       { "type": "p", "content": ["Les données de compte, enregistrements d’œuvres, historiques d’analyse et correspondances sont généralement conservés tant que votre compte est actif ou jusqu’à leur suppression."] },
       { "type": "p", "content": ["Le nettoyage automatique des résultats des analyses sans compte est configuré à partir d’une heure après la fin ou l’échec de l’analyse. Ce nettoyage se déclenche lorsqu’une autre analyse se termine ou échoue ; les résultats peuvent donc rester stockés et accessibles plus longtemps."] },
       { "type": "p", "content": ["VigilArt supprime les images temporaires des analyses sans compte à la fin du traitement, y compris en cas d’échec de l’analyse. Si cette suppression échoue ou si le traitement est interrompu, une règle du stockage les supprime automatiquement au bout d’un jour."] },
+      { "type": "p", "content": ["Lorsque vous générez un avis DMCA, VigilArt crée un PDF contenant les informations de l’avis (votre nom, votre adresse, votre téléphone, votre e-mail, votre signature et les URL signalées) et le stocke chez Cloudflare R2 pour que vous puissiez le télécharger ; une règle du stockage le supprime automatiquement au bout d’un jour."] },
       { "type": "p", "content": ["SerpApi conserve les données de recherche pendant 31 jours conformément à sa propre politique."] },
       { "type": "p", "content": ["Les réponses aux formulaires de retour d’expérience sont conservées uniquement pendant la durée raisonnablement nécessaire à l’analyse des retours et à l’amélioration de VigilArt."] },
       { "type": "p", "content": ["Vous pouvez supprimer individuellement vos œuvres ou votre compte via VigilArt. La suppression d’une œuvre efface son enregistrement dans la base de données et tente de supprimer le fichier importé. Le fichier peut rester stocké si son nettoyage échoue ou est interrompu."] },

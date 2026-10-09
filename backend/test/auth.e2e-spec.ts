@@ -56,7 +56,7 @@ describe("Auth E2E", () => {
       expect(user.firstName).toBeNull();
       expect(user.lastName).toBeNull();
       expect(user.termsVersion).toBe("2026-09-09");
-      expect(user.privacyVersion).toBe("2026-10-04");
+      expect(user.privacyVersion).toBe("2026-10-09");
       expect(user.termsAcceptedAt!.getTime()).toBeGreaterThanOrEqual(before);
       expect(user.termsAcceptedAt!.getTime()).toBeLessThanOrEqual(Date.now());
     });
@@ -227,7 +227,7 @@ describe("Auth E2E", () => {
       const after = await prismaService.user.findUniqueOrThrow({ where: { id: before.id } });
       expect(after.termsAcceptedAt).toEqual(before.termsAcceptedAt);
       expect(after.termsVersion).toBe("2026-09-09");
-      expect(after.privacyVersion).toBe("2026-10-04");
+      expect(after.privacyVersion).toBe("2026-10-09");
     });
 
     it("allows login without rewriting an earlier recorded privacy acceptance", async () => {
