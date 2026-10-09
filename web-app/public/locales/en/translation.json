@@ -527,7 +527,7 @@
       { "type": "h2", "content": ["4. Data Retention and Deletion"] },
       { "type": "p", "content": ["Account data, artwork records, scan history, and matches are generally retained while your account is active or until you delete them."] },
       { "type": "p", "content": ["Guest-scan results become eligible for automatic cleanup one hour after a scan completes or fails. Cleanup is triggered when another scan completes or fails, so results may remain stored and accessible for longer."] },
-      { "type": "p", "content": ["VigilArt attempts to delete temporary guest-scan images when processing ends, including after a scan fails. Images may remain if processing is interrupted or deletion fails. Additional automatic cleanup depends on the configured storage lifecycle rules; deletion within one day is not guaranteed."] },
+      { "type": "p", "content": ["VigilArt deletes temporary guest-scan images when processing ends, including after a scan fails. If that deletion fails or processing is interrupted, a storage rule automatically deletes them within one day."] },
       { "type": "p", "content": ["SerpApi retains search data for 31 days under its own policy."] },
       { "type": "p", "content": ["Feedback-form responses are retained only as long as reasonably necessary to analyze feedback and improve VigilArt."] },
       { "type": "p", "content": ["You may delete individual artworks or your account through VigilArt. Deleting an artwork removes its database record and attempts to delete its uploaded file. The file may remain if storage cleanup fails or is interrupted."] },
