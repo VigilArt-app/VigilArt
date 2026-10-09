@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import type { UploadUrlsGetDTO } from "@vigilart/shared";
-import { getImageDimensions } from "./imageUtils";
+import { getImageDimensions } from "@/src/components/upload/compressImage";
 import { authenticatedFetch } from "@/src/utils/auth/authenticatedFetch";
 import { useAuth } from "@/src/components/contexts/authContext";
 import { useTranslation } from "react-i18next";

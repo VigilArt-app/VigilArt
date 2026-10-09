@@ -1,79 +1,121 @@
-'use client';
+"use client";
 
+import globalI18n, { createInstance, type i18n as I18nInstance } from "i18next";
+import { I18nextProvider, initReactI18next } from "react-i18next";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { Skeleton } from "../../components/ui/skeleton";
-import { ThemeProvider } from "next-themes";
-import i18n from 'i18next';
-import { initReactI18next } from 'react-i18next';
-import { useEffect, useState } from 'react';
-import { getCookie, setCookie } from '../cookies';
-import i18next from 'i18next';
-import enTranslations from '../../../public/locales/en/translation.json';
-import frTranslations from '../../../public/locales/fr/translation.json';
-import { Toaster, toast } from "sonner";
+import { setCookie } from "../cookies";
+import enTranslations from "../../../public/locales/en/translation.json";
+import frTranslations from "../../../public/locales/fr/translation.json";
+import { bindLanguageSync, type AppLanguage } from "./language";
 
-function SkeletonLoader() {
+const resources = {
+  en: { translation: enTranslations },
+  fr: { translation: frTranslations },
+};
 
-  return (
-    <div className="w-full h-full" suppressHydrationWarning>
-      <div className="fixed top-0 left-0 h-screen w-64 border-r bg-background p-6">
-        <div className="flex items-center justify-center h-[280px]">
-          <Skeleton className="h-[200px] w-[200px] rounded-4xl bg-black/5 dark:bg-white/10" suppressHydrationWarning /> {/* Logo */}
-        </div>
-        <div className="space-y-4">
-          {[1, 2, 3, 4].map((i) => (
-          <Skeleton key={i} className="h-10 w-full bg-black/5 dark:bg-white/10" suppressHydrationWarning />
-          ))} {/* Nav item */}
-        </div>
+const initialize = (
+  instance: I18nInstance,
+  language: AppLanguage,
+): Promise<unknown> =>
+  instance.use(initReactI18next).init({
+    lng: language,
+    fallbackLng: "en",
+    supportedLngs: ["en", "fr"],
+    debug: process.env.NODE_ENV === "development",
+    initImmediate: false,
+    interpolation: {
+      escapeValue: false,
+    },
+    resources,
+  });
+
+if (!globalI18n.isInitialized) {
+  void initialize(globalI18n, "en");
+}
+
+const createScopedI18n = (language: AppLanguage) => {
+  const instance = createInstance();
+  const initialization = initialize(instance, language);
+
+  return { instance, initialization };
+};
+
+const SkeletonLoader = (): React.JSX.Element => (
+  <div className="h-full w-full" suppressHydrationWarning>
+    <div className="fixed top-0 left-0 h-screen w-64 border-r bg-background p-6">
+      <div className="flex h-[280px] items-center justify-center">
+        <Skeleton
+          className="h-[200px] w-[200px] rounded-4xl bg-black/5 dark:bg-white/10"
+          suppressHydrationWarning
+        />
       </div>
+      <div className="space-y-4">
+        {[1, 2, 3, 4].map((item) => (
+          <Skeleton
+            key={item}
+            className="h-10 w-full bg-black/5 dark:bg-white/10"
+            suppressHydrationWarning
+          />
+        ))}
+      </div>
+    </div>
 
-      <div className="ml-64 p-6">
-        <div className="max-w-3xl">
-          {/* <Skeleton className="h-12 w-3/4 mb-6 bg-black/5 dark:bg-white/10" suppressHydrationWarning /> if potential title */}
-          <div className="space-y-4">
-            <Skeleton className="h-[200px] w-full bg-black/5 dark:bg-white/10" suppressHydrationWarning /> {/* Card 1 */}
-            <Skeleton className="h-[200px] w-full bg-black/5 dark:bg-white/10" suppressHydrationWarning /> {/* Card 2 */}
-          </div>
+    <div className="ml-64 p-6">
+      <div className="max-w-3xl">
+        <div className="space-y-4">
+          <Skeleton
+            className="h-[200px] w-full bg-black/5 dark:bg-white/10"
+            suppressHydrationWarning
+          />
+          <Skeleton
+            className="h-[200px] w-full bg-black/5 dark:bg-white/10"
+            suppressHydrationWarning
+          />
         </div>
       </div>
     </div>
-  );
-}
+  </div>
+);
 
-function I18nProvider({ children }: { children: React.ReactNode }) {
-  const [isInitialized, setIsInitialized] = useState(false);
+const I18nProvider = ({
+  children,
+  fallback,
+  language,
+}: {
+  children: React.ReactNode;
+  fallback?: React.ReactNode;
+  language: AppLanguage;
+}): React.JSX.Element => {
+  const router = useRouter();
+  const [{ instance, initialization }] = useState(() =>
+    createScopedI18n(language),
+  );
+  const [isInitialized, setIsInitialized] = useState(instance.isInitialized);
   const [hasInitError, setHasInitError] = useState(false);
 
   useEffect(() => {
-    const init = async () => {
-      try {
-        await i18n
-          .use(initReactI18next)
-          .init({
-            lng: 'en',
-            fallbackLng: 'en',
-            supportedLngs: ['en', 'fr'],
-            debug: process.env.NODE_ENV === 'development',
-            interpolation: {
-              escapeValue: false,
-            },
-            resources: {
-              en: {
-                translation: enTranslations,
-              },
-              fr: {
-                translation: frTranslations,
-              },
-            },
-          });
+    void initialization
+      .then(() => setIsInitialized(true))
+      .catch(() => setHasInitError(true));
+  }, [initialization]);
 
-        setIsInitialized(true);
-      } catch (error) {
-        setHasInitError(true);
-      }
-    };
+  useEffect(() => {
+    if (instance.language !== language) {
+      void instance.changeLanguage(language);
+    }
+  }, [instance, language]);
 
-    init();
-  }, []);
+  useEffect(
+    () => bindLanguageSync(instance, globalI18n, (nextLanguage) => {
+      setCookie("language", nextLanguage);
+      document.documentElement.lang = nextLanguage;
+      router.refresh();
+    }),
+    [instance, router],
+  );
 
   useEffect(() => {
     if (hasInitError) {
@@ -81,30 +123,11 @@ function I18nProvider({ children }: { children: React.ReactNode }) {
     }
   }, [hasInitError]);
 
-  useEffect(() => {
-    const savedLanguage = getCookie('language') || 'en'
-
-    i18next.changeLanguage(savedLanguage)
-
-    i18next.on('languageChanged', (lng) => {
-      setCookie('language', lng)
-    })
-
-    return () => {
-      i18next.off('languageChanged')
-    }
-  }, [])
-
   if (!isInitialized) {
-    return (
-      <ThemeProvider attribute="class" defaultTheme="system" enableSystem >
-        <Toaster position="top-right" richColors />
-        <SkeletonLoader />
-      </ThemeProvider>
-    );
+    return fallback !== undefined ? <>{fallback}</> : <SkeletonLoader />;
   }
 
-  return <>{children}</>;
-}
+  return <I18nextProvider i18n={instance}>{children}</I18nextProvider>;
+};
 
 export default I18nProvider;
