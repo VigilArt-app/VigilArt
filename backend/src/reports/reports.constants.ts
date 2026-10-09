@@ -4,6 +4,7 @@ export const REPORTS_QUEUE = "reports";
 export const GENERATE_REPORT_JOB = "generate-report";
 
 export const MAX_SCANS_PER_WINDOW = 10;
+export const FREE_SCANS_PER_WINDOW = 3;
 export const SCAN_WINDOW_DAYS = 30;
 
 // Cache key for a user's aggregated statistics. Only the time-invariant "all"

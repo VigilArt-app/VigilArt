@@ -7,7 +7,7 @@ describe("PublicScanBudgetService", () => {
   let service: PublicScanBudgetService;
   let redis: {
     incr: jest.Mock;
-    decr: jest.Mock;
+    eval: jest.Mock;
     expire: jest.Mock;
     get: jest.Mock;
   };
@@ -15,7 +15,7 @@ describe("PublicScanBudgetService", () => {
   const build = async (budget: string | undefined, nodeEnv = "production") => {
     redis = {
       incr: jest.fn(),
-      decr: jest.fn().mockResolvedValue(0),
+      eval: jest.fn().mockResolvedValue(0),
       expire: jest.fn().mockResolvedValue(1),
       get: jest.fn()
     };
@@ -40,15 +40,15 @@ describe("PublicScanBudgetService", () => {
       await build("5");
       redis.incr.mockResolvedValue(3);
 
-      await expect(service.reserve()).resolves.toBe(true);
-      expect(redis.decr).not.toHaveBeenCalled();
+      await expect(service.reserve()).resolves.toEqual(expect.stringContaining("public-scan:budget:"));
+      expect(redis.eval).not.toHaveBeenCalled();
     });
 
     it("Should allow the last scan of the day", async () => {
       await build("5");
       redis.incr.mockResolvedValue(5);
 
-      await expect(service.reserve()).resolves.toBe(true);
+      await expect(service.reserve()).resolves.toEqual(expect.stringContaining("public-scan:budget:"));
     });
 
     // Without the DECR the counter climbs on every refused request, so the
@@ -57,8 +57,8 @@ describe("PublicScanBudgetService", () => {
       await build("5");
       redis.incr.mockResolvedValue(6);
 
-      await expect(service.reserve()).resolves.toBe(false);
-      expect(redis.decr).toHaveBeenCalledTimes(1);
+      await expect(service.reserve()).resolves.toBeNull();
+      expect(redis.eval).toHaveBeenCalledTimes(1);
     });
 
     // Re-setting the TTL on every scan would push the daily reset further away
@@ -78,17 +78,19 @@ describe("PublicScanBudgetService", () => {
       await build("0");
       redis.incr.mockResolvedValue(1);
 
-      await expect(service.reserve()).resolves.toBe(false);
+      await expect(service.reserve()).resolves.toBeNull();
     });
 
     // An unset or malformed value must not mean "unlimited": that would leave
     // the Google Lens bill unbounded on a misconfigured deploy.
     it("Should fall back to the built-in budget when the env var is unusable", async () => {
       await build(undefined);
-      expect(service.budget).toBe(5);
+      expect(service.budget).toBe(15);
 
       await build("not-a-number");
-      expect(service.budget).toBe(5);
+      expect(service.budget).toBe(15);
+      await build(" ");
+      expect(service.budget).toBe(15);
     });
   });
 
@@ -98,9 +100,9 @@ describe("PublicScanBudgetService", () => {
     it("Should let every scan through without touching Redis", async () => {
       await build("5", "development");
 
-      await expect(service.reserve()).resolves.toBe(true);
-      await expect(service.reserve()).resolves.toBe(true);
-      await expect(service.reserve()).resolves.toBe(true);
+      await expect(service.reserve()).resolves.toBe("unenforced");
+      await expect(service.reserve()).resolves.toBe("unenforced");
+      await expect(service.reserve()).resolves.toBe("unenforced");
       expect(redis.incr).not.toHaveBeenCalled();
     });
 
@@ -116,7 +118,7 @@ describe("PublicScanBudgetService", () => {
     it("Should treat an unset NODE_ENV as not production", async () => {
       await build("5", "");
 
-      await expect(service.reserve()).resolves.toBe(true);
+      await expect(service.reserve()).resolves.toBe("unenforced");
       expect(redis.incr).not.toHaveBeenCalled();
     });
   });

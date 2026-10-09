@@ -12,10 +12,13 @@ import { ReportsProcessor } from "./reports.processor";
 import { ReportsScheduler } from "./reports.scheduler";
 import { REPORTS_QUEUE } from "./reports.constants";
 import { NotificationsModule } from "../notifications/notifications.module";
+import { ArtworkLimitModule } from "../artworks/artwork-limit.module";
+import { ScanQuotaService } from "./scan-quota.service";
 
 @Module({
   imports: [
     PrismaModule,
+    ArtworkLimitModule,
     ArtworksModule,
     StorageModule,
     VisualSearchModule,
@@ -32,6 +35,6 @@ import { NotificationsModule } from "../notifications/notifications.module";
     })
   ],
   controllers: [ReportsController],
-  providers: [ReportsService, MatchingPagesService, ReportsProcessor, ReportsScheduler]
+  providers: [ReportsService, MatchingPagesService, ReportsProcessor, ReportsScheduler, ScanQuotaService]
 })
 export class ReportsModule {}

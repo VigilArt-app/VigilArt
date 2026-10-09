@@ -46,6 +46,12 @@ export const ArtworksReportScalarFieldEnumSchema = z.enum(['id', 'userId', 'dete
 
 export type ArtworksReportScalarFieldEnum = z.infer<typeof ArtworksReportScalarFieldEnumSchema>;
 
+// File: ScanUsageScalarFieldEnum.schema.ts
+
+export const ScanUsageScalarFieldEnumSchema = z.enum(['id', 'userId', 'startedAt'])
+
+export type ScanUsageScalarFieldEnum = z.infer<typeof ScanUsageScalarFieldEnumSchema>;
+
 // File: DmcaPlatformScalarFieldEnum.schema.ts
 
 export const DmcaPlatformScalarFieldEnumSchema = z.enum(['id', 'slug', 'displayName', 'domain', 'dmcaUrl', 'email', 'websiteCategory', 'formSchema', 'createdAt', 'updatedAt'])
@@ -218,6 +224,17 @@ export const ArtworksReportSchema = z.object({
 });
 
 export type ArtworksReportType = z.infer<typeof ArtworksReportSchema>;
+
+
+// File: ScanUsage.schema.ts
+
+export const ScanUsageSchema = z.object({
+  id: z.string(),
+  userId: z.string(),
+  startedAt: z.coerce.date(),
+});
+
+export type ScanUsageType = z.infer<typeof ScanUsageSchema>;
 
 
 // File: DmcaPlatform.schema.ts

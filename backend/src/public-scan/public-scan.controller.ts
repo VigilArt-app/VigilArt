@@ -40,7 +40,7 @@ export class PublicScanController {
   @UseGuards(TurnstileGuard, PublicThrottlerGuard, PublicScanBudgetGuard)
   // Every configured throttler applies unless it is skipped: @Throttle only
   // overrides a bucket's options, it does not select one. Without the skip, a
-  // poll would also spend the visitor's 2-scans-per-week allowance.
+  // poll would also spend the visitor's 2-scans-per-30-days allowance.
   @SkipThrottle({ [PUBLIC_POLL_THROTTLER]: true })
   // Order matters: the reservation interceptor is declared first so it wraps
   // FileInterceptor, and an upload multer rejects still gives its budget back.

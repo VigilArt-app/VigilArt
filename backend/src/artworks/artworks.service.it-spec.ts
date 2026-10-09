@@ -2,6 +2,7 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { CACHE_MANAGER } from "@nestjs/cache-manager";
 import { PrismaService } from "../prisma/prisma.service";
 import { ArtworksService } from "./artworks.service";
+import { ArtworkLimitService } from "./artwork-limit.service";
 
 describe("ArtworksService", () => {
   let service: ArtworksService;
@@ -27,6 +28,7 @@ describe("ArtworksService", () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         ArtworksService,
+        { provide: ArtworkLimitService, useValue: {} },
         { provide: PrismaService, useValue: prisma },
         { provide: CACHE_MANAGER, useValue: cache }
       ]

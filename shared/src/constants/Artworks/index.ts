@@ -1,2 +1,3 @@
 export const ARTWORKS_DELETE_BATCH_MAX_SIZE = 10;
 export const ARTWORKS_CREATE_BATCH_MAX_SIZE = 20;
+export const FREE_ARTWORK_LIMIT = 5;
