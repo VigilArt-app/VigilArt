@@ -19,6 +19,7 @@ import { Turnstile } from "./turnstile";
 import { isPublicScanDisabled } from "./scan-availability";
 import { TURNSTILE_SITE_KEY } from "../../../config";
 import type { PublicScanResult } from "@vigilart/shared";
+import { RestrictedMatch } from "../../matches/RestrictedMatch";
 
 // recharts is around 100 kB. A visitor who never runs a scan never sees a
 // chart, so it must not sit in the landing page's first load.
@@ -311,17 +312,13 @@ const MatchRow = ({
   const { t } = useTranslation();
   const title = match.pageTitle || match.url;
 
-  // `unsafeDomain` is set by isBlacklisted() against a list of adult image
-  // boards. This page is public and anonymous, so those are listed and counted
-  // but never opened from here; an artist documenting one does it signed in.
+  // Public flagged results remain non-navigable even after explicit reveal.
   if (match.unsafeDomain) {
     return (
+      <RestrictedMatch unsafeDomain resetKey={JSON.stringify(match)}>
       <div className="text-sm">
         <span className="flex flex-wrap items-center gap-x-2 gap-y-1 font-medium">
           {match.websiteName}
-          <span className="rounded-sm border border-destructive/40 px-1.5 py-0.5 text-[11px] font-normal text-destructive">
-            {t("landing_page.result.unsafe_flag")}
-          </span>
           <span className="text-[11px] font-normal text-muted-foreground">
             {t("landing_page.result.unsafe_not_linked")}
           </span>
@@ -330,6 +327,7 @@ const MatchRow = ({
           {title}
         </span>
       </div>
+      </RestrictedMatch>
     );
   }
 

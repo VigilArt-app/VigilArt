@@ -1,9 +1,10 @@
 "use client";
-import { Trash2 } from "lucide-react";
+import { Trash2, TriangleAlert } from "lucide-react";
 import { ArtworkWithInsights, FILTER_STATUS_TRANSLATION_KEYS, getArtworkStatus } from "./types";
 import { useArtworkImageUrl } from "./hooks/useArtworkImageUrl";
 import { useTranslation } from "react-i18next";
 import router from 'next/router';
+import { mostRecentMatch } from "../../../components/matches/mostRecentMatch";
 
 interface ArtworkCardProps {
   artwork: ArtworkWithInsights;
@@ -23,7 +24,11 @@ export function ArtworkCard({
   const { t } = useTranslation();
   const status = getArtworkStatus(artwork);
   const statusLabel = t(FILTER_STATUS_TRANSLATION_KEYS[status]);
-  const mostRecentSource = artwork.reportInsights?.mostRecentSource;
+  const pages = artwork.reportInsights?.matchingPages ?? [];
+  // The card never names a blacklisted site: it shows the latest safe source
+  // and flags the blacklisted ones, which are mostly adult image boards.
+  const latestSafeMatch = mostRecentMatch(pages.filter((page) => !page.unsafeDomain));
+  const blacklistedCount = pages.filter((page) => page.unsafeDomain).length;
   const { imageUrl, isLoading } = useArtworkImageUrl(artwork.storageKey);
 
   const openDmcaPage = (e: React.MouseEvent) => {
@@ -53,7 +58,7 @@ export function ArtworkCard({
         onSelect(artwork);
       }}
     >
-      <div className="absolute top-2 left-2 z-10">
+      <div className="absolute top-2 left-2 z-10 flex flex-col items-start gap-1">
         <div
           className={`px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1 ${
             status === "Scanned"
@@ -68,6 +73,13 @@ export function ArtworkCard({
           {status === "Protected" && "🛡"}
           {statusLabel.toUpperCase()}
         </div>
+        {/* At the top, next to the status: the bottom overlay has no room left on small cards. */}
+        {blacklistedCount > 0 && (
+          <p className="inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-amber-400 px-2 py-0.5 text-[11px] font-semibold text-black">
+            <TriangleAlert className="size-3 shrink-0" aria-hidden="true" />
+            {t("artwork_gallery_page.blacklisted_sites", { count: blacklistedCount })}
+          </p>
+        )}
       </div>
 
       <div className="absolute top-2 right-2 z-10 flex gap-2">
@@ -123,9 +135,9 @@ export function ArtworkCard({
             year: "numeric",
           })}
         </p>
-        {mostRecentSource && (
+        {latestSafeMatch?.websiteName && (
           <p className="text-white/80 text-xs truncate mt-1">
-            {t("artwork_gallery_page.last_source")}: {mostRecentSource}
+            {t("artwork_gallery_page.last_source")}: {latestSafeMatch.websiteName}
           </p>
         )}
       </div>
