@@ -7,6 +7,7 @@ import { ApiClient } from "./api-client";
 import { SubscriptionTier, type UserGet } from "@vigilart/shared";
 import { CACHE_MANAGER } from "@nestjs/cache-manager";
 import type { Cache } from "cache-manager";
+import { addUsers, initialUsers } from "../src/prisma/seeds/add-users";
 
 describe("Users E2E", () => {
   let app: INestApplication;
@@ -50,9 +51,39 @@ describe("Users E2E", () => {
     await cacheManager.clear();
   });
 
+  describe("seeded users", () => {
+    it("creates nameless demo users without recording legal acceptance", async () => {
+      await addUsers(prismaService);
+      const users = await prismaService.user.findMany({
+        where: { id: { in: initialUsers.map(({ id }) => id) } },
+      });
+      expect(users).toHaveLength(2);
+      for (const user of users) {
+        expect(user.firstName).toBeNull();
+        expect(user.lastName).toBeNull();
+        expect(user.termsAcceptedAt).toBeNull();
+        expect(user.termsVersion).toBeNull();
+        expect(user.privacyVersion).toBeNull();
+      }
+    });
+
+    it("does not rewrite existing seeded accounts when rerun", async () => {
+      const existing = await prismaService.user.create({ data: {
+        id: initialUsers[0].id, email: initialUsers[0].email,
+        password: "existing-password-hash", firstName: "Legacy", lastName: "Artist",
+        termsAcceptedAt: new Date("2026-09-10T12:00:00.000Z"),
+        termsVersion: "previous-terms", privacyVersion: "previous-privacy",
+      } });
+      await addUsers(prismaService);
+      await addUsers(prismaService);
+      expect(await prismaService.user.findUniqueOrThrow({ where: { id: existing.id } })).toEqual(existing);
+    });
+  });
+
   describe("POST /users", () => {
-    it("Should create a user", async () => {
-      const res = await api
+    // Removed route: it created accounts without signup consent (#271).
+    it("no longer creates an account, even for a logged-in user", async () => {
+      await api
         .post("/users")
         .send({
           email: "yuki.endo@mail.com",
@@ -60,86 +91,9 @@ describe("Users E2E", () => {
           firstName: "Yuki",
           lastName: "Endo"
         })
-        .expect(HttpStatus.CREATED);
+        .expect(HttpStatus.NOT_FOUND);
 
-      expect(res.body).toEqual({
-        success: true,
-        statusCode: HttpStatus.CREATED,
-        message: "Created",
-        data: {
-          id: expect.any(String),
-          email: "yuki.endo@mail.com",
-          firstName: "Yuki",
-          lastName: "Endo",
-          avatar: null,
-          subscriptionTier: expect.any(String),
-          createdAt: expect.any(String),
-          updatedAt: expect.any(String),
-          autoRunReports: false,
-          notificationsEnabled: false
-        },
-      });
-    });
-
-    it("Shouldn't create a user with an email already used", async () => {
-      await prismaService.user.create({
-        data: {
-          email: "anna@raimon.com",
-          password: "Hashed_P4ssword2",
-          firstName: "Anna",
-          lastName: "Raimon",
-          subscriptionTier: SubscriptionTier.FREE
-        }
-      });
-      const res = await api
-        .post("/users")
-        .send({
-          email: "anna@raimon.com",
-          password: "Secure_P4ssword_",
-          firstName: "Anna",
-          lastName: "Willows"
-        })
-        .expect(HttpStatus.CONFLICT);
-
-      expect(res.body).toEqual({
-        success: false,
-        statusCode: HttpStatus.CONFLICT,
-        message: expect.any(String),
-        error: "Conflict"
-      });
-    });
-
-    it("Shouldn't create a user when required fields are missing", async () => {
-      const res = await api
-        .post("/users")
-        .send({ email: "amelia@mail.com" })
-        .expect(HttpStatus.BAD_REQUEST);
-
-      expect(res.body).toEqual({
-        success: false,
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: expect.any(String),
-        error: "Bad Request"
-      });
-    });
-
-    it("Shouldn't create a user with invalid mail", async () => {
-      const res = await api
-        .post("/users")
-        .send({
-          email: "amanda",
-          password: "Secure_P4ssword",
-          firstName: "Amanda",
-          lastName: "Rowles"
-        })
-        .expect(HttpStatus.BAD_REQUEST);
-
-      expect(res.body).toEqual({
-        success: false,
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: expect.any(String),
-        error: "Bad Request"
-      });
+      expect(await prismaService.user.findUnique({ where: { email: "yuki.endo@mail.com" } })).toBeNull();
     });
   });
 
@@ -168,8 +122,8 @@ describe("Users E2E", () => {
         {
           id: expect.any(String),
           email: "test.auth@mail.com",
-          firstName: "Test",
-          lastName: "User",
+          firstName: null,
+          lastName: null,
           subscriptionTier: SubscriptionTier.FREE,
           avatar: null,
           createdAt: expect.any(String),
@@ -222,8 +176,8 @@ describe("Users E2E", () => {
         data: {
           id: expect.any(String),
           email: "test.auth@mail.com",
-          firstName: "Test",
-          lastName: "User",
+          firstName: null,
+          lastName: null,
           subscriptionTier: SubscriptionTier.FREE,
           avatar: null,
           createdAt: expect.any(String),
@@ -275,8 +229,8 @@ describe("Users E2E", () => {
         data: {
           id: expect.any(String),
           email: "test.auth@mail.com",
-          firstName: "Test",
-          lastName: "User",
+          firstName: null,
+          lastName: null,
           subscriptionTier: SubscriptionTier.FREE,
           avatar: "new_url",
           createdAt: expect.any(String),

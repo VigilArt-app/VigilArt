@@ -7,13 +7,12 @@ import { Button } from "../../components/ui/button"
 import { Input } from "../../components/ui/input"
 import { Label } from "../../components/ui/label"
 import { authenticatedFetch } from "@/src/utils/auth/authenticatedFetch"
-import { useTranslation } from "react-i18next"
-import { API_BASE_URL } from "@/src/config"
+import { Trans, useTranslation } from "react-i18next"
+import { TERMS_VERSION, PRIVACY_VERSION } from "@vigilart/shared/constants"
 
-export default function SignUpPage() {
+const SignUpPage = () => {
   const [email, setEmail] = useState("")
-  const [firstName, setFirstName] = useState("")
-  const [lastName, setLastName] = useState("")
+  const [acceptedTerms, setAcceptedTerms] = useState(false)
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
   const [isLoading, setIsLoading] = useState(false)
@@ -22,27 +21,31 @@ export default function SignUpPage() {
 
   const router = useRouter()
 
-  async function onSubmit(e: React.FormEvent) {
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
     if (password !== confirmPassword) {
-      setError(t("signup_page.error_passwords_no_match"))
+      setError(t("sign_up_page.passwords_do_not_match"))
+      return
+    }
+    if (!acceptedTerms) {
+      setError(t("sign_up_page.consent_required"))
       return
     }
     setIsLoading(true)
     try {
       const res = await authenticatedFetch(`/auth/signup`, {
         method: "POST",
-        body: JSON.stringify({ email, password, firstName, lastName })
+        body: JSON.stringify({ email, password, acceptedTerms, termsVersion: TERMS_VERSION, privacyVersion: PRIVACY_VERSION })
       }, true);
       if (!res.ok) {
         const data = await res.json().catch(() => null)
-        const message = data?.message || t("signup_page.error_signup_failed")
+        const message = data?.message || t("sign_up_page.sign_up_failed")
         throw new Error(Array.isArray(message) ? message.join(", ") : message)
       }
       router.push("/login")
     } catch (err: any) {
-      setError(err.message || t("signup_page.error_unexpected"))
+      setError(err.message || t("sign_up_page.error_unexpected"))
     } finally {
       setIsLoading(false)
     }
@@ -50,9 +53,9 @@ export default function SignUpPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-white dark:bg-neutral-900">
-      <div className="w-full max-w-6xl mx-6 rounded-lg overflow-hidden">
+      <div className="w-full max-w-6xl mx-4 md:mx-6 rounded-lg overflow-hidden">
         <div className="grid grid-cols-1 md:grid-cols-2">
-          <div className="relative flex items-center justify-start p-12 overflow-hidden bg-white dark:bg-neutral-900/30">
+          <div className="relative flex items-center justify-start p-6 md:p-12 overflow-hidden bg-white dark:bg-neutral-900/30">
             <div className="relative z-10 max-w-xs md:max-w-md">
               <p className="text-3xl md:text-4xl text-foreground">{t("sign_up_page.welcome")}</p>
               <p className="text-2xl md:text-3xl text-foreground">{t("sign_up_page.on")}</p>
@@ -64,8 +67,8 @@ export default function SignUpPage() {
             </div>
           </div>
 
-          <div className="flex items-center justify-center p-8 bg-transparent relative z-20">
-            <div className="w-full max-w-md rounded-2xl p-8 shadow-lg border border-transparent backdrop-blur-sm bg-white/95 dark:bg-neutral-800/60 text-foreground">
+          <div className="flex min-w-0 items-center justify-center md:p-8 bg-transparent relative z-20">
+            <div className="w-full max-w-md rounded-xl p-6 shadow-sm bg-card text-foreground">
                 <div className="mb-4 flex items-center gap-3 justify-between">
                     <img src="/VigilArt_logo_black.png" alt="VigilArt logo" className="h-20 w-auto dark:hidden" />
                     <img src="/VigilArt_logo_white.png" alt="VigilArt logo" className="h-20 w-auto hidden dark:block" />
@@ -73,33 +76,33 @@ export default function SignUpPage() {
                 </div>
 
               <form onSubmit={onSubmit} className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                  <div>
-                    <Label htmlFor="firstName" className="mb-2">{t("sign_up_page.first_name")}</Label>
-                    <Input id="firstName" type="text" placeholder="John" value={firstName} onChange={(e) => setFirstName(e.target.value)} />
-                  </div>
-                  <div>
-                    <Label htmlFor="lastName" className="mb-2">{t("sign_up_page.last_name")}</Label>
-                    <Input id="lastName" type="text" placeholder="Doe" value={lastName} onChange={(e) => setLastName(e.target.value)} />
-                  </div>
-                </div>
                 <div>
                   <Label htmlFor="email" className="mb-2">{t("sign_up_page.email")}</Label>
-                  <Input id="email" type="email" placeholder={t("sign_up_page.placeholder_email")} value={email} onChange={(e) => setEmail(e.target.value)} />
+                  <Input id="email" type="email" autoComplete="email" required placeholder={t("sign_up_page.placeholder_email")} value={email} onChange={(e) => setEmail(e.target.value)} />
                 </div>
 
                 <div>
                   <Label htmlFor="password" className="mb-2">{t("sign_up_page.password")}</Label>
-                  <Input id="password" type="password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} />
+                  <Input id="password" type="password" autoComplete="new-password" required placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} />
                 </div>
 
                 <div>
                   <Label htmlFor="confirm" className="mb-2">{t("sign_up_page.confirm_password")}</Label>
-                  <Input id="confirm" type="password" placeholder="••••••••" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
+                  <Input id="confirm" type="password" autoComplete="new-password" required placeholder="••••••••" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
+                </div>
+
+                <div className="flex items-start gap-2">
+                  <input id="acceptedTerms" type="checkbox" required checked={acceptedTerms} onChange={(e) => setAcceptedTerms(e.target.checked)} disabled={isLoading} className="mt-1 h-4 w-4 shrink-0 accent-primary focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2" />
+                  <label htmlFor="acceptedTerms" className="text-sm leading-6">
+                    <Trans i18nKey="sign_up_page.consent" components={{
+                      terms: <Link href="/terms" target="_blank" rel="noopener noreferrer" className="text-primary underline underline-offset-2" />,
+                      privacy: <Link href="/privacy" target="_blank" rel="noopener noreferrer" className="text-primary underline underline-offset-2" />,
+                    }} />
+                  </label>
                 </div>
 
                 {error && (
-                  <div className="text-sm text-red-500" role="alert">{error}</div>
+                  <div className="text-sm text-destructive" role="alert">{error}</div>
                 )}
                 <div>
                   <Button type="submit" className="w-full" disabled={isLoading}>{isLoading ? t("sign_up_page.signing_up") : t("sign_up_page.sign_up")}</Button>
@@ -135,3 +138,5 @@ export default function SignUpPage() {
     </div>
   )
 }
+
+export default SignUpPage;

@@ -7,7 +7,6 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarFooter,
 } from "../components/ui/sidebar"
 import Image from "next/image";
 import Link from "next/link";
@@ -75,7 +74,7 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-      <SidebarMenu>
+      <SidebarMenu className="mb-6 shrink-0">
         {logout_items.map((item) => (
           <SidebarMenuItem key={item.title}>
             <SidebarMenuButton asChild className="p-5">
@@ -87,11 +86,6 @@ export function AppSidebar() {
           </SidebarMenuItem>
         ))}
       </SidebarMenu>
-      <SidebarFooter>
-        <div className="w-full flex items-center justify-center py-4">
-          {t("sidebar.upgrade")}
-        </div>
-      </SidebarFooter>
     </Sidebar>
   )
 }

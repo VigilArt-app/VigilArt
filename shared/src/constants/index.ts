@@ -1,4 +1,5 @@
 export * from "./User";
+export * from "./Legal";
 
 export * from "./ErrorLabels";
 

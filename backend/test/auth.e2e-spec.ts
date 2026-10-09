@@ -3,7 +3,7 @@ import { HttpStatus, INestApplication } from "@nestjs/common";
 import { AppModule } from "../src/app.module";
 import { PrismaService } from "../src/prisma/prisma.service";
 import { setupApp } from "../src/app.setup";
-import { ApiClient } from "./api-client";
+import { ApiClient, signupConsent } from "./api-client";
 import { SubscriptionTier } from "@vigilart/shared/enums";
 import { CACHE_MANAGER } from "@nestjs/cache-manager";
 import type { Cache } from "cache-manager";
@@ -33,14 +33,50 @@ describe("Auth E2E", () => {
   });
 
   describe("POST /signup", () => {
+    it.each([
+      { acceptedTerms: undefined }, { acceptedTerms: false }, { acceptedTerms: "true" },
+      { termsVersion: undefined }, { privacyVersion: undefined },
+      { termsVersion: "outdated" }, { privacyVersion: "outdated" },
+    ])("rejects invalid consent without creating an account: %p", async (invalidConsent) => {
+      await api.post("/auth/signup").send({
+        email: "no-consent@example.com", password: "Secure_P4ssword",
+        ...signupConsent, ...invalidConsent,
+      }).expect(HttpStatus.BAD_REQUEST);
+      expect(await prismaService.user.count()).toBe(0);
+    });
+
+    it("records server-timed acceptance in Postgres without trusting a supplied timestamp", async () => {
+      const before = Date.now();
+      await api.post("/auth/signup").send({
+        email: "consent@example.com", password: "Secure_P4ssword", ...signupConsent,
+        termsAcceptedAt: "2000-01-01T00:00:00.000Z",
+      }).expect(HttpStatus.CREATED);
+      const user = await prismaService.user.findUniqueOrThrow({ where: { email: "consent@example.com" } });
+      expect(user.firstName).toBeNull();
+      expect(user.lastName).toBeNull();
+      expect(user.termsVersion).toBe("2026-09-09");
+      expect(user.privacyVersion).toBe("2026-09-09");
+      expect(user.termsAcceptedAt!.getTime()).toBeGreaterThanOrEqual(before);
+      expect(user.termsAcceptedAt!.getTime()).toBeLessThanOrEqual(Date.now());
+    });
+
+    it("leaves legacy accounts without fabricated acceptance", async () => {
+      const legacy = await prismaService.user.create({ data: {
+        email: "legacy@example.com", password: "existing-hash", firstName: "Existing", lastName: "Artist",
+      } });
+      expect(legacy.termsAcceptedAt).toBeNull();
+      expect(legacy.termsVersion).toBeNull();
+      expect(legacy.privacyVersion).toBeNull();
+      expect(legacy.firstName).toBe("Existing");
+    });
+
     it("Should signup successfully and return tokens and user profile", async () => {
       const res = await api
         .post("/auth/signup")
         .send({
           email: "emma.dao@mail.com",
           password: "Secure_P4ssword",
-          firstName: "Emma",
-          lastName: "Dao"
+          ...signupConsent
         })
         .expect(HttpStatus.CREATED);
 
@@ -51,8 +87,8 @@ describe("Auth E2E", () => {
         data: {
           id: expect.any(String),
           email: "emma.dao@mail.com",
-          firstName: "Emma",
-          lastName: "Dao",
+          firstName: null,
+          lastName: null,
           avatar: null,
           subscriptionTier: SubscriptionTier.FREE,
           createdAt: expect.any(String),
@@ -69,8 +105,7 @@ describe("Auth E2E", () => {
         .send({
           email: "EMMA.dao@mail.com",
           password: "Secure_P4ssword",
-          firstName: "Emma",
-          lastName: "Dao"
+          ...signupConsent
         })
         .expect(HttpStatus.CREATED);
 
@@ -81,8 +116,8 @@ describe("Auth E2E", () => {
         data: {
           id: expect.any(String),
           email: "emma.dao@mail.com",
-          firstName: "Emma",
-          lastName: "Dao",
+          firstName: null,
+          lastName: null,
           avatar: null,
           subscriptionTier: SubscriptionTier.FREE,
           createdAt: expect.any(String),
@@ -99,8 +134,7 @@ describe("Auth E2E", () => {
         .send({
           email: "amanda.rowles@mail.com",
           password: "Secure_P4ssword",
-          firstName: "Amanda",
-          lastName: "Rowles"
+          ...signupConsent
         })
         .expect(HttpStatus.CREATED);
       const res = await api
@@ -108,8 +142,7 @@ describe("Auth E2E", () => {
         .send({
           email: "amanda.rowles@mail.com",
           password: "Secure_P4ssword",
-          firstName: "Amanda",
-          lastName: "Rowles"
+          ...signupConsent
         })
         .expect(HttpStatus.CONFLICT);
 
@@ -127,8 +160,7 @@ describe("Auth E2E", () => {
         .send({
           email: "amanda.rowles@mail.com",
           password: "notsecure",
-          firstName: "Amanda",
-          lastName: "Rowles"
+          ...signupConsent
         })
         .expect(HttpStatus.BAD_REQUEST);
       expect(res.body).toEqual({
@@ -153,8 +185,7 @@ describe("Auth E2E", () => {
         .send({
           email: "amanda",
           password: "Secure_P4ssword",
-          firstName: "Amanda",
-          lastName: "Rowles"
+          ...signupConsent
         })
         .expect(HttpStatus.BAD_REQUEST);
       expect(res.body).toEqual({
@@ -167,14 +198,44 @@ describe("Auth E2E", () => {
   });
 
   describe("POST /login", () => {
+    it.each([
+      ["/auth/login", false],
+      ["/auth/mobile/login", true],
+    ])("keeps consent audit data private when logging in via %s", async (route, mobile) => {
+      await api.signup("private-audit@example.com", "Secure_P4ssword");
+      const before = await prismaService.user.findUniqueOrThrow({
+        where: { email: "private-audit@example.com" },
+      });
+      expect(before.termsAcceptedAt).not.toBeNull();
+
+      const res = await api.post(route).send({
+        email: "private-audit@example.com", password: "Secure_P4ssword",
+      }).expect(HttpStatus.OK);
+      const profile = mobile ? res.body.data.user : res.body.data;
+      expect(profile).toEqual({
+        id: before.id, email: "private-audit@example.com",
+        firstName: null, lastName: null, avatar: null,
+        subscriptionTier: SubscriptionTier.FREE,
+        autoRunReports: false, notificationsEnabled: false,
+        createdAt: before.createdAt.toISOString(), updatedAt: before.updatedAt.toISOString(),
+      });
+      if (mobile) {
+        expect(res.body.data.accessToken).toEqual(expect.any(String));
+        expect(res.body.data.refreshToken).toEqual(expect.any(String));
+      }
+      const after = await prismaService.user.findUniqueOrThrow({ where: { id: before.id } });
+      expect(after.termsAcceptedAt).toEqual(before.termsAcceptedAt);
+      expect(after.termsVersion).toBe("2026-09-09");
+      expect(after.privacyVersion).toBe("2026-09-09");
+    });
+
     it("Should login successfully", async () => {
       await api
         .post("/auth/signup")
         .send({
           email: "emma.dao@mail.com",
           password: "Secure_P4ssword",
-          firstName: "Emma",
-          lastName: "Dao"
+          ...signupConsent
         })
         .expect(HttpStatus.CREATED);
 
@@ -193,8 +254,8 @@ describe("Auth E2E", () => {
         data: {
           id: expect.any(String),
           email: "emma.dao@mail.com",
-          firstName: "Emma",
-          lastName: "Dao",
+          firstName: null,
+          lastName: null,
           subscriptionTier: SubscriptionTier.FREE,
           avatar: null,
           createdAt: expect.any(String),
@@ -228,8 +289,7 @@ describe("Auth E2E", () => {
         .send({
           email: "emma.dao@mail.com",
           password: "Secure_P4ssword",
-          firstName: "Emma",
-          lastName: "Dao"
+          ...signupConsent
         })
         .expect(HttpStatus.CREATED);
       const res = await api
