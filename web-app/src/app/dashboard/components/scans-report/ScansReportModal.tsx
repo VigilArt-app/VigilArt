@@ -14,7 +14,7 @@ import {
   type CategorySelection,
 } from "../../../../components/matches/matchCategoryFilter";
 import { ScanRow } from "./types";
-import { RestrictedMatch } from "../../../../components/matches/RestrictedMatch";
+import { RestrictedMatch, matchIdentity } from "../../../../components/matches/RestrictedMatch";
 import { mostRecentMatch } from "../../../../components/matches/mostRecentMatch";
 
 interface ScansReportModalProps {
@@ -39,6 +39,7 @@ export function ScansReportModal({ artwork, onClose }: ScansReportModalProps) {
   if (!artwork) return null;
 
   const visiblePages = filterAndSortMatches(artwork.matchingPages, category);
+  const latestMatch = mostRecentMatch(artwork.matchingPages);
 
   return (
     <Dialog open={!!artwork} onOpenChange={(open) => { if (!open) onClose(); }}>
@@ -49,7 +50,7 @@ export function ScansReportModal({ artwork, onClose }: ScansReportModalProps) {
         <div className="space-y-4">
           <div className="text-sm text-muted-foreground">
             <p><span className="font-bold">{t("dashboard_page.scans_report.total_matches")}:</span> {artwork.matches}</p>
-            <RestrictedMatch unsafeDomain={!!mostRecentMatch(artwork.matchingPages)?.unsafeDomain} resetKey={`${category}-${JSON.stringify(artwork)}`}>
+            <RestrictedMatch unsafeDomain={!!latestMatch?.unsafeDomain} resetKey={`${category}-${artwork.artworkId}-${matchIdentity(latestMatch)}`}>
               <p><span className="font-bold">{t("dashboard_page.scans_report.most_recent_source")}:</span> {artwork.mostRecentSource}</p>
             </RestrictedMatch>
           </div>
@@ -68,7 +69,7 @@ export function ScansReportModal({ artwork, onClose }: ScansReportModalProps) {
               </div>
               {visiblePages.map((page) => (
                 <div key={`${page.artworkId}-${page.id}-${page.url}-${page.firstDetectedAt}`} className="border rounded-lg p-3">
-                  <RestrictedMatch unsafeDomain={!!page.unsafeDomain} resetKey={`${category}-${JSON.stringify(artwork)}`}>
+                  <RestrictedMatch unsafeDomain={!!page.unsafeDomain} resetKey={`${category}-${artwork.artworkId}-${matchIdentity(page)}`}>
                   <div className="flex gap-3">
                     {page.imageUrl && (
                       <img

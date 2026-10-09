@@ -5,7 +5,7 @@ import { ArtworkWithInsights, getArtworkStatus } from "./types";
 import { useArtworkImageUrl } from "./hooks/useArtworkImageUrl";
 import { useTranslation } from "react-i18next";
 import { CategoryFilterSelect } from "../../../components/matches/CategoryFilterSelect";
-import { RestrictedMatch } from "../../../components/matches/RestrictedMatch";
+import { RestrictedMatch, matchIdentity } from "../../../components/matches/RestrictedMatch";
 import { mostRecentMatch } from "../../../components/matches/mostRecentMatch";
 import {
   ALL_CATEGORIES,
@@ -118,7 +118,7 @@ export function ArtworkDetails({ artwork }: ArtworkDetailsProps) {
             <p className="text-muted-foreground">{totalMatches}</p>
           </div>
 
-          <RestrictedMatch unsafeDomain={!!latestMatch?.unsafeDomain} resetKey={`${artwork.id}-${category}-${JSON.stringify(matchingPages)}`}>
+          <RestrictedMatch unsafeDomain={!!latestMatch?.unsafeDomain} resetKey={`${artwork.id}-${category}-${matchIdentity(latestMatch)}`}>
           {mostRecentSource && mostRecentSource !== "N/A" && (
             <div>
               <p className="font-semibold">{t("artwork_gallery_page.last_source")}</p>
@@ -153,7 +153,7 @@ export function ArtworkDetails({ artwork }: ArtworkDetailsProps) {
           ) : (
             <div className="space-y-2">
               {visiblePages.map((page) => (
-                <RestrictedMatch key={page.id} unsafeDomain={!!page.unsafeDomain} resetKey={`${artwork.id}-${category}-${JSON.stringify(matchingPages)}`}>
+                <RestrictedMatch key={page.id} unsafeDomain={!!page.unsafeDomain} resetKey={`${artwork.id}-${category}-${matchIdentity(page)}`}>
                 {page.unsafeDomain ? (
                   // Blacklisted sites are never opened from VigilArt, even after reveal.
                   <div className="block rounded border p-2 text-xs">

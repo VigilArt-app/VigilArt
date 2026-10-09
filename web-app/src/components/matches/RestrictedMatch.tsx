@@ -37,6 +37,17 @@ const RestrictedContent = ({ children, compact }: Pick<RestrictedMatchProps, "ch
   );
 };
 
+interface IdentifiedMatch {
+  id: string;
+  artworkId: string;
+  url: string;
+  firstDetectedAt?: string | Date;
+}
+
+// O(1) reset key part: serializing the whole dataset per row was too slow on every render.
+export const matchIdentity = (match?: IdentifiedMatch) =>
+  match ? `${match.artworkId}-${match.id}-${match.url}-${String(match.firstDetectedAt)}` : "";
+
 // A changed selection/result remounts the state before rendering sensitive children.
 export const RestrictedMatch = ({ unsafeDomain, resetKey, children, compact }: RestrictedMatchProps) =>
   unsafeDomain ? (

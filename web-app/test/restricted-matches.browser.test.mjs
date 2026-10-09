@@ -121,6 +121,24 @@ test("gallery: latest source, detail summary and each match are hidden, independ
   } finally { await context.close(); }
 });
 
+test("gallery: switching to another artwork whose latest source is also blacklisted hides it again", async () => {
+  // The detail panel stays mounted across selections: only the match identity in the reset key can hide it.
+  const other = { ...unsafeTwo, id: "unsafe-other", artworkId: "safe-artwork", websiteName: "Restricted source other", firstDetectedAt: "2026-09-03T00:00:00Z" };
+  const { context, page } = await openPage("/artwork-gallery", "en", [...matches, other]);
+  try {
+    const card = (name) => page.locator(".group.relative.rounded-lg").filter({ hasText: name });
+    await card("safe.png").getByText(/blacklisted site/).waitFor();
+    await card("fixture.png").dispatchEvent("click");
+    const summary = page.locator("div.w-96.border-l .space-y-3.text-sm");
+    await summary.getByRole("button", { name: show, exact: true }).click();
+    await summary.getByText(/Restricted source one/).waitFor();
+    await card("safe.png").dispatchEvent("click");
+    await page.locator("div.w-96.border-l").getByText("safe.png", { exact: true }).waitFor();
+    assert.equal(await summary.getByText(/Restricted source (one|other)/).count(), 0, "a revealed source must not stay revealed for another artwork");
+    await summary.getByRole("button", { name: show, exact: true }).waitFor();
+  } finally { await context.close(); }
+});
+
 for (const surface of ["gallery", "scan history"]) {
   test(`${surface}: changing category hides the revealed latest source again`, async () => {
     const filterMatches = [

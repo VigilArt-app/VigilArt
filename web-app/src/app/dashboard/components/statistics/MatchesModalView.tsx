@@ -3,7 +3,7 @@
 import { useTranslation } from "react-i18next";
 import { Loader2 } from "lucide-react";
 import type { MatchingPage } from "@vigilart/shared";
-import { RestrictedMatch } from "../../../../components/matches/RestrictedMatch";
+import { RestrictedMatch, matchIdentity } from "../../../../components/matches/RestrictedMatch";
 import {
   Dialog,
   DialogContent,
@@ -80,7 +80,7 @@ export function MatchesModalView({
                 key={`${page.artworkId}-${page.id}-${page.url}`}
                 className="border rounded-lg p-3"
               >
-                <RestrictedMatch unsafeDomain={!!page.unsafeDomain} resetKey={`${open}-${title}-${JSON.stringify(matches)}`}>
+                <RestrictedMatch unsafeDomain={!!page.unsafeDomain} resetKey={`${open}-${title}-${matchIdentity(page)}`}>
                 <div className="flex gap-3">
                   {page.imageUrl && (
                     // eslint-disable-next-line @next/next/no-img-element

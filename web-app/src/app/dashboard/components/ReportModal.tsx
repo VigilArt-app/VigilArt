@@ -10,7 +10,7 @@ import {
 import { Button } from "../../../components/ui/button";
 import { AlertCircle, CheckCircle } from "lucide-react";
 import type { ReportData, ScanProgress } from "@/src/hooks/useCreateReport";
-import { RestrictedMatch } from "../../../components/matches/RestrictedMatch";
+import { RestrictedMatch, matchIdentity } from "../../../components/matches/RestrictedMatch";
 
 interface ReportModalProps {
   open: boolean;
@@ -118,7 +118,7 @@ export function ReportModal({
                       key={`${page.artworkId}-${page.id}-${page.url}-${page.firstDetectedAt}`}
                       className="border rounded-lg p-4"
                     >
-                      <RestrictedMatch unsafeDomain={!!page.unsafeDomain} resetKey={`${open}-${JSON.stringify(report)}`}>
+                      <RestrictedMatch unsafeDomain={!!page.unsafeDomain} resetKey={`${open}-${report.id}-${matchIdentity(page)}`}>
                       <div className="flex gap-4">
                         {page.imageUrl && (
                           <div className="flex-shrink-0">
