@@ -1,5 +1,5 @@
 import { Processor, WorkerHost } from "@nestjs/bullmq";
-import { Logger } from "@nestjs/common";
+import { HttpException, Logger } from "@nestjs/common";
 import { Job } from "bullmq";
 import { ReportsService } from "./reports.service";
 import { NotificationsService } from "../notifications/notifications.service";
@@ -8,6 +8,10 @@ import type { NotificationPayload } from "@vigilart/shared";
 
 export interface GenerateReportJobData {
   userId: string;
+  scanId?: string;
+  // BullMQ keeps only the error message, so the HTTP status is stored here for
+  // synchronous callers waiting on the job.
+  failureStatus?: number;
 }
 
 @Processor(REPORTS_QUEUE)
@@ -44,6 +48,9 @@ export class ReportsProcessor extends WorkerHost {
           `Report generation failed for user ${job.data.userId}`,
           err
         );
+        await job
+          .updateData({ ...job.data, failureStatus: err instanceof HttpException ? err.getStatus() : undefined })
+          .catch(() => undefined);
 
         const notification: NotificationPayload = {
           type: "REPORT_FAILED",

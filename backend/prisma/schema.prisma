@@ -37,6 +37,7 @@ model User {
   createdAt        DateTime         @default(now())
   artworks         Artwork[]
   artworksReport   ArtworksReport[]
+  scanUsages       ScanUsage[]
   updatedAt        DateTime         @updatedAt @default(now())
 
   dmcaProfile      DmcaProfile?
@@ -146,6 +147,15 @@ model ArtworksReport {
 
   detectionDate     DateTime          @default(now())
   matchingPages     MatchingPage[]
+}
+
+model ScanUsage {
+  id        String   @id
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  startedAt DateTime @default(now())
+
+  @@index([userId, startedAt])
 }
 
 // DMCA Models & Enums

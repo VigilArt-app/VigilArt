@@ -26,8 +26,7 @@ export class PublicScanBudgetGuard implements CanActivate {
     }
     // Marks the request as holding a reservation, so the interceptor knows
     // whether there is anything to release when it aborts.
-    context.switchToHttp().getRequest<ReservedRequest>().publicScanReserved =
-      true;
+    context.switchToHttp().getRequest<ReservedRequest>().publicScanReserved = reserved;
     return true;
   }
 }

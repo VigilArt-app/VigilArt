@@ -17,6 +17,8 @@ import { StorageService } from "../storage/storage.service";
 import { MatchingPagesService } from "./matchingPage.service";
 import { PrismaService } from "../prisma/prisma.service";
 import { MAX_SCANS_PER_WINDOW, REPORTS_QUEUE } from "./reports.constants";
+import { ScanQuotaService } from "./scan-quota.service";
+import { ArtworkLimitService } from "../artworks/artwork-limit.service";
 
 describe("ReportsService", () => {
   let service: ReportsService;
@@ -36,11 +38,15 @@ describe("ReportsService", () => {
   };
   let cache: { get: jest.Mock; set: jest.Mock; del: jest.Mock };
   let queue: { add: jest.Mock; getJob: jest.Mock };
+  let quota: { getScanQuota: jest.Mock; consumeScan: jest.Mock };
+  let artworkLimit: { assertCapacity: jest.Mock };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         ReportsService,
+        { provide: ScanQuotaService, useValue: { getScanQuota: jest.fn().mockResolvedValue({ remaining: 3, limit: 3, nextAvailableAt: null }), consumeScan: jest.fn().mockResolvedValue(undefined) } },
+        { provide: ArtworkLimitService, useValue: { assertCapacity: jest.fn().mockResolvedValue(undefined) } },
         { provide: VisualSearchService, useValue: { aggregate: jest.fn() } },
         { provide: ArtworksService, useValue: { findAllPerUser: jest.fn() } },
         {
@@ -80,6 +86,9 @@ describe("ReportsService", () => {
     prisma = module.get(PrismaService);
     cache = module.get(CACHE_MANAGER);
     queue = module.get(getQueueToken(REPORTS_QUEUE));
+    quota = module.get(ScanQuotaService);
+    artworkLimit = module.get(ArtworkLimitService);
+    artworksService.findAllPerUser.mockResolvedValue([{ id: "a1", storageKey: "k1" }]);
   });
 
   afterEach(() => {
@@ -92,7 +101,7 @@ describe("ReportsService", () => {
 
   describe("checkScanQuota", () => {
     it(`Should allow a scan below the ${MAX_SCANS_PER_WINDOW}-scan limit`, async () => {
-      prisma.artworksReport.count.mockResolvedValue(MAX_SCANS_PER_WINDOW - 1);
+      quota.getScanQuota.mockResolvedValue({ remaining: 1, limit: 3, nextAvailableAt: null });
 
       await expect(
         service.checkScanQuota("user-id")
@@ -100,21 +109,19 @@ describe("ReportsService", () => {
     });
 
     it(`Should throw once the ${MAX_SCANS_PER_WINDOW}-scan limit is reached`, async () => {
-      prisma.artworksReport.count.mockResolvedValue(MAX_SCANS_PER_WINDOW);
+      quota.getScanQuota.mockResolvedValue({ remaining: 0, limit: 3, nextAvailableAt: "2026-11-01T00:00:00.000Z" });
 
       await expect(service.checkScanQuota("user-id")).rejects.toBeInstanceOf(
         ForbiddenException
       );
     });
 
-    it("Should count only reports inside the rolling window", async () => {
-      prisma.artworksReport.count.mockResolvedValue(0);
+    it("Should consult durable quota instead of completed reports", async () => {
 
       await service.checkScanQuota("user-id");
 
-      const where = prisma.artworksReport.count.mock.calls[0][0].where;
-      expect(where.userId).toBe("user-id");
-      expect(where.detectionDate.gt).toBeInstanceOf(Date);
+      expect(quota.getScanQuota).toHaveBeenCalledWith("user-id");
+      expect(prisma.artworksReport.count).not.toHaveBeenCalled();
     });
   });
 
@@ -135,7 +142,7 @@ describe("ReportsService", () => {
 
     it("Should report progress to the job per artwork", async () => {
       mockScanSuccess();
-      const job = { updateProgress: jest.fn().mockResolvedValue(undefined) };
+      const job = { data: { scanId: "logical-scan" }, updateProgress: jest.fn().mockResolvedValue(undefined) };
 
       const report = await service.generate("user-id", job as never);
 
@@ -203,7 +210,8 @@ describe("ReportsService", () => {
     });
 
     it("Should not create a report when over quota", async () => {
-      prisma.artworksReport.count.mockResolvedValue(MAX_SCANS_PER_WINDOW);
+      mockScanSuccess();
+      quota.consumeScan.mockRejectedValue(new ForbiddenException());
 
       await expect(service.generate("user-id")).rejects.toBeInstanceOf(
         ForbiddenException
@@ -223,7 +231,7 @@ describe("ReportsService", () => {
       expect(res).toEqual({ jobId: "scan-user-id" });
       expect(queue.add).toHaveBeenCalledWith(
         expect.anything(),
-        { userId: "user-id" },
+        expect.objectContaining({ userId: "user-id", scanId: expect.any(String) }),
         expect.objectContaining({ jobId: "scan-user-id" })
       );
     });
@@ -260,11 +268,54 @@ describe("ReportsService", () => {
     });
 
     it("Should reject before enqueuing when over quota", async () => {
-      prisma.artworksReport.count.mockResolvedValue(MAX_SCANS_PER_WINDOW);
+      quota.getScanQuota.mockResolvedValue({ remaining: 0, limit: 3, nextAvailableAt: "2026-11-01T00:00:00.000Z" });
 
       await expect(service.enqueueScan("user-id")).rejects.toBeInstanceOf(
         ForbiddenException
       );
+      expect(queue.add).not.toHaveBeenCalled();
+    });
+
+    it.each(["completed", "failed"])("preserves a retained %s scan when quota rejects its replacement", async (state) => {
+      const remove = jest.fn().mockResolvedValue(undefined);
+      queue.getJob.mockResolvedValue({ getState: jest.fn().mockResolvedValue(state), remove });
+      quota.getScanQuota.mockResolvedValue({ remaining: 0, limit: 3, nextAvailableAt: "2026-11-01T00:00:00.000Z" });
+
+      await expect(service.enqueueScan("user-id")).rejects.toBeInstanceOf(ForbiddenException);
+
+      expect(remove).not.toHaveBeenCalled();
+      expect(queue.add).not.toHaveBeenCalled();
+    });
+
+    it.each(["completed", "failed"])("preserves a retained %s scan when artwork capacity rejects its replacement", async (state) => {
+      const remove = jest.fn().mockResolvedValue(undefined);
+      queue.getJob.mockResolvedValue({ getState: jest.fn().mockResolvedValue(state), remove });
+      artworkLimit.assertCapacity.mockRejectedValue(new ForbiddenException("Free accounts are limited to 5 artworks."));
+
+      await expect(service.enqueueScan("user-id")).rejects.toBeInstanceOf(ForbiddenException);
+
+      expect(remove).not.toHaveBeenCalled();
+      expect(queue.add).not.toHaveBeenCalled();
+    });
+
+    it.each(["completed", "failed"])("preserves a retained %s scan when there are no artworks to scan", async (state) => {
+      const remove = jest.fn().mockResolvedValue(undefined);
+      queue.getJob.mockResolvedValue({ getState: jest.fn().mockResolvedValue(state), remove });
+      artworksService.findAllPerUser.mockResolvedValue([]);
+
+      await expect(service.enqueueScan("user-id")).rejects.toMatchObject({ status: 400 });
+
+      expect(remove).not.toHaveBeenCalled();
+      expect(queue.add).not.toHaveBeenCalled();
+    });
+
+    it("reuses an active scan even when its already-consumed quota leaves no remaining slot", async () => {
+      queue.getJob.mockResolvedValue({ id: "scan-user-id", getState: jest.fn().mockResolvedValue("active") });
+      quota.getScanQuota.mockResolvedValue({ remaining: 0, limit: 3, nextAvailableAt: null });
+
+      await expect(service.enqueueScan("user-id")).resolves.toEqual({ jobId: "scan-user-id" });
+
+      expect(quota.getScanQuota).not.toHaveBeenCalled();
       expect(queue.add).not.toHaveBeenCalled();
     });
   });
@@ -289,7 +340,7 @@ describe("ReportsService", () => {
 
       expect(queue.add).toHaveBeenCalledWith(
         expect.anything(),
-        { userId: "user-id" },
+        expect.objectContaining({ userId: "user-id", scanId: expect.any(String) }),
         expect.objectContaining({ jobId: "scan-user-id", attempts: 3 })
       );
     });

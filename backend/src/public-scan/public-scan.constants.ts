@@ -19,4 +19,4 @@ export const PUBLIC_SCAN_STORAGE_PREFIX = "public-scans";
 export const PUBLIC_SCAN_BUDGET_KEY = (day: string) =>
   `public-scan:budget:${day}`;
 
-export const DEFAULT_PUBLIC_SCAN_DAILY_BUDGET = 5;
+export const DEFAULT_PUBLIC_SCAN_DAILY_BUDGET = 15;

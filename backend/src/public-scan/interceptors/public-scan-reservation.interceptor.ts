@@ -9,7 +9,7 @@ import { Request } from "express";
 import { PublicScanBudgetService } from "../services/public-scan-budget.service";
 
 export interface ReservedRequest extends Request {
-  publicScanReserved?: boolean;
+  publicScanReserved?: string | null;
 }
 
 // Hands the day's budget back whenever a request that claimed a reservation
@@ -27,12 +27,13 @@ export class PublicScanReservationInterceptor implements NestInterceptor {
     return next.handle().pipe(
       // The job is queued: the reservation is now genuinely spent.
       tap(() => {
-        request.publicScanReserved = false;
+        request.publicScanReserved = null;
       }),
       catchError((error) => {
         if (request.publicScanReserved) {
-          request.publicScanReserved = false;
-          void this.budgetService.release();
+          const reservation = request.publicScanReserved;
+          request.publicScanReserved = null;
+          void this.budgetService.release(reservation);
         }
         return throwError(() => error);
       })

@@ -390,6 +390,7 @@ export const ModelName = {
   Artwork: 'Artwork',
   MatchingPage: 'MatchingPage',
   ArtworksReport: 'ArtworksReport',
+  ScanUsage: 'ScanUsage',
   DmcaPlatform: 'DmcaPlatform',
   DmcaProfile: 'DmcaProfile',
   DmcaNotice: 'DmcaNotice',
@@ -409,7 +410,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "refreshToken" | "deviceToken" | "artwork" | "matchingPage" | "artworksReport" | "dmcaPlatform" | "dmcaProfile" | "dmcaNotice" | "dmcaNoticeData"
+    modelProps: "user" | "refreshToken" | "deviceToken" | "artwork" | "matchingPage" | "artworksReport" | "scanUsage" | "dmcaPlatform" | "dmcaProfile" | "dmcaNotice" | "dmcaNoticeData"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -857,6 +858,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    ScanUsage: {
+      payload: Prisma.$ScanUsagePayload<ExtArgs>
+      fields: Prisma.ScanUsageFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ScanUsageFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ScanUsagePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ScanUsageFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ScanUsagePayload>
+        }
+        findFirst: {
+          args: Prisma.ScanUsageFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ScanUsagePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ScanUsageFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ScanUsagePayload>
+        }
+        findMany: {
+          args: Prisma.ScanUsageFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ScanUsagePayload>[]
+        }
+        create: {
+          args: Prisma.ScanUsageCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ScanUsagePayload>
+        }
+        createMany: {
+          args: Prisma.ScanUsageCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ScanUsageCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ScanUsagePayload>[]
+        }
+        delete: {
+          args: Prisma.ScanUsageDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ScanUsagePayload>
+        }
+        update: {
+          args: Prisma.ScanUsageUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ScanUsagePayload>
+        }
+        deleteMany: {
+          args: Prisma.ScanUsageDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ScanUsageUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ScanUsageUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ScanUsagePayload>[]
+        }
+        upsert: {
+          args: Prisma.ScanUsageUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ScanUsagePayload>
+        }
+        aggregate: {
+          args: Prisma.ScanUsageAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateScanUsage>
+        }
+        groupBy: {
+          args: Prisma.ScanUsageGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ScanUsageGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ScanUsageCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ScanUsageCountAggregateOutputType> | number
+        }
+      }
+    }
     DmcaPlatform: {
       payload: Prisma.$DmcaPlatformPayload<ExtArgs>
       fields: Prisma.DmcaPlatformFieldRefs
@@ -1276,6 +1351,15 @@ export const ArtworksReportScalarFieldEnum = {
 export type ArtworksReportScalarFieldEnum = (typeof ArtworksReportScalarFieldEnum)[keyof typeof ArtworksReportScalarFieldEnum]
 
 
+export const ScanUsageScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  startedAt: 'startedAt'
+} as const
+
+export type ScanUsageScalarFieldEnum = (typeof ScanUsageScalarFieldEnum)[keyof typeof ScanUsageScalarFieldEnum]
+
+
 export const DmcaPlatformScalarFieldEnum = {
   id: 'id',
   slug: 'slug',
@@ -1614,6 +1698,7 @@ export type GlobalOmitConfig = {
   artwork?: Prisma.ArtworkOmit
   matchingPage?: Prisma.MatchingPageOmit
   artworksReport?: Prisma.ArtworksReportOmit
+  scanUsage?: Prisma.ScanUsageOmit
   dmcaPlatform?: Prisma.DmcaPlatformOmit
   dmcaProfile?: Prisma.DmcaProfileOmit
   dmcaNotice?: Prisma.DmcaNoticeOmit

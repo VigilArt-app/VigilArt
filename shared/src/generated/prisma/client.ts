@@ -68,6 +68,11 @@ export type MatchingPage = Prisma.MatchingPageModel
  */
 export type ArtworksReport = Prisma.ArtworksReportModel
 /**
+ * Model ScanUsage
+ *
+ */
+export type ScanUsage = Prisma.ScanUsageModel
+/**
  * Model DmcaPlatform
  * 
  */

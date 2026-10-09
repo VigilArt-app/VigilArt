@@ -8,9 +8,8 @@ import {
 
 const DAY_SECONDS = 24 * 60 * 60;
 
-// The only lever that actually bounds the Google Lens bill. The per-visitor
-// rate limit decides how many different people the budget reaches; it cannot
-// cap total spend, because the number of visitors is not bounded.
+// Limits logical public scan starts across visitors. Provider retries retain
+// their existing behavior, so this is not a strict ceiling on billed calls.
 @Injectable()
 export class PublicScanBudgetService implements OnModuleInit {
   private readonly dailyBudget: number;
@@ -20,7 +19,8 @@ export class PublicScanBudgetService implements OnModuleInit {
     private readonly redis: RedisService,
     config: ConfigService
   ) {
-    const configured = Number(config.get<string>("PUBLIC_SCAN_DAILY_BUDGET"));
+    const raw = config.get<string>("PUBLIC_SCAN_DAILY_BUDGET");
+    const configured = raw?.trim() ? Number(raw) : NaN;
     this.dailyBudget =
       Number.isFinite(configured) && configured >= 0
         ? configured
@@ -55,9 +55,9 @@ export class PublicScanBudgetService implements OnModuleInit {
   // Claims one scan up front. INCR is atomic, so two simultaneous requests on
   // the last remaining scan cannot both succeed — checking then incrementing
   // would let them.
-  async reserve(): Promise<boolean> {
+  async reserve(): Promise<string | null> {
     // Outside production the cap only gets in the way of testing the flow.
-    if (!this.enforced) return true;
+    if (!this.enforced) return "unenforced";
 
     const key = this.todayKey();
     const used = await this.redis.incr(key);
@@ -66,21 +66,26 @@ export class PublicScanBudgetService implements OnModuleInit {
     if (used === 1) await this.redis.expire(key, DAY_SECONDS);
 
     if (used > this.dailyBudget) {
-      await this.release();
-      return false;
+      await this.release(key);
+      return null;
     }
-    return true;
+    return key;
   }
 
   // Hands a reservation back when the request fails before any search is paid
   // for (bad file, storage error). Best-effort: losing a reservation costs one
   // free scan, while letting the error propagate would fail an otherwise
   // well-formed rejection.
-  async release(): Promise<void> {
+  async release(key: string): Promise<void> {
     if (!this.enforced) return;
 
     try {
-      await this.redis.decr(this.todayKey());
+      // Midnight and key expiry must not refund a different day or create -1.
+      await this.redis.eval(`
+        local used = tonumber(redis.call('GET', KEYS[1]) or '0')
+        if used > 0 then return redis.call('DECR', KEYS[1]) end
+        return 0
+      `, 1, key);
     } catch (error) {
       this.logger.error("Failed to release a public scan reservation", error);
     }

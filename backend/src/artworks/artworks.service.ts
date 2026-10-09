@@ -19,12 +19,14 @@ import {
 } from "@vigilart/shared";
 import { assertResourceOwnership } from "../common/utils/ownership";
 import { REPORT_STATS_KEY } from "../reports/reports.constants";
+import { ArtworkLimitService } from "./artwork-limit.service";
 
 @Injectable()
 export class ArtworksService {
   constructor(
     private readonly prisma: PrismaService,
-    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
+    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
+    private readonly artworkLimit: ArtworkLimitService
   ) {}
 
   private readonly logger = new Logger(ArtworksService.name);
@@ -34,8 +36,10 @@ export class ArtworksService {
       `Creating new artwork ${artworkData.originalFilename} of user ${artworkData.userId}`
     );
     try {
-      return await this.prisma.artwork.create({
-        data: artworkData
+      return await this.prisma.$transaction(async (tx) => {
+        await this.artworkLimit.lockUser(tx, artworkData.userId);
+        await this.artworkLimit.assertCapacity(artworkData.userId, 1, tx);
+        return tx.artwork.create({ data: artworkData });
       });
     } catch (e: any) {
       if (e.code === "P2003") {
@@ -50,8 +54,15 @@ export class ArtworksService {
   ): Promise<ArtworkCreateManyResponseDTO> {
     this.logger.log("Creating new artworks");
     try {
-      const res = await this.prisma.artwork.createManyAndReturn({
-        data: artworksData
+      const res = await this.prisma.$transaction(async (tx) => {
+        const counts = new Map<string, number>();
+        for (const artwork of artworksData) counts.set(artwork.userId, (counts.get(artwork.userId) ?? 0) + 1);
+        // Consistent ordering prevents deadlocks for service callers spanning several owners.
+        for (const userId of [...counts.keys()].sort()) {
+          await this.artworkLimit.lockUser(tx, userId);
+          await this.artworkLimit.assertCapacity(userId, counts.get(userId)!, tx);
+        }
+        return tx.artwork.createManyAndReturn({ data: artworksData });
       });
       return {
         count: res.length,

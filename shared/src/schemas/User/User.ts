@@ -84,5 +84,6 @@ export class UserCreateDTO extends createZodDto(UserCreateSchema) {}
 export const UserUpdateSchema = UserGetSchema.omit({
   id: true,
   createdAt: true,
-}).partial();
+  subscriptionTier: true,
+}).partial().strict();
 export class UserUpdateDTO extends createZodDto(UserUpdateSchema) {}
