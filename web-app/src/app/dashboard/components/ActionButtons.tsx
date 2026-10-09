@@ -62,11 +62,13 @@ export default function ActionButtons({ onUploadComplete }: ActionButtonsProps) 
           <div className="text-sm text-muted-foreground" role="status" aria-live="polite">
             {quota ? (
               <>
-                <p>{t("artworks_report_page.scan_quota", { remaining: quota.remaining, limit: quota.limit })}</p>
-                {quota.remaining === 0 && quota.nextAvailableAt && (
+                <p>{t("artworks_report_page.scan_quota", { count: quota.remaining, limit: quota.limit })}</p>
+                {quota.remaining === 0 && quota.nextAvailableAt ? (
                   <p>{t("artworks_report_page.next_scan_available", {
                     date: new Date(quota.nextAvailableAt).toLocaleString(i18n.language),
                   })}</p>
+                ) : (
+                  <p>{t("artworks_report_page.scan_quota_window")}</p>
                 )}
               </>
             ) : quotaLoading ? (

@@ -129,6 +129,57 @@ describe("Durable scan and artwork limits E2E", () => {
     expect(await prisma.artworksReport.count({ where: { userId: user.id } })).toBe(0);
   });
 
+  it("answers 504 instead of hanging when a synchronous scan outlives its wait", async () => {
+    const user = await createUser();
+    await artworks.create(artworkData(user.id));
+    let release!: () => void;
+    const gate = new Promise<void>((resolve) => { release = resolve; });
+    searchImage.mockImplementation(async () => { await gate;
+      return { metadata: { bestGuessLabels: [], webEntities: [] }, matchingPages: [] }; });
+    await expect(reports.generateAndWait(user.id, 500)).rejects.toMatchObject({ status: 504 });
+    // The scan itself keeps running and still saves its report.
+    const job = (await queue.getJob(`scan-${user.id}`))!;
+    release();
+    await job.waitUntilFinished(events, 10000);
+    expect(await prisma.artworksReport.count({ where: { userId: user.id } })).toBe(1);
+  });
+
+  it("shares one Redis event connection across concurrent synchronous scans", async () => {
+    const users = await Promise.all([createUser(), createUser(), createUser()]);
+    await Promise.all(users.map((user) => artworks.create(artworkData(user.id))));
+    let release!: () => void;
+    const gate = new Promise<void>((resolve) => { release = resolve; });
+    searchImage.mockImplementation(async () => { await gate;
+      return { metadata: { bestGuessLabels: [], webEntities: [] }, matchingPages: [] }; });
+    const redis = app.get(RedisService);
+    const connections = async () => (await redis.client("LIST") as string).trim().split("\n").length;
+    const before = await connections();
+    const scans = users.map((user) => reports.generateAndWait(user.id));
+    while ((await queue.getJobs(["active", "waiting"])).length < users.length) await new Promise((done) => setTimeout(done, 20));
+    const during = await connections();
+    release();
+    await Promise.all(scans);
+    // Each extra connection counts against Redis maxclients for as long as the scan runs.
+    expect(during - before).toBeLessThanOrEqual(1);
+  });
+
+  it("shows the quota while another request holds the account lock", async () => {
+    const user = await createUser();
+    const client = new Client({ connectionString: getTestContainerUrls().databaseUrl });
+    await client.connect();
+    try {
+      // Same row lock an in-flight scan start or artwork upload holds.
+      await client.query("BEGIN");
+      await client.query('SELECT "id" FROM "User" WHERE "id" = $1 FOR UPDATE', [user.id]);
+      const blocked = new Promise((_resolve, reject) => setTimeout(() => reject(new Error("quota read waited for the lock")), 2000));
+      await expect(Promise.race([quota.getScanQuota(user.id), blocked]))
+        .resolves.toEqual({ remaining: 3, limit: 3, nextAvailableAt: null });
+    } finally {
+      await client.query("ROLLBACK");
+      await client.end();
+    }
+  });
+
   it("serializes concurrent artwork creation and accepts only five", async () => {
     const user = await createUser();
     const results = await Promise.allSettled(Array.from({ length: 8 }, () => artworks.create(artworkData(user.id))));
@@ -145,8 +196,9 @@ describe("Durable scan and artwork limits E2E", () => {
     await expect(artworks.create(artworkData(user.id))).rejects.toMatchObject({ status: 403 });
   });
 
-  it("does not let a free user change subscription through their update DTO", () => {
-    expect(UserUpdateSchema.safeParse({ subscriptionTier: "PRO" }).success).toBe(false);
+  it("strips subscription and unknown profile fields from the update DTO", () => {
+    expect(UserUpdateSchema.parse({ firstName: "Ada", subscriptionTier: "PRO", country: "France", language: "fr" }))
+      .toEqual({ firstName: "Ada" });
   });
 
   it("serializes concurrent scan starts and allows only three providers", async () => {
@@ -244,8 +296,11 @@ describe("Durable scan and artwork limits E2E", () => {
     await request(app.getHttpServer()).get(`/api/v1/reports/user/${owner.id}/scan-quota`).expect(401);
     const response = await request(app.getHttpServer()).get(`/api/v1/reports/user/${owner.id}/scan-quota`).auth(token, { type: "bearer" }).expect(200);
     expect(response.body.data).toEqual({ remaining: 3, limit: 3, nextAvailableAt: null });
-    await request(app.getHttpServer()).patch(`/api/v1/users/${owner.id}`).auth(token, { type: "bearer" }).send({ subscriptionTier: "PRO" }).expect(400);
-    expect((await prisma.user.findUniqueOrThrow({ where: { id: owner.id } })).subscriptionTier).toBe("FREE");
+    // Same body shape as the mobile profile page, plus a forged tier upgrade.
+    await request(app.getHttpServer()).patch(`/api/v1/users/${owner.id}`).auth(token, { type: "bearer" })
+      .send({ firstName: "Ada", lastName: "Lovelace", country: "France", language: "fr", subscriptionTier: "PRO" }).expect(200);
+    expect(await prisma.user.findUniqueOrThrow({ where: { id: owner.id } }))
+      .toMatchObject({ firstName: "Ada", lastName: "Lovelace", subscriptionTier: "FREE" });
     await artworks.createMany(Array.from({ length: 5 }, () => artworkData(owner.id)));
     await request(app.getHttpServer()).post("/api/v1/storage/artworks/upload-urls").auth(token, { type: "bearer" })
       .send({ filenames: ["sixth.jpg"], prefix: "artworks" }).expect(403);

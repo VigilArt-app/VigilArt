@@ -17,6 +17,11 @@ export const createScanQuotaLoader = (
 ) => {
   let generation = 0;
   let controller: AbortController | null = null;
+  let last: ScanQuotaState = { userId: null, quota: null, loading: false, error: null };
+  const update = (state: ScanQuotaState) => {
+    last = state;
+    publish(state);
+  };
 
   const cancel = () => {
     generation += 1;
@@ -27,7 +32,9 @@ export const createScanQuotaLoader = (
   const refresh = async (userId: string | null) => {
     cancel();
     const requestId = generation;
-    publish({ userId, quota: null, loading: !!userId, error: null });
+    // Keep the same user's quota while reloading: an exhausted quota must stay
+    // blocking, and the counter must not flicker on every window focus.
+    update({ userId, quota: last.userId === userId ? last.quota : null, loading: !!userId, error: null });
     if (!userId) return;
 
     const requestController = new AbortController();
@@ -54,11 +61,11 @@ export const createScanQuotaLoader = (
         aborted,
       ]);
       if (requestId === generation) {
-        publish({ userId, quota, loading: false, error: null });
+        update({ userId, quota, loading: false, error: null });
       }
     } catch {
       if (requestId === generation) {
-        publish({ userId, quota: null, loading: false, error: "Scan quota unavailable" });
+        update({ userId, quota: null, loading: false, error: "Scan quota unavailable" });
       }
     } finally {
       clearTimeout(timeout);

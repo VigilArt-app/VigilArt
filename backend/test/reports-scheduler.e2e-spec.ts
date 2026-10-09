@@ -12,6 +12,7 @@ import { SerpApiLensService } from "../src/serpapilens/serpapilens.service";
 import { VisionService } from "../src/vision/vision.service";
 import { NotificationsService } from "../src/notifications/notifications.service";
 import { REPORTS_QUEUE } from "../src/reports/reports.constants";
+import { ReportsService } from "../src/reports/reports.service";
 import { getTestContainerUrls } from "./setupTests.e2e";
 
 describe("Registered automatic reports cron E2E", () => {
@@ -21,6 +22,8 @@ describe("Registered automatic reports cron E2E", () => {
   let events: QueueEvents;
   let scheduler: SchedulerRegistry;
   const searchImage = jest.fn();
+  const send = jest.fn();
+  const DAY_MS = 24 * 60 * 60 * 1000;
 
   beforeAll(async () => {
     // setupTests.e2e.ts supplies these URLs from disposable containers before
@@ -46,7 +49,7 @@ describe("Registered automatic reports cron E2E", () => {
       .overrideProvider(VisionService)
       .useValue({})
       .overrideProvider(NotificationsService)
-      .useValue({ send: async () => undefined })
+      .useValue({ send })
       .compile();
 
     app = moduleRef.createNestApplication();
@@ -70,6 +73,7 @@ describe("Registered automatic reports cron E2E", () => {
 
   beforeEach(async () => {
     await queue.pause();
+    send.mockReset().mockResolvedValue(undefined);
     searchImage.mockReset().mockImplementation(async (url: string) => ({
       metadata: { bestGuessLabels: [], webEntities: [] },
       matchingPages: [{
@@ -186,7 +190,10 @@ describe("Registered automatic reports cron E2E", () => {
   it("retries a failed provider scan without saving a misleading report or lastScanAt", async () => {
     // Catches provider failures being recorded as successful empty scans.
     const user = await createUser("provider-failure", true);
-    await prisma.scanUsage.createMany({ data: [0, 1].map(() => ({ id: crypto.randomUUID(), userId: user.id })) });
+    // Attempts older than the window: a recent one would make the cron skip the account.
+    await prisma.scanUsage.createMany({ data: [0, 1].map(() => ({
+      id: crypto.randomUUID(), userId: user.id, startedAt: new Date(Date.now() - 31 * DAY_MS)
+    })) });
     searchImage.mockRejectedValue(new Error("Test provider unavailable"));
     await fireRegisteredCrons();
     const queued = await queue.getJobs(["paused", "waiting"]);
@@ -208,5 +215,51 @@ describe("Registered automatic reports cron E2E", () => {
       where: { id: user.artworks[0].id }
     });
     expect(artwork.lastScanAt).toBeNull();
+    // One push per job, not one per retry.
+    expect(send.mock.calls).toEqual([[user.id, expect.objectContaining({ type: "REPORT_FAILED" })]]);
   });
+
+  it("skips accounts the scan would refuse and accounts whose recent attempt saved no report", async () => {
+    // Refused or failed scans save no report: without these filters the same
+    // accounts are re-enqueued, and charged, every night.
+    const artworks = (label: string, count: number) => Array.from({ length: count }, (_, index) => ({
+      originalFilename: `${label}-${index}.jpg`, storageKey: `artworks/${label}-${index}.jpg`,
+      contentType: "image/jpeg", sizeBytes: 100, width: 10, height: 10
+    }));
+    const user = (label: string, subscriptionTier: "FREE" | "PRO", artworkCount: number) => prisma.user.create({
+      data: { email: `${label}@scheduler.invalid`, password: "unused-test-password", firstName: "Cron",
+        lastName: label, autoRunReports: true, subscriptionTier, artworks: { create: artworks(label, artworkCount) } }
+    });
+    await user("no-artwork", "FREE", 0);
+    await user("free-over-cap", "FREE", 6);
+    const failedYesterday = await user("failed-yesterday", "FREE", 1);
+    await prisma.scanUsage.create({ data: { id: crypto.randomUUID(), userId: failedYesterday.id,
+      startedAt: new Date(Date.now() - DAY_MS) } });
+    const proOverCap = await user("pro-over-cap", "PRO", 6);
+    const failedLastMonth = await user("failed-last-month", "FREE", 1);
+    await prisma.scanUsage.create({ data: { id: crypto.randomUUID(), userId: failedLastMonth.id,
+      startedAt: new Date(Date.now() - 31 * DAY_MS) } });
+
+    await fireRegisteredCrons();
+    const queued = await queue.getJobs(["paused", "waiting"]);
+    expect(queued.map((job) => job.data.userId).sort()).toEqual([proOverCap.id, failedLastMonth.id].sort());
+  });
+
+  it("fails a refused scheduled scan once, without retrying it, and notifies once", async () => {
+    // A 403 (quota used up) fails identically on retry: retrying only repeats the push.
+    const user = await createUser("quota-used", true);
+    await prisma.scanUsage.createMany({ data: [0, 1, 2].map(() => ({ id: crypto.randomUUID(), userId: user.id })) });
+    await app.get(ReportsService).enqueueScheduledScan(user.id);
+    const [job] = await queue.getJobs(["paused", "waiting"]);
+    const failure = expect(job.waitUntilFinished(events, 25000)).rejects.toThrow("maximum of 3 scans");
+    await queue.resume();
+    await failure;
+
+    const failed = await queue.getJob(job.id!);
+    expect(await failed!.getState()).toBe("failed");
+    expect(failed!.attemptsMade).toBe(1);
+    expect(failed!.data.failureStatus).toBe(403);
+    expect(searchImage).not.toHaveBeenCalled();
+    expect(send.mock.calls).toEqual([[user.id, expect.objectContaining({ type: "REPORT_FAILED" })]]);
+  }, 40000);
 });

@@ -1,6 +1,6 @@
 import { Processor, WorkerHost } from "@nestjs/bullmq";
 import { HttpException, Logger } from "@nestjs/common";
-import { Job } from "bullmq";
+import { Job, UnrecoverableError } from "bullmq";
 import { ReportsService } from "./reports.service";
 import { NotificationsService } from "../notifications/notifications.service";
 import { REPORTS_QUEUE, GENERATE_REPORT_JOB } from "./reports.constants";
@@ -48,26 +48,34 @@ export class ReportsProcessor extends WorkerHost {
           `Report generation failed for user ${job.data.userId}`,
           err
         );
+        const failureStatus = err instanceof HttpException ? err.getStatus() : undefined;
+        // A 4xx (quota, artwork cap, no artwork) fails identically on retry.
+        const unrecoverable = failureStatus !== undefined && failureStatus >= 400 && failureStatus < 500;
+        // attemptsMade counts previous attempts only while the job is processing.
+        const lastAttempt = unrecoverable || job.attemptsMade + 1 >= (job.opts.attempts ?? 1);
         await job
-          .updateData({ ...job.data, failureStatus: err instanceof HttpException ? err.getStatus() : undefined })
+          .updateData({ ...job.data, failureStatus })
           .catch(() => undefined);
 
-        const notification: NotificationPayload = {
-          type: "REPORT_FAILED",
-          title: "Report Failed",
-          body: "An error occurred during the artwork scan. Please try again.",
-          data: { error: err instanceof Error ? err.message : "Unknown error" }
-        };
+        if (lastAttempt) {
+          const notification: NotificationPayload = {
+            type: "REPORT_FAILED",
+            title: "Report Failed",
+            body: "An error occurred during the artwork scan. Please try again.",
+            data: { error: err instanceof Error ? err.message : "Unknown error" }
+          };
 
-        try {
-          await this.notificationsService.send(job.data.userId, notification);
-        } catch (notifErr) {
-          this.logger.error(
-            "Failed to send report failure notification",
-            notifErr
-          );
+          try {
+            await this.notificationsService.send(job.data.userId, notification);
+          } catch (notifErr) {
+            this.logger.error(
+              "Failed to send report failure notification",
+              notifErr
+            );
+          }
         }
 
+        if (unrecoverable) throw new UnrecoverableError((err as HttpException).message);
         throw err;
       }
     }

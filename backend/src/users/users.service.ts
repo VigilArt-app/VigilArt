@@ -1,5 +1,4 @@
 import {
-  ForbiddenException,
   Inject,
   Injectable,
   Logger,
@@ -118,10 +117,6 @@ export class UsersService {
     updateUserDto: UserUpdate
   ): Promise<UserGet> {
     this.logger.log(`Updating user ${id}`);
-
-    if ("subscriptionTier" in updateUserDto) {
-      throw new ForbiddenException("Subscription changes are not available through profile updates.");
-    }
 
     const oldUser = await this.findOneWithoutPassword(id);
     const user = await this.prisma.user.update({

@@ -65,7 +65,11 @@ const loadSource = (filename, overrides, cache = new Map()) => {
 const translations = (locale) => {
   const messages = require(`../public/locales/${locale}/translation.json`);
   return { useTranslation: () => ({ i18n: { language: locale }, t: (key, values = {}) => {
-    const message = key.split(".").reduce((value, part) => value?.[part], messages) ?? key;
+    // Same plural lookup as i18next: `key_one` / `key_other` picked by `count`.
+    const lookup = (path) => path.split(".").reduce((value, part) => value?.[part], messages);
+    const plural = values.count === undefined ? undefined
+      : lookup(`${key}_${new Intl.PluralRules(locale).select(values.count)}`);
+    const message = plural ?? lookup(key) ?? key;
     return message.replace(/{{(\w+)}}/g, (_match, name) => String(values[name]));
   } }) };
 };
@@ -84,9 +88,9 @@ const renderActions = (state, locale = "en", scanLoading = false) => {
 test("shows server free and paid quotas right under Create report", () => {
   for (const [remaining, limit] of [[2, 3], [7, 10]]) {
     const html = renderActions({ quota: { remaining, limit, nextAvailableAt: null }, loading: false, error: null });
-    assert.match(html, new RegExp(`${remaining} / ${limit} scans available`));
-    assert.match(html, /over the last 30 days/);
-    assert.ok(html.indexOf("Create report") < html.indexOf("scans available"));
+    assert.match(html, new RegExp(`${remaining} scans? left out of ${limit}`));
+    assert.match(html, /available again 30 days after it started/);
+    assert.ok(html.indexOf("Create report") < html.indexOf("left out of"));
     assert.doesNotMatch(html, /disabled=""/);
     assert.doesNotMatch(html, /upgrade|pro plan/i);
   }
@@ -96,7 +100,7 @@ test("known exhausted quota disables launch and shows the next date in either la
   const quota = { remaining: 0, limit: 3, nextAvailableAt: "2026-11-01T12:00:00.000Z" };
   for (const locale of ["en", "fr"]) {
     const html = renderActions({ quota, loading: false, error: null }, locale);
-    assert.match(html, /0 \/ 3/);
+    assert.match(html, locale === "en" ? /0 scans left out of 3/ : /0 scan restant sur 3/);
     assert.match(html, /disabled=""/);
     assert.match(html, locale === "en" ? /Next scan available/ : /Prochain scan disponible/);
     assert.match(html, /2026/);
@@ -107,11 +111,29 @@ test("loading or failed quota stays unknown and does not block server-authorized
   const pending = renderActions({ quota: null, loading: true, error: null });
   assert.match(pending, /Loading scan quota/);
   assert.doesNotMatch(pending, /Retry/, "retry is offered only after a failure");
-  assert.doesNotMatch(pending, /0 \/|disabled=""/);
+  assert.doesNotMatch(pending, /left out of|disabled=""/);
   const failed = renderActions({ quota: null, loading: false, error: "unavailable" });
   assert.match(failed, /Scan quota unavailable/);
   assert.match(failed, /Retry/);
-  assert.doesNotMatch(failed, /0 \/|disabled=""/);
+  assert.doesNotMatch(failed, /left out of|disabled=""/);
+});
+
+test("a focus refresh keeps an exhausted quota blocking and visible until the server answers", async () => {
+  const exhausted = { remaining: 0, limit: 3, nextAvailableAt: "2026-11-01T12:00:00.000Z" };
+  let reply = async () => response(exhausted);
+  let quotaState;
+  const loader = createScanQuotaLoader(() => reply(), (state) => { quotaState = state; });
+  await loader.refresh("user-1");
+  let answer;
+  reply = () => new Promise((resolve) => { answer = resolve; });
+  const pending = loader.refresh("user-1");
+  const html = renderActions(quotaState);
+  assert.match(html, /disabled=""/);
+  assert.match(html, /0 scans left out of 3/);
+  assert.doesNotMatch(html, /Loading scan quota/);
+  answer(response(exhausted));
+  await pending;
+  loader.cancel();
 });
 
 test("an active scan still disables launch when quota is available", () => {

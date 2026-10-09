@@ -1,11 +1,13 @@
 import {
   BadRequestException,
   ForbiddenException,
+  GatewayTimeoutException,
   HttpStatus,
   Inject,
   Injectable,
   Logger,
   NotFoundException,
+  OnModuleDestroy,
   ServiceUnavailableException
 } from "@nestjs/common";
 import { CACHE_MANAGER } from "@nestjs/cache-manager";
@@ -57,6 +59,9 @@ const INTERACTIVE_SCAN_OPTIONS: JobsOptions = {
   removeOnComplete: { age: 3600 },
   removeOnFail: { age: 86400 }
 };
+// Artworks are searched in parallel, each bounded by the 120 s Lens HTTP
+// timeout, so a running scan ends in about that time; 30 s covers storage and DB.
+export const SYNC_SCAN_TIMEOUT_MS = 150_000;
 
 // Cap the statistics drill-down lists (per-category and per-report): a slice can
 // accumulate thousands of matches, and the modal renders every row (with an
@@ -70,7 +75,7 @@ export const MATCHES_MODAL_LIMIT = 100;
 export const TIMELINE_MAX_POINTS = 30;
 
 @Injectable()
-export class ReportsService {
+export class ReportsService implements OnModuleDestroy {
   constructor(
     private readonly visualSearchService: VisualSearchService,
     private readonly artworksService: ArtworksService,
@@ -84,6 +89,12 @@ export class ReportsService {
   ) {}
 
   private readonly logger = new Logger(ReportsService.name);
+  // One Redis subscriber shared by every synchronous scan, opened on first use.
+  private queueEvents?: QueueEvents;
+
+  async onModuleDestroy(): Promise<void> {
+    await this.queueEvents?.close();
+  }
 
   // Kept as a forward so the logged-in scan path and its callers are
   // unchanged; the fan-out itself now lives in VisualSearchService.
@@ -282,25 +293,25 @@ export class ReportsService {
     return { jobId: job.id ?? this.scanJobId(userId) };
   }
 
-  async generateAndWait(userId: string): Promise<ArtworksReport> {
-    const events = new QueueEvents(REPORTS_QUEUE, { connection: this.reportsQueue.opts.connection });
+  async generateAndWait(userId: string, timeoutMs = SYNC_SCAN_TIMEOUT_MS): Promise<ArtworksReport> {
+    this.queueEvents ??= new QueueEvents(REPORTS_QUEUE, { connection: this.reportsQueue.opts.connection });
+    await this.queueEvents.waitUntilReady();
+    const job = await this.enqueueScanJob(userId, INTERACTIVE_SCAN_OPTIONS, true);
+    let reportId: string;
     try {
-      await events.waitUntilReady();
-      const job = await this.enqueueScanJob(userId, INTERACTIVE_SCAN_OPTIONS, true);
-      let reportId: string;
-      try {
-        reportId = await job.waitUntilFinished(events);
-      } catch (error) {
-        const message = error instanceof Error ? error.message : "Scan failed.";
-        // The rejection is a plain Error rebuilt from the message: read the status the worker stored.
-        const failed = await this.reportsQueue.getJob(job.id ?? this.scanJobId(userId)).catch(() => undefined);
-        if (failed?.data.failureStatus === HttpStatus.FORBIDDEN) throw new ForbiddenException(message);
-        throw new ServiceUnavailableException(message);
+      reportId = await job.waitUntilFinished(this.queueEvents, timeoutMs);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Scan failed.";
+      // The rejection is a plain Error rebuilt from the message: read the state and status the worker stored.
+      const current = await this.reportsQueue.getJob(job.id ?? this.scanJobId(userId)).catch(() => undefined);
+      const state = await current?.getState().catch(() => undefined);
+      if (state && this.isRunningState(state)) {
+        throw new GatewayTimeoutException("The scan is taking longer than expected. It continues in the background: check your reports later.");
       }
-      return this.prisma.artworksReport.findUniqueOrThrow({ where: { id: reportId } });
-    } finally {
-      await events.close();
+      if (current?.data.failureStatus === HttpStatus.FORBIDDEN) throw new ForbiddenException(message);
+      throw new ServiceUnavailableException(message);
     }
+    return this.prisma.artworksReport.findUniqueOrThrow({ where: { id: reportId } });
   }
 
   // Enqueue an auto-scan from the scheduler: retry-friendly and self-cleaning.

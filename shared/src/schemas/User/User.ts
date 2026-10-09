@@ -81,9 +81,11 @@ export const UserCreateSchema = UserSchema.pick({
 
 export class UserCreateDTO extends createZodDto(UserCreateSchema) {}
 
+// Not strict: unknown keys are stripped, which drops subscriptionTier and the
+// extra profile fields (country, language) the mobile app sends.
 export const UserUpdateSchema = UserGetSchema.omit({
   id: true,
   createdAt: true,
   subscriptionTier: true,
-}).partial().strict();
+}).partial();
 export class UserUpdateDTO extends createZodDto(UserUpdateSchema) {}

@@ -1,4 +1,4 @@
-import { ForbiddenException, Injectable } from "@nestjs/common";
+import { ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
 import { ScanQuota, SubscriptionTier } from "@vigilart/shared";
 import { Prisma } from "@vigilart/shared/server";
 import { PrismaService } from "../prisma/prisma.service";
@@ -22,11 +22,11 @@ export class ScanQuotaService {
       : new Date(usages[usages.length - limit].startedAt.getTime() + WINDOW_MS).toISOString() };
   }
 
+  // Display only, read without the row lock: consumeScan re-checks under it.
   async getScanQuota(userId: string): Promise<ScanQuota> {
-    return this.prisma.$transaction(async (tx) => {
-      const user = await this.artworkLimit.lockUser(tx, userId);
-      return this.readQuota(tx, userId, user.subscriptionTier);
-    });
+    const user = await this.prisma.user.findUnique({ where: { id: userId }, select: { subscriptionTier: true } });
+    if (!user) throw new NotFoundException("User does not exist");
+    return this.readQuota(this.prisma, userId, user.subscriptionTier);
   }
 
   async consumeScan(userId: string, scanId: string): Promise<void> {
