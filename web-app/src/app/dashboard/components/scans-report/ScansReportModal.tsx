@@ -14,6 +14,8 @@ import {
   type CategorySelection,
 } from "../../../../components/matches/matchCategoryFilter";
 import { ScanRow } from "./types";
+import { RestrictedMatch } from "../../../../components/matches/RestrictedMatch";
+import { mostRecentMatch } from "../../../../components/matches/mostRecentMatch";
 
 interface ScansReportModalProps {
   artwork: ScanRow | null;
@@ -29,9 +31,13 @@ export function ScansReportModal({ artwork, onClose }: ScansReportModalProps) {
     setCategory(ALL_CATEGORIES);
   }, [artwork?.artworkId]);
 
+  const categories = presentCategories((artwork?.matchingPages ?? []).filter((page) => !page.unsafeDomain));
+  useEffect(() => {
+    if (category !== ALL_CATEGORIES && !categories.includes(category)) setCategory(ALL_CATEGORIES);
+  }, [category, categories]);
+
   if (!artwork) return null;
 
-  const categories = presentCategories(artwork.matchingPages);
   const visiblePages = filterAndSortMatches(artwork.matchingPages, category);
 
   return (
@@ -43,7 +49,9 @@ export function ScansReportModal({ artwork, onClose }: ScansReportModalProps) {
         <div className="space-y-4">
           <div className="text-sm text-muted-foreground">
             <p><span className="font-bold">{t("dashboard_page.scans_report.total_matches")}:</span> {artwork.matches}</p>
-            <p><span className="font-bold">{t("dashboard_page.scans_report.most_recent_source")}:</span> {artwork.mostRecentSource}</p>
+            <RestrictedMatch unsafeDomain={!!mostRecentMatch(artwork.matchingPages)?.unsafeDomain} resetKey={`${category}-${JSON.stringify(artwork)}`}>
+              <p><span className="font-bold">{t("dashboard_page.scans_report.most_recent_source")}:</span> {artwork.mostRecentSource}</p>
+            </RestrictedMatch>
           </div>
 
           {artwork.matchingPages.length > 0 ? (
@@ -60,6 +68,7 @@ export function ScansReportModal({ artwork, onClose }: ScansReportModalProps) {
               </div>
               {visiblePages.map((page) => (
                 <div key={`${page.artworkId}-${page.id}-${page.url}-${page.firstDetectedAt}`} className="border rounded-lg p-3">
+                  <RestrictedMatch unsafeDomain={!!page.unsafeDomain} resetKey={`${category}-${JSON.stringify(artwork)}`}>
                   <div className="flex gap-3">
                     {page.imageUrl && (
                       <img
@@ -73,16 +82,22 @@ export function ScansReportModal({ artwork, onClose }: ScansReportModalProps) {
                       <p><span className="font-bold">{t("dashboard_page.scans_report.website")}:</span> {page.websiteName}</p>
                       <p><span className="font-bold">{t("dashboard_page.scans_report.title")}:</span> {page.pageTitle}</p>
                       <p><span className="font-bold">{t("dashboard_page.scans_report.found")}:</span> {new Date(page.firstDetectedAt).toLocaleString(i18n.language)}</p>
-                      <a
-                        href={page.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-600 hover:text-blue-800 inline-block mt-2"
-                      >
-                        {t("dashboard_page.scans_report.visit")} →
-                      </a>
+                      {page.unsafeDomain ? (
+                        // Blacklisted sites are never opened from VigilArt, even after reveal.
+                        <p className="mt-2 break-all text-muted-foreground">{page.url}</p>
+                      ) : (
+                        <a
+                          href={page.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-600 hover:text-blue-800 inline-block mt-2"
+                        >
+                          {t("dashboard_page.scans_report.visit")} →
+                        </a>
+                      )}
                     </div>
                   </div>
+                  </RestrictedMatch>
                 </div>
               ))}
             </div>

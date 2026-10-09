@@ -1,6 +1,8 @@
 import { ArrowDown, ArrowUp, ArrowUpDown, Image as ImageIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { SortDirection, SortField, ScanRow } from "./types";
+import { RestrictedMatch } from "../../../../components/matches/RestrictedMatch";
+import { mostRecentMatch } from "../../../../components/matches/mostRecentMatch";
 
 interface ScansReportTableProps {
   loading: boolean;
@@ -153,7 +155,9 @@ export function ScansReportTable({
                       <span className="px-3 py-1 rounded text-gray-700 font-bold">{t("dashboard_page.scans_report.not_available")}</span>
                     </td>
                     <td className={TABLE_ROW_CELL_CLASS}>
+                      <RestrictedMatch unsafeDomain={!!mostRecentMatch(scan.matchingPages)?.unsafeDomain} resetKey={`${currentPage}-${sortField}-${sortDirection}-${JSON.stringify(rows)}`} compact>
                       <span className="px-3 py-1 rounded bg-purple-900 text-white text-sm">{scan.mostRecentSource}</span>
+                      </RestrictedMatch>
                     </td>
                   </tr>
                 ))}

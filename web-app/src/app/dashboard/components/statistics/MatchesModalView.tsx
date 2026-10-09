@@ -3,6 +3,7 @@
 import { useTranslation } from "react-i18next";
 import { Loader2 } from "lucide-react";
 import type { MatchingPage } from "@vigilart/shared";
+import { RestrictedMatch } from "../../../../components/matches/RestrictedMatch";
 import {
   Dialog,
   DialogContent,
@@ -79,6 +80,7 @@ export function MatchesModalView({
                 key={`${page.artworkId}-${page.id}-${page.url}`}
                 className="border rounded-lg p-3"
               >
+                <RestrictedMatch unsafeDomain={!!page.unsafeDomain} resetKey={`${open}-${title}-${JSON.stringify(matches)}`}>
                 <div className="flex gap-3">
                   {page.imageUrl && (
                     // eslint-disable-next-line @next/next/no-img-element
@@ -109,16 +111,22 @@ export function MatchesModalView({
                       </span>{" "}
                       {new Date(page.firstDetectedAt).toLocaleString(i18n.language)}
                     </p>
-                    <a
-                      href={page.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-600 hover:text-blue-800 inline-block mt-2"
-                    >
-                      {t("dashboard_page.scans_report.visit")} →
-                    </a>
+                    {page.unsafeDomain ? (
+                      // Blacklisted sites are never opened from VigilArt, even after reveal.
+                      <p className="mt-2 break-all text-muted-foreground">{page.url}</p>
+                    ) : (
+                      <a
+                        href={page.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 hover:text-blue-800 inline-block mt-2"
+                      >
+                        {t("dashboard_page.scans_report.visit")} →
+                      </a>
+                    )}
                   </div>
                 </div>
+                </RestrictedMatch>
               </div>
             ))}
           </div>

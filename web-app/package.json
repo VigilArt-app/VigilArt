@@ -2,6 +2,7 @@
   "name": "@vigilart/web-app",
   "version": "0.1.0",
   "scripts": {
+    "test:matches:browser": "node --test test/restricted-matches.browser.test.mjs",
     "predev": "dotenv -e ../.env -- node scripts/generate-sw.js",
     "dev": "pnpm predev && dotenv -e ../.env -- next dev --turbopack",
     "prebuild": "node scripts/generate-sw.js",
