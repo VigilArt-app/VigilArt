@@ -4,7 +4,7 @@ import dynamic from "next/dynamic";
 import { usePathname } from "next/navigation";
 import { ThemeProvider } from "../components/theme-provider";
 import { Toaster } from "sonner";
-import { PUBLIC_SHELL_ROUTES } from "../lib/route-access";
+import { PUBLIC_SHELL_ROUTES } from "../lib/route-redirects";
 import type { AppLanguage } from "./i18n/language";
 // A dynamic provider changes the React tree path during hydration, giving
 // descendant Radix controls different server/client IDs.
