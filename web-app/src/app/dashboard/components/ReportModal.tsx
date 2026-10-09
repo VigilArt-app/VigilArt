@@ -92,6 +92,12 @@ export function ReportModal({
                   {report.matchingPages?.length || 0}{" "}
                   {t("artworks_report_page.detections_found")}
                 </p>
+                {/* Kept in the summary box: at the end of the list it sat
+                    below the fold and nobody saw it. */}
+                {/* Gray, not green: it is a limit, not part of the success. */}
+                <p className="text-sm text-gray-600 mt-2">
+                  {t("scan_coverage.result_note")}
+                </p>
               </div>
             </div>
 

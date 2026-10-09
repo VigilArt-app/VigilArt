@@ -125,6 +125,10 @@ export const ScanPanel = (): React.JSX.Element => {
             <p className="mt-2 text-sm text-muted-foreground">
               {t("landing_page.result.no_matches_body")}
             </p>
+            {/* Only here: a visitor reads zero results as proof of no reuse. */}
+            <p className="mt-2 text-sm text-muted-foreground">
+              {t("scan_coverage.result_note")}
+            </p>
           </>
         ) : (
           <div className="space-y-4">

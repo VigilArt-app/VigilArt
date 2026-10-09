@@ -235,10 +235,12 @@
   },
   "artwork_gallery_page": {
     "artwork_gallery": "Galerie d'œuvres",
-    "scanned": "Scanné",
     "all": "Tous",
-    "scanning": "En cours de scan",
-    "protected": "Protégé",
+    "not_scanned": "Pas encore scannée",
+    "not_scanned_body": "Cette œuvre n’a pas encore été scannée.",
+    "results_unavailable": "Résultats indisponibles",
+    "no_matches_found": "Aucune correspondance trouvée",
+    "matches_found": "Correspondances trouvées",
     "untitled": "Sans titre",
     "uploaded": "Téléchargé",
     "encod_date": "fr",
@@ -251,7 +253,7 @@
     "file_size": "Taille du fichier:",
     "id": "ID:",
     "all_links_matches": "Tous les liens des correspondances:",
-    "no_matches": "Aucune correspondance trouvée pour cette œuvre.",
+    "no_matches": "Aucune correspondance enregistrée pour cette œuvre.",
     "matches": "Correspondances",
     "last_source": "Source la plus récente",
     "last_detected": "Dernière détection",
@@ -433,7 +435,7 @@
       "appears_on_one": "Votre œuvre apparaît sur 1 page.",
       "appears_on_other": "Votre œuvre apparaît sur {{count}} pages.",
       "no_matches_title": "Rien trouvé cette fois.",
-      "no_matches_body": "Votre œuvre n'apparaît nulle part dans ce que la recherche a couvert. Cela peut changer : c'est pour cela qu'un compte la rescanne pour vous.",
+      "no_matches_body": "Ce scan n’a renvoyé aucune page correspondante. Vous pouvez relancer une recherche plus tard.",
       "showing_first": "Voici les {{count}} premières.",
       "see_the_rest_one": "Créez un compte pour voir la page restante",
       "see_the_rest_other": "Créez un compte pour voir les {{count}} pages restantes",
@@ -447,6 +449,9 @@
       "faq": "FAQ",
       "wordmark_alt": "VigilArt"
     }
+  },
+  "scan_coverage": {
+    "result_note": "Ce scan n’est pas exhaustif : certains contenus peuvent ne pas être détectés."
   },
   "faq_page": {
     "metadata_title": "Questions fréquentes | VigilArt",
@@ -480,6 +485,10 @@
       "workflow": {
         "question": "Comment un artiste peut-il vérifier où son travail a été republié ? Dois-je importer mes œuvres dans l’application ?",
         "answer_1": "Oui. Les artistes importent leurs œuvres dans VigilArt, qui recherche ensuite des images correspondantes sur le web."
+      },
+      "coverage": {
+        "question": "Quelles sont les limites des scans ?",
+        "answer_1": "VigilArt s’appuie actuellement sur Google Lens, via le service tiers SerpApi : seuls les contenus indexés par Google peuvent être trouvés. Certains contenus, notamment sur Instagram, privés ou non indexés, peuvent donc échapper au scan. Une absence de résultat ne prouve pas qu’aucune réutilisation n’existe."
       },
       "progress": {
         "question": "Où en est le développement ?",
