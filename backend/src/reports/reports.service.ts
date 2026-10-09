@@ -119,8 +119,8 @@ export class ReportsService {
     const matchingPagesData = matchingPages.map((match) => ({
       artworkId: artwork.id,
       ...match,
-      // Dedup on the canonical page URL: drop query string + fragment so
-      // `.../123?lang=es` and `.../123` collapse to one MatchingPage row.
+      // Dedup on the canonical page URL: drop tracking/share params and the
+      // fragment so `.../123?lang=es` and `.../123` collapse to one row.
       url: normalizeMatchUrl(match.url)
     }));
 
