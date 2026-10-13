@@ -10,13 +10,15 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'pages/login_page.dart';
 import 'pages/signup_page.dart';
 
-import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:vigilart/services/firebase_setup.dart';
 import 'package:vigilart/services/notification_service.dart';
 
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  await Firebase.initializeApp();
+  // Runs in its own isolate: .env is not loaded there yet.
+  await dotenv.load(fileName: ".env");
+  await initFirebase();
 }
 
 void main() async {
@@ -28,8 +30,7 @@ void main() async {
 
   // Firebase / push notifications are mobile-only; web has no Firebase config,
   // so initializing it there throws and leaves the app on a blank screen.
-  if (!kIsWeb) {
-    await Firebase.initializeApp();
+  if (!kIsWeb && await initFirebase()) {
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
     bool? notificationsEnabled = prefs.getBool('notificationsEnabled');

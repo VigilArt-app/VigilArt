@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart' show defaultTargetPlatform, TargetPlatform;
 import 'package:http/http.dart' as http;
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -10,7 +11,9 @@ class NotificationService {
   factory NotificationService() => _instance;
   NotificationService._internal();
 
-  final FirebaseMessaging _messaging = FirebaseMessaging.instance;
+  // A getter, not a field: FirebaseMessaging.instance throws when Firebase
+  // could not start, and every use below is inside a try.
+  FirebaseMessaging get _messaging => FirebaseMessaging.instance;
   final ApiService _apiService = ApiService();
 
   Future<String?>? _initFuture;
@@ -29,6 +32,11 @@ class NotificationService {
       );
 
       if (settings.authorizationStatus == AuthorizationStatus.authorized) {
+        // On iOS, getToken() throws until Apple has delivered the APNs token,
+        // which can take a moment after the permission prompt.
+        if (defaultTargetPlatform == TargetPlatform.iOS) {
+          await _waitForApnsToken();
+        }
         final token = await _messaging.getToken();
         if (token == null) {
           _initFuture = null;
@@ -74,6 +82,13 @@ class NotificationService {
     }
     _initFuture = null;
     return null;
+  }
+
+  Future<void> _waitForApnsToken() async {
+    for (var attempt = 0; attempt < 10; attempt++) {
+      if (await _messaging.getAPNSToken() != null) return;
+      await Future<void>.delayed(const Duration(milliseconds: 500));
+    }
   }
 
   Future<bool> _registerTokenWithBackend(String token) async {
