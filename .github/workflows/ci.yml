@@ -116,6 +116,43 @@ jobs:
           cd mobile-app
           flutter test
 
+  build-ios:
+    needs: changes
+    if: |
+      github.repository != 'EpitechPGE45-2025/G-EIP-700-PAR-7-1-eip-39' &&
+      needs.changes.outputs.mobile == 'true'
+    name: 🍎 Build iOS App
+    # macOS runners are free on public repositories; the timeout keeps a stuck
+    # build from burning hours (#259).
+    runs-on: macos-15
+    timeout-minutes: 40
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        with:
+          flutter-version: '3.41.9'
+          channel: 'stable'
+          cache: true
+
+      # Only checks that the Xcode project compiles: no signing, and no real
+      # API or Firebase values are needed for that.
+      - name: Create placeholder environment
+        run: echo "API_BASE_URL=https://api.invalid" > mobile-app/.env
+
+      - name: Install Flutter dependencies
+        run: |
+          cd mobile-app
+          flutter pub get --enforce-lockfile
+
+      - name: Build iOS app without code signing
+        run: |
+          cd mobile-app
+          flutter build ios --release --no-codesign
+
   run-tests:
     needs: changes
     if: |
