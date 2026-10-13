@@ -87,7 +87,7 @@ if (!builtApk) {
 
 // Clean up any existing vigilart-*.apk to avoid duplicate/stale assets
 try {
-  const existingApks = fs.readdirSync(apkDir).filter(f => f.startsWith('vigilart-') && f.endsWith('.apk'));
+  const existingApks = fs.readdirSync(apkDir).filter(f => f.startsWith('vigilart-') && (f.endsWith('.apk') || f.endsWith('.aab')));
   for (const f of existingApks) {
     try {
       fs.unlinkSync(path.join(apkDir, f));
@@ -98,6 +98,31 @@ try {
 const targetApk = path.join(apkDir, apkTargetName);
 fs.copyFileSync(builtApk, targetApk);
 console.log(`[build-mobile-apk] Successfully created APK asset: ${targetApk}`);
+
+// Google Play only accepts App Bundles, so production releases also ship an
+// .aab signed with the same upload key. Dev builds stay APK-only: the dev
+// flavor (app.vigilart.dev) is never uploaded to a store.
+if (!isDev) {
+  const bundleArgs = [
+    'build',
+    'appbundle',
+    '--release',
+    `--flavor=${flavor}`,
+    `--build-name=${version}`,
+    `--build-number=${runNumber}`
+  ];
+  console.log(`[build-mobile-apk] Executing: flutter ${bundleArgs.join(' ')}`);
+  execFileSync('flutter', bundleArgs, { cwd: mobileAppDir, stdio: 'inherit' });
+
+  const builtAab = path.join(mobileAppDir, 'build', 'app', 'outputs', 'bundle', `${flavor}Release`, `app-${flavor}-release.aab`);
+  if (!fs.existsSync(builtAab)) {
+    console.error(`Error: Built App Bundle not found at expected location (${builtAab})`);
+    process.exit(1);
+  }
+  const targetAab = path.join(apkDir, `vigilart-v${version}.aab`);
+  fs.copyFileSync(builtAab, targetAab);
+  console.log(`[build-mobile-apk] Successfully created App Bundle asset: ${targetAab}`);
+}
 
 // If building for dev, also ensure a fixed vigilart-dev.apk exists for rolling releases
 if (isDev) {
