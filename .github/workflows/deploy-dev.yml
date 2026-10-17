@@ -36,6 +36,7 @@ jobs:
 
   check-changes:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     outputs:
       backend: ${{ steps.filter.outputs.backend }}
       frontend: ${{ steps.filter.outputs.frontend }}
@@ -64,6 +65,7 @@ jobs:
   build-backend:
     name: 📦 Build & Push Backend
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     needs: [run-ci, check-changes]
     if: needs.check-changes.outputs.backend == 'true'
     steps:
@@ -97,6 +99,7 @@ jobs:
   build-frontend:
     name: 📦 Build & Push Frontend
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     needs: [run-ci, check-changes]
     if: needs.check-changes.outputs.frontend == 'true'
     environment:
@@ -145,6 +148,7 @@ jobs:
   deploy:
     name: 🚀 Deploy to dev
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     needs: [run-ci, check-changes, build-backend, build-frontend]
     if: |
       always() &&
@@ -178,6 +182,7 @@ jobs:
   release-mobile:
     name: 📱 Release Mobile App (dev)
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     needs: [run-ci, check-changes]
     permissions:
       contents: write
