@@ -31,6 +31,8 @@ jobs:
   run-ci:
     if: github.repository != 'EpitechPGE45-2025/G-EIP-700-PAR-7-1-eip-39'
     uses: ./.github/workflows/ci.yml
+    with:
+      base: main
     secrets: inherit
 
   check-changes:
@@ -48,6 +50,7 @@ jobs:
         uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
         id: filter
         with:
+          base: main
           filters: |
             backend:
               - 'backend/**'

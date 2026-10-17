@@ -19,6 +19,11 @@ on:
       - 'docker-compose.prod.yml'
       - '.github/workflows/ci.yml'
   workflow_call:
+    inputs:
+      base:
+        description: 'Base branch or ref to compare changes against'
+        type: string
+        default: ''
     secrets:
       DOPPLER_TEST_TOKEN:
         required: true
@@ -48,6 +53,7 @@ jobs:
         uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
         id: filter
         with:
+          base: ${{ inputs.base || (github.ref_name == 'main' && 'main' || 'dev') }}
           filters: |
             backend:
               - 'backend/**'
