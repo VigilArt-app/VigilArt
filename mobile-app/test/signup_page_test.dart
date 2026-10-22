@@ -99,6 +99,19 @@ void main() {
     expect(find.text('Our Terms of Service or Privacy Policy changed. Update the app to sign up.'), findsOneWidget);
   });
 
+  testWidgets('shows the server message when signup is disabled', (tester) async {
+    await pumpSignup(tester, status: 403, body: {
+      'success': false,
+      'statusCode': 403,
+      'message': 'Account creation is disabled on this environment',
+    });
+    await fillForm(tester);
+    await tester.tap(find.byKey(const Key('signup-consent')));
+    await tester.pump();
+    await submit(tester);
+    expect(find.text('Account creation is disabled on this environment'), findsOneWidget);
+  });
+
   testWidgets('opens the Terms and Privacy pages from the consent text', (tester) async {
     await pumpSignup(tester);
     final consent = tester.widget<RichText>(find.byWidgetPredicate(

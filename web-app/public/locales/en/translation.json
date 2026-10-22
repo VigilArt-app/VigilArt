@@ -46,7 +46,8 @@
     "sign_in": "Sign in",
     "signing_up": "Signing up...",
     "error_unexpected": "An unexpected error occurred. Please try again.",
-    "sign_up_failed": "Sign up failed. Please check your information and try again."
+    "sign_up_failed": "Sign up failed. Please check your information and try again.",
+    "sign_up_disabled": "Account creation is disabled on this environment."
   },
   "logout_page": {
     "logging_out": "Logging out..."
