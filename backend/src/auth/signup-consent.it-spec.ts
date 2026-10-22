@@ -8,8 +8,8 @@ import type { Cache } from "cache-manager";
 
 const consent = {
   acceptedTerms: true,
-  termsVersion: "2026-09-09",
-  privacyVersion: "2026-10-09",
+  termsVersion: "2026-10-22",
+  privacyVersion: "2026-10-22",
 };
 const credentials = { email: "ARTIST@example.com", password: "Secure_P4ssword" };
 
@@ -69,7 +69,7 @@ describe("signup consent", () => {
     await auth.signUp({ ...credentials, ...consent } as never);
     expect(stored).toEqual(expect.objectContaining({
       firstName: null, lastName: null,
-      termsVersion: "2026-09-09", privacyVersion: "2026-10-09",
+      termsVersion: "2026-10-22", privacyVersion: "2026-10-22",
       termsAcceptedAt: expect.any(Date),
     }));
     expect((stored!.termsAcceptedAt as Date).getTime()).toBeGreaterThanOrEqual(before);
