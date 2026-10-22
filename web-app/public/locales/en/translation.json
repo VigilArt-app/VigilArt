@@ -1,4 +1,9 @@
 {
+  "restricted_match": {
+    "hidden": "Blacklisted site: content hidden",
+    "show": "Show",
+    "hide": "Hide"
+  },
   "common": {
     "download_apk": "Download APK"
   },
@@ -27,8 +32,8 @@
     "welcome": "Welcome",
     "on": "on",
     "ready_to_sign_up": "Ready to sign up?",
-    "first_name": "First name",
-    "last_name": "Last name",
+    "consent": "I accept the <terms>Terms of Service</terms> and acknowledge the <privacy>Privacy Policy</privacy>.",
+    "consent_required": "Accept the Terms of Service and acknowledge the Privacy Policy to create your account.",
     "email": "Email address",
     "placeholder_email": "john.doe@example.com",
     "password": "Password",
@@ -55,7 +60,7 @@
       "supported_formats": "Supported formats: JPEG, PNG",
       "cancel": "Cancel",
       "upload": "Upload",
-      "uploaded_files": "Uploaded files",
+      "uploaded_files": "Upload files",
       "uploading": "Uploading...",
       "add_description": "Add a description (optional)",
       "artworks": "artworks",
@@ -237,9 +242,11 @@
   "artwork_gallery_page": {
     "artwork_gallery": "Artwork Gallery",
     "all": "All",
-    "scanned": "Scanned",
-    "scanning": "Scanning",
-    "protected": "Protected",
+    "not_scanned": "Not scanned yet",
+    "not_scanned_body": "This artwork has not been scanned yet.",
+    "results_unavailable": "Results unavailable",
+    "no_matches_found": "No matches found",
+    "matches_found": "Matches found",
     "untitled": "Untitled",
     "uploaded": "Uploaded",
     "encod_date": "en-US",
@@ -252,9 +259,11 @@
     "file_size": "File size:",
     "id": "ID:",
     "all_links_matches": "All links of matches:",
-    "no_matches": "No matches found for this artwork.",
+    "no_matches": "No matches recorded for this artwork.",
     "matches": "Matches",
     "last_source": "Most recent source",
+    "blacklisted_sites_one": "{{count}} blacklisted site",
+    "blacklisted_sites_other": "{{count}} blacklisted sites",
     "last_detected": "Last detected",
     "failed_load_reports": "Failed to load reports data.",
     "delete_artwork": "Delete artwork",
@@ -444,7 +453,7 @@
       "appears_on_one": "Your artwork appears on 1 page.",
       "appears_on_other": "Your artwork appears on {{count}} pages.",
       "no_matches_title": "Nothing found this time.",
-      "no_matches_body": "Your artwork does not appear anywhere the search reached. That can change, which is why an account rescans it for you.",
+      "no_matches_body": "This scan returned no matching pages. You can search again later.",
       "showing_first": "Showing the first {{count}}.",
       "see_the_rest_one": "Create an account to see the remaining page",
       "see_the_rest_other": "Create an account to see the remaining {{count}} pages",
@@ -458,6 +467,9 @@
       "faq": "FAQ",
       "wordmark_alt": "VigilArt"
     }
+  },
+  "scan_coverage": {
+    "result_note": "This scan is not exhaustive: some content may not be detected."
   },
   "faq_page": {
     "metadata_title": "Frequently Asked Questions | VigilArt",
@@ -492,6 +504,10 @@
         "question": "How can an artist check where their work has been reposted? Do I need to upload my artwork to the app?",
         "answer_1": "Yes. Artists upload their artwork to VigilArt, which then searches for matching images across the web."
       },
+      "coverage": {
+        "question": "What are the limits of scans?",
+        "answer_1": "VigilArt currently relies on Google Lens, through the third-party service SerpApi: only content indexed by Google can be found. Some content, including Instagram posts, private content or content that is not indexed, may therefore be missed by a scan. No results does not prove that your artwork has not been reused."
+      },
       "progress": {
         "question": "What is the current progress?",
         "answer_1": "VigilArt is still in development. The core features are available, and we are currently improving and testing the app."
@@ -505,7 +521,7 @@
   "privacy_page": {
     "metadata_title": "Privacy Policy | VigilArt",
     "title": "Privacy Policy",
-    "last_updated": "Last updated: September 9, 2026",
+    "last_updated": "Last updated: October 9, 2026",
     "blocks": [
       { "type": "h2", "content": ["1. About This Policy"] },
       { "type": "p", "content": ["This Privacy Policy explains what personal data VigilArt processes and how we use it."] },
@@ -537,10 +553,12 @@
       { "type": "p", "content": ["VigilArt does not sell your personal data."] },
       { "type": "h2", "content": ["4. Data Retention and Deletion"] },
       { "type": "p", "content": ["Account data, artwork records, scan history, and matches are generally retained while your account is active or until you delete them."] },
-      { "type": "p", "content": ["Guest-scan results are currently retained for approximately one hour. Temporary guest-scan images are deleted after processing completes. A storage lifecycle rule removes abandoned guest-scan images within one day if processing does not complete normally."] },
+      { "type": "p", "content": ["Guest-scan results become eligible for automatic cleanup one hour after a scan completes or fails. Cleanup is triggered when another scan completes or fails, so results may remain stored and accessible for longer."] },
+      { "type": "p", "content": ["VigilArt deletes temporary guest-scan images when processing ends, including after a scan fails. If that deletion fails or processing is interrupted, a storage rule automatically deletes them within one day."] },
+      { "type": "p", "content": ["When you generate a DMCA notice, VigilArt creates a PDF containing the notice details (your name, address, phone number, email, signature and the reported URLs), stores it with Cloudflare R2 so you can download it, and a storage rule automatically deletes it after one day."] },
       { "type": "p", "content": ["SerpApi retains search data for 31 days under its own policy."] },
       { "type": "p", "content": ["Feedback-form responses are retained only as long as reasonably necessary to analyze feedback and improve VigilArt."] },
-      { "type": "p", "content": ["You may delete individual artworks or your account through VigilArt."] },
+      { "type": "p", "content": ["You may delete individual artworks or your account through VigilArt. Deleting an artwork removes its database record and attempts to delete its uploaded file. The file may remain if storage cleanup fails or is interrupted."] },
       { "type": "p", "content": ["At present, deleting your account removes the account and most associated records from VigilArt's main database. DMCA notice records are retained without a link to the deleted account. Artwork files and profile images are not automatically removed from object storage when the account is deleted."] },
       { "type": "p", "content": ["For requests concerning your data, including feedback-form data, contact ", { "text": "vigilart.app@gmail.com", "href": "mailto:vigilart.app@gmail.com" }, "."] },
       { "type": "h2", "content": ["5. International Data Transfers"] },

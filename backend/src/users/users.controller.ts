@@ -7,7 +7,6 @@ import {
   Param,
   ParseUUIDPipe,
   Patch,
-  Post,
   Res
 } from "@nestjs/common";
 import type { Response } from "express";
@@ -15,32 +14,12 @@ import { UsersService } from "./users.service";
 import { ApiEndpoint } from "../common/decorators/api-endpoint.decorator";
 import { clearAuthCookies } from "../common/utils/get-cookie-options";
 import { ApiBody, ApiParam } from "@nestjs/swagger";
-import {
-  UserCreateDTO,
-  UserUpdateDTO,
-  UserGetDTO,
-  UserDTO
-} from "@vigilart/shared/schemas";
+import { UserUpdateDTO, UserGetDTO } from "@vigilart/shared/schemas";
 import type { UserGet } from "@vigilart/shared/types";
 
 @Controller("users")
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
-
-  @Post()
-  @ApiEndpoint({
-    summary: "Create a new user",
-    success: {
-      status: HttpStatus.CREATED,
-      type: UserGetDTO
-    },
-    errors: [HttpStatus.BAD_REQUEST, HttpStatus.CONFLICT],
-    protected: true
-  })
-  @ApiBody({ type: UserCreateDTO })
-  async create(@Body() createUserDto: UserCreateDTO): Promise<UserGet> {
-    return this.usersService.create(createUserDto);
-  }
 
   @Get()
   @ApiEndpoint({
@@ -60,7 +39,7 @@ export class UsersController {
     summary: "Retrieve a user by ID",
     success: {
       status: HttpStatus.OK,
-      type: UserDTO
+      type: UserGetDTO
     },
     errors: [HttpStatus.NOT_FOUND],
     protected: true,
@@ -76,7 +55,7 @@ export class UsersController {
     summary: "Retrieve a user by email",
     success: {
       status: HttpStatus.OK,
-      type: UserDTO
+      type: UserGetDTO
     },
     errors: [HttpStatus.NOT_FOUND],
     protected: true,

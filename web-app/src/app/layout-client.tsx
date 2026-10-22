@@ -1,6 +1,6 @@
 "use client";
 
-import dynamic from "next/dynamic";
+import { lazy, Suspense } from "react";
 import { usePathname } from "next/navigation";
 import { ThemeProvider } from "../components/theme-provider";
 import { Toaster } from "sonner";
@@ -14,8 +14,10 @@ import I18nProvider from "./i18n/I18nProvider";
 // in Firebase and i18next (85 kB gzipped between them), and the landing page is
 // the one route anonymous visitors reach. Server rendering is left on, so the
 // signed-in app still arrives as HTML.
-const AppShell = dynamic(() =>
-  import("./app-shell").then((module) => module.AppShell)
+// next/dynamic adds a server-only preload child that shifts Radix useId paths.
+// React.lazy keeps the server/client tree identical while retaining the split.
+const AppShell = lazy(() =>
+  import("./app-shell").then((module) => ({ default: module.AppShell }))
 );
 
 type LayoutClientProps = Readonly<{
@@ -43,9 +45,11 @@ export const LayoutClient = ({
         {isPublicShell ? (
           children
         ) : (
-          <AppShell hasAuthToken={hasAuthToken} hasRefreshToken={hasRefreshToken}>
-            {children}
-          </AppShell>
+          <Suspense fallback={null}>
+            <AppShell hasAuthToken={hasAuthToken} hasRefreshToken={hasRefreshToken}>
+              {children}
+            </AppShell>
+          </Suspense>
         )}
       </I18nProvider>
     </ThemeProvider>

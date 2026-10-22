@@ -1,9 +1,11 @@
 "use client";
-import { Trash2 } from "lucide-react";
-import { ArtworkWithInsights, FILTER_STATUS_TRANSLATION_KEYS, getArtworkStatus } from "./types";
+import { Trash2, TriangleAlert } from "lucide-react";
+import { ArtworkWithInsights, getArtworkStatus } from "./types";
+import { ArtworkStatusBadge } from "./ArtworkStatusBadge";
 import { useArtworkImageUrl } from "./hooks/useArtworkImageUrl";
 import { useTranslation } from "react-i18next";
 import router from 'next/router';
+import { mostRecentMatch } from "../../../components/matches/mostRecentMatch";
 
 interface ArtworkCardProps {
   artwork: ArtworkWithInsights;
@@ -22,8 +24,11 @@ export function ArtworkCard({
 }: ArtworkCardProps) {
   const { t } = useTranslation();
   const status = getArtworkStatus(artwork);
-  const statusLabel = t(FILTER_STATUS_TRANSLATION_KEYS[status]);
-  const mostRecentSource = artwork.reportInsights?.mostRecentSource;
+  const pages = artwork.reportInsights?.matchingPages ?? [];
+  // The card never names a blacklisted site: it shows the latest safe source
+  // and flags the blacklisted ones, which are mostly adult image boards.
+  const latestSafeMatch = mostRecentMatch(pages.filter((page) => !page.unsafeDomain));
+  const blacklistedCount = pages.filter((page) => page.unsafeDomain).length;
   const { imageUrl, isLoading } = useArtworkImageUrl(artwork.storageKey);
 
   const openDmcaPage = (e: React.MouseEvent) => {
@@ -53,44 +58,40 @@ export function ArtworkCard({
         onSelect(artwork);
       }}
     >
-      <div className="absolute top-2 left-2 z-10">
-        <div
-          className={`px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1 ${
-            status === "Scanned"
-              ? "bg-green-500 text-white"
-              : status === "Scanning"
-              ? "bg-purple-500 text-white"
-              : "bg-blue-500 text-white"
-          }`}
-        >
-          {status === "Scanned" && "✓ "}
-          {status === "Scanning" && "⟳ "}
-          {status === "Protected" && "🛡"}
-          {statusLabel.toUpperCase()}
+      <div className="absolute top-2 inset-x-2 z-10 flex flex-wrap items-start gap-2">
+        <div className="flex flex-col items-start gap-1">
+          <ArtworkStatusBadge status={status} />
+          {/* At the top, next to the status: the bottom overlay has no room left on small cards. */}
+          {blacklistedCount > 0 && (
+            <p className="inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-amber-400 px-2 py-0.5 text-[11px] font-semibold text-black">
+              <TriangleAlert className="size-3 shrink-0" aria-hidden="true" />
+              {t("artwork_gallery_page.blacklisted_sites", { count: blacklistedCount })}
+            </p>
+          )}
         </div>
-      </div>
 
-      <div className="absolute top-2 right-2 z-10 flex gap-2">
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onEdit?.(artwork, e);
-          }}
-          className="bg-white text-black p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-md border"
-          aria-label={t("artwork_gallery_page.edit_description")}
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <path strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" d="M4 20h4l10-10a2.5 2.5 0 00-3.5-3.5L4 16v4z" />
-          </svg>
-        </button>
+        <div className="ml-auto flex shrink-0 gap-2">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onEdit?.(artwork, e);
+            }}
+            className="bg-white text-black p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-md border"
+            aria-label={t("artwork_gallery_page.edit_description")}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" d="M4 20h4l10-10a2.5 2.5 0 00-3.5-3.5L4 16v4z" />
+            </svg>
+          </button>
 
-        <button 
-          onClick={(e) => onDelete(artwork.id, e)}
-          className="bg-red-500 hover:bg-red-600 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-          aria-label={t("artwork_gallery_page.delete_artwork")}
-        >
-          <Trash2 className="w-4 h-4" />
-        </button>
+          <button
+            onClick={(e) => onDelete(artwork.id, e)}
+            className="bg-red-500 hover:bg-red-600 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+            aria-label={t("artwork_gallery_page.delete_artwork")}
+          >
+            <Trash2 className="w-4 h-4" />
+          </button>
+        </div>
       </div>
 
       <div className="aspect-square bg-muted relative overflow-hidden">
@@ -123,9 +124,9 @@ export function ArtworkCard({
             year: "numeric",
           })}
         </p>
-        {mostRecentSource && (
+        {latestSafeMatch?.websiteName && (
           <p className="text-white/80 text-xs truncate mt-1">
-            {t("artwork_gallery_page.last_source")}: {mostRecentSource}
+            {t("artwork_gallery_page.last_source")}: {latestSafeMatch.websiteName}
           </p>
         )}
       </div>

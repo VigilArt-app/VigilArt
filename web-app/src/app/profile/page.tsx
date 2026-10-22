@@ -42,8 +42,6 @@ export default function ProfilePage() {
   } = useNotificationsSettings();
 
   const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
     email: "",
     avatar: "",
     avatarFile: null as File | null,
@@ -52,8 +50,6 @@ export default function ProfilePage() {
   useEffect(() => {
     if (user) {
       setFormData({
-        firstName: user.firstName || "",
-        lastName: user.lastName || "",
         email: user.email || "",
         avatar: user.avatar || "",
         avatarFile: null,
@@ -82,14 +78,6 @@ export default function ProfilePage() {
 
     loadAvatarUrl();
   }, [formData.avatar]);
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
 
   const handleAvatarFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -120,13 +108,6 @@ export default function ProfilePage() {
     setIsSaving(true);
     try {
       const updatePayload: UserUpdate = {};
-
-      if (formData.firstName !== user?.firstName) {
-        updatePayload.firstName = formData.firstName;
-      }
-      if (formData.lastName !== user?.lastName) {
-        updatePayload.lastName = formData.lastName;
-      }
 
       if (formData.avatarFile) {
         try {
@@ -211,7 +192,7 @@ export default function ProfilePage() {
       <div className="relative z-10 min-h-screen flex flex-col p-8">
         {user && (
           <div className=" text-4xl font-bold mb-8 pt-4">
-            {t("profil_page.welcome")}, {user.firstName || "User"}
+            {t("profil_page.welcome")}
           </div>
         )}
 
@@ -230,9 +211,8 @@ export default function ProfilePage() {
 
                   <div>
                     <h2 className="text-2xl font-bold">
-                      {user.firstName} {user.lastName}
+                      {user.email}
                     </h2>
-                    <p className="text-sm mt-1">{user.email}</p>
                   </div>
                 </div>
               </div>
@@ -262,20 +242,6 @@ export default function ProfilePage() {
                 </div>
 
                 <div className="grid grid-cols-2 gap-6">
-                  <div>
-                    <Label htmlFor="lastName" className="block font-semibold mb-2">
-                      {t("profil_page.last_name")}
-                    </Label>
-                    <Input id="lastName" name="lastName" value={formData.lastName} onChange={handleInputChange} placeholder={t("profil_page.enter_last_name")} type="text" className="w-full" />
-                  </div>
-
-                  <div>
-                    <Label htmlFor="firstName" className="block font-semibold mb-2">
-                      {t("profil_page.first_name")}
-                    </Label>
-                    <Input id="firstName" name="firstName" value={formData.firstName} onChange={handleInputChange} placeholder={t("profil_page.enter_first_name")} type="text" className="w-full" />
-                  </div>
-
                   <div>
                     <Label htmlFor="email" className="block font-semibold mb-2">
                       {t("profil_page.email")}
