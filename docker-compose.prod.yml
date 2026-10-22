@@ -97,6 +97,7 @@ services:
       FIREBASE_APPLICATION_CREDENTIALS: ${FIREBASE_APPLICATION_CREDENTIALS}
       TRUST_PROXY_HOPS: ${TRUST_PROXY_HOPS}
       TURNSTILE_SECRET_KEY: ${TURNSTILE_SECRET_KEY}
+      THROTTLER_KEY_SECRET: ${THROTTLER_KEY_SECRET}
       PUBLIC_SCAN_MONTHLY_BUDGET: ${PUBLIC_SCAN_MONTHLY_BUDGET}
       PUBLIC_SCAN_DAILY_CAP: ${PUBLIC_SCAN_DAILY_CAP}
 
@@ -108,6 +109,12 @@ services:
       timeout: 5s
       retries: 5
       start_period: 30s
+    # Logs hold personal data (emails at login): rotate them so they are not
+    # kept indefinitely, as the Privacy Policy states.
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   frontend:
     image: ghcr.io/${REPO_OWNER:-vigilart-app}/vigilart-frontend:${IMAGE_TAG}
@@ -145,6 +152,10 @@ services:
       timeout: 5s
       retries: 5
       start_period: 30s
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   db:
     image: postgres:16
@@ -162,6 +173,10 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "3"
 
 volumes:
   postgres_prod_data:
