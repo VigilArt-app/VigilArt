@@ -5,6 +5,8 @@ import { ArtworkWithInsights, getArtworkStatus } from "./types";
 import { useArtworkImageUrl } from "./hooks/useArtworkImageUrl";
 import { useTranslation } from "react-i18next";
 import { CategoryFilterSelect } from "../../../components/matches/CategoryFilterSelect";
+import { RestrictedMatch, matchIdentity } from "../../../components/matches/RestrictedMatch";
+import { mostRecentMatch } from "../../../components/matches/mostRecentMatch";
 import {
   ALL_CATEGORIES,
   filterAndSortMatches,
@@ -32,7 +34,11 @@ export function ArtworkDetails({ artwork }: ArtworkDetailsProps) {
     setCategory(ALL_CATEGORIES);
   }, [artwork.id]);
 
-  const categories = presentCategories(matchingPages);
+  const categories = presentCategories(matchingPages.filter((page) => !page.unsafeDomain));
+  useEffect(() => {
+    if (category !== ALL_CATEGORIES && !categories.includes(category)) setCategory(ALL_CATEGORIES);
+  }, [category, categories]);
+  const latestMatch = mostRecentMatch(matchingPages);
   const visiblePages = filterAndSortMatches(matchingPages, category);
 
   return (
@@ -112,6 +118,7 @@ export function ArtworkDetails({ artwork }: ArtworkDetailsProps) {
             <p className="text-muted-foreground">{totalMatches}</p>
           </div>
 
+          <RestrictedMatch unsafeDomain={!!latestMatch?.unsafeDomain} resetKey={`${artwork.id}-${category}-${matchIdentity(latestMatch)}`}>
           {mostRecentSource && mostRecentSource !== "N/A" && (
             <div>
               <p className="font-semibold">{t("artwork_gallery_page.last_source")}</p>
@@ -125,6 +132,7 @@ export function ArtworkDetails({ artwork }: ArtworkDetailsProps) {
               <p className="text-muted-foreground">{new Date(mostRecentDate).toLocaleString(i18n.language)}</p>
             </div>
           )}
+          </RestrictedMatch>
         </div>
 
         <div className="border-t pt-4">
@@ -145,17 +153,28 @@ export function ArtworkDetails({ artwork }: ArtworkDetailsProps) {
           ) : (
             <div className="space-y-2">
               {visiblePages.map((page) => (
-                <a
-                  key={`${page.id}-${page.url}-${page.firstDetectedAt}`}
-                  href={page.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="block rounded border p-2 text-xs hover:bg-muted/50"
-                >
-                  <p className="font-semibold truncate">{page.websiteName || page.pageTitle || page.url}</p>
-                  <p className="text-muted-foreground truncate">{page.url}</p>
-                  <p className="text-muted-foreground">{new Date(page.firstDetectedAt).toLocaleString(i18n.language)}</p>
-                </a>
+                <RestrictedMatch key={page.id} unsafeDomain={!!page.unsafeDomain} resetKey={`${artwork.id}-${category}-${matchIdentity(page)}`}>
+                {page.unsafeDomain ? (
+                  // Blacklisted sites are never opened from VigilArt, even after reveal.
+                  <div className="block rounded border p-2 text-xs">
+                    <p className="font-semibold truncate">{page.websiteName || page.pageTitle || page.url}</p>
+                    <p className="text-muted-foreground break-all">{page.url}</p>
+                    <p className="text-muted-foreground">{new Date(page.firstDetectedAt).toLocaleString(i18n.language)}</p>
+                  </div>
+                ) : (
+                  <a
+                    key={`${page.id}-${page.url}-${page.firstDetectedAt}`}
+                    href={page.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block rounded border p-2 text-xs hover:bg-muted/50"
+                  >
+                    <p className="font-semibold truncate">{page.websiteName || page.pageTitle || page.url}</p>
+                    <p className="text-muted-foreground truncate">{page.url}</p>
+                    <p className="text-muted-foreground">{new Date(page.firstDetectedAt).toLocaleString(i18n.language)}</p>
+                  </a>
+                )}
+                </RestrictedMatch>
               ))}
             </div>
           )}

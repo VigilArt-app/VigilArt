@@ -1,4 +1,9 @@
 {
+  "restricted_match": {
+    "hidden": "Site blacklisté : contenu masqué",
+    "show": "Afficher",
+    "hide": "Masquer"
+  },
   "common": {
     "download_apk": "Télécharger l'APK"
   },
@@ -254,6 +259,8 @@
     "no_matches": "Aucune correspondance trouvée pour cette œuvre.",
     "matches": "Correspondances",
     "last_source": "Source la plus récente",
+    "blacklisted_sites_one": "{{count}} site blacklisté",
+    "blacklisted_sites_other": "{{count}} sites blacklistés",
     "last_detected": "Dernière détection",
     "failed_load_reports": "Échec du chargement des données de reports.",
     "delete_artwork": "Supprimer l'œuvre",

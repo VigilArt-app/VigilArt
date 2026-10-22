@@ -1,4 +1,9 @@
 {
+  "restricted_match": {
+    "hidden": "Blacklisted site: content hidden",
+    "show": "Show",
+    "hide": "Hide"
+  },
   "common": {
     "download_apk": "Download APK"
   },
@@ -254,6 +259,8 @@
     "no_matches": "No matches found for this artwork.",
     "matches": "Matches",
     "last_source": "Most recent source",
+    "blacklisted_sites_one": "{{count}} blacklisted site",
+    "blacklisted_sites_other": "{{count}} blacklisted sites",
     "last_detected": "Last detected",
     "failed_load_reports": "Failed to load reports data.",
     "delete_artwork": "Delete artwork",
