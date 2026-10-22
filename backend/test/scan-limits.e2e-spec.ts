@@ -28,6 +28,7 @@ import { getTestContainerUrls } from "./setupTests.e2e";
 import { HttpService } from "@nestjs/axios";
 import { of } from "rxjs";
 import { SerpApiAccountService } from "../src/serpapilens/serpapi-account.service";
+import { VisualSearchError } from "../src/visualsearch/visual-search.error";
 
 describe("Durable scan and artwork limits E2E", () => {
   let app: INestApplication;
@@ -240,6 +241,23 @@ describe("Durable scan and artwork limits E2E", () => {
     await reports.generate(user.id, persisted!);
     expect(await prisma.scanUsage.count({ where: { userId: user.id } })).toBe(1);
     await job.remove();
+  });
+
+  // Beta testers have 2 free scans: a scan that found nothing because our
+  // provider failed must not cost them one. Scheduled scans keep the charge.
+  it("gives a manual scan back when every artwork's search fails, and charges the next one that works", async () => {
+    const user = await createUser();
+    await artworks.create(artworkData(user.id));
+    searchImage.mockRejectedValue(new VisualSearchError("provider_error"));
+
+    const failed = await reports.enqueueScan(user.id);
+    await expect((await queue.getJob(failed.jobId))!.waitUntilFinished(events, 15000)).rejects.toThrow("Scan failed:");
+    expect(await reports.getScanQuota(user.id)).toEqual({ remaining: 2, limit: 2, nextAvailableAt: null });
+
+    searchImage.mockResolvedValue({ metadata: { bestGuessLabels: [], webEntities: [] }, matchingPages: [] });
+    const succeeded = await reports.enqueueScan(user.id);
+    await (await queue.getJob(succeeded.jobId))!.waitUntilFinished(events, 15000);
+    expect(await reports.getScanQuota(user.id)).toEqual({ remaining: 1, limit: 2, nextAvailableAt: null });
   });
 
   it("does not charge an empty account, failed storage URL or artwork-cap preflight", async () => {

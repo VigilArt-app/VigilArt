@@ -175,11 +175,18 @@ export class ReportsService implements OnModuleDestroy {
       return result.value;
     });
 
-    // A failed provider attempt remains consumed even when no report is saved.
     if (
       artworks.length > 0 &&
       settled.every((result) => result.status === "rejected")
     ) {
+      // A user-started scan that found nothing because every search failed is
+      // given back. A scheduled one stays consumed, so the hourly cron does not
+      // retry (and pay for) a failing account every hour.
+      if (consumption && job?.data?.manual === true) {
+        await this.scanQuota.releaseScan(userId, scanId).catch((error) =>
+          this.logger.error(`Failed to give back scan ${scanId} of user ${userId}`, error)
+        );
+      }
       const failure = settled
         .map((result) => (result as PromiseRejectedResult).reason)
         .find((reason) => reason instanceof VisualSearchError);
@@ -302,7 +309,7 @@ export class ReportsService implements OnModuleDestroy {
 
     const job = await this.reportsQueue.add(
       GENERATE_REPORT_JOB,
-      { userId, scanId: randomUUID() },
+      { userId, scanId: randomUUID(), ...(interactive && { manual: true }) },
       { jobId, ...options }
     );
     return job;

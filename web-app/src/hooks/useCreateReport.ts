@@ -66,7 +66,7 @@ export const useCreateReport = (onScanQuotaChange?: () => Promise<void>): UseCre
   useEffect(() => stopPolling, []);
 
   const refreshScanQuota = () => {
-    // The server consumes quota in the worker, including failed provider runs.
+    // The worker counts the scan, and gives it back when every search failed.
     // A quota fetch failure must never interrupt scan status polling.
     void onScanQuotaChange?.().catch(() => {});
   };
