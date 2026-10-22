@@ -12,7 +12,7 @@ export class PublicThrottlerGuard extends ThrottlerGuard {
     return req.ip ?? req.socket?.remoteAddress ?? "unknown";
   }
 
-  // Two scans a week is right for strangers and only gets in the way while
+  // Two scans per 30 days only gets in the way while
   // developing the page. Read straight off process.env, the way
   // get-cookie-options.ts does, because ThrottlerGuard's constructor signature
   // is fixed by the base class and cannot take ConfigService.

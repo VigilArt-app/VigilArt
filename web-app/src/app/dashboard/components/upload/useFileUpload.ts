@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import type { UploadUrlsGetDTO } from "@vigilart/shared";
+import { FREE_ARTWORK_LIMIT } from "@vigilart/shared/constants";
 import { getImageDimensions } from "@/src/components/upload/compressImage";
 import { authenticatedFetch } from "@/src/utils/auth/authenticatedFetch";
 import { useAuth } from "@/src/components/contexts/authContext";
@@ -30,6 +31,9 @@ export function useFileUpload({ onUploadComplete }: UseFileUploadOptions = {}) {
   const [uploadResult, setUploadResult] = useState<UploadResult | null>(null);
   const { user, loading: userLoading } = useAuth();
   const { t } = useTranslation();
+  // In this flow both steps answer 403 only for the free artwork cap: the
+  // batch's userId is always the signed-in user, so ownership cannot fail.
+  const limitMessage = t("dashboard_page.upload.artwork_limit_reached", { limit: FREE_ARTWORK_LIMIT });
 
   const addFiles = (files: UploadedFile[]) => {
     setUploadedFiles((prev) => [...prev, ...files]);
@@ -95,6 +99,7 @@ export function useFileUpload({ onUploadComplete }: UseFileUploadOptions = {}) {
         }),
       });
 
+      if (uploadUrlsResponse.status === 403) throw new Error(limitMessage);
       if (!uploadUrlsResponse.ok) {
         throw new Error("Failed to get presigned URLs");
       }
@@ -188,6 +193,7 @@ export function useFileUpload({ onUploadComplete }: UseFileUploadOptions = {}) {
         body: JSON.stringify(artworksToCreate),
       });
 
+      if (createResponse.status === 403) throw new Error(limitMessage);
       if (!createResponse.ok) {
         const contentType = createResponse.headers.get("content-type");
         let errorMessage = t("dashboard_page.upload.unknown_error");

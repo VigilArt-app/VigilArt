@@ -28,21 +28,21 @@ describe("PublicScanReservationInterceptor", () => {
   });
 
   it("Should keep the reservation when the scan is queued", async () => {
-    const request = { publicScanReserved: true };
+    const request = { publicScanReserved: "public-scan:budget:2026-10-01" };
 
     await firstValueFrom(
       interceptor.intercept(contextFor(request), handlerThat("succeeds"))
     );
 
     expect(budget.release).not.toHaveBeenCalled();
-    expect(request.publicScanReserved).toBe(false);
+    expect(request.publicScanReserved).toBeNull();
   });
 
   // The guard reserves before Nest's FileInterceptor runs, so an over-sized
   // upload is rejected by multer and never reaches the handler. Without this,
   // each rejected upload would silently burn one of the day's free scans.
   it("Should give the reservation back when the request fails", async () => {
-    const request = { publicScanReserved: true };
+    const request = { publicScanReserved: "public-scan:budget:2026-10-01" };
 
     await expect(
       firstValueFrom(
@@ -51,11 +51,26 @@ describe("PublicScanReservationInterceptor", () => {
     ).rejects.toThrow("upload too large");
 
     expect(budget.release).toHaveBeenCalledTimes(1);
-    expect(request.publicScanReserved).toBe(false);
+    expect(budget.release).toHaveBeenCalledWith("public-scan:budget:2026-10-01");
+    expect(request.publicScanReserved).toBeNull();
+  });
+
+  it("Should give the SerpApi search back when the request fails, and keep it when the scan is queued", async () => {
+    const failed = { publicScanReserved: "2026-10-01", releasePublicScanSearch: jest.fn() };
+    const release = failed.releasePublicScanSearch;
+    await expect(
+      firstValueFrom(interceptor.intercept(contextFor(failed), handlerThat("throws")))
+    ).rejects.toThrow("upload too large");
+    expect(release).toHaveBeenCalledTimes(1);
+
+    const queued = { publicScanReserved: "2026-10-01", releasePublicScanSearch: jest.fn() };
+    const kept = queued.releasePublicScanSearch;
+    await firstValueFrom(interceptor.intercept(contextFor(queued), handlerThat("succeeds")));
+    expect(kept).not.toHaveBeenCalled();
   });
 
   it("Should not release for a request that never reserved", async () => {
-    const request = { publicScanReserved: false };
+    const request = { publicScanReserved: null };
 
     await expect(
       firstValueFrom(

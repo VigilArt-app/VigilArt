@@ -9,10 +9,12 @@ import { Request } from "express";
 import { PublicScanBudgetService } from "../services/public-scan-budget.service";
 
 export interface ReservedRequest extends Request {
-  publicScanReserved?: boolean;
+  publicScanReserved?: string | null;
+  // Gives back the SerpApi search the guard reserved.
+  releasePublicScanSearch?: () => void;
 }
 
-// Hands the day's budget back whenever a request that claimed a reservation
+// Hands the landing budget back whenever a request that claimed a reservation
 // ends without a search being paid for. It has to be an interceptor rather than
 // a try/catch in the service: the guard reserves before Nest's FileInterceptor
 // runs, so an over-sized upload is rejected by multer and the handler is never
@@ -27,13 +29,17 @@ export class PublicScanReservationInterceptor implements NestInterceptor {
     return next.handle().pipe(
       // The job is queued: the reservation is now genuinely spent.
       tap(() => {
-        request.publicScanReserved = false;
+        request.publicScanReserved = null;
+        request.releasePublicScanSearch = undefined;
       }),
       catchError((error) => {
         if (request.publicScanReserved) {
-          request.publicScanReserved = false;
-          void this.budgetService.release();
+          const reservation = request.publicScanReserved;
+          request.publicScanReserved = null;
+          void this.budgetService.release(reservation);
         }
+        request.releasePublicScanSearch?.();
+        request.releasePublicScanSearch = undefined;
         return throwError(() => error);
       })
     );

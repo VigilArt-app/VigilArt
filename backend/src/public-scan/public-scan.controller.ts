@@ -40,7 +40,7 @@ export class PublicScanController {
   @UseGuards(TurnstileGuard, PublicThrottlerGuard, PublicScanBudgetGuard)
   // Every configured throttler applies unless it is skipped: @Throttle only
   // overrides a bucket's options, it does not select one. Without the skip, a
-  // poll would also spend the visitor's 2-scans-per-week allowance.
+  // poll would also spend the visitor's 2-scans-per-30-days allowance.
   @SkipThrottle({ [PUBLIC_POLL_THROTTLER]: true })
   // Order matters: the reservation interceptor is declared first so it wraps
   // FileInterceptor, and an upload multer rejects still gives its budget back.
@@ -64,6 +64,7 @@ export class PublicScanController {
       HttpStatus.FORBIDDEN,
       HttpStatus.PAYLOAD_TOO_LARGE,
       HttpStatus.TOO_MANY_REQUESTS,
+      HttpStatus.SERVICE_UNAVAILABLE,
       HttpStatus.INTERNAL_SERVER_ERROR
     ]
   })
@@ -77,7 +78,7 @@ export class PublicScanController {
   @UseGuards(PublicThrottlerGuard)
   @SkipThrottle({ [PUBLIC_SCAN_THROTTLER]: true })
   @ApiEndpoint({
-    summary: "Free scans left in today's shared budget.",
+    summary: "Free scans left in the shared landing budget, and whether the SerpApi quota pauses scans.",
     success: { status: HttpStatus.OK, type: PublicScanAllowanceDTO }
   })
   getAllowance() {

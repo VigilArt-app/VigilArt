@@ -27,6 +27,10 @@
       "types": "./dist/schemas/index.d.ts",
       "default": "./dist/schemas/index.js"
     },
+    "./schemas/scan-quota": {
+      "types": "./dist/schemas/Reports/ScanQuota.d.ts",
+      "default": "./dist/schemas/Reports/ScanQuota.js"
+    },
     "./types": {
       "types": "./dist/types/index.d.ts",
       "default": "./dist/types/index.js"

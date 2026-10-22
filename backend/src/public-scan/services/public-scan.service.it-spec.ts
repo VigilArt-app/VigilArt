@@ -8,6 +8,7 @@ import { getQueueToken } from "@nestjs/bullmq";
 import { PublicScanService } from "./public-scan.service";
 import { PublicScanBudgetService } from "./public-scan-budget.service";
 import { StorageService } from "../../storage/storage.service";
+import { SerpApiAccountService } from "../../serpapilens/serpapi-account.service";
 import {
   PUBLIC_SCAN_QUEUE,
   PUBLIC_SCAN_MAX_FILE_BYTES,
@@ -30,7 +31,8 @@ describe("PublicScanService", () => {
     deleteImage: jest.Mock;
     getDownloadUrl: jest.Mock;
   };
-  let budget: { release: jest.Mock; remainingToday: jest.Mock };
+  let budget: { release: jest.Mock; remaining: jest.Mock };
+  let serpApiAccount: { getQuota: jest.Mock };
   let queue: { add: jest.Mock; getJob: jest.Mock };
 
   beforeEach(async () => {
@@ -41,8 +43,9 @@ describe("PublicScanService", () => {
     };
     budget = {
       release: jest.fn().mockResolvedValue(undefined),
-      remainingToday: jest.fn()
+      remaining: jest.fn()
     };
+    serpApiAccount = { getQuota: jest.fn() };
     queue = { add: jest.fn(), getJob: jest.fn() };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -50,6 +53,7 @@ describe("PublicScanService", () => {
         PublicScanService,
         { provide: StorageService, useValue: storage },
         { provide: PublicScanBudgetService, useValue: budget },
+        { provide: SerpApiAccountService, useValue: serpApiAccount },
         { provide: getQueueToken(PUBLIC_SCAN_QUEUE), useValue: queue }
       ]
     }).compile();
@@ -218,11 +222,37 @@ describe("PublicScanService", () => {
   });
 
   describe("getAllowance", () => {
-    it("Should report what is left of today's shared budget", async () => {
-      budget.remainingToday.mockResolvedValue(3);
+    it("Should report what is left of the shared landing budget", async () => {
+      budget.remaining.mockResolvedValue(3);
+      serpApiAccount.getQuota.mockResolvedValue({ searchesLeft: 120, renewsOn: "2026-11-05" });
 
       await expect(service.getAllowance()).resolves.toEqual({
-        remainingToday: 3
+        remaining: 3,
+        paused: false,
+        resumesOn: "2026-11-05"
+      });
+    });
+
+    it("Should report scans as paused until renewal once the SerpApi quota is used up", async () => {
+      budget.remaining.mockResolvedValue(40);
+      serpApiAccount.getQuota.mockResolvedValue({ searchesLeft: 0, renewsOn: "2026-11-05" });
+
+      await expect(service.getAllowance()).resolves.toEqual({
+        remaining: 40,
+        paused: true,
+        resumesOn: "2026-11-05"
+      });
+    });
+
+    // Same rule as the scans: an unreadable quota does not block the page.
+    it("Should not pause scans when the SerpApi quota cannot be read", async () => {
+      budget.remaining.mockResolvedValue(5);
+      serpApiAccount.getQuota.mockResolvedValue(null);
+
+      await expect(service.getAllowance()).resolves.toEqual({
+        remaining: 5,
+        paused: false,
+        resumesOn: null
       });
     });
   });

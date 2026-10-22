@@ -8,7 +8,7 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 
 // Per visitor. Smaller than the global daily budget on purpose, so one visitor
 // cannot take the whole day's allowance.
-export const PUBLIC_SCAN_TTL_MS = 7 * DAY_MS;
+export const PUBLIC_SCAN_TTL_MS = 30 * DAY_MS;
 export const PUBLIC_SCAN_LIMIT = 2;
 
 // A visitor polls for up to 3 minutes at one request every 2 seconds (~90
