@@ -30,6 +30,9 @@ export type UserMinAggregateOutputType = {
   password: string | null
   firstName: string | null
   lastName: string | null
+  termsAcceptedAt: Date | null
+  termsVersion: string | null
+  privacyVersion: string | null
   avatar: string | null
   subscriptionTier: $Enums.SubscriptionTier | null
   autoRunReports: boolean | null
@@ -44,6 +47,9 @@ export type UserMaxAggregateOutputType = {
   password: string | null
   firstName: string | null
   lastName: string | null
+  termsAcceptedAt: Date | null
+  termsVersion: string | null
+  privacyVersion: string | null
   avatar: string | null
   subscriptionTier: $Enums.SubscriptionTier | null
   autoRunReports: boolean | null
@@ -58,6 +64,9 @@ export type UserCountAggregateOutputType = {
   password: number
   firstName: number
   lastName: number
+  termsAcceptedAt: number
+  termsVersion: number
+  privacyVersion: number
   avatar: number
   subscriptionTier: number
   autoRunReports: number
@@ -74,6 +83,9 @@ export type UserMinAggregateInputType = {
   password?: true
   firstName?: true
   lastName?: true
+  termsAcceptedAt?: true
+  termsVersion?: true
+  privacyVersion?: true
   avatar?: true
   subscriptionTier?: true
   autoRunReports?: true
@@ -88,6 +100,9 @@ export type UserMaxAggregateInputType = {
   password?: true
   firstName?: true
   lastName?: true
+  termsAcceptedAt?: true
+  termsVersion?: true
+  privacyVersion?: true
   avatar?: true
   subscriptionTier?: true
   autoRunReports?: true
@@ -102,6 +117,9 @@ export type UserCountAggregateInputType = {
   password?: true
   firstName?: true
   lastName?: true
+  termsAcceptedAt?: true
+  termsVersion?: true
+  privacyVersion?: true
   avatar?: true
   subscriptionTier?: true
   autoRunReports?: true
@@ -187,8 +205,11 @@ export type UserGroupByOutputType = {
   id: string
   email: string
   password: string
-  firstName: string
-  lastName: string
+  firstName: string | null
+  lastName: string | null
+  termsAcceptedAt: Date | null
+  termsVersion: string | null
+  privacyVersion: string | null
   avatar: string | null
   subscriptionTier: $Enums.SubscriptionTier
   autoRunReports: boolean
@@ -222,8 +243,11 @@ export type UserWhereInput = {
   id?: Prisma.StringFilter<"User"> | string
   email?: Prisma.StringFilter<"User"> | string
   password?: Prisma.StringFilter<"User"> | string
-  firstName?: Prisma.StringFilter<"User"> | string
-  lastName?: Prisma.StringFilter<"User"> | string
+  firstName?: Prisma.StringNullableFilter<"User"> | string | null
+  lastName?: Prisma.StringNullableFilter<"User"> | string | null
+  termsAcceptedAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  termsVersion?: Prisma.StringNullableFilter<"User"> | string | null
+  privacyVersion?: Prisma.StringNullableFilter<"User"> | string | null
   avatar?: Prisma.StringNullableFilter<"User"> | string | null
   subscriptionTier?: Prisma.EnumSubscriptionTierFilter<"User"> | $Enums.SubscriptionTier
   autoRunReports?: Prisma.BoolFilter<"User"> | boolean
@@ -242,8 +266,11 @@ export type UserOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   email?: Prisma.SortOrder
   password?: Prisma.SortOrder
-  firstName?: Prisma.SortOrder
-  lastName?: Prisma.SortOrder
+  firstName?: Prisma.SortOrderInput | Prisma.SortOrder
+  lastName?: Prisma.SortOrderInput | Prisma.SortOrder
+  termsAcceptedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  termsVersion?: Prisma.SortOrderInput | Prisma.SortOrder
+  privacyVersion?: Prisma.SortOrderInput | Prisma.SortOrder
   avatar?: Prisma.SortOrderInput | Prisma.SortOrder
   subscriptionTier?: Prisma.SortOrder
   autoRunReports?: Prisma.SortOrder
@@ -265,8 +292,11 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.UserWhereInput[]
   NOT?: Prisma.UserWhereInput | Prisma.UserWhereInput[]
   password?: Prisma.StringFilter<"User"> | string
-  firstName?: Prisma.StringFilter<"User"> | string
-  lastName?: Prisma.StringFilter<"User"> | string
+  firstName?: Prisma.StringNullableFilter<"User"> | string | null
+  lastName?: Prisma.StringNullableFilter<"User"> | string | null
+  termsAcceptedAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  termsVersion?: Prisma.StringNullableFilter<"User"> | string | null
+  privacyVersion?: Prisma.StringNullableFilter<"User"> | string | null
   avatar?: Prisma.StringNullableFilter<"User"> | string | null
   subscriptionTier?: Prisma.EnumSubscriptionTierFilter<"User"> | $Enums.SubscriptionTier
   autoRunReports?: Prisma.BoolFilter<"User"> | boolean
@@ -285,8 +315,11 @@ export type UserOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   email?: Prisma.SortOrder
   password?: Prisma.SortOrder
-  firstName?: Prisma.SortOrder
-  lastName?: Prisma.SortOrder
+  firstName?: Prisma.SortOrderInput | Prisma.SortOrder
+  lastName?: Prisma.SortOrderInput | Prisma.SortOrder
+  termsAcceptedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  termsVersion?: Prisma.SortOrderInput | Prisma.SortOrder
+  privacyVersion?: Prisma.SortOrderInput | Prisma.SortOrder
   avatar?: Prisma.SortOrderInput | Prisma.SortOrder
   subscriptionTier?: Prisma.SortOrder
   autoRunReports?: Prisma.SortOrder
@@ -305,8 +338,11 @@ export type UserScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"User"> | string
   email?: Prisma.StringWithAggregatesFilter<"User"> | string
   password?: Prisma.StringWithAggregatesFilter<"User"> | string
-  firstName?: Prisma.StringWithAggregatesFilter<"User"> | string
-  lastName?: Prisma.StringWithAggregatesFilter<"User"> | string
+  firstName?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  lastName?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  termsAcceptedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
+  termsVersion?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  privacyVersion?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   avatar?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   subscriptionTier?: Prisma.EnumSubscriptionTierWithAggregatesFilter<"User"> | $Enums.SubscriptionTier
   autoRunReports?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
@@ -319,8 +355,11 @@ export type UserCreateInput = {
   id?: string
   email: string
   password: string
-  firstName: string
-  lastName: string
+  firstName?: string | null
+  lastName?: string | null
+  termsAcceptedAt?: Date | string | null
+  termsVersion?: string | null
+  privacyVersion?: string | null
   avatar?: string | null
   subscriptionTier?: $Enums.SubscriptionTier
   autoRunReports?: boolean
@@ -339,8 +378,11 @@ export type UserUncheckedCreateInput = {
   id?: string
   email: string
   password: string
-  firstName: string
-  lastName: string
+  firstName?: string | null
+  lastName?: string | null
+  termsAcceptedAt?: Date | string | null
+  termsVersion?: string | null
+  privacyVersion?: string | null
   avatar?: string | null
   subscriptionTier?: $Enums.SubscriptionTier
   autoRunReports?: boolean
@@ -359,8 +401,11 @@ export type UserUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
-  firstName?: Prisma.StringFieldUpdateOperationsInput | string
-  lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  termsAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  termsVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  privacyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   subscriptionTier?: Prisma.EnumSubscriptionTierFieldUpdateOperationsInput | $Enums.SubscriptionTier
   autoRunReports?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -379,8 +424,11 @@ export type UserUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
-  firstName?: Prisma.StringFieldUpdateOperationsInput | string
-  lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  termsAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  termsVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  privacyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   subscriptionTier?: Prisma.EnumSubscriptionTierFieldUpdateOperationsInput | $Enums.SubscriptionTier
   autoRunReports?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -399,8 +447,11 @@ export type UserCreateManyInput = {
   id?: string
   email: string
   password: string
-  firstName: string
-  lastName: string
+  firstName?: string | null
+  lastName?: string | null
+  termsAcceptedAt?: Date | string | null
+  termsVersion?: string | null
+  privacyVersion?: string | null
   avatar?: string | null
   subscriptionTier?: $Enums.SubscriptionTier
   autoRunReports?: boolean
@@ -413,8 +464,11 @@ export type UserUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
-  firstName?: Prisma.StringFieldUpdateOperationsInput | string
-  lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  termsAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  termsVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  privacyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   subscriptionTier?: Prisma.EnumSubscriptionTierFieldUpdateOperationsInput | $Enums.SubscriptionTier
   autoRunReports?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -427,8 +481,11 @@ export type UserUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
-  firstName?: Prisma.StringFieldUpdateOperationsInput | string
-  lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  termsAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  termsVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  privacyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   subscriptionTier?: Prisma.EnumSubscriptionTierFieldUpdateOperationsInput | $Enums.SubscriptionTier
   autoRunReports?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -443,6 +500,9 @@ export type UserCountOrderByAggregateInput = {
   password?: Prisma.SortOrder
   firstName?: Prisma.SortOrder
   lastName?: Prisma.SortOrder
+  termsAcceptedAt?: Prisma.SortOrder
+  termsVersion?: Prisma.SortOrder
+  privacyVersion?: Prisma.SortOrder
   avatar?: Prisma.SortOrder
   subscriptionTier?: Prisma.SortOrder
   autoRunReports?: Prisma.SortOrder
@@ -457,6 +517,9 @@ export type UserMaxOrderByAggregateInput = {
   password?: Prisma.SortOrder
   firstName?: Prisma.SortOrder
   lastName?: Prisma.SortOrder
+  termsAcceptedAt?: Prisma.SortOrder
+  termsVersion?: Prisma.SortOrder
+  privacyVersion?: Prisma.SortOrder
   avatar?: Prisma.SortOrder
   subscriptionTier?: Prisma.SortOrder
   autoRunReports?: Prisma.SortOrder
@@ -471,6 +534,9 @@ export type UserMinOrderByAggregateInput = {
   password?: Prisma.SortOrder
   firstName?: Prisma.SortOrder
   lastName?: Prisma.SortOrder
+  termsAcceptedAt?: Prisma.SortOrder
+  termsVersion?: Prisma.SortOrder
+  privacyVersion?: Prisma.SortOrder
   avatar?: Prisma.SortOrder
   subscriptionTier?: Prisma.SortOrder
   autoRunReports?: Prisma.SortOrder
@@ -495,6 +561,10 @@ export type StringFieldUpdateOperationsInput = {
 
 export type NullableStringFieldUpdateOperationsInput = {
   set?: string | null
+}
+
+export type NullableDateTimeFieldUpdateOperationsInput = {
+  set?: Date | string | null
 }
 
 export type EnumSubscriptionTierFieldUpdateOperationsInput = {
@@ -599,8 +669,11 @@ export type UserCreateWithoutRefreshTokensInput = {
   id?: string
   email: string
   password: string
-  firstName: string
-  lastName: string
+  firstName?: string | null
+  lastName?: string | null
+  termsAcceptedAt?: Date | string | null
+  termsVersion?: string | null
+  privacyVersion?: string | null
   avatar?: string | null
   subscriptionTier?: $Enums.SubscriptionTier
   autoRunReports?: boolean
@@ -618,8 +691,11 @@ export type UserUncheckedCreateWithoutRefreshTokensInput = {
   id?: string
   email: string
   password: string
-  firstName: string
-  lastName: string
+  firstName?: string | null
+  lastName?: string | null
+  termsAcceptedAt?: Date | string | null
+  termsVersion?: string | null
+  privacyVersion?: string | null
   avatar?: string | null
   subscriptionTier?: $Enums.SubscriptionTier
   autoRunReports?: boolean
@@ -653,8 +729,11 @@ export type UserUpdateWithoutRefreshTokensInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
-  firstName?: Prisma.StringFieldUpdateOperationsInput | string
-  lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  termsAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  termsVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  privacyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   subscriptionTier?: Prisma.EnumSubscriptionTierFieldUpdateOperationsInput | $Enums.SubscriptionTier
   autoRunReports?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -672,8 +751,11 @@ export type UserUncheckedUpdateWithoutRefreshTokensInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
-  firstName?: Prisma.StringFieldUpdateOperationsInput | string
-  lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  termsAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  termsVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  privacyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   subscriptionTier?: Prisma.EnumSubscriptionTierFieldUpdateOperationsInput | $Enums.SubscriptionTier
   autoRunReports?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -691,8 +773,11 @@ export type UserCreateWithoutDeviceTokensInput = {
   id?: string
   email: string
   password: string
-  firstName: string
-  lastName: string
+  firstName?: string | null
+  lastName?: string | null
+  termsAcceptedAt?: Date | string | null
+  termsVersion?: string | null
+  privacyVersion?: string | null
   avatar?: string | null
   subscriptionTier?: $Enums.SubscriptionTier
   autoRunReports?: boolean
@@ -710,8 +795,11 @@ export type UserUncheckedCreateWithoutDeviceTokensInput = {
   id?: string
   email: string
   password: string
-  firstName: string
-  lastName: string
+  firstName?: string | null
+  lastName?: string | null
+  termsAcceptedAt?: Date | string | null
+  termsVersion?: string | null
+  privacyVersion?: string | null
   avatar?: string | null
   subscriptionTier?: $Enums.SubscriptionTier
   autoRunReports?: boolean
@@ -745,8 +833,11 @@ export type UserUpdateWithoutDeviceTokensInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
-  firstName?: Prisma.StringFieldUpdateOperationsInput | string
-  lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  termsAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  termsVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  privacyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   subscriptionTier?: Prisma.EnumSubscriptionTierFieldUpdateOperationsInput | $Enums.SubscriptionTier
   autoRunReports?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -764,8 +855,11 @@ export type UserUncheckedUpdateWithoutDeviceTokensInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
-  firstName?: Prisma.StringFieldUpdateOperationsInput | string
-  lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  termsAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  termsVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  privacyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   subscriptionTier?: Prisma.EnumSubscriptionTierFieldUpdateOperationsInput | $Enums.SubscriptionTier
   autoRunReports?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -783,8 +877,11 @@ export type UserCreateWithoutArtworksInput = {
   id?: string
   email: string
   password: string
-  firstName: string
-  lastName: string
+  firstName?: string | null
+  lastName?: string | null
+  termsAcceptedAt?: Date | string | null
+  termsVersion?: string | null
+  privacyVersion?: string | null
   avatar?: string | null
   subscriptionTier?: $Enums.SubscriptionTier
   autoRunReports?: boolean
@@ -802,8 +899,11 @@ export type UserUncheckedCreateWithoutArtworksInput = {
   id?: string
   email: string
   password: string
-  firstName: string
-  lastName: string
+  firstName?: string | null
+  lastName?: string | null
+  termsAcceptedAt?: Date | string | null
+  termsVersion?: string | null
+  privacyVersion?: string | null
   avatar?: string | null
   subscriptionTier?: $Enums.SubscriptionTier
   autoRunReports?: boolean
@@ -837,8 +937,11 @@ export type UserUpdateWithoutArtworksInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
-  firstName?: Prisma.StringFieldUpdateOperationsInput | string
-  lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  termsAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  termsVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  privacyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   subscriptionTier?: Prisma.EnumSubscriptionTierFieldUpdateOperationsInput | $Enums.SubscriptionTier
   autoRunReports?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -856,8 +959,11 @@ export type UserUncheckedUpdateWithoutArtworksInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
-  firstName?: Prisma.StringFieldUpdateOperationsInput | string
-  lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  termsAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  termsVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  privacyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   subscriptionTier?: Prisma.EnumSubscriptionTierFieldUpdateOperationsInput | $Enums.SubscriptionTier
   autoRunReports?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -875,8 +981,11 @@ export type UserCreateWithoutArtworksReportInput = {
   id?: string
   email: string
   password: string
-  firstName: string
-  lastName: string
+  firstName?: string | null
+  lastName?: string | null
+  termsAcceptedAt?: Date | string | null
+  termsVersion?: string | null
+  privacyVersion?: string | null
   avatar?: string | null
   subscriptionTier?: $Enums.SubscriptionTier
   autoRunReports?: boolean
@@ -894,8 +1003,11 @@ export type UserUncheckedCreateWithoutArtworksReportInput = {
   id?: string
   email: string
   password: string
-  firstName: string
-  lastName: string
+  firstName?: string | null
+  lastName?: string | null
+  termsAcceptedAt?: Date | string | null
+  termsVersion?: string | null
+  privacyVersion?: string | null
   avatar?: string | null
   subscriptionTier?: $Enums.SubscriptionTier
   autoRunReports?: boolean
@@ -929,8 +1041,11 @@ export type UserUpdateWithoutArtworksReportInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
-  firstName?: Prisma.StringFieldUpdateOperationsInput | string
-  lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  termsAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  termsVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  privacyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   subscriptionTier?: Prisma.EnumSubscriptionTierFieldUpdateOperationsInput | $Enums.SubscriptionTier
   autoRunReports?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -948,8 +1063,11 @@ export type UserUncheckedUpdateWithoutArtworksReportInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
-  firstName?: Prisma.StringFieldUpdateOperationsInput | string
-  lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  termsAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  termsVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  privacyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   subscriptionTier?: Prisma.EnumSubscriptionTierFieldUpdateOperationsInput | $Enums.SubscriptionTier
   autoRunReports?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -967,8 +1085,11 @@ export type UserCreateWithoutDmcaProfileInput = {
   id?: string
   email: string
   password: string
-  firstName: string
-  lastName: string
+  firstName?: string | null
+  lastName?: string | null
+  termsAcceptedAt?: Date | string | null
+  termsVersion?: string | null
+  privacyVersion?: string | null
   avatar?: string | null
   subscriptionTier?: $Enums.SubscriptionTier
   autoRunReports?: boolean
@@ -986,8 +1107,11 @@ export type UserUncheckedCreateWithoutDmcaProfileInput = {
   id?: string
   email: string
   password: string
-  firstName: string
-  lastName: string
+  firstName?: string | null
+  lastName?: string | null
+  termsAcceptedAt?: Date | string | null
+  termsVersion?: string | null
+  privacyVersion?: string | null
   avatar?: string | null
   subscriptionTier?: $Enums.SubscriptionTier
   autoRunReports?: boolean
@@ -1021,8 +1145,11 @@ export type UserUpdateWithoutDmcaProfileInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
-  firstName?: Prisma.StringFieldUpdateOperationsInput | string
-  lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  termsAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  termsVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  privacyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   subscriptionTier?: Prisma.EnumSubscriptionTierFieldUpdateOperationsInput | $Enums.SubscriptionTier
   autoRunReports?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1040,8 +1167,11 @@ export type UserUncheckedUpdateWithoutDmcaProfileInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
-  firstName?: Prisma.StringFieldUpdateOperationsInput | string
-  lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  termsAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  termsVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  privacyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   subscriptionTier?: Prisma.EnumSubscriptionTierFieldUpdateOperationsInput | $Enums.SubscriptionTier
   autoRunReports?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1059,8 +1189,11 @@ export type UserCreateWithoutDmcaNoticesInput = {
   id?: string
   email: string
   password: string
-  firstName: string
-  lastName: string
+  firstName?: string | null
+  lastName?: string | null
+  termsAcceptedAt?: Date | string | null
+  termsVersion?: string | null
+  privacyVersion?: string | null
   avatar?: string | null
   subscriptionTier?: $Enums.SubscriptionTier
   autoRunReports?: boolean
@@ -1078,8 +1211,11 @@ export type UserUncheckedCreateWithoutDmcaNoticesInput = {
   id?: string
   email: string
   password: string
-  firstName: string
-  lastName: string
+  firstName?: string | null
+  lastName?: string | null
+  termsAcceptedAt?: Date | string | null
+  termsVersion?: string | null
+  privacyVersion?: string | null
   avatar?: string | null
   subscriptionTier?: $Enums.SubscriptionTier
   autoRunReports?: boolean
@@ -1113,8 +1249,11 @@ export type UserUpdateWithoutDmcaNoticesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
-  firstName?: Prisma.StringFieldUpdateOperationsInput | string
-  lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  termsAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  termsVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  privacyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   subscriptionTier?: Prisma.EnumSubscriptionTierFieldUpdateOperationsInput | $Enums.SubscriptionTier
   autoRunReports?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1132,8 +1271,11 @@ export type UserUncheckedUpdateWithoutDmcaNoticesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
-  firstName?: Prisma.StringFieldUpdateOperationsInput | string
-  lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  termsAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  termsVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  privacyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   subscriptionTier?: Prisma.EnumSubscriptionTierFieldUpdateOperationsInput | $Enums.SubscriptionTier
   autoRunReports?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1220,6 +1362,9 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   password?: boolean
   firstName?: boolean
   lastName?: boolean
+  termsAcceptedAt?: boolean
+  termsVersion?: boolean
+  privacyVersion?: boolean
   avatar?: boolean
   subscriptionTier?: boolean
   autoRunReports?: boolean
@@ -1241,6 +1386,9 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   password?: boolean
   firstName?: boolean
   lastName?: boolean
+  termsAcceptedAt?: boolean
+  termsVersion?: boolean
+  privacyVersion?: boolean
   avatar?: boolean
   subscriptionTier?: boolean
   autoRunReports?: boolean
@@ -1255,6 +1403,9 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   password?: boolean
   firstName?: boolean
   lastName?: boolean
+  termsAcceptedAt?: boolean
+  termsVersion?: boolean
+  privacyVersion?: boolean
   avatar?: boolean
   subscriptionTier?: boolean
   autoRunReports?: boolean
@@ -1269,6 +1420,9 @@ export type UserSelectScalar = {
   password?: boolean
   firstName?: boolean
   lastName?: boolean
+  termsAcceptedAt?: boolean
+  termsVersion?: boolean
+  privacyVersion?: boolean
   avatar?: boolean
   subscriptionTier?: boolean
   autoRunReports?: boolean
@@ -1277,7 +1431,7 @@ export type UserSelectScalar = {
   updatedAt?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "password" | "firstName" | "lastName" | "avatar" | "subscriptionTier" | "autoRunReports" | "notificationsEnabled" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "password" | "firstName" | "lastName" | "termsAcceptedAt" | "termsVersion" | "privacyVersion" | "avatar" | "subscriptionTier" | "autoRunReports" | "notificationsEnabled" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   artworks?: boolean | Prisma.User$artworksArgs<ExtArgs>
   artworksReport?: boolean | Prisma.User$artworksReportArgs<ExtArgs>
@@ -1304,8 +1458,11 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     id: string
     email: string
     password: string
-    firstName: string
-    lastName: string
+    firstName: string | null
+    lastName: string | null
+    termsAcceptedAt: Date | null
+    termsVersion: string | null
+    privacyVersion: string | null
     avatar: string | null
     subscriptionTier: $Enums.SubscriptionTier
     autoRunReports: boolean
@@ -1746,6 +1903,9 @@ export interface UserFieldRefs {
   readonly password: Prisma.FieldRef<"User", 'String'>
   readonly firstName: Prisma.FieldRef<"User", 'String'>
   readonly lastName: Prisma.FieldRef<"User", 'String'>
+  readonly termsAcceptedAt: Prisma.FieldRef<"User", 'DateTime'>
+  readonly termsVersion: Prisma.FieldRef<"User", 'String'>
+  readonly privacyVersion: Prisma.FieldRef<"User", 'String'>
   readonly avatar: Prisma.FieldRef<"User", 'String'>
   readonly subscriptionTier: Prisma.FieldRef<"User", 'SubscriptionTier'>
   readonly autoRunReports: Prisma.FieldRef<"User", 'Boolean'>

@@ -18,6 +18,19 @@ import { createHash } from "crypto";
 
 const USERS_TTL = 7 * 24 * 60 * 60 * 1000;
 
+const PUBLIC_USER_OMIT = {
+  password: true,
+  termsAcceptedAt: true,
+  termsVersion: true,
+  privacyVersion: true,
+} as const;
+
+type SignupAcceptance = {
+  termsAcceptedAt: Date;
+  termsVersion: string;
+  privacyVersion: string;
+};
+
 const USER_KEY = (id: string) => {
   return `users:${id}`;
 }
@@ -53,9 +66,7 @@ export class UsersService {
     this.logger.log(`Finding user ${"id" in by ? by.id : by.email}`);
     const user = await this.prisma.user.findUnique({
       where: by,
-      omit: {
-        password: true
-      }
+      omit: PUBLIC_USER_OMIT
     });
 
     if (user) {
@@ -65,25 +76,22 @@ export class UsersService {
     return user;
   }
 
-  async create(user: UserCreate): Promise<UserGet> {
+  async create(user: UserCreate, acceptance?: SignupAcceptance): Promise<UserGet> {
     this.logger.log(`Creating new user ${user.email}`);
     return this.prisma.user.create({
       data: {
         ...user,
+        ...acceptance,
         subscriptionTier: SubscriptionTier.FREE
       },
-      omit: {
-        password: true
-      }
+      omit: PUBLIC_USER_OMIT
     });
   }
 
   async findAll(): Promise<UserGet[]> {
     this.logger.log("Finding all users");
     return this.prisma.user.findMany({
-      omit: {
-        password: true
-      }
+      omit: PUBLIC_USER_OMIT
     });
   }
 
@@ -122,7 +130,7 @@ export class UsersService {
     const user = await this.prisma.user.update({
       where: { id },
       data: updateUserDto,
-      omit: { password: true }
+      omit: PUBLIC_USER_OMIT
     });
 
     await this.cacheManager.del(USER_KEY(id));
