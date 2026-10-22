@@ -1,10 +1,11 @@
 "use client";
-import { Trash2 } from "lucide-react";
+import { Trash2, TriangleAlert } from "lucide-react";
 import { ArtworkWithInsights, getArtworkStatus } from "./types";
 import { ArtworkStatusBadge } from "./ArtworkStatusBadge";
 import { useArtworkImageUrl } from "./hooks/useArtworkImageUrl";
 import { useTranslation } from "react-i18next";
 import router from 'next/router';
+import { mostRecentMatch } from "../../../components/matches/mostRecentMatch";
 
 interface ArtworkCardProps {
   artwork: ArtworkWithInsights;
@@ -23,7 +24,11 @@ export function ArtworkCard({
 }: ArtworkCardProps) {
   const { t } = useTranslation();
   const status = getArtworkStatus(artwork);
-  const mostRecentSource = artwork.reportInsights?.mostRecentSource;
+  const pages = artwork.reportInsights?.matchingPages ?? [];
+  // The card never names a blacklisted site: it shows the latest safe source
+  // and flags the blacklisted ones, which are mostly adult image boards.
+  const latestSafeMatch = mostRecentMatch(pages.filter((page) => !page.unsafeDomain));
+  const blacklistedCount = pages.filter((page) => page.unsafeDomain).length;
   const { imageUrl, isLoading } = useArtworkImageUrl(artwork.storageKey);
 
   const openDmcaPage = (e: React.MouseEvent) => {
@@ -54,7 +59,16 @@ export function ArtworkCard({
       }}
     >
       <div className="absolute top-2 inset-x-2 z-10 flex flex-wrap items-start gap-2">
-        <ArtworkStatusBadge status={status} />
+        <div className="flex flex-col items-start gap-1">
+          <ArtworkStatusBadge status={status} />
+          {/* At the top, next to the status: the bottom overlay has no room left on small cards. */}
+          {blacklistedCount > 0 && (
+            <p className="inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-amber-400 px-2 py-0.5 text-[11px] font-semibold text-black">
+              <TriangleAlert className="size-3 shrink-0" aria-hidden="true" />
+              {t("artwork_gallery_page.blacklisted_sites", { count: blacklistedCount })}
+            </p>
+          )}
+        </div>
 
         <div className="ml-auto flex shrink-0 gap-2">
           <button
@@ -110,9 +124,9 @@ export function ArtworkCard({
             year: "numeric",
           })}
         </p>
-        {mostRecentSource && (
+        {latestSafeMatch?.websiteName && (
           <p className="text-white/80 text-xs truncate mt-1">
-            {t("artwork_gallery_page.last_source")}: {mostRecentSource}
+            {t("artwork_gallery_page.last_source")}: {latestSafeMatch.websiteName}
           </p>
         )}
       </div>
