@@ -12,6 +12,7 @@ import {
   TIMELINE_MAX_POINTS
 } from "./reports.service";
 import { VisualSearchService } from "../visualsearch/visual-search.service";
+import { VisualSearchError } from "../visualsearch/visual-search.error";
 import { ArtworksService } from "../artworks/artworks.service";
 import { StorageService } from "../storage/storage.service";
 import { MatchingPagesService } from "./matchingPage.service";
@@ -205,6 +206,35 @@ describe("ReportsService", () => {
         ServiceUnavailableException
       );
       expect(prisma.artworksReport.create).not.toHaveBeenCalled();
+    });
+
+    it("Should tell the user the real reason when every artwork's search fails", async () => {
+      mockScanSuccess();
+      visualSearchService.aggregate
+        .mockReset()
+        .mockRejectedValue(new VisualSearchError("rate_limit"));
+
+      const error = await service.generate("user-id").catch((e: unknown) => e);
+
+      expect(error).toBeInstanceOf(ServiceUnavailableException);
+      expect((error as Error).message).toBe(new VisualSearchError("rate_limit").message);
+      expect((error as Error).message).not.toMatch(/did not respond in time/);
+    });
+
+    // A failed search must not leave the artwork labelled "No matches found".
+    it("Should mark only the artworks whose search succeeded as scanned", async () => {
+      mockScanSuccess();
+      visualSearchService.aggregate
+        .mockReset()
+        .mockRejectedValueOnce(new VisualSearchError("provider_error"))
+        .mockResolvedValueOnce([]);
+
+      await service.generate("user-id");
+
+      expect(prisma.artwork.updateMany).toHaveBeenCalledWith({
+        where: { id: { in: ["a2"] } },
+        data: { lastScanAt: expect.any(Date) }
+      });
     });
 
     it("Should remove tracking data without discarding resource parameters before persisting", async () => {
