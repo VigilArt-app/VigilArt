@@ -72,8 +72,17 @@ Do not use the poster’s beige, coral, or navy blue as VigilArt brand colors.
 | Error and destructive actions | `#E7000B` | `#FF6467` |
 | Success | `#008300` | `#008300` |
 | Information | `#2A78D6` | `#2A78D6` |
+| Not scanned yet (neutral pending state) | `#737373` | `#737373` |
+| Matches found (informational result, legacy badge) | `#2B7FFF` | `#2B7FFF` |
+| No matches found (neutral scan result) | `#64748B` | `#64748B` |
 
 Functional colors retain their defined meaning. Never use plum for errors, success states, or data categories.
+
+For artwork scan badges, use medium gray `#737373` with white text for “Not scanned yet.” This pending state uses `--not-scanned` (Tailwind `bg-not-scanned`). Keep the filled pill shape without dots or icons.
+
+For “Matches found,” retain the original Protected badge's Tailwind `bg-blue-500 text-white` pairing (`#2B7FFF` in the current Tailwind palette), as explicitly requested by Seph. It means matches were found, not that those uses are necessarily unauthorized. This narrow legacy-color exception retains the same colors in both themes; its white-text contrast is below AA.
+
+Use slate `#64748B` with white text for the “No matches found” artwork badge. It means a recorded scan found no matches, not that the artwork is protected or the scan was exhaustive. This approved functional neutral uses `--no-matches` (Tailwind `bg-no-matches`) and retains the same colors in both themes.
 
 ### CSS tokens
 
@@ -92,6 +101,8 @@ Functional colors retain their defined meaning. Never use plum for errors, succe
   --va-error: #e7000b;
   --va-success: #008300;
   --va-info: #2a78d6;
+  --not-scanned: #737373;
+  --no-matches: #64748b;
 
   --va-violet-100: #f1ebf6;
   --va-violet-200: #e8dcf3;
