@@ -64,6 +64,7 @@ export class PublicScanController {
       HttpStatus.FORBIDDEN,
       HttpStatus.PAYLOAD_TOO_LARGE,
       HttpStatus.TOO_MANY_REQUESTS,
+      HttpStatus.SERVICE_UNAVAILABLE,
       HttpStatus.INTERNAL_SERVER_ERROR
     ]
   })
@@ -77,7 +78,7 @@ export class PublicScanController {
   @UseGuards(PublicThrottlerGuard)
   @SkipThrottle({ [PUBLIC_SCAN_THROTTLER]: true })
   @ApiEndpoint({
-    summary: "Free scans left in today's shared budget.",
+    summary: "Free scans left in the shared landing budget, and whether the SerpApi quota pauses scans.",
     success: { status: HttpStatus.OK, type: PublicScanAllowanceDTO }
   })
   getAllowance() {

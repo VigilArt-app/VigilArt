@@ -25,6 +25,9 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { TurnstileService } from "../src/turnstile/turnstile.service";
 import { getTestContainerUrls } from "./setupTests.e2e";
+import { HttpService } from "@nestjs/axios";
+import { of } from "rxjs";
+import { SerpApiAccountService } from "../src/serpapilens/serpapi-account.service";
 
 describe("Durable scan and artwork limits E2E", () => {
   let app: INestApplication;
@@ -35,6 +38,11 @@ describe("Durable scan and artwork limits E2E", () => {
   let events: QueueEvents;
   let quota: ScanQuotaService;
   const searchImage = jest.fn();
+  // A real SerpApiAccountService per test, reading a fake Account API, so the
+  // one-minute quota cache does not leak between tests.
+  let searchesLeft = 250;
+  let serpApiAccount: SerpApiAccountService;
+  const accountApi = { get: () => of({ data: { total_searches_left: searchesLeft, plan_renewal_date: "2026-11-05" } }) };
   const getDownloadUrl = jest.fn();
   const artworkData = (userId: string, label = crypto.randomUUID()) => ({
     userId, originalFilename: `${label}.jpg`, storageKey: `artworks/${label}.jpg`,
@@ -52,6 +60,11 @@ describe("Durable scan and artwork limits E2E", () => {
         REDIS_URL: redisUrl, NODE_ENV: "test", API_PREFIX: "api/v1", JWT_SECRET: "limits-secret", JWT_REFRESH_SECRET: "limits-refresh" }))
       .overrideProvider(StorageService).useValue({ getDownloadUrl })
       .overrideProvider(SerpApiLensService).useValue({ searchImage })
+      .overrideProvider(SerpApiAccountService).useValue({
+        getQuota: () => serpApiAccount.getQuota(),
+        assertSearchesLeft: (needed: number) => serpApiAccount.assertSearchesLeft(needed),
+        reserveSearches: (needed: number) => serpApiAccount.reserveSearches(needed)
+      })
       .overrideProvider(GoogleLensService).useValue({ searchImage: async () => { throw new Error("Unexpected provider"); } })
       .overrideProvider(VisionService).useValue({})
       .overrideProvider(TurnstileService).useValue({ verify: async () => true })
@@ -69,6 +82,9 @@ describe("Durable scan and artwork limits E2E", () => {
     await events.waitUntilReady();
   }, 120000);
   beforeEach(() => {
+    searchesLeft = 250;
+    serpApiAccount = new SerpApiAccountService(accountApi as unknown as HttpService,
+      new ConfigService({ SERP_API_GOOGLE_LENS_API_KEY: "test-key" }));
     searchImage.mockReset().mockResolvedValue({ metadata: { bestGuessLabels: [], webEntities: [] }, matchingPages: [] });
     getDownloadUrl.mockReset().mockResolvedValue("https://storage.invalid/art.jpg");
   });
@@ -82,20 +98,18 @@ describe("Durable scan and artwork limits E2E", () => {
   });
   afterAll(async () => { await events?.close(); await app?.close(); });
 
-  it("allows the third free scan and rejects the fourth", async () => {
+  it("allows the second free scan and rejects the third", async () => {
     const user = await createUser();
     await artworks.create(artworkData(user.id));
     await reports.generate(user.id);
     await reports.generate(user.id);
-    await reports.generate(user.id);
     await expect(reports.generate(user.id)).rejects.toMatchObject({ status: 403 });
-    expect(await prisma.artworksReport.count({ where: { userId: user.id } })).toBe(3);
+    expect(await prisma.artworksReport.count({ where: { userId: user.id } })).toBe(2);
   });
 
   it("keeps the completed scan pollable when quota rejects both async and synchronous replacements", async () => {
     const user = await createUser();
     await artworks.create(artworkData(user.id));
-    await reports.generate(user.id);
     await reports.generate(user.id);
     const { jobId } = await reports.enqueueScan(user.id);
     const job = await queue.getJob(jobId);
@@ -115,9 +129,9 @@ describe("Durable scan and artwork limits E2E", () => {
     }
 
     expect(await prisma.artworksReport.findUnique({ where: { id: reportId } })).not.toBeNull();
-    expect(await prisma.artworksReport.count({ where: { userId: user.id } })).toBe(3);
-    expect(await prisma.scanUsage.count({ where: { userId: user.id } })).toBe(3);
-    expect(searchImage).toHaveBeenCalledTimes(3);
+    expect(await prisma.artworksReport.count({ where: { userId: user.id } })).toBe(2);
+    expect(await prisma.scanUsage.count({ where: { userId: user.id } })).toBe(2);
+    expect(searchImage).toHaveBeenCalledTimes(2);
   });
 
   it("returns 403, not 503, when the worker refuses a synchronous scan on quota, whatever the wording", async () => {
@@ -173,25 +187,25 @@ describe("Durable scan and artwork limits E2E", () => {
       await client.query('SELECT "id" FROM "User" WHERE "id" = $1 FOR UPDATE', [user.id]);
       const blocked = new Promise((_resolve, reject) => setTimeout(() => reject(new Error("quota read waited for the lock")), 2000));
       await expect(Promise.race([quota.getScanQuota(user.id), blocked]))
-        .resolves.toEqual({ remaining: 3, limit: 3, nextAvailableAt: null });
+        .resolves.toEqual({ remaining: 2, limit: 2, nextAvailableAt: null });
     } finally {
       await client.query("ROLLBACK");
       await client.end();
     }
   });
 
-  it("serializes concurrent artwork creation and accepts only five", async () => {
+  it("serializes concurrent artwork creation and accepts only three", async () => {
     const user = await createUser();
     const results = await Promise.allSettled(Array.from({ length: 8 }, () => artworks.create(artworkData(user.id))));
-    expect(results.filter((result) => result.status === "fulfilled")).toHaveLength(5);
-    expect(await prisma.artwork.count({ where: { userId: user.id } })).toBe(5);
+    expect(results.filter((result) => result.status === "fulfilled")).toHaveLength(3);
+    expect(await prisma.artwork.count({ where: { userId: user.id } })).toBe(3);
   });
 
-  it("rejects a whole batch beyond five without inserting any partial artworks", async () => {
+  it("rejects a whole batch beyond three without inserting any partial artworks", async () => {
     const user = await createUser();
-    await artworks.createMany(Array.from({ length: 4 }, () => artworkData(user.id)));
+    await artworks.createMany(Array.from({ length: 2 }, () => artworkData(user.id)));
     await expect(artworks.createMany([artworkData(user.id), artworkData(user.id)])).rejects.toMatchObject({ status: 403 });
-    expect(await prisma.artwork.count({ where: { userId: user.id } })).toBe(4);
+    expect(await prisma.artwork.count({ where: { userId: user.id } })).toBe(2);
     await artworks.create(artworkData(user.id));
     await expect(artworks.create(artworkData(user.id))).rejects.toMatchObject({ status: 403 });
   });
@@ -201,14 +215,14 @@ describe("Durable scan and artwork limits E2E", () => {
       .toEqual({ firstName: "Ada" });
   });
 
-  it("serializes concurrent scan starts and allows only three providers", async () => {
+  it("serializes concurrent scan starts and allows only two providers", async () => {
     const user = await createUser();
     await artworks.create(artworkData(user.id));
     const results = await Promise.allSettled(Array.from({ length: 6 }, () => reports.generate(user.id)));
-    expect(results.filter((result) => result.status === "fulfilled")).toHaveLength(3);
-    expect(results.filter((result) => result.status === "rejected").map((result) => (result as PromiseRejectedResult).reason.status)).toEqual([403, 403, 403]);
-    expect(searchImage).toHaveBeenCalledTimes(3);
-    expect(await prisma.scanUsage.count({ where: { userId: user.id } })).toBe(3);
+    expect(results.filter((result) => result.status === "fulfilled")).toHaveLength(2);
+    expect(results.filter((result) => result.status === "rejected").map((result) => (result as PromiseRejectedResult).reason.status)).toEqual([403, 403, 403, 403]);
+    expect(searchImage).toHaveBeenCalledTimes(2);
+    expect(await prisma.scanUsage.count({ where: { userId: user.id } })).toBe(2);
   });
 
   it("keeps failed provider starts consumed, and retries the same queued UUID only once", async () => {
@@ -221,7 +235,7 @@ describe("Durable scan and artwork limits E2E", () => {
     await expect(reports.generate(user.id, job)).rejects.toMatchObject({ status: 503 });
     const persisted = await queue.getJob(job.id!);
     expect(persisted?.data.scanId).toMatch(/^[a-f0-9-]{36}$/);
-    expect(await reports.getScanQuota(user.id)).toEqual({ remaining: 2, limit: 3, nextAvailableAt: null });
+    expect(await reports.getScanQuota(user.id)).toEqual({ remaining: 1, limit: 2, nextAvailableAt: null });
     searchImage.mockResolvedValue({ metadata: { bestGuessLabels: [], webEntities: [] }, matchingPages: [] });
     await reports.generate(user.id, persisted!);
     expect(await prisma.scanUsage.count({ where: { userId: user.id } })).toBe(1);
@@ -234,10 +248,10 @@ describe("Durable scan and artwork limits E2E", () => {
     await artworks.create(artworkData(user.id));
     getDownloadUrl.mockRejectedValue(new Error("storage unavailable"));
     await expect(reports.generate(user.id)).rejects.toMatchObject({ status: 503 });
-    await prisma.artwork.createMany({ data: Array.from({ length: 5 }, () => artworkData(user.id)) });
+    await prisma.artwork.createMany({ data: Array.from({ length: 3 }, () => artworkData(user.id)) });
     await expect(reports.generate(user.id)).rejects.toMatchObject({ status: 403 });
     await expect(artworks.create(artworkData(user.id))).rejects.toMatchObject({ status: 403 });
-    expect(await prisma.artwork.count({ where: { userId: user.id } })).toBe(6);
+    expect(await prisma.artwork.count({ where: { userId: user.id } })).toBe(4);
     expect(await prisma.scanUsage.count({ where: { userId: user.id } })).toBe(0);
     expect(searchImage).not.toHaveBeenCalled();
   });
@@ -250,9 +264,9 @@ describe("Durable scan and artwork limits E2E", () => {
       "2026-09-02T12:00:00.000Z", "2026-09-03T12:00:00.000Z", "2026-09-04T12:00:00.000Z",
       "2026-09-05T12:00:00.000Z", "2026-09-06T12:00:00.000Z"
     ].map((date) => ({ id: crypto.randomUUID(), userId: user.id, startedAt: new Date(date) })) });
-    expect(await quota.getScanQuota(user.id)).toEqual({ remaining: 0, limit: 3, nextAvailableAt: "2026-10-04T12:00:00.000Z" });
-    jest.spyOn(Date, "now").mockReturnValue(new Date("2026-10-04T12:00:00.000Z").getTime());
-    expect(await quota.getScanQuota(user.id)).toEqual({ remaining: 1, limit: 3, nextAvailableAt: null });
+    expect(await quota.getScanQuota(user.id)).toEqual({ remaining: 0, limit: 2, nextAvailableAt: "2026-10-05T12:00:00.000Z" });
+    jest.spyOn(Date, "now").mockReturnValue(new Date("2026-10-05T12:00:00.000Z").getTime());
+    expect(await quota.getScanQuota(user.id)).toEqual({ remaining: 1, limit: 2, nextAvailableAt: null });
   });
 
   it("leaves paid accounts unlimited in artworks and permits ten scans", async () => {
@@ -295,15 +309,15 @@ describe("Durable scan and artwork limits E2E", () => {
     await request(app.getHttpServer()).get(`/api/v1/reports/user/${other.id}/scan-quota`).auth(token, { type: "bearer" }).expect(403);
     await request(app.getHttpServer()).get(`/api/v1/reports/user/${owner.id}/scan-quota`).expect(401);
     const response = await request(app.getHttpServer()).get(`/api/v1/reports/user/${owner.id}/scan-quota`).auth(token, { type: "bearer" }).expect(200);
-    expect(response.body.data).toEqual({ remaining: 3, limit: 3, nextAvailableAt: null });
+    expect(response.body.data).toEqual({ remaining: 2, limit: 2, nextAvailableAt: null });
     // Same body shape as the mobile profile page, plus a forged tier upgrade.
     await request(app.getHttpServer()).patch(`/api/v1/users/${owner.id}`).auth(token, { type: "bearer" })
       .send({ firstName: "Ada", lastName: "Lovelace", country: "France", language: "fr", subscriptionTier: "PRO" }).expect(200);
     expect(await prisma.user.findUniqueOrThrow({ where: { id: owner.id } }))
       .toMatchObject({ firstName: "Ada", lastName: "Lovelace", subscriptionTier: "FREE" });
-    await artworks.createMany(Array.from({ length: 5 }, () => artworkData(owner.id)));
+    await artworks.createMany(Array.from({ length: 3 }, () => artworkData(owner.id)));
     await request(app.getHttpServer()).post("/api/v1/storage/artworks/upload-urls").auth(token, { type: "bearer" })
-      .send({ filenames: ["sixth.jpg"], prefix: "artworks" }).expect(403);
+      .send({ filenames: ["fourth.jpg"], prefix: "artworks" }).expect(403);
   });
 
   it("backfills completed historical reports before enforcing quota after deployment", async () => {
@@ -321,8 +335,8 @@ describe("Durable scan and artwork limits E2E", () => {
     } catch (error) { await client.query("ROLLBACK"); throw error; }
     finally { await client.end(); }
     expect(await prisma.scanUsage.count({ where: { userId: user.id } })).toBe(4);
-    expect(await quota.getScanQuota(user.id)).toEqual({ remaining: 0, limit: 3,
-      nextAvailableAt: new Date(dates[2].getTime() + 30 * 24 * 60 * 60 * 1000).toISOString() });
+    expect(await quota.getScanQuota(user.id)).toEqual({ remaining: 0, limit: 2,
+      nextAvailableAt: new Date(dates[1].getTime() + 30 * 24 * 60 * 60 * 1000).toISOString() });
   });
 
   it("allows two anonymous requests per IP with a 30-day Redis window and rejects the third", async () => {
@@ -339,23 +353,88 @@ describe("Durable scan and artwork limits E2E", () => {
     } finally { process.env.NODE_ENV = previousEnv; }
   });
 
-  it("reserves only 15 concurrent anonymous scans with blank env and refunds the exact original day", async () => {
-    const redis = app.get(RedisService);
-    const budget = new PublicScanBudgetService(redis, new ConfigService({ NODE_ENV: "production", PUBLIC_SCAN_DAILY_BUDGET: " " }));
-    const dayKey = `public-scan:budget:${new Date().toISOString().slice(0, 10)}`;
-    await redis.del(dayKey);
-    const reservations = await Promise.all(Array.from({ length: 24 }, () => budget.reserve()));
-    expect(reservations.filter(Boolean)).toHaveLength(15);
-    expect(await budget.remainingToday()).toBe(0);
-    expect(await redis.get(dayKey)).toBe("15");
-    const previousDay = "public-scan:budget:2026-09-30";
-    await redis.set(previousDay, "1");
-    await budget.release(previousDay);
-    expect(await redis.get(previousDay)).toBe("0");
-    expect(await redis.get(dayKey)).toBe("15");
-    await redis.del(previousDay);
-    await budget.release(previousDay);
-    expect(await redis.get(previousDay)).toBeNull();
-    await redis.del(dayKey);
+  describe("landing budget", () => {
+    const today = new Date().toISOString().slice(0, 10);
+    const dayKey = `public-scan:budget:${today}`;
+    const monthKey = `public-scan:budget:${today.slice(0, 7)}`;
+    const budgetWith = (env: Record<string, string> = {}) =>
+      new PublicScanBudgetService(app.get(RedisService), new ConfigService({ NODE_ENV: "production", ...env }));
+    beforeEach(async () => { await app.get(RedisService).del(dayKey, monthKey); });
+    afterAll(async () => { await app.get(RedisService).del(dayKey, monthKey); });
+
+    it("serves at most 10 concurrent anonymous scans a day with blank env", async () => {
+      const redis = app.get(RedisService);
+      const budget = budgetWith({ PUBLIC_SCAN_MONTHLY_BUDGET: " ", PUBLIC_SCAN_DAILY_CAP: " " });
+      const reservations = await Promise.all(Array.from({ length: 24 }, () => budget.reserve()));
+      expect(reservations.filter(Boolean)).toHaveLength(10);
+      expect(await budget.remaining()).toBe(0);
+      expect(await redis.get(dayKey)).toBe("10");
+      expect(await redis.get(monthKey)).toBe("10");
+    });
+
+    it("stops at the 90th scan of the month even on a quiet day, without counting refusals", async () => {
+      const redis = app.get(RedisService);
+      const budget = budgetWith();
+      await redis.set(monthKey, "88");
+      const reservations = await Promise.all(Array.from({ length: 5 }, () => budget.reserve()));
+      expect(reservations.filter(Boolean)).toHaveLength(2);
+      expect(await budget.remaining()).toBe(0);
+      expect(await redis.get(monthKey)).toBe("90");
+      expect(await redis.get(dayKey)).toBe("2");
+      // A new month starts with a fresh key.
+      expect(await redis.ttl(monthKey)).toBe(-1);
+      await redis.del(monthKey);
+      await expect(budget.reserve()).resolves.toBe(today);
+      expect(await redis.ttl(monthKey)).toBeGreaterThan(31 * 24 * 60 * 60);
+    });
+
+    it("refunds the month and day the scan was taken from, never another period or below zero", async () => {
+      const redis = app.get(RedisService);
+      const budget = budgetWith();
+      await budget.reserve();
+      await redis.set("public-scan:budget:2026-09-30", "1");
+      await redis.set("public-scan:budget:2026-09", "4");
+      await budget.release("2026-09-30");
+      expect(await redis.get("public-scan:budget:2026-09-30")).toBe("0");
+      expect(await redis.get("public-scan:budget:2026-09")).toBe("3");
+      expect(await redis.get(dayKey)).toBe("1");
+      expect(await redis.get(monthKey)).toBe("1");
+      await redis.del("public-scan:budget:2026-09-30", "public-scan:budget:2026-09");
+      await budget.release("2026-09-30");
+      expect(await redis.get("public-scan:budget:2026-09-30")).toBeNull();
+    });
+  });
+
+  describe("SerpApi quota", () => {
+    it("refuses an account scan with 503 before counting it when fewer searches are left than artworks", async () => {
+      const user = await createUser();
+      await artworks.createMany([artworkData(user.id), artworkData(user.id)]);
+      searchesLeft = 1;
+      const token = app.get(JwtService).sign({ sub: user.id, email: user.email });
+      const response = await request(app.getHttpServer()).post(`/api/v1/reports/user/${user.id}/scan`)
+        .auth(token, { type: "bearer" }).expect(503);
+      expect(response.body.message).toBe("Scans are paused until 2026-11-05: the monthly search quota is reached.");
+      expect(await quota.getScanQuota(user.id)).toEqual({ remaining: 2, limit: 2, nextAvailableAt: null });
+      expect(searchImage).not.toHaveBeenCalled();
+    });
+
+    it("fails a scheduled scan refused by the SerpApi quota once, without retrying it", async () => {
+      const user = await createUser();
+      await artworks.create(artworkData(user.id));
+      searchesLeft = 0;
+      await reports.enqueueScheduledScan(user.id);
+      const job = (await queue.getJob(`scan-${user.id}`))!;
+      await expect(job.waitUntilFinished(events, 15000)).rejects.toThrow("monthly search quota is reached");
+      expect((await queue.getJob(job.id!))?.attemptsMade).toBe(1);
+      expect(await prisma.scanUsage.count({ where: { userId: user.id } })).toBe(0);
+    });
+
+    // NODE_ENV is "test" here: the landing budget is off, the SerpApi quota is not.
+    it("pauses the landing page and refuses its scan with 503 outside production too", async () => {
+      searchesLeft = 0;
+      const allowance = await request(app.getHttpServer()).get("/api/v1/public-scan/allowance").expect(200);
+      expect(allowance.body.data).toMatchObject({ paused: true, resumesOn: "2026-11-05" });
+      await request(app.getHttpServer()).post("/api/v1/public-scan").expect(503);
+    });
   });
 });

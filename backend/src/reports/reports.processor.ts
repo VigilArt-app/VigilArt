@@ -5,6 +5,7 @@ import { ReportsService } from "./reports.service";
 import { NotificationsService } from "../notifications/notifications.service";
 import { REPORTS_QUEUE, GENERATE_REPORT_JOB } from "./reports.constants";
 import type { NotificationPayload } from "@vigilart/shared";
+import { SearchQuotaExhaustedException } from "../serpapilens/serpapi-account.service";
 
 export interface GenerateReportJobData {
   userId: string;
@@ -49,8 +50,10 @@ export class ReportsProcessor extends WorkerHost {
           err
         );
         const failureStatus = err instanceof HttpException ? err.getStatus() : undefined;
-        // A 4xx (quota, artwork cap, no artwork) fails identically on retry.
-        const unrecoverable = failureStatus !== undefined && failureStatus >= 400 && failureStatus < 500;
+        // A 4xx (quota, artwork cap, no artwork) fails identically on retry, and
+        // so does an exhausted SerpApi quota until the plan renews.
+        const unrecoverable = (failureStatus !== undefined && failureStatus >= 400 && failureStatus < 500)
+          || err instanceof SearchQuotaExhaustedException;
         // attemptsMade counts previous attempts only while the job is processing.
         const lastAttempt = unrecoverable || job.attemptsMade + 1 >= (job.opts.attempts ?? 1);
         await job

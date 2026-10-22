@@ -20,6 +20,7 @@ import {
   extensionForImageType
 } from "../../common/utils/image-magic-bytes";
 import { PublicScanBudgetService } from "./public-scan-budget.service";
+import { SerpApiAccountService } from "../../serpapilens/serpapi-account.service";
 import {
   PUBLIC_SCAN_QUEUE,
   PUBLIC_SCAN_JOB,
@@ -37,6 +38,7 @@ export class PublicScanService {
   constructor(
     private readonly storageService: StorageService,
     private readonly budgetService: PublicScanBudgetService,
+    private readonly serpApiAccount: SerpApiAccountService,
     @InjectQueue(PUBLIC_SCAN_QUEUE) private readonly queue: Queue
   ) {}
 
@@ -135,6 +137,14 @@ export class PublicScanService {
   }
 
   async getAllowance(): Promise<PublicScanAllowance> {
-    return { remainingToday: await this.budgetService.remainingToday() };
+    const [remaining, quota] = await Promise.all([
+      this.budgetService.remaining(),
+      this.serpApiAccount.getQuota()
+    ]);
+    return {
+      remaining,
+      paused: quota !== null && quota.searchesLeft < 1,
+      resumesOn: quota?.renewsOn ?? null
+    };
   }
 }

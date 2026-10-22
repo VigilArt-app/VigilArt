@@ -3,21 +3,19 @@ import { ConfigService } from "@nestjs/config";
 import { PublicScanBudgetService } from "./public-scan-budget.service";
 import { RedisService } from "../../redis/redis.service";
 
+// The counters themselves run in a Redis script: they are exercised against a
+// real Redis in test/scan-limits.e2e-spec.ts.
 describe("PublicScanBudgetService", () => {
   let service: PublicScanBudgetService;
-  let redis: {
-    incr: jest.Mock;
-    eval: jest.Mock;
-    expire: jest.Mock;
-    get: jest.Mock;
-  };
+  let redis: { eval: jest.Mock; mget: jest.Mock };
 
-  const build = async (budget: string | undefined, nodeEnv = "production") => {
+  const build = async (
+    env: Record<string, string | undefined>,
+    nodeEnv = "production"
+  ) => {
     redis = {
-      incr: jest.fn(),
-      eval: jest.fn().mockResolvedValue(0),
-      expire: jest.fn().mockResolvedValue(1),
-      get: jest.fn()
+      eval: jest.fn().mockResolvedValue(1),
+      mget: jest.fn().mockResolvedValue([null, null])
     };
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -26,8 +24,7 @@ describe("PublicScanBudgetService", () => {
         {
           provide: ConfigService,
           useValue: {
-            get: (key: string) =>
-              key === "NODE_ENV" ? nodeEnv : budget
+            get: (key: string) => (key === "NODE_ENV" ? nodeEnv : env[key])
           }
         }
       ]
@@ -35,62 +32,57 @@ describe("PublicScanBudgetService", () => {
     service = module.get(PublicScanBudgetService);
   };
 
-  describe("reserve", () => {
-    it("Should allow a scan below the daily budget", async () => {
-      await build("5");
-      redis.incr.mockResolvedValue(3);
-
-      await expect(service.reserve()).resolves.toEqual(expect.stringContaining("public-scan:budget:"));
-      expect(redis.eval).not.toHaveBeenCalled();
-    });
-
-    it("Should allow the last scan of the day", async () => {
-      await build("5");
-      redis.incr.mockResolvedValue(5);
-
-      await expect(service.reserve()).resolves.toEqual(expect.stringContaining("public-scan:budget:"));
-    });
-
-    // Without the DECR the counter climbs on every refused request, so the
-    // page would report a shrinking allowance that was never actually spent.
-    it("Should refuse and give the increment back once the budget is spent", async () => {
-      await build("5");
-      redis.incr.mockResolvedValue(6);
-
-      await expect(service.reserve()).resolves.toBeNull();
-      expect(redis.eval).toHaveBeenCalledTimes(1);
-    });
-
-    // Re-setting the TTL on every scan would push the daily reset further away
-    // with each request, so a busy day would never reset.
-    it("Should set the day's expiry only on the first scan", async () => {
-      await build("5");
-      redis.incr.mockResolvedValue(1);
-      await service.reserve();
-      expect(redis.expire).toHaveBeenCalledTimes(1);
-
-      redis.incr.mockResolvedValue(2);
-      await service.reserve();
-      expect(redis.expire).toHaveBeenCalledTimes(1);
-    });
-
-    it("Should refuse every scan when the budget is set to zero", async () => {
-      await build("0");
-      redis.incr.mockResolvedValue(1);
-
-      await expect(service.reserve()).resolves.toBeNull();
+  describe("configuration", () => {
+    it("Should default to 90 scans a month and 10 a day", async () => {
+      await build({});
+      expect(service.budget).toEqual({ monthly: 90, daily: 10 });
     });
 
     // An unset or malformed value must not mean "unlimited": that would leave
     // the Google Lens bill unbounded on a misconfigured deploy.
-    it("Should fall back to the built-in budget when the env var is unusable", async () => {
-      await build(undefined);
-      expect(service.budget).toBe(15);
+    it.each([" ", "not-a-number", "-1"])(
+      "Should fall back to the defaults when the env vars are %p",
+      async (raw) => {
+        await build({ PUBLIC_SCAN_MONTHLY_BUDGET: raw, PUBLIC_SCAN_DAILY_CAP: raw });
+        expect(service.budget).toEqual({ monthly: 90, daily: 10 });
+      }
+    );
 
-      await build("not-a-number");
-      expect(service.budget).toBe(15);
-      await build(" ");
-      expect(service.budget).toBe(15);
+    it("Should read both limits from the environment", async () => {
+      await build({ PUBLIC_SCAN_MONTHLY_BUDGET: "30", PUBLIC_SCAN_DAILY_CAP: "0" });
+      expect(service.budget).toEqual({ monthly: 30, daily: 0 });
+    });
+  });
+
+  describe("reserve", () => {
+    it("Should return the UTC day the scan was taken from", async () => {
+      await build({});
+      await expect(service.reserve()).resolves.toBe(
+        new Date().toISOString().slice(0, 10)
+      );
+    });
+
+    it("Should refuse when the script finds either budget spent", async () => {
+      await build({});
+      redis.eval.mockResolvedValue(0);
+      await expect(service.reserve()).resolves.toBeNull();
+    });
+  });
+
+  describe("remaining", () => {
+    it("Should report the tighter of the monthly and daily remainders", async () => {
+      await build({});
+      redis.mget.mockResolvedValue(["85", "2"]);
+      await expect(service.remaining()).resolves.toBe(5);
+
+      redis.mget.mockResolvedValue(["40", "7"]);
+      await expect(service.remaining()).resolves.toBe(3);
+    });
+
+    it("Should never report a negative remainder", async () => {
+      await build({});
+      redis.mget.mockResolvedValue(["95", "12"]);
+      await expect(service.remaining()).resolves.toBe(0);
     });
   });
 
@@ -98,44 +90,27 @@ describe("PublicScanBudgetService", () => {
   // makes the flow untestable locally. Same rule TurnstileService uses.
   describe("outside production", () => {
     it("Should let every scan through without touching Redis", async () => {
-      await build("5", "development");
+      await build({}, "development");
 
       await expect(service.reserve()).resolves.toBe("unenforced");
       await expect(service.reserve()).resolves.toBe("unenforced");
-      await expect(service.reserve()).resolves.toBe("unenforced");
-      expect(redis.incr).not.toHaveBeenCalled();
+      expect(redis.eval).not.toHaveBeenCalled();
     });
 
-    it("Should report the full budget, so the page never shows its used-up state", async () => {
-      await build("5", "development");
+    it("Should report a full budget, so the page never shows its used-up state", async () => {
+      await build({}, "development");
 
-      await expect(service.remainingToday()).resolves.toBe(5);
-      expect(redis.get).not.toHaveBeenCalled();
+      await expect(service.remaining()).resolves.toBe(10);
+      expect(redis.mget).not.toHaveBeenCalled();
     });
 
     // An empty NODE_ENV is what a local .env leaves behind; it must not be
     // mistaken for production and start enforcing.
     it("Should treat an unset NODE_ENV as not production", async () => {
-      await build("5", "");
+      await build({}, "");
 
       await expect(service.reserve()).resolves.toBe("unenforced");
-      expect(redis.incr).not.toHaveBeenCalled();
-    });
-  });
-
-  describe("remainingToday", () => {
-    it("Should report the full budget before any scan", async () => {
-      await build("5");
-      redis.get.mockResolvedValue(null);
-
-      await expect(service.remainingToday()).resolves.toBe(5);
-    });
-
-    it("Should never report a negative remainder", async () => {
-      await build("5");
-      redis.get.mockResolvedValue("9");
-
-      await expect(service.remainingToday()).resolves.toBe(0);
+      expect(redis.eval).not.toHaveBeenCalled();
     });
   });
 });

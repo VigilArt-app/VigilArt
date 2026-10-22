@@ -1,7 +1,11 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { PublicScanResult, PublicScanStatus } from "@vigilart/shared";
+import type {
+  PublicScanAllowance,
+  PublicScanResult,
+  PublicScanStatus
+} from "@vigilart/shared";
 import { API_BASE_URL } from "../config";
 
 const POLL_INTERVAL_MS = 2000;
@@ -37,7 +41,7 @@ export function usePublicScan() {
   const [phase, setPhase] = useState<ScanPhase>("idle");
   const [result, setResult] = useState<PublicScanResult | null>(null);
   const [errorKind, setErrorKind] = useState<ScanErrorKind | null>(null);
-  const [remainingToday, setRemainingToday] = useState<number | null>(null);
+  const [allowance, setAllowance] = useState<PublicScanAllowance | null>(null);
 
   // One controller for the whole scan so leaving the page cancels both the
   // upload and every poll that follows it.
@@ -51,8 +55,8 @@ export function usePublicScan() {
     try {
       const res = await fetch(`${API_BASE_URL}/public-scan/allowance`);
       if (!res.ok) return;
-      const body: Envelope<{ remainingToday: number }> = await res.json();
-      setRemainingToday(body.data.remainingToday);
+      const body: Envelope<PublicScanAllowance> = await res.json();
+      setAllowance(body.data);
     } catch {
       // The counter is a courtesy. If it cannot be read the page simply does
       // not show it, rather than blocking the upload.
@@ -152,5 +156,5 @@ export function usePublicScan() {
     [refreshAllowance]
   );
 
-  return { phase, result, errorKind, remainingToday, start, reset };
+  return { phase, result, errorKind, allowance, start, reset };
 }

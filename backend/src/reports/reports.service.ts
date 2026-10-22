@@ -44,6 +44,7 @@ import { StorageService } from "../storage/storage.service";
 import { PrismaService } from "../prisma/prisma.service";
 import { MatchingPagesService } from "./matchingPage.service";
 import { VisualSearchService } from "../visualsearch/visual-search.service";
+import { SerpApiAccountService } from "../serpapilens/serpapi-account.service";
 import { assertResourceOwnership } from "../common/utils/ownership";
 import { normalizeMatchUrl } from "../common/utils/website-class";
 import {
@@ -85,7 +86,8 @@ export class ReportsService implements OnModuleDestroy {
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
     @InjectQueue(REPORTS_QUEUE) private readonly reportsQueue: Queue,
     private readonly scanQuota: ScanQuotaService,
-    private readonly artworkLimit: ArtworkLimitService
+    private readonly artworkLimit: ArtworkLimitService,
+    private readonly serpApiAccount: SerpApiAccountService
   ) {}
 
   private readonly logger = new Logger(ReportsService.name);
@@ -131,9 +133,13 @@ export class ReportsService implements OnModuleDestroy {
   async findArtworksMatches(userId: string, job?: Job, scanId = randomUUID()): Promise<string[]> {
     const artworks = await this.artworksService.findAllPerUser(userId);
     if (artworks.length === 0) throw new BadRequestException("Upload an artwork before scanning.");
+    // One search per artwork. Checked before the user's scan is consumed, so a
+    // refusal does not cost them a scan.
+    const releaseSearches = await this.serpApiAccount.reserveSearches(artworks.length);
     let consumption: Promise<void> | undefined;
     // All artwork fan-outs share one gate, immediately before the first search.
-    const beforeSearch = () => consumption ??= this.scanQuota.consumeScan(userId, scanId);
+    const beforeSearch = () => consumption ??= this.scanQuota.consumeScan(userId, scanId)
+      .catch((error) => { releaseSearches(); throw error; });
     const total = artworks.length;
     let processed = 0;
     this.emitProgress(job, processed, total);
@@ -148,6 +154,8 @@ export class ReportsService implements OnModuleDestroy {
         })
       )
     );
+    // No search ran when every storage URL failed before the gate.
+    if (!consumption) releaseSearches();
     for (const result of settled) {
       if (result.status === "rejected" && result.reason instanceof ForbiddenException) throw result.reason;
     }
@@ -267,8 +275,10 @@ export class ReportsService implements OnModuleDestroy {
 
     if (interactive) {
       await this.artworkLimit.assertCapacity(userId, 0);
-      if ((await this.artworksService.findAllPerUser(userId)).length === 0) throw new BadRequestException("Upload an artwork before scanning.");
+      const artworks = await this.artworksService.findAllPerUser(userId);
+      if (artworks.length === 0) throw new BadRequestException("Upload an artwork before scanning.");
       await this.checkScanQuota(userId);
+      await this.serpApiAccount.assertSearchesLeft(artworks.length);
     }
 
     if (existing) {

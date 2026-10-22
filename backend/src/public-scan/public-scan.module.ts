@@ -4,6 +4,7 @@ import { ConfigModule, ConfigService } from "@nestjs/config";
 import { StorageModule } from "../storage/storage.module";
 import { VisualSearchModule } from "../visualsearch/visualsearch.module";
 import { TurnstileModule } from "../turnstile/turnstile.module";
+import { SerpApiLensModule } from "../serpapilens/serpapilens.module";
 import { PublicScanController } from "./public-scan.controller";
 import { PublicScanService } from "./services/public-scan.service";
 import { PublicScanProcessor } from "./public-scan.processor";
@@ -17,6 +18,7 @@ import { PUBLIC_SCAN_QUEUE } from "./public-scan.constants";
     StorageModule,
     VisualSearchModule,
     TurnstileModule,
+    SerpApiLensModule,
     BullModule.registerQueueAsync({
       name: PUBLIC_SCAN_QUEUE,
       imports: [ConfigModule],

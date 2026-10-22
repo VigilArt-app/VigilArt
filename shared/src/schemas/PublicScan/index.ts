@@ -45,7 +45,11 @@ export const PublicScanStatusSchema = z.object({
 export class PublicScanStatusDTO extends createZodDto(PublicScanStatusSchema) {}
 
 export const PublicScanAllowanceSchema = z.object({
-  remainingToday: z.number()
+  remaining: z.number(),
+  // True when the SerpApi monthly quota is used up: an account cannot scan either.
+  paused: z.boolean(),
+  // YYYY-MM-DD when the quota renews, null when unknown.
+  resumesOn: z.string().nullable()
 });
 export class PublicScanAllowanceDTO extends createZodDto(
   PublicScanAllowanceSchema

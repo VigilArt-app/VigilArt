@@ -27,7 +27,7 @@ export class ArtworkLimitService {
     if (user.subscriptionTier !== SubscriptionTier.FREE) return;
     const count = await tx.artwork.count({ where: { userId } });
     if (count + additional > FREE_ARTWORK_LIMIT) {
-      throw new ForbiddenException("Free accounts are limited to 5 artworks. Remove artworks before uploading or scanning.");
+      throw new ForbiddenException(`Free accounts are limited to ${FREE_ARTWORK_LIMIT} artworks. Remove artworks before uploading or scanning.`);
     }
   }
 }

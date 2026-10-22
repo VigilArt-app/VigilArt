@@ -55,6 +55,20 @@ describe("PublicScanReservationInterceptor", () => {
     expect(request.publicScanReserved).toBeNull();
   });
 
+  it("Should give the SerpApi search back when the request fails, and keep it when the scan is queued", async () => {
+    const failed = { publicScanReserved: "2026-10-01", releasePublicScanSearch: jest.fn() };
+    const release = failed.releasePublicScanSearch;
+    await expect(
+      firstValueFrom(interceptor.intercept(contextFor(failed), handlerThat("throws")))
+    ).rejects.toThrow("upload too large");
+    expect(release).toHaveBeenCalledTimes(1);
+
+    const queued = { publicScanReserved: "2026-10-01", releasePublicScanSearch: jest.fn() };
+    const kept = queued.releasePublicScanSearch;
+    await firstValueFrom(interceptor.intercept(contextFor(queued), handlerThat("succeeds")));
+    expect(kept).not.toHaveBeenCalled();
+  });
+
   it("Should not release for a request that never reserved", async () => {
     const request = { publicScanReserved: null };
 

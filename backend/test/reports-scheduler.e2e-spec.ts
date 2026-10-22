@@ -14,6 +14,9 @@ import { NotificationsService } from "../src/notifications/notifications.service
 import { REPORTS_QUEUE } from "../src/reports/reports.constants";
 import { ReportsService } from "../src/reports/reports.service";
 import { getTestContainerUrls } from "./setupTests.e2e";
+import { HttpService } from "@nestjs/axios";
+import { of } from "rxjs";
+import { SerpApiAccountService } from "../src/serpapilens/serpapi-account.service";
 
 describe("Registered automatic reports cron E2E", () => {
   let app: INestApplication;
@@ -24,6 +27,11 @@ describe("Registered automatic reports cron E2E", () => {
   const searchImage = jest.fn();
   const send = jest.fn();
   const DAY_MS = 24 * 60 * 60 * 1000;
+  // A real SerpApiAccountService per test, reading a fake Account API, so the
+  // one-minute quota cache does not leak between tests.
+  let searchesLeft = 250;
+  let serpApiAccount: SerpApiAccountService;
+  const accountApi = { get: () => of({ data: { total_searches_left: searchesLeft, plan_renewal_date: "2026-11-05" } }) };
 
   beforeAll(async () => {
     // setupTests.e2e.ts supplies these URLs from disposable containers before
@@ -44,6 +52,12 @@ describe("Registered automatic reports cron E2E", () => {
       })
       .overrideProvider(SerpApiLensService)
       .useValue({ searchImage })
+      .overrideProvider(SerpApiAccountService)
+      .useValue({
+        getQuota: () => serpApiAccount.getQuota(),
+        assertSearchesLeft: (needed: number) => serpApiAccount.assertSearchesLeft(needed),
+        reserveSearches: (needed: number) => serpApiAccount.reserveSearches(needed)
+      })
       .overrideProvider(GoogleLensService)
       .useValue({ searchImage: async () => { throw new Error("Unexpected provider"); } })
       .overrideProvider(VisionService)
@@ -72,6 +86,9 @@ describe("Registered automatic reports cron E2E", () => {
   }, 120000);
 
   beforeEach(async () => {
+    searchesLeft = 250;
+    serpApiAccount = new SerpApiAccountService(accountApi as unknown as HttpService,
+      new ConfigService({ SERP_API_GOOGLE_LENS_API_KEY: "test-key" }));
     await queue.pause();
     send.mockReset().mockResolvedValue(undefined);
     searchImage.mockReset().mockImplementation(async (url: string) => ({
@@ -231,7 +248,7 @@ describe("Registered automatic reports cron E2E", () => {
         lastName: label, autoRunReports: true, subscriptionTier, artworks: { create: artworks(label, artworkCount) } }
     });
     await user("no-artwork", "FREE", 0);
-    await user("free-over-cap", "FREE", 6);
+    await user("free-over-cap", "FREE", 4);
     const failedYesterday = await user("failed-yesterday", "FREE", 1);
     await prisma.scanUsage.create({ data: { id: crypto.randomUUID(), userId: failedYesterday.id,
       startedAt: new Date(Date.now() - DAY_MS) } });
@@ -245,13 +262,38 @@ describe("Registered automatic reports cron E2E", () => {
     expect(queued.map((job) => job.data.userId).sort()).toEqual([proOverCap.id, failedLastMonth.id].sort());
   });
 
+  it("enqueues only the accounts the SerpApi searches left can scan", async () => {
+    // A scan refused for lack of searches saves no ScanUsage: without this the
+    // account would be enqueued, refused and notified again every night.
+    const artworks = (label: string, count: number) => Array.from({ length: count }, (_, index) => ({
+      originalFilename: `${label}-${index}.jpg`, storageKey: `artworks/${label}-${index}.jpg`,
+      contentType: "image/jpeg", sizeBytes: 100, width: 10, height: 10
+    }));
+    const user = (label: string, artworkCount: number) => prisma.user.create({
+      data: { email: `${label}@scheduler.invalid`, password: "unused-test-password", firstName: "Cron",
+        lastName: label, autoRunReports: true, artworks: { create: artworks(label, artworkCount) } }
+    });
+    const artworkCounts = new Map<string, number>();
+    for (const [label, count] of [["three-artworks", 3], ["two-artworks", 2], ["one-artwork", 1]] as const) {
+      artworkCounts.set((await user(label, count)).id, count);
+    }
+    searchesLeft = 4;
+
+    await fireRegisteredCrons();
+    const queued = await queue.getJobs(["paused", "waiting"]);
+    // 4 searches cover 3 + 1 or 2 + 1 artworks, depending on the database order, never all six.
+    const searches = queued.map((job) => artworkCounts.get(job.data.userId)!);
+    expect(searches).toHaveLength(2);
+    expect(searches.reduce((sum, count) => sum + count, 0)).toBeLessThanOrEqual(4);
+  });
+
   it("fails a refused scheduled scan once, without retrying it, and notifies once", async () => {
     // A 403 (quota used up) fails identically on retry: retrying only repeats the push.
     const user = await createUser("quota-used", true);
-    await prisma.scanUsage.createMany({ data: [0, 1, 2].map(() => ({ id: crypto.randomUUID(), userId: user.id })) });
+    await prisma.scanUsage.createMany({ data: [0, 1].map(() => ({ id: crypto.randomUUID(), userId: user.id })) });
     await app.get(ReportsService).enqueueScheduledScan(user.id);
     const [job] = await queue.getJobs(["paused", "waiting"]);
-    const failure = expect(job.waitUntilFinished(events, 25000)).rejects.toThrow("maximum of 3 scans");
+    const failure = expect(job.waitUntilFinished(events, 25000)).rejects.toThrow("maximum of 2 scans");
     await queue.resume();
     await failure;
 

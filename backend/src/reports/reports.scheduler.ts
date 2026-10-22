@@ -4,6 +4,7 @@ import { FREE_ARTWORK_LIMIT, SubscriptionTier } from "@vigilart/shared";
 import { PrismaService } from "../prisma/prisma.service";
 import { ReportsService } from "./reports.service";
 import { SCAN_WINDOW_DAYS } from "./reports.constants";
+import { SerpApiAccountService } from "../serpapilens/serpapi-account.service";
 
 @Injectable()
 export class ReportsScheduler {
@@ -11,7 +12,8 @@ export class ReportsScheduler {
 
   constructor(
     private readonly reportsService: ReportsService,
-    private readonly prisma: PrismaService
+    private readonly prisma: PrismaService,
+    private readonly serpApiAccount: SerpApiAccountService
   ) {}
 
   @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
@@ -28,9 +30,15 @@ export class ReportsScheduler {
       },
       select: { id: true, subscriptionTier: true, _count: { select: { artworks: true } } }
     });
-    const users = candidates.filter((user) =>
-      user.subscriptionTier !== SubscriptionTier.FREE || user._count.artworks <= FREE_ARTWORK_LIMIT
-    );
+    // Only enqueue the scans the SerpApi quota can pay for: a refused scan saves
+    // no ScanUsage, so the user would be enqueued and refused again every night.
+    let searchesLeft = (await this.serpApiAccount.getQuota())?.searchesLeft ?? Infinity;
+    const users = candidates.filter((user) => {
+      if (user.subscriptionTier === SubscriptionTier.FREE && user._count.artworks > FREE_ARTWORK_LIMIT) return false;
+      if (user._count.artworks > searchesLeft) return false;
+      searchesLeft -= user._count.artworks;
+      return true;
+    });
 
     if (users.length === 0)
       return;

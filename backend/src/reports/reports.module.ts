@@ -8,6 +8,7 @@ import { StorageModule } from "../storage/storage.module";
 import { MatchingPagesService } from "./matchingPage.service";
 import { PrismaModule } from "../prisma/prisma.module";
 import { VisualSearchModule } from "../visualsearch/visualsearch.module";
+import { SerpApiLensModule } from "../serpapilens/serpapilens.module";
 import { ReportsProcessor } from "./reports.processor";
 import { ReportsScheduler } from "./reports.scheduler";
 import { REPORTS_QUEUE } from "./reports.constants";
@@ -22,6 +23,7 @@ import { ScanQuotaService } from "./scan-quota.service";
     ArtworksModule,
     StorageModule,
     VisualSearchModule,
+    SerpApiLensModule,
     NotificationsModule,
     BullModule.registerQueueAsync({
       name: REPORTS_QUEUE,

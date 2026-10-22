@@ -19,6 +19,18 @@ import { PrismaService } from "../prisma/prisma.service";
 import { MAX_SCANS_PER_WINDOW, REPORTS_QUEUE } from "./reports.constants";
 import { ScanQuotaService } from "./scan-quota.service";
 import { ArtworkLimitService } from "../artworks/artwork-limit.service";
+import { HttpService } from "@nestjs/axios";
+import { ConfigService } from "@nestjs/config";
+import { of, throwError } from "rxjs";
+import {
+  SearchQuotaExhaustedException,
+  SerpApiAccountService
+} from "../serpapilens/serpapi-account.service";
+
+// Shape of https://serpapi.com/account.json, trimmed to the fields read.
+const serpApiAccount = (searchesLeft: number) => ({
+  data: { total_searches_left: searchesLeft, plan_renewal_date: "2026-11-05" }
+});
 
 describe("ReportsService", () => {
   let service: ReportsService;
@@ -40,11 +52,15 @@ describe("ReportsService", () => {
   let queue: { add: jest.Mock; getJob: jest.Mock };
   let quota: { getScanQuota: jest.Mock; consumeScan: jest.Mock };
   let artworkLimit: { assertCapacity: jest.Mock };
+  let http: { get: jest.Mock };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         ReportsService,
+        SerpApiAccountService,
+        { provide: HttpService, useValue: { get: jest.fn(() => of(serpApiAccount(250))) } },
+        { provide: ConfigService, useValue: { getOrThrow: () => "serpapi-key" } },
         { provide: ScanQuotaService, useValue: { getScanQuota: jest.fn().mockResolvedValue({ remaining: 3, limit: 3, nextAvailableAt: null }), consumeScan: jest.fn().mockResolvedValue(undefined) } },
         { provide: ArtworkLimitService, useValue: { assertCapacity: jest.fn().mockResolvedValue(undefined) } },
         { provide: VisualSearchService, useValue: { aggregate: jest.fn() } },
@@ -88,6 +104,7 @@ describe("ReportsService", () => {
     queue = module.get(getQueueToken(REPORTS_QUEUE));
     quota = module.get(ScanQuotaService);
     artworkLimit = module.get(ArtworkLimitService);
+    http = module.get(HttpService);
     artworksService.findAllPerUser.mockResolvedValue([{ id: "a1", storageKey: "k1" }]);
   });
 
@@ -218,6 +235,49 @@ describe("ReportsService", () => {
       );
       expect(prisma.artworksReport.create).not.toHaveBeenCalled();
     });
+
+    it("Should refuse without searching or counting the user's scan when SerpApi has fewer searches left than artworks", async () => {
+      mockScanSuccess();
+      http.get.mockReturnValue(of(serpApiAccount(1)));
+
+      const scan = service.generate("user-id");
+
+      await expect(scan).rejects.toBeInstanceOf(SearchQuotaExhaustedException);
+      await expect(scan).rejects.toMatchObject({
+        status: 503,
+        message: "Scans are paused until 2026-11-05: the monthly search quota is reached."
+      });
+      expect(quota.consumeScan).not.toHaveBeenCalled();
+      expect(visualSearchService.aggregate).not.toHaveBeenCalled();
+      expect(prisma.artworksReport.create).not.toHaveBeenCalled();
+    });
+
+    it("Should scan exactly the last searches left, then refuse the next scan", async () => {
+      mockScanSuccess();
+      http.get.mockReturnValue(of(serpApiAccount(2)));
+
+      await expect(service.generate("user-id")).resolves.toEqual({ id: "report-1" });
+      await expect(service.generate("user-id")).rejects.toBeInstanceOf(SearchQuotaExhaustedException);
+      expect(visualSearchService.aggregate).toHaveBeenCalledTimes(2);
+    });
+
+    // Otherwise a refused scan would make the next one look out of searches.
+    it("Should give the searches back when the user's own quota refuses the scan", async () => {
+      mockScanSuccess();
+      http.get.mockReturnValue(of(serpApiAccount(2)));
+      quota.consumeScan.mockRejectedValueOnce(new ForbiddenException());
+
+      await expect(service.generate("user-id")).rejects.toBeInstanceOf(ForbiddenException);
+      await expect(service.generate("user-id")).resolves.toEqual({ id: "report-1" });
+    });
+
+    it("Should still scan when the SerpApi quota cannot be read", async () => {
+      mockScanSuccess();
+      http.get.mockReturnValue(throwError(() => new Error("connect ETIMEDOUT")));
+
+      await expect(service.generate("user-id")).resolves.toEqual({ id: "report-1" });
+      expect(quota.consumeScan).toHaveBeenCalledTimes(1);
+    });
   });
 
   describe("enqueueScan", () => {
@@ -276,6 +336,14 @@ describe("ReportsService", () => {
       expect(queue.add).not.toHaveBeenCalled();
     });
 
+    it("Should reject before enqueuing when SerpApi has no searches left", async () => {
+      queue.getJob.mockResolvedValue(null);
+      http.get.mockReturnValue(of(serpApiAccount(0)));
+
+      await expect(service.enqueueScan("user-id")).rejects.toBeInstanceOf(SearchQuotaExhaustedException);
+      expect(queue.add).not.toHaveBeenCalled();
+    });
+
     it.each(["completed", "failed"])("preserves a retained %s scan when quota rejects its replacement", async (state) => {
       const remove = jest.fn().mockResolvedValue(undefined);
       queue.getJob.mockResolvedValue({ getState: jest.fn().mockResolvedValue(state), remove });
@@ -290,7 +358,7 @@ describe("ReportsService", () => {
     it.each(["completed", "failed"])("preserves a retained %s scan when artwork capacity rejects its replacement", async (state) => {
       const remove = jest.fn().mockResolvedValue(undefined);
       queue.getJob.mockResolvedValue({ getState: jest.fn().mockResolvedValue(state), remove });
-      artworkLimit.assertCapacity.mockRejectedValue(new ForbiddenException("Free accounts are limited to 5 artworks."));
+      artworkLimit.assertCapacity.mockRejectedValue(new ForbiddenException("Free accounts are limited to 3 artworks."));
 
       await expect(service.enqueueScan("user-id")).rejects.toBeInstanceOf(ForbiddenException);
 

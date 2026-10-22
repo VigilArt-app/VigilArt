@@ -28,9 +28,18 @@ const CategoryBreakdown = dynamic(
   { ssr: false }
 );
 
+// The renewal date is a calendar day: formatted in UTC so it does not move to
+// the day before for visitors west of Greenwich.
+const formatResumeDate = (day: string, language: string): string =>
+  new Intl.DateTimeFormat(language, {
+    day: "numeric",
+    month: "long",
+    timeZone: "UTC"
+  }).format(new Date(`${day}T00:00:00Z`));
+
 export const ScanPanel = (): React.JSX.Element => {
-  const { t } = useTranslation();
-  const { phase, result, errorKind, remainingToday, start, reset } =
+  const { t, i18n } = useTranslation();
+  const { phase, result, errorKind, allowance, start, reset } =
     usePublicScan();
   const [picked, setPicked] = useState<DroppedFile | null>(null);
   const [localError, setLocalError] = useState<ScanErrorKind | null>(null);
@@ -41,7 +50,11 @@ export const ScanPanel = (): React.JSX.Element => {
   const previewRef = useRef<string | null>(null);
 
   const busy = phase === "uploading" || phase === "scanning";
-  const budgetSpent = remainingToday === 0 && phase === "idle";
+  // Also after a failed attempt: a 503 is not proof of a pause, but the
+  // allowance re-read after every failure is.
+  const paused =
+    allowance?.paused === true && (phase === "idle" || phase === "error");
+  const budgetSpent = allowance?.remaining === 0 && phase === "idle";
 
   const errorMessage = useMemo(() => {
     const kind = localError ?? errorKind;
@@ -91,6 +104,24 @@ export const ScanPanel = (): React.JSX.Element => {
   // naturally there.
   const shell =
     "flex flex-col rounded-xl border bg-accent p-6 shadow-sm lg:h-96";
+
+  // No sign-up link: an account cannot scan either until the quota renews.
+  if (paused) {
+    return (
+      <div className={`${shell} justify-center`}>
+        <p className="font-medium">
+          {allowance?.resumesOn
+            ? t("landing_page.upload.paused_title", {
+                date: formatResumeDate(allowance.resumesOn, i18n.language)
+              })
+            : t("landing_page.upload.paused_title_undated")}
+        </p>
+        <p className="mt-2 text-sm text-muted-foreground">
+          {t("landing_page.upload.paused_body")}
+        </p>
+      </div>
+    );
+  }
 
   if (budgetSpent) {
     return (
