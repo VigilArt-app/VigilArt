@@ -8,6 +8,17 @@ import { SubscriptionTier, type UserGet } from "@vigilart/shared";
 import { CACHE_MANAGER } from "@nestjs/cache-manager";
 import type { Cache } from "cache-manager";
 import { addUsers, initialUsers } from "../src/prisma/seeds/add-users";
+import { DeviantArtDmcaFormJSON } from "@vigilart/shared";
+
+// Account deletion removes the user's files from R2: keep tests off the real bucket.
+const mockS3Send = jest.fn();
+jest.mock("@aws-sdk/client-s3", () => ({
+  S3Client: jest.fn().mockImplementation(() => ({ send: mockS3Send })),
+  GetObjectCommand: jest.fn(),
+  PutObjectCommand: jest.fn(),
+  DeleteObjectCommand: jest.fn(),
+  DeleteObjectsCommand: jest.fn().mockImplementation((input) => ({ input }))
+}));
 
 describe("Users E2E", () => {
   let app: INestApplication;
@@ -311,6 +322,90 @@ describe("Users E2E", () => {
         message: expect.any(String),
         error: "Forbidden"
       });
+    });
+  });
+
+  describe("DELETE /users/:id removes the account's files from storage", () => {
+    let noticeId: string;
+
+    beforeAll(async () => {
+      await prismaService.dmcaPlatform.upsert({
+        where: { slug: DeviantArtDmcaFormJSON.slug },
+        create: DeviantArtDmcaFormJSON,
+        update: {}
+      });
+    });
+
+    beforeEach(async () => {
+      mockS3Send.mockReset().mockResolvedValue({});
+      await prismaService.user.update({
+        where: { id: testUser.id },
+        data: {
+          avatar: "profiles/portrait-1b2c.png",
+          artworks: {
+            create: {
+              originalFilename: "starry-night.jpg",
+              storageKey: "artworks/starry-night-9f8e.jpg",
+              contentType: "image/jpeg",
+              sizeBytes: 603716,
+              width: 1280,
+              height: 1014
+            }
+          }
+        }
+      });
+      noticeId = (await prismaService.dmcaNotice.create({
+        data: { userId: testUser.id, dmcaPlatformSlug: DeviantArtDmcaFormJSON.slug }
+      })).id;
+    });
+
+    afterAll(async () => {
+      await prismaService.dmcaNotice.deleteMany();
+      await prismaService.dmcaPlatform.deleteMany();
+    });
+
+    const deletedKeys = () =>
+      mockS3Send.mock.calls.flatMap(([command]) =>
+        command.input.Delete.Objects.map(({ Key }: { Key: string }) => Key)
+      );
+
+    it("deletes the artwork, the profile picture and the DMCA notice PDF", async () => {
+      await api.delete(`/users/${testUser.id}`).expect(HttpStatus.NO_CONTENT);
+
+      expect(deletedKeys().sort()).toEqual([
+        "artworks/starry-night-9f8e.jpg",
+        `dmca-notices/${noticeId}.pdf`,
+        "profiles/portrait-1b2c.png"
+      ]);
+      expect(await prismaService.user.count({ where: { id: testUser.id } })).toBe(0);
+    });
+
+    it("keeps the account when storage fails, so deleting again removes everything", async () => {
+      mockS3Send.mockRejectedValueOnce(new Error("R2 unavailable"));
+
+      await api.delete(`/users/${testUser.id}`).expect(HttpStatus.SERVICE_UNAVAILABLE);
+      expect(await prismaService.user.count({ where: { id: testUser.id } })).toBe(1);
+      expect(await prismaService.artwork.count({ where: { userId: testUser.id } })).toBe(1);
+
+      await api.delete(`/users/${testUser.id}`).expect(HttpStatus.NO_CONTENT);
+      expect(deletedKeys()).toContain("artworks/starry-night-9f8e.jpg");
+      expect(await prismaService.user.count({ where: { id: testUser.id } })).toBe(0);
+    });
+
+    it("finishes on a second attempt when the database fails after the files were removed", async () => {
+      const userDelete = jest
+        .spyOn(prismaService.user, "delete")
+        .mockRejectedValueOnce(new Error("Connection terminated unexpectedly"));
+
+      const failed = await api.delete(`/users/${testUser.id}`);
+      expect(failed.status).toBeGreaterThanOrEqual(500);
+      expect(await prismaService.user.count({ where: { id: testUser.id } })).toBe(1);
+
+      // The files are already gone; R2 accepts deleting missing keys again.
+      await api.delete(`/users/${testUser.id}`).expect(HttpStatus.NO_CONTENT);
+      expect(mockS3Send).toHaveBeenCalledTimes(2);
+      expect(await prismaService.user.count({ where: { id: testUser.id } })).toBe(0);
+      userDelete.mockRestore();
     });
   });
 

@@ -3,17 +3,20 @@ import { StorageService } from "./storage.service";
 import { ConfigModule } from "@nestjs/config";
 import { BadRequestException } from "@nestjs/common";
 
+const mockSend = jest.fn();
+
 jest.mock("@aws-sdk/client-s3", () => {
   return {
     S3Client: jest.fn().mockImplementation(() => {
       return {
         close: jest.fn().mockResolvedValue(undefined),
-        send: jest.fn()
+        send: mockSend
       };
     }),
     GetObjectCommand: jest.fn(),
     PutObjectCommand: jest.fn(),
-    DeleteObjectCommand: jest.fn()
+    DeleteObjectCommand: jest.fn(),
+    DeleteObjectsCommand: jest.fn().mockImplementation((input) => ({ input }))
   };
 });
 
@@ -105,6 +108,40 @@ describe("StorageService", () => {
 
       await expect(upload).rejects.toThrow(
         new BadRequestException("Only JPEG and PNG formats are supported.")
+      );
+    });
+  });
+
+  describe("deleteImages", () => {
+    const deletedKeys = () =>
+      mockSend.mock.calls.map(([command]) =>
+        command.input.Delete.Objects.map(({ Key }: { Key: string }) => Key)
+      );
+
+    it("Should split deletions into requests of at most 1000 keys", async () => {
+      mockSend.mockResolvedValue({});
+      const keys = Array.from({ length: 2500 }, (_, i) => `artworks/a${i}.jpg`);
+
+      await service.deleteImages(keys);
+
+      expect(deletedKeys().map((batch) => batch.length)).toEqual([1000, 1000, 500]);
+      expect(deletedKeys().flat()).toEqual(keys);
+    });
+
+    it("Should not call R2 when there is nothing to delete", async () => {
+      await service.deleteImages([]);
+
+      expect(mockSend).not.toHaveBeenCalled();
+    });
+
+    // R2 answers 200 and lists per-key failures in Errors instead of throwing.
+    it("Should fail when R2 reports a key it could not delete", async () => {
+      mockSend.mockResolvedValue({
+        Errors: [{ Key: "artworks/a.jpg", Code: "InternalError", Message: "We encountered an internal error." }]
+      });
+
+      await expect(service.deleteImages(["artworks/a.jpg", "artworks/b.jpg"])).rejects.toThrow(
+        "artworks/a.jpg"
       );
     });
   });

@@ -21,6 +21,8 @@ import {
   StoragePrefix
 } from "@vigilart/shared";
 
+const DELETE_OBJECTS_MAX_KEYS = 1000;
+
 @Injectable()
 export class StorageService {
   private readonly s3: S3Client;
@@ -144,14 +146,24 @@ export class StorageService {
   }
 
   async deleteImages(fileKeys: string[]): Promise<void> {
-    await this.s3.send(
-      new DeleteObjectsCommand({
-        Bucket: this.bucketName,
-        Delete: {
-          Objects: fileKeys.map((fileKey) => ({ Key: fileKey }))
-        }
-      })
-    );
+    // DeleteObjects takes at most 1000 keys, and reports per-key failures in
+    // `Errors` with a 200 instead of throwing.
+    for (let i = 0; i < fileKeys.length; i += DELETE_OBJECTS_MAX_KEYS) {
+      const res = await this.s3.send(
+        new DeleteObjectsCommand({
+          Bucket: this.bucketName,
+          Delete: {
+            Objects: fileKeys
+              .slice(i, i + DELETE_OBJECTS_MAX_KEYS)
+              .map((fileKey) => ({ Key: fileKey }))
+          }
+        })
+      );
+      if (res?.Errors?.length) {
+        const keys = res.Errors.map((error) => error.Key).join(", ");
+        throw new InternalServerErrorException(`Could not delete storage objects: ${keys}`);
+      }
+    }
   }
 
   async getImage(fileKey: string): Promise<Buffer> {
