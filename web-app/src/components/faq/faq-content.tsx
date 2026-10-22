@@ -14,6 +14,7 @@ const FAQ_ITEMS = [
   ["deletion", 2],
   ["permissions", 1],
   ["workflow", 1],
+  ["coverage", 1],
   ["progress", 1],
   ["source", 1],
 ] as const;

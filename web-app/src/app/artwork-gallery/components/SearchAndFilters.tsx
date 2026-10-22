@@ -32,7 +32,7 @@ export function SearchAndFilters({
         />
       </div>
 
-      <div className="flex items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2">
         <span className="text-sm font-medium mr-2">{filteredCount} {t("artwork_gallery_page.images")}</span>
         <Button
           variant={selectedFilter === "All" ? "default" : "outline"}
@@ -42,25 +42,25 @@ export function SearchAndFilters({
           {t(FILTER_STATUS_TRANSLATION_KEYS.All)}
         </Button>
         <Button
-          variant={selectedFilter === "Scanning" ? "default" : "outline"}
+          variant={selectedFilter === "not_scanned" ? "default" : "outline"}
           size="sm"
-          onClick={() => onFilterChange("Scanning")}
+          onClick={() => onFilterChange("not_scanned")}
         >
-          {t(FILTER_STATUS_TRANSLATION_KEYS.Scanning)}
+          {t(FILTER_STATUS_TRANSLATION_KEYS.not_scanned)}
         </Button>
         <Button
-          variant={selectedFilter === "Scanned" ? "default" : "outline"}
+          variant={selectedFilter === "no_matches" ? "default" : "outline"}
           size="sm"
-          onClick={() => onFilterChange("Scanned")}
+          onClick={() => onFilterChange("no_matches")}
         >
-          {t(FILTER_STATUS_TRANSLATION_KEYS.Scanned)}
+          {t(FILTER_STATUS_TRANSLATION_KEYS.no_matches)}
         </Button>
         <Button
-          variant={selectedFilter === "Protected" ? "default" : "outline"}
+          variant={selectedFilter === "matches_found" ? "default" : "outline"}
           size="sm"
-          onClick={() => onFilterChange("Protected")}
+          onClick={() => onFilterChange("matches_found")}
         >
-          {t(FILTER_STATUS_TRANSLATION_KEYS.Protected)}
+          {t(FILTER_STATUS_TRANSLATION_KEYS.matches_found)}
         </Button>
       </div>
     </div>
