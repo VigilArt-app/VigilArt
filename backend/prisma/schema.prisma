@@ -208,7 +208,7 @@ model DmcaProfile {
 model DmcaNotice {
   id String @id @default(uuid())
 
-  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+  user   User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId String?
 
   dmcaPlatform   DmcaPlatform @relation(fields: [dmcaPlatformSlug], references: [slug], onDelete: Restrict)

@@ -4,7 +4,12 @@ import { AppModule } from "../src/app.module";
 import { PrismaService } from "../src/prisma/prisma.service";
 import { setupApp } from "../src/app.setup";
 import { ApiClient } from "./api-client";
-import { SubscriptionTier, type UserGet } from "@vigilart/shared";
+import {
+  DeviantArtDmcaFormJSON,
+  type DeviantArtDmcaPayload,
+  SubscriptionTier,
+  type UserGet
+} from "@vigilart/shared";
 import { CACHE_MANAGER } from "@nestjs/cache-manager";
 import type { Cache } from "cache-manager";
 import { addUsers, initialUsers } from "../src/prisma/seeds/add-users";
@@ -271,6 +276,61 @@ describe("Users E2E", () => {
         message: expect.any(String),
         error: "Forbidden"
       });
+    });
+  });
+
+  describe("DELETE /users/:id and DMCA notices", () => {
+    // A notice holds the artist's name, address, phone and signature.
+    const noticePayload: DeviantArtDmcaPayload = {
+      infringing_content: {
+        infringements: [
+          { infringing_url: "https://deviantart.com/art/stolen-artwork-123456" }
+        ],
+        original_work_description: "My original digital artwork titled 'Sunset Dreams'",
+        original_work_url: "https://myportfolio.com/artwork/sunset-dreams"
+      },
+      contact_information: {
+        email: "john.doe@vigilart.app",
+        full_name: "John Doe"
+      },
+      legal_declarations: { signature: "John Doe" }
+    };
+
+    beforeAll(async () => {
+      await prismaService.dmcaPlatform.create({ data: DeviantArtDmcaFormJSON });
+    });
+
+    afterAll(async () => {
+      await prismaService.dmcaNotice.deleteMany();
+      await prismaService.dmcaPlatform.deleteMany();
+    });
+
+    it("deletes the account's notices with the account", async () => {
+      const created = await api
+        .post("/dmca/notice")
+        .send({ dmcaPlatformSlug: "DEVIANTART", payload: noticePayload, userId: testUser.id, artworkId: null })
+        .expect(HttpStatus.CREATED);
+
+      await api.delete(`/users/${testUser.id}`).expect(HttpStatus.NO_CONTENT);
+
+      expect(
+        await prismaService.dmcaNotice.findUnique({ where: { id: created.body.data.id } })
+      ).toBeNull();
+    });
+
+    it("keeps the notices of other accounts", async () => {
+      const otherUser = await prismaService.user.create({
+        data: { email: "other.artist@mail.com", password: "hashed" }
+      });
+      const otherNotice = await prismaService.dmcaNotice.create({
+        data: { userId: otherUser.id, dmcaPlatformSlug: "DEVIANTART", payload: noticePayload }
+      });
+
+      await api.delete(`/users/${testUser.id}`).expect(HttpStatus.NO_CONTENT);
+
+      expect(
+        await prismaService.dmcaNotice.findUnique({ where: { id: otherNotice.id } })
+      ).toMatchObject({ userId: otherUser.id });
     });
   });
 
