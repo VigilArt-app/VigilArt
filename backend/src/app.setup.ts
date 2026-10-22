@@ -1,4 +1,4 @@
-import { INestApplication } from "@nestjs/common";
+import { INestApplication, Logger } from "@nestjs/common";
 import { NestExpressApplication } from "@nestjs/platform-express";
 import { ConfigService } from "@nestjs/config";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
@@ -25,10 +25,17 @@ export const setupApp = (app: INestApplication) => {
   // into one bucket shared by the entire internet. The value is a hop count, not
   // `true`: trusting every hop would let a client spoof its own IP by sending an
   // X-Forwarded-For header of its choosing.
-  const trustProxyHops = Number(
-    configService.get<string>("TRUST_PROXY_HOPS") ?? (isProd ? "1" : "0")
-  );
-  if (Number.isFinite(trustProxyHops) && trustProxyHops > 0) {
+  // docker-compose passes an unset variable as "", which must fall back too.
+  const rawHops =
+    configService.get<string>("TRUST_PROXY_HOPS")?.trim() || (isProd ? "1" : "0");
+  const trustProxyHops = Number(rawHops);
+  // Integers only: Express would trust two hops for 1.5, letting a client
+  // forge its own IP with one extra X-Forwarded-For entry.
+  if (!Number.isInteger(trustProxyHops) || trustProxyHops < 0) {
+    new Logger("setupApp").error(
+      `TRUST_PROXY_HOPS="${rawHops}" is not a hop count: no proxy is trusted, so every visitor shares one rate-limit bucket.`
+    );
+  } else if (trustProxyHops > 0) {
     (app as NestExpressApplication).set("trust proxy", trustProxyHops);
   }
 

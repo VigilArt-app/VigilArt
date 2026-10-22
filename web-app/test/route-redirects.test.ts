@@ -2,16 +2,16 @@ import assert from "node:assert/strict";
 import { existsSync } from "node:fs";
 import test from "node:test";
 
-const routeAccessUrl = new URL("../src/lib/route-access.ts", import.meta.url);
+const routeRedirectsUrl = new URL("../src/lib/route-redirects.ts", import.meta.url);
 
 test("route access policy lives in the shared library", () => {
-  assert.equal(existsSync(routeAccessUrl), true);
+  assert.equal(existsSync(routeRedirectsUrl), true);
 });
 
 test("public routes remain accessible and use the public shell", async () => {
   const { getRouteRedirect, PUBLIC_SHELL_ROUTES } = (await import(
-    routeAccessUrl.href
-  )) as typeof import("../src/lib/route-access");
+    routeRedirectsUrl.href
+  )) as typeof import("../src/lib/route-redirects");
   const anonymous = { hasAuthToken: false, hasRefreshToken: false };
   const signedIn = { hasAuthToken: true, hasRefreshToken: true };
 
@@ -26,8 +26,8 @@ test("public routes remain accessible and use the public shell", async () => {
 
 test("existing dashboard redirects remain unchanged", async () => {
   const { getRouteRedirect } = (await import(
-    routeAccessUrl.href
-  )) as typeof import("../src/lib/route-access");
+    routeRedirectsUrl.href
+  )) as typeof import("../src/lib/route-redirects");
   const anonymous = { hasAuthToken: false, hasRefreshToken: false };
   const signedIn = { hasAuthToken: true, hasRefreshToken: true };
 
