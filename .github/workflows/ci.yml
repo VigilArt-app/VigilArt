@@ -57,6 +57,8 @@ jobs:
               - 'mobile-app/**'
               - 'scripts/**'
               - 'mobile-release.config.cjs'
+              # The app copies these policy versions; its test checks they match.
+              - 'shared/src/constants/Legal.ts'
             shared:
               - 'shared/**'
               - 'package.json'
