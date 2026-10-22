@@ -6,6 +6,9 @@ import {
 } from "../../generated/zod";
 import { MatchingPageSchema } from "./VisualSearchResult";
 import { dateTimeStringToDate } from "../../functions";
+import { ScanQuotaSchema } from "./ScanQuota";
+
+export { ScanQuotaSchema } from "./ScanQuota";
 
 export const ArtworksReportSchema = base.extend({
   detectionDate: dateTimeStringToDate
@@ -60,6 +63,8 @@ export const ScanEnqueuedSchema = z.object({
   jobId: z.string()
 });
 export class ScanEnqueuedDTO extends createZodDto(ScanEnqueuedSchema) {}
+
+export class ScanQuotaDTO extends createZodDto(ScanQuotaSchema) {}
 
 export const ScanJobStateSchema = z.enum([
   "waiting",

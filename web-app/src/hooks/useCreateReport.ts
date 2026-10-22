@@ -39,7 +39,7 @@ const POLL_TIMEOUT_MS = 10 * 60 * 1000;
 // final details fetch forever (native fetch has no timeout of its own).
 const REQUEST_TIMEOUT_MS = 15 * 1000;
 
-export function useCreateReport(): UseCreateReportResult {
+export const useCreateReport = (onScanQuotaChange?: () => Promise<void>): UseCreateReportResult => {
   const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -65,10 +65,17 @@ export function useCreateReport(): UseCreateReportResult {
   // The backend job keeps running server-side; only the UI polling stops.
   useEffect(() => stopPolling, []);
 
+  const refreshScanQuota = () => {
+    // The server consumes quota in the worker, including failed provider runs.
+    // A quota fetch failure must never interrupt scan status polling.
+    void onScanQuotaChange?.().catch(() => {});
+  };
+
   const failWith = (message: string) => {
     stopPolling();
     setError(message);
     setLoading(false);
+    refreshScanQuota();
   };
 
   const fetchReportDetails = async (reportId: string, runId: number) => {
@@ -149,6 +156,7 @@ export function useCreateReport(): UseCreateReportResult {
         return;
       }
 
+      refreshScanQuota();
       const startedAt = Date.now();
       // Clear any interval a concurrent/previous handleCreate may have set
       // before overwriting the ref, so we never leak an orphaned poller.
@@ -198,6 +206,7 @@ export function useCreateReport(): UseCreateReportResult {
 
           if (scan.state === "completed") {
             stopPolling();
+            refreshScanQuota();
             if (scan.reportId) {
               await fetchReportDetails(scan.reportId, runId);
             } else {
@@ -247,4 +256,4 @@ export function useCreateReport(): UseCreateReportResult {
     handleCreate,
     resetState,
   };
-}
+};

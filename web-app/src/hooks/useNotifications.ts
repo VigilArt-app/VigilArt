@@ -2,7 +2,8 @@
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import { getMessaging, getToken, onMessage, type Messaging } from "firebase/messaging";
-import { config, firebaseApp } from "../config";
+import { config } from "../config";
+import { firebaseApp } from "../lib/firebase";
 import { authenticatedFetch } from "../utils/auth/authenticatedFetch";
 import { toast } from "sonner";
 
@@ -160,7 +161,7 @@ export function useNotifications() {
         if (payload.notification) {
           new Notification(payload.notification.title ?? "VigilArt", {
             body: payload.notification.body,
-            icon: "/vigilart_w.png",
+            icon: "/VigilArt_logo_white.png",
           });
         }
       });

@@ -27,8 +27,12 @@ model User {
   id               String           @id @default(uuid())
   email            String           @unique @db.VarChar(254)
   password         String
-  firstName        String           @db.VarChar(64)
-  lastName         String           @db.VarChar(64)
+  firstName        String?          @db.VarChar(64)
+  lastName         String?          @db.VarChar(64)
+  // Nullable for accounts created before explicit signup acceptance.
+  termsAcceptedAt  DateTime?
+  termsVersion     String?          @db.VarChar(64)
+  privacyVersion   String?          @db.VarChar(64)
   avatar           String?
   subscriptionTier SubscriptionTier @default(FREE)
   autoRunReports   Boolean          @default(false)
@@ -37,6 +41,7 @@ model User {
   createdAt        DateTime         @default(now())
   artworks         Artwork[]
   artworksReport   ArtworksReport[]
+  scanUsages       ScanUsage[]
   updatedAt        DateTime         @updatedAt @default(now())
 
   dmcaProfile      DmcaProfile?
@@ -146,6 +151,15 @@ model ArtworksReport {
 
   detectionDate     DateTime          @default(now())
   matchingPages     MatchingPage[]
+}
+
+model ScanUsage {
+  id        String   @id
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  startedAt DateTime @default(now())
+
+  @@index([userId, startedAt])
 }
 
 // DMCA Models & Enums

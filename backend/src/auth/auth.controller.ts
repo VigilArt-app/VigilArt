@@ -31,7 +31,7 @@ export class AuthController {
       status: HttpStatus.CREATED,
       type: UserGetDTO
     },
-    errors: [HttpStatus.CONFLICT]
+    errors: [HttpStatus.BAD_REQUEST, HttpStatus.CONFLICT]
   })
   @ApiBody({ type: SignUpDTO })
   async signUp(@Body() signUpDto: SignUpDTO): Promise<UserGet> {

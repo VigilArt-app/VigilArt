@@ -19,50 +19,34 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  bool _isEditMode = false;
   bool _isLoading = true;
   bool _isLoggingOut = false;
   int _bottomNavIndex = 3;
-  final _formKey = GlobalKey<FormState>();
 
   final ApiService _apiService = ApiService();
 
-  late TextEditingController _firstNameController;
-  late TextEditingController _lastNameController;
   late TextEditingController _emailController;
   late TextEditingController _passwordController;
-  late TextEditingController _countryController;
-  late TextEditingController _languageController;
 
+  // Names, country and language are gone: signup no longer asks for names,
+  // and the User table has no country or language column.
   Map<String, String> _userData = {
-    'firstName': '',
-    'lastName': '',
     'email': '',
     'password': '••••••••',
-    'country': 'France',
-    'language': 'French',
     'avatar': 'assets/images/default_avatar.jpg',
   };
 
   @override
   void initState() {
     super.initState();
-    _firstNameController = TextEditingController(text: _userData['firstName']);
-    _lastNameController = TextEditingController(text: _userData['lastName']);
     _emailController = TextEditingController(text: _userData['email']);
     _passwordController = TextEditingController(text: _userData['password']);
-    _countryController = TextEditingController(text: _userData['country']);
-    _languageController = TextEditingController(text: _userData['language']);
     _loadRemoteUserData();
   }
 
   void _updateControllersText() {
-    _firstNameController.text = _userData['firstName']!;
-    _lastNameController.text = _userData['lastName']!;
     _emailController.text = _userData['email']!;
     _passwordController.text = _userData['password']!;
-    _countryController.text = _userData['country']!;
-    _languageController.text = _userData['language']!;
   }
 
   Future<void> _loadRemoteUserData() async {
@@ -77,12 +61,8 @@ class _ProfilePageState extends State<ProfilePage> {
         if (mounted) {
           setState(() {
             _userData = {
-              'firstName': profile['firstName']?.toString() ?? '',
-              'lastName': profile['lastName']?.toString() ?? '',
               'email': profile['email']?.toString() ?? '',
               'password': '••••••••',
-              'country': profile['country']?.toString() ?? 'France',
-              'language': profile['language']?.toString() ?? 'French',
               'avatar': avatarDisplayUrl,
             };
             _updateControllersText();
@@ -169,41 +149,6 @@ class _ProfilePageState extends State<ProfilePage> {
       }
     }
     return avatarDisplayUrl;
-  }
-
-  void _handleEditToggle() async {
-    if (_isEditMode) {
-      if (_formKey.currentState!.validate()) {
-        setState(() => _isLoading = true);
-
-        final Map<String, dynamic> updateData = {
-          'firstName': _firstNameController.text.trim(),
-          'lastName': _lastNameController.text.trim(),
-          'country': _countryController.text.trim(),
-          'language': _languageController.text.trim(),
-        };
-
-        final result = await _apiService.updateUserProfile(updateData);
-
-        if (!mounted) return;
-
-        setState(() => _isLoading = false);
-
-        if (result != null) {
-          setState(() {
-            _userData
-                .addAll(updateData.map((k, v) => MapEntry(k, v.toString())));
-            _isEditMode = false;
-          });
-          _showSnackBar(
-              '✓ Profil mis à jour avec succès !', const Color(0xFF22C55E));
-        } else {
-          _showSnackBar('Échec de la mise à jour', Colors.red);
-        }
-      }
-    } else {
-      setState(() => _isEditMode = true);
-    }
   }
 
   void _handleLogoutDialog() {
@@ -324,12 +269,8 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   void dispose() {
-    _firstNameController.dispose();
-    _lastNameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
-    _countryController.dispose();
-    _languageController.dispose();
     super.dispose();
   }
 
@@ -355,49 +296,20 @@ class _ProfilePageState extends State<ProfilePage> {
               child: Column(
                 children: [
                   ProfileHeader(
-                    userName: _userData['firstName']!,
                     avatarUrl: _userData['avatar']!,
-                    isEditMode: _isEditMode,
-                    onEditTap: _handleEditToggle,
                     onAvatarTap: _handleAvatarUpload,
                   ),
                   const SizedBox(height: 24),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Form(
-                      key: _formKey,
-                      child: Column(
+                    child: Column(
                         children: [
-                          _buildSectionHeader('Informations Personnelles'),
-                          _buildSectionCard([
-                            EditableFormField(
-                              label: 'Prénom',
-                              controller: _firstNameController,
-                              isReadOnly: !_isEditMode,
-                              validator: (v) =>
-                                  (v == null || v.isEmpty) ? 'Requis' : null,
-                            ),
-                            const SizedBox(height: 16),
-                            EditableFormField(
-                              label: 'Nom',
-                              controller: _lastNameController,
-                              isReadOnly: !_isEditMode,
-                              validator: (v) =>
-                                  (v == null || v.isEmpty) ? 'Requis' : null,
-                            ),
-                          ]),
-                          const SizedBox(height: 24),
                           _buildSectionHeader('Compte'),
                           _buildSectionCard([
                             EditableFormField(
                               label: 'Email',
                               controller: _emailController,
-                              isReadOnly: !_isEditMode,
-                              validator: (v) {
-                                if (v == null || v.isEmpty) return 'Requis';
-                                if (!v.contains('@')) return 'Email invalide';
-                                return null;
-                              },
+                              isReadOnly: true,
                             ),
                             const SizedBox(height: 16),
                             EditableFormField(
@@ -405,21 +317,6 @@ class _ProfilePageState extends State<ProfilePage> {
                               controller: _passwordController,
                               isPassword: true,
                               isReadOnly: true,
-                            ),
-                          ]),
-                          const SizedBox(height: 24),
-                          _buildSectionHeader('Localisation & Préférences'),
-                          _buildSectionCard([
-                            EditableFormField(
-                              label: 'Pays',
-                              controller: _countryController,
-                              isReadOnly: !_isEditMode,
-                            ),
-                            const SizedBox(height: 16),
-                            EditableFormField(
-                              label: 'Langue',
-                              controller: _languageController,
-                              isReadOnly: !_isEditMode,
                             ),
                           ]),
                           const SizedBox(height: 32),
@@ -491,7 +388,6 @@ class _ProfilePageState extends State<ProfilePage> {
                           const SizedBox(height: 40),
                         ],
                       ),
-                    ),
                   ),
                 ],
               ),

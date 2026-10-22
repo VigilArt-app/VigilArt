@@ -10,6 +10,7 @@ import {
 import { Button } from "../../../components/ui/button";
 import { AlertCircle, CheckCircle } from "lucide-react";
 import type { ReportData, ScanProgress } from "@/src/hooks/useCreateReport";
+import { RestrictedMatch, matchIdentity } from "../../../components/matches/RestrictedMatch";
 
 interface ReportModalProps {
   open: boolean;
@@ -92,6 +93,12 @@ export function ReportModal({
                   {report.matchingPages?.length || 0}{" "}
                   {t("artworks_report_page.detections_found")}
                 </p>
+                {/* Kept in the summary box: at the end of the list it sat
+                    below the fold and nobody saw it. */}
+                {/* Gray, not green: it is a limit, not part of the success. */}
+                <p className="text-sm text-gray-600 mt-2">
+                  {t("scan_coverage.result_note")}
+                </p>
               </div>
             </div>
 
@@ -117,6 +124,7 @@ export function ReportModal({
                       key={`${page.artworkId}-${page.id}-${page.url}-${page.firstDetectedAt}`}
                       className="border rounded-lg p-4"
                     >
+                      <RestrictedMatch unsafeDomain={!!page.unsafeDomain} resetKey={`${open}-${report.id}-${matchIdentity(page)}`}>
                       <div className="flex gap-4">
                         {page.imageUrl && (
                           <div className="flex-shrink-0">
@@ -146,16 +154,22 @@ export function ReportModal({
                               i18n.language
                             )}
                           </p>
-                          <a
-                            href={page.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-blue-600 hover:text-blue-800 text-sm mt-2 inline-block"
-                          >
-                            {t("artworks_report_page.view_page")} →
-                          </a>
+                          {page.unsafeDomain ? (
+                            // Blacklisted sites are never opened from VigilArt, even after reveal.
+                            <p className="mt-2 break-all text-muted-foreground">{page.url}</p>
+                          ) : (
+                            <a
+                              href={page.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-600 hover:text-blue-800 text-sm mt-2 inline-block"
+                            >
+                              {t("artworks_report_page.view_page")} →
+                            </a>
+                          )}
                         </div>
                       </div>
+                      </RestrictedMatch>
                     </div>
                   ))}
                 </div>

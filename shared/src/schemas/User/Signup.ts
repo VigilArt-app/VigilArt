@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { createZodDto } from "nestjs-zod";
 import { UserGetSchema } from "./User";
+import { TERMS_VERSION, PRIVACY_VERSION } from "../../constants/Legal";
 import {
   MIN_PASSWORD_LENGTH,
   MIN_PASSWORD_LOWERCASE,
@@ -47,18 +48,9 @@ export const SignUpSchema = z.object({
         message: `Password must contain at least ${MIN_PASSWORD_SYMBOLS} symbol(s)`,
       }
     ),
-  firstName: z
-    .string({
-      error: (e) =>
-        e.input === undefined ? "First name is required." : undefined,
-    })
-    .min(1),
-  lastName: z
-    .string({
-      error: (e) =>
-        e.input === undefined ? "Last name is required." : undefined,
-    })
-    .min(1),
+  acceptedTerms: z.literal(true, "You must accept the Terms of Service and acknowledge the Privacy Policy."),
+  termsVersion: z.literal(TERMS_VERSION, "The Terms of Service have changed. Reload the signup page and review them again."),
+  privacyVersion: z.literal(PRIVACY_VERSION, "The Privacy Policy has changed. Reload the signup page and review it again."),
 });
 export class SignUpDTO extends createZodDto(SignUpSchema) {}
 

@@ -72,12 +72,6 @@ describe("Artworks User Journey E2E", () => {
     testUser2.id = user2.id;
   });
 
-  afterAll(async () => {
-    await prismaService.artwork.deleteMany();
-    await prismaService.user.deleteMany();
-    await app.close();
-  });
-
   describe("Unauthenticated Access", () => {
     it("POST /artworks - Should return 401 when not authenticated", async () => {
       const res = await api
@@ -1120,6 +1114,7 @@ describe("Artworks User Journey E2E", () => {
   });
 
   afterAll(async () => {
+    await prismaService.artwork.deleteMany();
     await prismaService.user.deleteMany();
     await app.close();
   });
