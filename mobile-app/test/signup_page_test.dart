@@ -81,8 +81,8 @@ void main() {
       'email': 'artist@example.com',
       'password': 'Secure_P4ssword',
       'acceptedTerms': true,
-      'termsVersion': '2026-09-09',
-      'privacyVersion': '2026-10-09',
+      'termsVersion': '2026-10-22',
+      'privacyVersion': '2026-10-22',
     });
   });
 
