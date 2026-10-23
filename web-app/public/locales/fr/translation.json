@@ -47,7 +47,8 @@
     "sign_in": "Se connecter",
     "signing_up": "Inscription en cours...",
     "error_unexpected": "Une erreur inattendue s'est produite. Veuillez réessayer.",
-    "sign_up_failed": "L'inscription a échoué. Veuillez vérifier vos informations et réessayer."
+    "sign_up_failed": "L'inscription a échoué. Veuillez vérifier vos informations et réessayer.",
+    "sign_up_disabled": "La création de compte est désactivée sur cet environnement."
   },
   "logout_page": {
     "logging_out": "Déconnexion en cours..."
