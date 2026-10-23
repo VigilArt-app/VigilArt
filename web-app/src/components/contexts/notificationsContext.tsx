@@ -30,7 +30,7 @@ export function NotificationsProvider({ children }: Readonly<{ children: React.R
   useEffect(() => {
     if (!isSupported)
       return;
-    if (!user?.notificationsEnabled) {
+    if (!user?.webNotificationsEnabled) {
       hasActivatedRef.current = false;
       if (isEnabled)
         void disableNotifications();
@@ -45,7 +45,7 @@ export function NotificationsProvider({ children }: Readonly<{ children: React.R
     }
     if (!isEnabled)
       syncEnabledState(false);
-  }, [activateNotifications, disableNotifications, isEnabled, isSupported, permission, syncEnabledState, user?.notificationsEnabled]);
+  }, [activateNotifications, disableNotifications, isEnabled, isSupported, permission, syncEnabledState, user?.webNotificationsEnabled]);
 
   const setNotificationsEnabled = useCallback(async (enabled: boolean) => {
     if (enabled) {

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Loader2, Upload, X, AlertTriangle, Bell, BellOff } from "lucide-react";
+import { Loader2, Upload, X, AlertTriangle, Bell, BellOff, Globe, Smartphone, Mail } from "lucide-react";
 import type { UserUpdate } from "@vigilart/shared/types";
 import {
   updateUserProfile,
@@ -169,7 +169,7 @@ export default function ProfilePage() {
     }
   };
 
-  const handleNotificationsChange = async (enabled: boolean) => {
+  const handleWebNotificationsChange = async (enabled: boolean) => {
     if (!notificationsSupported) {
       toast.error(t("profil_page.notifications_unsupported"));
       return;
@@ -187,13 +187,35 @@ export default function ProfilePage() {
           return;
         }
       }
-      await updateUserProfile(user.id, { notificationsEnabled: enabled });
+      await updateUserProfile(user.id, { webNotificationsEnabled: enabled });
       if (!enabled)
         await setNotificationsEnabled(false);
       await refreshUser();
     } catch {
       if (enabled)
         await setNotificationsEnabled(false);
+      toast.error(t("profil_page.failed_update_notifications"));
+    }
+  };
+
+  const handleMobileNotificationsChange = async (enabled: boolean) => {
+    if (!user?.id)
+      return;
+    try {
+      await updateUserProfile(user.id, { mobileNotificationsEnabled: enabled });
+      await refreshUser();
+    } catch {
+      toast.error(t("profil_page.failed_update_notifications"));
+    }
+  };
+
+  const handleMailNotificationsChange = async (enabled: boolean) => {
+    if (!user?.id)
+      return;
+    try {
+      await updateUserProfile(user.id, { mailNotificationsEnabled: enabled });
+      await refreshUser();
+    } catch {
       toast.error(t("profil_page.failed_update_notifications"));
     }
   };
@@ -292,36 +314,88 @@ export default function ProfilePage() {
                   </div>
                 </div>
 
-                <div className="rounded-lg border bg-muted/30 p-4 space-y-3">
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="space-y-1">
-                      <Label className="flex items-center gap-2 font-semibold">
-                        {(user?.notificationsEnabled ?? false) ? <Bell className="h-4 w-4" /> : <BellOff className="h-4 w-4" />}
-                        {t("profil_page.notifications_title")}
-                      </Label>
-                      <p className="text-sm text-muted-foreground">
-                        {t("profil_page.notifications_description")}
-                      </p>
-                    </div>
-
-                    <Switch
-                      checked={user?.notificationsEnabled ?? false}
-                      onCheckedChange={handleNotificationsChange}
-                      disabled={!notificationsSupported || isSaving || isDeleting}
-                    />
+                <div className="rounded-lg border bg-muted/30 p-5 space-y-4">
+                  <div className="space-y-1">
+                    <Label className="flex items-center gap-2 font-semibold text-base">
+                      <Bell className="h-4 w-4" />
+                      {t("profil_page.notifications_title")}
+                    </Label>
+                    <p className="text-sm text-muted-foreground">
+                      {t("profil_page.notifications_description")}
+                    </p>
                   </div>
 
-                  <p className="text-sm text-muted-foreground">
-                    {notificationPermission === "granted"
-                      ? t("profil_page.notifications_allowed")
-                      : notificationPermission === "denied"
-                        ? t("profil_page.notifications_blocked")
-                        : t("profil_page.notifications_permission_prompt")}
-                  </p>
+                  <div className="divide-y divide-border/60">
+                    {/* Web Notifications Toggle */}
+                    <div className="py-3 flex items-start justify-between gap-4">
+                      <div className="space-y-1">
+                        <Label htmlFor="web-notifications-switch" className="flex items-center gap-2 font-medium text-sm cursor-pointer">
+                          <Globe className="h-4 w-4 text-primary" />
+                          {t("profil_page.web_notifications_title")}
+                        </Label>
+                        <p className="text-xs text-muted-foreground">
+                          {t("profil_page.web_notifications_description")}
+                        </p>
+                        <p className="text-xs text-muted-foreground pt-0.5">
+                          {notificationPermission === "granted"
+                            ? t("profil_page.notifications_allowed")
+                            : notificationPermission === "denied"
+                              ? t("profil_page.notifications_blocked")
+                              : t("profil_page.notifications_permission_prompt")}
+                        </p>
+                        {notificationsError && (
+                          <p className="text-xs text-red-600">{notificationsError}</p>
+                        )}
+                      </div>
 
-                  {notificationsError && (
-                    <p className="text-sm text-red-600">{notificationsError}</p>
-                  )}
+                      <Switch
+                        id="web-notifications-switch"
+                        checked={user?.webNotificationsEnabled ?? false}
+                        onCheckedChange={handleWebNotificationsChange}
+                        disabled={!notificationsSupported || isSaving || isDeleting}
+                      />
+                    </div>
+
+                    {/* Mobile Notifications Toggle */}
+                    <div className="py-3 flex items-start justify-between gap-4">
+                      <div className="space-y-1">
+                        <Label htmlFor="mobile-notifications-switch" className="flex items-center gap-2 font-medium text-sm cursor-pointer">
+                          <Smartphone className="h-4 w-4 text-primary" />
+                          {t("profil_page.mobile_notifications_title")}
+                        </Label>
+                        <p className="text-xs text-muted-foreground">
+                          {t("profil_page.mobile_notifications_description")}
+                        </p>
+                      </div>
+
+                      <Switch
+                        id="mobile-notifications-switch"
+                        checked={user?.mobileNotificationsEnabled ?? false}
+                        onCheckedChange={handleMobileNotificationsChange}
+                        disabled={isSaving || isDeleting}
+                      />
+                    </div>
+
+                    {/* Mail Notifications Toggle */}
+                    <div className="pt-3 flex items-start justify-between gap-4">
+                      <div className="space-y-1">
+                        <Label htmlFor="mail-notifications-switch" className="flex items-center gap-2 font-medium text-sm cursor-pointer">
+                          <Mail className="h-4 w-4 text-primary" />
+                          {t("profil_page.mail_notifications_title")}
+                        </Label>
+                        <p className="text-xs text-muted-foreground">
+                          {t("profil_page.mail_notifications_description")}
+                        </p>
+                      </div>
+
+                      <Switch
+                        id="mail-notifications-switch"
+                        checked={user?.mailNotificationsEnabled ?? false}
+                        onCheckedChange={handleMailNotificationsChange}
+                        disabled={isSaving || isDeleting}
+                      />
+                    </div>
+                  </div>
                 </div>
 
                 <div className="flex justify-between pt-6 border-t">
