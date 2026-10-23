@@ -167,13 +167,13 @@ export default function ScansReport({ refreshKey }: ScansReportProps) {
         </div>
 
         <div className="flex items-center gap-2 flex-wrap">
-          <Label className="text-sm font-medium">{t("dashboard_page.scans_report.timeline_filter", "Timeline")}:</Label>
+          <Label className="text-base font-medium">{t("dashboard_page.scans_report.timeline_filter", "Timeline")}:</Label>
           <div className="flex gap-2 flex-wrap">
             <Button
               size="sm"
               variant={timelineFilter === "all" ? "default" : "outline"}
               onClick={() => setTimelineFilter("all")}
-              className="text-xs"
+              className="text-sm"
             >
               {t("dashboard_page.scans_report.timeline_all", "All Time")}
             </Button>
@@ -181,7 +181,7 @@ export default function ScansReport({ refreshKey }: ScansReportProps) {
               size="sm"
               variant={timelineFilter === "week" ? "default" : "outline"}
               onClick={() => setTimelineFilter("week")}
-              className="text-xs"
+              className="text-sm"
             >
               {t("dashboard_page.scans_report.timeline_week", "Last Week")}
             </Button>
@@ -189,7 +189,7 @@ export default function ScansReport({ refreshKey }: ScansReportProps) {
               size="sm"
               variant={timelineFilter === "month" ? "default" : "outline"}
               onClick={() => setTimelineFilter("month")}
-              className="text-xs"
+              className="text-sm"
             >
               {t("dashboard_page.scans_report.timeline_month", "Last Month")}
             </Button>
@@ -197,7 +197,7 @@ export default function ScansReport({ refreshKey }: ScansReportProps) {
               size="sm"
               variant={timelineFilter === "quarter" ? "default" : "outline"}
               onClick={() => setTimelineFilter("quarter")}
-              className="text-xs"
+              className="text-sm"
             >
               {t("dashboard_page.scans_report.timeline_quarter", "Last 3 Months")}
             </Button>
@@ -205,7 +205,7 @@ export default function ScansReport({ refreshKey }: ScansReportProps) {
               size="sm"
               variant={timelineFilter === "year" ? "default" : "outline"}
               onClick={() => setTimelineFilter("year")}
-              className="text-xs"
+              className="text-sm"
             >
               {t("dashboard_page.scans_report.timeline_year", "Last Year")}
             </Button>
