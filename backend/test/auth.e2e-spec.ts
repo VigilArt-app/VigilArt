@@ -221,7 +221,10 @@ describe("Auth E2E", () => {
         id: before.id, email: "private-audit@example.com",
         firstName: null, lastName: null, avatar: null,
         subscriptionTier: SubscriptionTier.FREE,
-        autoRunReports: false, notificationsEnabled: false,
+        autoRunReports: false,
+        mailNotificationsEnabled: false,
+        mobileNotificationsEnabled: false,
+        webNotificationsEnabled: false,
         createdAt: before.createdAt.toISOString(), updatedAt: before.updatedAt.toISOString(),
       });
       if (mobile) {

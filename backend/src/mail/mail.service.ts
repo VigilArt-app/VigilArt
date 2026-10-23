@@ -12,10 +12,20 @@ export interface SendMailAttachment {
 
 export interface SendMailOptions {
   to: string;
+  userId?: string;
   subject: string;
   text: string;
   html: string;
   attachments?: SendMailAttachment[];
+}
+
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
 }
 
 @Injectable()
@@ -72,11 +82,12 @@ export class MailService implements OnModuleInit {
   }
 
   async sendMail(options: SendMailOptions): Promise<boolean> {
+    const target = options.userId ? `user ${options.userId}` : "recipient";
+
     if (!this.isConfigured || !this.transporter) {
       this.logger.log(
-        `[SIMULATED EMAIL] To: ${options.to} | Subject: "${options.subject}"`
+        `[SIMULATED EMAIL] Target: ${target} | Subject: "${options.subject}"`
       );
-      this.logger.debug(`[SIMULATED EMAIL BODY]\n${options.text}`);
       return true;
     }
 
@@ -89,11 +100,11 @@ export class MailService implements OnModuleInit {
         html: options.html,
         attachments: options.attachments
       });
-      this.logger.log(`Email successfully sent to ${options.to} (Subject: "${options.subject}")`);
+      this.logger.log(`Email successfully sent to ${target} (Subject: "${options.subject}")`);
       return true;
     } catch (err) {
       this.logger.error(
-        `Failed to send email to ${options.to}: ${err instanceof Error ? err.message : err}`,
+        `Failed to send email to ${target}: ${err instanceof Error ? err.message : err}`,
         err instanceof Error ? err.stack : undefined
       );
       return false;
@@ -133,8 +144,13 @@ export class MailService implements OnModuleInit {
       }
     });
 
-    const matchCount = report?._count.matchingPages ?? 0;
-    const reportDate = (report?.detectionDate ?? new Date()).toLocaleDateString("en-US", {
+    if (!report) {
+      this.logger.warn(`Cannot send report email: report ${reportId} not found.`);
+      return;
+    }
+
+    const matchCount = report._count.matchingPages;
+    const reportDate = report.detectionDate.toLocaleDateString("en-US", {
       year: "numeric",
       month: "long",
       day: "numeric"
@@ -148,7 +164,11 @@ export class MailService implements OnModuleInit {
 
     const subject = "Your artwork scan report is ready - VigilArt";
 
-    const text = `Hello ${user.firstName},\n\n` +
+    const rawFirstName = user.firstName?.trim();
+    const textGreeting = rawFirstName ? `Hello ${rawFirstName},` : "Hello,";
+    const htmlGreeting = rawFirstName ? `Hello ${escapeHtml(rawFirstName)},` : "Hello,";
+
+    const text = `${textGreeting}\n\n` +
       `Your artwork scan report is ready.\n\n` +
       `Summary:\n` +
       `- Report Date: ${reportDate}\n` +
@@ -399,7 +419,7 @@ export class MailService implements OnModuleInit {
         <!--[if !mso]><!--><img src="${whiteWordmarkUrl}" alt="VigilArt" class="logo-img logo-dark" width="160" style="display: none; width: 160px; max-width: 160px; height: auto; border: 0;" /><!--<![endif]-->
       </div>
       <div class="content">
-        <h1>Hello ${user.firstName},</h1>
+        <h1>${htmlGreeting}</h1>
         <p>Your artwork scan report is ready. We analyzed your registered artworks to detect unauthorized uses across the web.</p>
 
         <div class="summary-card">
@@ -444,6 +464,7 @@ export class MailService implements OnModuleInit {
 `;
 
     await this.sendMail({
+      userId: user.id,
       to: user.email,
       subject,
       text,
