@@ -45,15 +45,15 @@ export function ArtworkDetails({ artwork }: ArtworkDetailsProps) {
 
   return (
     <div className="w-96 border-l bg-background p-6 overflow-y-auto scrollbar-soft">
-      <div className="bg-black text-white rounded-lg p-4 mb-4 flex items-center justify-between">
+      <div className="bg-secondary text-secondary-foreground rounded-lg p-4 mb-4 flex items-center justify-between">
         <h2 className="text-xl font-bold">{t("artwork_gallery_page.selected_artwork")}</h2>
       </div>
 
       <div className="space-y-4">
         <div className="aspect-square rounded-lg overflow-hidden border">
           {isLoading && (
-            <div className="w-full h-full flex items-center justify-center bg-gray-200">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-400" />
+            <div className="w-full h-full flex items-center justify-center bg-muted">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-muted-foreground" />
             </div>
           )}
           {imageUrl && (

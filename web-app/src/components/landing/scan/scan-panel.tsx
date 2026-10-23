@@ -373,7 +373,7 @@ const MatchRow = ({
       // nofollow on top of the usual pair: this page is public, and it should
       // not pass ranking to a site reposting someone's work.
       rel="noopener noreferrer nofollow"
-      className="group block rounded-sm text-sm outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
+      className="group block rounded-sm text-sm outline-none focus-visible:ring-[3px] focus-visible:ring-ring"
     >
       <span className="flex items-center gap-1.5 font-medium group-hover:underline">
         {match.websiteName}

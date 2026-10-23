@@ -36,7 +36,7 @@ export function DmcaNoticesHistorySection({ notices, t, onLoadNotice }: DmcaNoti
           {sortedNotices.map((notice) => (
             <div
               key={notice.id}
-              className="flex items-center justify-between p-4 rounded-lg border hover:bg-gray-50 dark:hover:bg-gray-900/30 transition-colors"
+              className="flex items-center justify-between p-4 rounded-lg border hover:bg-muted/50 transition-colors"
             >
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
@@ -44,8 +44,8 @@ export function DmcaNoticesHistorySection({ notices, t, onLoadNotice }: DmcaNoti
                   <span
                     className={`text-xs px-2 py-1 rounded ${
                       notice.status === "SUBMITTED"
-                        ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400"
-                        : "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400"
+                        ? "border border-success text-success"
+                        : "bg-muted text-muted-foreground"
                     }`}
                   >
                     {notice.status}

@@ -48,7 +48,7 @@ const SkeletonLoader = (): React.JSX.Element => (
     <div className="fixed top-0 left-0 h-screen w-64 border-r bg-background p-6">
       <div className="flex h-[280px] items-center justify-center">
         <Skeleton
-          className="h-[200px] w-[200px] rounded-4xl bg-black/5 dark:bg-white/10"
+          className="h-[200px] w-[200px] rounded-4xl"
           suppressHydrationWarning
         />
       </div>
@@ -56,7 +56,7 @@ const SkeletonLoader = (): React.JSX.Element => (
         {[1, 2, 3, 4].map((item) => (
           <Skeleton
             key={item}
-            className="h-10 w-full bg-black/5 dark:bg-white/10"
+            className="h-10 w-full"
             suppressHydrationWarning
           />
         ))}
@@ -67,11 +67,11 @@ const SkeletonLoader = (): React.JSX.Element => (
       <div className="max-w-3xl">
         <div className="space-y-4">
           <Skeleton
-            className="h-[200px] w-full bg-black/5 dark:bg-white/10"
+            className="h-[200px] w-full"
             suppressHydrationWarning
           />
           <Skeleton
-            className="h-[200px] w-full bg-black/5 dark:bg-white/10"
+            className="h-[200px] w-full"
             suppressHydrationWarning
           />
         </div>

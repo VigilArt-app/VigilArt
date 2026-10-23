@@ -196,7 +196,7 @@ export default function ArtworkGalleryPage() {
         className="flex-1 p-8 overflow-y-auto scrollbar-soft"
         onClick={() => setSelectedArtwork(null)}
       >
-        <div className="bg-black text-white rounded-lg p-6 mb-6 flex items-center justify-between">
+        <div className="bg-secondary text-secondary-foreground rounded-lg p-6 mb-6 flex items-center justify-between">
           <h1 className="text-3xl font-bold">
             {t("artwork_gallery_page.artwork_gallery")}
           </h1>

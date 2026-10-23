@@ -23,16 +23,14 @@ interface MonthlyComparisonProps {
   loading: boolean;
 }
 
-// Single categorical series (dataviz slot 1, blue). One hue, so no legend is
-// needed — the card title names the series.
-const BAR_COLOR = "#2a78d6";
-
-// Concrete chart-chrome colors per theme (dataviz palette). Passed as SVG
+// Concrete chart colors per theme, from the brand guidelines. Passed as SVG
 // presentation attributes, so they must be literal colors — CSS var() does not
-// resolve inside SVG attributes.
+// resolve inside SVG attributes. The single series is plum (the primary token):
+// it is one total, not a data category, so it does not compete with the
+// category palette. Labels use the muted text color to keep 4.5:1.
 const CHROME = {
-  light: { grid: "#e1e0d9", axis: "#c3c2b7", label: "#898781", cursor: "#000000" },
-  dark: { grid: "#2c2c2a", axis: "#383835", label: "#898781", cursor: "#ffffff" },
+  light: { bar: "#5e3b7d", grid: "#e5e5e5", axis: "#d4d4d4", label: "#6b6b6b", cursor: "#000000" },
+  dark: { bar: "#b692db", grid: "#262626", axis: "#404040", label: "#a1a1a1", cursor: "#ffffff" },
 };
 
 export default function MonthlyComparison({
@@ -125,7 +123,7 @@ export default function MonthlyComparison({
                 />
                 <Bar
                   dataKey="totalMatches"
-                  fill={BAR_COLOR}
+                  fill={chrome.bar}
                   radius={[4, 4, 0, 0]}
                   maxBarSize={48}
                   className="cursor-pointer"

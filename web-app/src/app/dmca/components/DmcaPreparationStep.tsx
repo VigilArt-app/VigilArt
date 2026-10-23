@@ -100,7 +100,7 @@ export function DmcaPreparationStep({
         )}
 
         {activeNotice && (
-          <div className="p-3 border-l-4 border-green-500">
+          <div className="rounded-lg bg-muted p-3">
             <p className="text-sm">
               <span className="font-semibold">{t("dmca_page.notice_status")}:</span> {activeNotice.status}
             </p>

@@ -119,7 +119,7 @@ export function MatchesModalView({
                         href={page.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-blue-600 hover:text-blue-800 inline-block mt-2"
+                        className="text-primary underline-offset-4 hover:underline inline-block mt-2"
                       >
                         {t("dashboard_page.scans_report.visit")} →
                       </a>

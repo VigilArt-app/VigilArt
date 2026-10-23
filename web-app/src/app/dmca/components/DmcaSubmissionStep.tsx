@@ -76,11 +76,11 @@ export function DmcaSubmissionStep({
             <div className="space-y-4">
               <div className="rounded-lg border-2 border-dashed p-4 space-y-3">
                 <div>
-                  <p className="font-semibold text-sm text-gray-600">{t("dmca_page.email_to")}</p>
+                  <p className="font-semibold text-sm text-muted-foreground">{t("dmca_page.email_to")}</p>
                   <p className="text-foreground font-mono text-sm">{generatedContent.email.to}</p>
                 </div>
                 <div>
-                  <p className="font-semibold text-sm text-gray-600">{t("dmca_page.email_subject")}</p>
+                  <p className="font-semibold text-sm text-muted-foreground">{t("dmca_page.email_subject")}</p>
                   <p className="text-foreground text-sm break-words">{generatedContent.email.subject}</p>
                 </div>
               </div>
@@ -129,7 +129,7 @@ export function DmcaSubmissionStep({
       )}
 
       {activeNotice && !isSubmitted && (
-        <div className="rounded-lg border border-amber-300/70 bg-amber-50 dark:bg-amber-900/20 p-4">
+        <div className="rounded-lg border border-warning/30 bg-warning-muted p-4">
           <p className="text-sm mb-3">{t("dmca_page.mark_submitted_warning")}</p>
           <Button
             variant="outline"

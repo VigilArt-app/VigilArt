@@ -28,10 +28,11 @@ This file is the source of truth for implementing the VigilArt visual identity a
 | Brand accent | VigilArt plum | `#5E3B7D` |
 | Primary text | Soft black | `#0A0A0A` |
 | Text on secondary background | Charcoal | `#171717` |
-| Secondary text | Gray | `#737373` |
-| Borders and fields | Light gray | `#E5E5E5` |
+| Secondary text | Gray | `#6B6B6B` |
+| Borders | Light gray | `#E5E5E5` |
+| Field borders | Medium gray | `#8F8F8F` |
 | Error and destructive actions | Red | `#E7000B` |
-| Focus ring | Medium gray | `#A1A1A1` |
+| Focus ring | Gray | `#737373` |
 
 ### Dark mode
 
@@ -45,11 +46,11 @@ This file is the source of truth for implementing the VigilArt visual identity a
 | Text on plum accent | Dark charcoal | `#171717` |
 | Secondary text | Light gray | `#A1A1A1` |
 | Borders | White at 10% | `rgba(255, 255, 255, 0.10)` |
-| Field borders | White at 15% | `rgba(255, 255, 255, 0.15)` |
+| Field borders | Gray | `#737373` |
 | Error and destructive actions | Light red | `#FF6467` |
 | Focus ring | Gray | `#737373` |
 
-In the codebase, the plum brand accent is technically named `primary`. The variable named `accent` refers to the subtle gray: `#F5F5F5` in light mode and `#262626` in dark mode. Reference values: `web-app/src/app/globals.css:45`.
+In the codebase, the plum brand accent is technically named `primary`. The variable named `accent` refers to the subtle gray: `#F5F5F5` in light mode and `#262626` in dark mode. Reference values: `web-app/src/app/globals.css:61`.
 
 ### Purple shades derived from the poster
 
@@ -70,19 +71,52 @@ Do not use the poster’s beige, coral, or navy blue as VigilArt brand colors.
 | Function | Light mode | Dark mode |
 |---|---|---|
 | Error and destructive actions | `#E7000B` | `#FF6467` |
-| Success | `#008300` | `#008300` |
-| Information | `#2A78D6` | `#2A78D6` |
+| Success | `#008300` | `#3CA346` |
+| Information | `#256ABF` | `#5598E7` |
+| Warning (text and icon) | `#973C00` on `#FFFBEB` | `#FCBB00` on `#261D0A` |
 | Not scanned yet (neutral pending state) | `#737373` | `#737373` |
-| Matches found (informational result, legacy badge) | `#2B7FFF` | `#2B7FFF` |
+| Matches found (informational result) | `#155DFC` | `#155DFC` |
+| Blacklisted site badge | `#0A0A0A` on `#FCBB00` | `#0A0A0A` on `#FCBB00` |
 | No matches found (neutral scan result) | `#64748B` | `#64748B` |
 
 Functional colors retain their defined meaning. Never use plum for errors, success states, or data categories.
 
+Error, success, and warning boxes use a tinted background (`bg-destructive-muted`, `bg-success-muted`, `bg-warning-muted`), a border of the same color at 30%, and an icon in the functional color. Their body text stays in the primary text color.
+
 For artwork scan badges, use medium gray `#737373` with white text for “Not scanned yet.” This pending state uses `--not-scanned` (Tailwind `bg-not-scanned`). Keep the filled pill shape without dots or icons.
 
-For “Matches found,” retain the original Protected badge's Tailwind `bg-blue-500 text-white` pairing (`#2B7FFF` in the current Tailwind palette), as explicitly requested by Seph. It means matches were found, not that those uses are necessarily unauthorized. This narrow legacy-color exception retains the same colors in both themes; its white-text contrast is below AA.
+For “Matches found,” use blue `#155DFC` with white text (5.25:1). It keeps the blue of the original Protected badge one step darker, because the former `#2B7FFF` was below AA. It means matches were found, not that those uses are necessarily unauthorized. It uses `--matches-found` (Tailwind `bg-matches-found`) and retains the same colors in both themes.
+
+For the “blacklisted site” badge on artwork cards, use a filled amber pill `#FCBB00` with soft black text `#0A0A0A` (11.5:1) and a warning icon. It keeps the same colors in both themes so it stands out over any artwork. It uses `--blacklisted` and `--blacklisted-foreground` (Tailwind `bg-blacklisted text-blacklisted-foreground`).
 
 Use slate `#64748B` with white text for the “No matches found” artwork badge. It means a recorded scan found no matches, not that the artwork is protected or the scan was exhaustive. This approved functional neutral uses `--no-matches` (Tailwind `bg-no-matches`) and retains the same colors in both themes.
+
+### Accessibility
+
+Every color pair must meet WCAG 2.2 level AA, in light and dark mode, on every surface it appears on (page, card, `#F5F5F5` / `#262626` areas):
+
+- Text, and icons that carry meaning: at least 4.5:1 against their background, or 3:1 for text of 24px and larger (19px bold).
+- Interface components and graphics (field borders, focus indicators, badge shapes, chart marks): at least 3:1 against their surroundings.
+- Never convey information through color alone: pair it with a text label, an icon, or a pattern.
+- Data categories use a palette validated for color vision deficiency: adjacent colors stay distinguishable under protanopia and deuteranopia.
+- Fix a failing pair by changing one of its colors, never with a text shadow or an outline.
+- Check a new pair with a contrast checker before adding it as a token.
+
+### Data visualization
+
+Website categories use this fixed palette, defined in `web-app/src/components/matches/categories.ts`. Each color is at least 3:1 on its card, and neighbors in this order stay distinguishable under protanopia and deuteranopia. Reordering the categories or changing a color requires validating the palette again.
+
+| Category | Light mode | Dark mode |
+|---|---|---|
+| Social media | `#3A6DB5` | `#5B8FD6` |
+| Art platforms | `#7A7A1A` | `#9A9A3A` |
+| Marketplaces | `#C2507F` | `#D0668F` |
+| Blogs | `#A97A12` | `#B8862A` |
+| Media | `#00897A` | `#2AA595` |
+| Search engines | `#C45F31` | `#D77650` |
+| Other | `#8F8F8F` | `#6B6B6B` |
+
+A chart with a single series, such as the monthly totals, uses plum (`#5E3B7D`, dark `#B692DB`): it is not a data category. Axis labels use the secondary text color. Counts shown as badges, such as the number of matches, use a plum tint (`bg-primary/10 text-primary`, `dark:bg-primary/15`) whatever their value, and gray for zero: a match is information, not an alert.
 
 ### CSS tokens
 
@@ -94,15 +128,22 @@ Use slate `#64748B` with white text for the “No matches found” artwork badge
   --primary: #5e3b7d;
   --va-text: #0a0a0a;
   --va-text-on-secondary: #171717;
-  --va-text-muted: #737373;
+  --va-text-muted: #6b6b6b;
   --va-border: #e5e5e5;
-  --va-field-border: #e5e5e5;
-  --va-focus-ring: #a1a1a1;
+  --va-field-border: #8f8f8f;
+  --va-focus-ring: #737373;
   --va-error: #e7000b;
   --va-success: #008300;
-  --va-info: #2a78d6;
+  --va-info: #256abf;
+  --va-warning: #973c00;
+  --va-warning-bg: #fffbeb;
+  --blacklisted: #fcbb00;
+  --blacklisted-foreground: #0a0a0a;
+  --va-success-bg: #eaf5ea;
+  --va-error-bg: #fdecec;
   --not-scanned: #737373;
   --no-matches: #64748b;
+  --matches-found: #155dfc;
 
   --va-violet-100: #f1ebf6;
   --va-violet-200: #e8dcf3;
@@ -120,9 +161,15 @@ Use slate `#64748B` with white text for the “No matches found” artwork badge
   --va-text-on-primary: #171717;
   --va-text-muted: #a1a1a1;
   --va-border: rgba(255, 255, 255, 0.10);
-  --va-field-border: rgba(255, 255, 255, 0.15);
+  --va-field-border: #737373;
   --va-focus-ring: #737373;
   --va-error: #ff6467;
+  --va-success: #3ca346;
+  --va-info: #5598e7;
+  --va-warning: #fcbb00;
+  --va-warning-bg: #261d0a;
+  --va-success-bg: #13261a;
+  --va-error-bg: #2a1414;
 }
 ```
 
@@ -317,6 +364,7 @@ Before considering an interface or communication asset complete, verify:
 
 - [ ] The 60–70 / 20–30 / 5–10 distribution is respected.
 - [ ] Every color comes from a defined token.
+- [ ] Every color pair meets the contrast thresholds in Accessibility, in both themes.
 - [ ] Geist Sans and Geist Mono are the only interface font families.
 - [ ] Every interface icon comes from Lucide and uses a `2px` stroke.
 - [ ] Every icon-only action has an accessible name.

@@ -30,6 +30,14 @@
   --color-muted: var(--muted);
   --color-not-scanned: var(--not-scanned);
   --color-no-matches: var(--no-matches);
+  --color-matches-found: var(--matches-found);
+  --color-blacklisted: var(--blacklisted);
+  --color-blacklisted-foreground: var(--blacklisted-foreground);
+  --color-success: var(--success);
+  --color-success-muted: var(--success-muted);
+  --color-warning: var(--warning);
+  --color-warning-muted: var(--warning-muted);
+  --color-destructive-muted: var(--destructive-muted);
   --color-secondary-foreground: var(--secondary-foreground);
   --color-secondary: var(--secondary);
   --color-primary-foreground: var(--primary-foreground);
@@ -59,15 +67,29 @@
   --secondary: oklch(0.97 0 0);
   --secondary-foreground: oklch(0.205 0 0);
   --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
+  /* #737373 fell to 4.35:1 on the #f5f5f5 muted areas; this step clears
+     4.5:1 on both white and muted. */
+  --muted-foreground: #6b6b6b;
   --not-scanned: #737373;
   --no-matches: #64748b;
+  /* White text on Tailwind blue-500 was 3.76:1; blue-600 reaches 5.25:1. */
+  --matches-found: #155dfc;
+  /* Same filled amber in both themes: it must stand out over any artwork. */
+  --blacklisted: #fcbb00;
+  --blacklisted-foreground: #0a0a0a;
+  --success: #008300;
+  --success-muted: #eaf5ea;
+  --warning: #973c00;
+  --warning-muted: #fffbeb;
+  --destructive-muted: #fdecec;
   --accent: oklch(0.97 0 0);
   --accent-foreground: oklch(0.205 0 0);
   --destructive: oklch(0.577 0.245 27.325);
   --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
+  /* Field borders and the focus ring must reach 3:1 against the page:
+     #e5e5e5 and #a1a1a1 were 1.26:1 and 2.58:1. */
+  --input: #8f8f8f;
+  --ring: #737373;
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);
@@ -80,7 +102,7 @@
   --sidebar-accent: hsl(240 4.8% 95.9%);
   --sidebar-accent-foreground: hsl(240 5.9% 10%);
   --sidebar-border: hsl(220 13% 91%);
-  --sidebar-ring: hsl(217.2 91.2% 59.8%);
+  --sidebar-ring: #737373;
 }
 
 .dark {
@@ -98,11 +120,19 @@
   --secondary-foreground: oklch(0.985 0 0);
   --muted: oklch(0.269 0 0);
   --muted-foreground: oklch(0.708 0 0);
+  --success: #3ca346;
+  --success-muted: #13261a;
+  --warning: #fcbb00;
+  --warning-muted: #261d0a;
+  --destructive-muted: #2a1414;
   --accent: oklch(0.269 0 0);
   --accent-foreground: oklch(0.985 0 0);
   --destructive: oklch(0.704 0.191 22.216);
   --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
+  /* White at 15% was 1.58:1 on a card; fields need 3:1. It also tints field
+     fills (dark:bg-input/10, hover /20): stronger fills drop placeholders
+     below 4.5:1. */
+  --input: #737373;
   --ring: oklch(0.556 0 0);
   --chart-1: oklch(0.488 0.243 264.376);
   --chart-2: oklch(0.696 0.17 162.48);
@@ -116,12 +146,12 @@
   --sidebar-accent: hsl(240 3.7% 15.9%);
   --sidebar-accent-foreground: hsl(240 4.8% 95.9%);
   --sidebar-border: hsl(240 3.7% 15.9%);
-  --sidebar-ring: hsl(217.2 91.2% 59.8%);
+  --sidebar-ring: #737373;
 }
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border outline-ring;
   }
   body {
     /* font-sans was never applied anywhere, so the whole app fell back to the

@@ -318,6 +318,7 @@
   },
   "dmca_page": {
     "title": "Assistant DMCA",
+    "step_completed": "Étape {{step}} terminée",
     "subtitle": "Préparez votre notice DMCA à partir des champs dynamiques fournis par la plateforme.",
     "legal_notice": "Important : VigilArt ne soumet jamais une plainte DMCA à votre place. Vous devez vérifier le contenu puis l'envoyer vous-même sur le site concerné.",
     "not_authenticated": "Vous n'êtes pas authentifié. Veuillez vous reconnecter.",
