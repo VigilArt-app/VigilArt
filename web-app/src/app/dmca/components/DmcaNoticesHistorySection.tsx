@@ -26,7 +26,7 @@ export function DmcaNoticesHistorySection({ notices, t, onLoadNotice }: DmcaNoti
       <CardHeader>
         <div>
           <h3 className="font-semibold text-lg">{t("dmca_page.notices_history")}</h3>
-          <p className="text-sm text-muted-foreground mt-1">
+          <p className="text-base text-muted-foreground mt-1">
             {t("dmca_page.previous_notices_subtitle")}
           </p>
         </div>
@@ -40,9 +40,9 @@ export function DmcaNoticesHistorySection({ notices, t, onLoadNotice }: DmcaNoti
             >
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
-                  <p className="font-medium text-sm truncate">{notice.dmcaPlatformSlug}</p>
+                  <p className="font-medium text-base truncate">{notice.dmcaPlatformSlug}</p>
                   <span
-                    className={`text-xs px-2 py-1 rounded ${
+                    className={`text-sm px-2 py-0.5 rounded ${
                       notice.status === "SUBMITTED"
                         ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400"
                         : "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400"
@@ -51,17 +51,16 @@ export function DmcaNoticesHistorySection({ notices, t, onLoadNotice }: DmcaNoti
                     {notice.status}
                   </span>
                 </div>
-                <p className="text-xs text-muted-foreground mt-1">
+                <p className="text-sm text-muted-foreground mt-1">
                   {new Date(notice.updatedAt).toLocaleDateString()} {new Date(notice.updatedAt).toLocaleTimeString()}
                 </p>
               </div>
               <Button
                 variant="outline"
-                size="sm"
                 onClick={() => onLoadNotice(notice)}
-                className="ml-2 flex-shrink-0"
+                className="ml-2 flex-shrink-0 text-base"
               >
-                <ExternalLink className="w-4 h-4 mr-2" />
+                <ExternalLink className="size-5 mr-2" />
                 {t("dmca_page.load")}
               </Button>
             </div>

@@ -22,14 +22,14 @@ export default function DmcaPage() {
   }
 
   return (
-    <div className="p-8 max-w-4xl mx-auto space-y-6">
+    <div className="p-8 max-w-5xl mx-auto space-y-6">
       <div className="space-y-2">
         <h1 className="text-3xl font-semibold">{t("dmca_page.title")}</h1>
         <p className="text-muted-foreground">{t("dmca_page.subtitle")}</p>
       </div>
 
       <div className="rounded-lg border border-amber-300/70 bg-amber-50 dark:bg-amber-900/20 p-4">
-        <p className="text-sm">{t("dmca_page.legal_notice")}</p>
+        <p className="text-base">{t("dmca_page.legal_notice")}</p>
       </div>
 
       <DmcaStepIndicator currentStep={dmca.currentStep} />
