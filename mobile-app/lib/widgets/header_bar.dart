@@ -27,7 +27,7 @@ class _VigilArtHeaderBarState extends State<VigilArtHeaderBar>
   late AnimationController _animationController;
   late Animation<double> _scaleAnimation;
 
-  bool _notificationsEnabled = false;
+  bool _mobileNotificationsEnabled = false;
   bool _isToggling = false;
 
   @override
@@ -49,16 +49,16 @@ class _VigilArtHeaderBarState extends State<VigilArtHeaderBar>
     final prefs = await SharedPreferences.getInstance();
     if (mounted) {
       setState(() {
-        _notificationsEnabled = prefs.getBool('notificationsEnabled') ?? false;
+        _mobileNotificationsEnabled = prefs.getBool('mobileNotificationsEnabled') ?? false;
       });
     }
     try {
       final profile = await ApiService().fetchUserProfile();
       if (profile != null && mounted) {
-        final enabled = profile['notificationsEnabled'] == true;
-        await prefs.setBool('notificationsEnabled', enabled);
+        final enabled = profile['mobileNotificationsEnabled'] == true;
+        await prefs.setBool('mobileNotificationsEnabled', enabled);
         setState(() {
-          _notificationsEnabled = enabled;
+          _mobileNotificationsEnabled = enabled;
         });
       }
     } catch (e) {
@@ -76,7 +76,7 @@ class _VigilArtHeaderBarState extends State<VigilArtHeaderBar>
     if (_isToggling) return;
     setState(() => _isToggling = true);
 
-    final targetState = !_notificationsEnabled;
+    final targetState = !_mobileNotificationsEnabled;
 
     try {
       // Flip the actual device registration first: initialize()/unregisterDevice()
@@ -94,7 +94,7 @@ class _VigilArtHeaderBarState extends State<VigilArtHeaderBar>
         return;
       }
 
-      final profile = await ApiService().updateUserProfile({'notificationsEnabled': targetState});
+      final profile = await ApiService().updateUserProfile({'mobileNotificationsEnabled': targetState});
 
       if (profile == null) {
         // Device state changed but the backend flag couldn't be persisted:
@@ -112,9 +112,9 @@ class _VigilArtHeaderBarState extends State<VigilArtHeaderBar>
       }
 
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setBool('notificationsEnabled', targetState);
+      await prefs.setBool('mobileNotificationsEnabled', targetState);
       if (mounted) {
-        setState(() => _notificationsEnabled = targetState);
+        setState(() => _mobileNotificationsEnabled = targetState);
       }
       _showSnackBar(SnackBar(
         content: Text(targetState
@@ -231,10 +231,10 @@ class _VigilArtHeaderBarState extends State<VigilArtHeaderBar>
                                   ),
                                 )
                               : Icon(
-                                  _notificationsEnabled
+                                  _mobileNotificationsEnabled
                                       ? Icons.notifications_active_rounded
                                       : Icons.notifications_off_rounded,
-                                  color: _notificationsEnabled
+                                  color: _mobileNotificationsEnabled
                                       ? const Color(0xFF5E3B7D)
                                       : Colors.grey,
                                   size: 22,
