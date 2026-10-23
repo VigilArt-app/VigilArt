@@ -11,6 +11,7 @@ const publicNamespaces = [
   "faq_page",
   "privacy_page",
   "terms_page",
+  "legal_notice_page",
 ];
 
 const leafPaths = (value, prefix = "") =>
@@ -41,4 +42,6 @@ test("public information pages expose translated headings", () => {
   assert.equal(fr.privacy_page.title, "Politique de confidentialité");
   assert.equal(en.terms_page.title, "Terms of Service");
   assert.equal(fr.terms_page.title, "Conditions d’utilisation");
+  assert.equal(en.legal_notice_page.title, "Legal Notice");
+  assert.equal(fr.legal_notice_page.title, "Mentions légales");
 });

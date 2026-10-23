@@ -10,7 +10,7 @@ export const LandingFooter = (): React.JSX.Element => {
     <footer>
       <div className="flex w-full justify-center px-4 py-10 sm:px-6 lg:px-8">
         <nav
-          aria-label={`${t("landing_page.footer.privacy")}, ${t("landing_page.footer.terms")}, ${t("landing_page.footer.faq")}`}
+          aria-label={`${t("landing_page.footer.privacy")}, ${t("landing_page.footer.terms")}, ${t("landing_page.footer.legal_notice")}, ${t("landing_page.footer.faq")}`}
           className="flex items-center gap-6 text-sm text-muted-foreground"
         >
           <Link href="/privacy" className="transition-colors hover:text-foreground">
@@ -18,6 +18,9 @@ export const LandingFooter = (): React.JSX.Element => {
           </Link>
           <Link href="/terms" className="transition-colors hover:text-foreground">
             {t("landing_page.footer.terms")}
+          </Link>
+          <Link href="/legal-notice" className="transition-colors hover:text-foreground">
+            {t("landing_page.footer.legal_notice")}
           </Link>
           <Link href="/faq" className="transition-colors hover:text-foreground">
             {t("landing_page.footer.faq")}

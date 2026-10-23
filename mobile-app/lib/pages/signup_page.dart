@@ -115,6 +115,10 @@ class _SignupPageState extends State<SignupPage> {
       if (message.contains('acceptedTerms')) return _consentRequired;
       return message.isNotEmpty ? message : 'Invalid information provided. Please check your details.';
     }
+    if (statusCode == 403) {
+      final message = _serverMessage(response);
+      return message.isNotEmpty ? message : 'Account creation is disabled.';
+    }
     if (statusCode >= 500) return 'Server error. Please try again later.';
     return 'Signup failed. Please try again.';
   }

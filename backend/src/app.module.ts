@@ -41,6 +41,7 @@ import {
   PUBLIC_POLL_TTL_MS,
   PUBLIC_POLL_LIMIT
 } from "./common/throttler.constants";
+import { keyedThrottlerKey, throttlerKeySecret } from "./common/throttler-key";
 import { MailModule } from "./mail/mail.module";
 
 @Module({
@@ -64,9 +65,10 @@ import { MailModule } from "./mail/mail.module";
     // own 2-second scan polling. Counters live in Redis so they survive a
     // restart and are shared across containers.
     ThrottlerModule.forRootAsync({
-      imports: [RedisModule],
-      inject: [RedisService],
-      useFactory: (redis: RedisService) => ({
+      imports: [RedisModule, ConfigModule],
+      inject: [RedisService, ConfigService],
+      useFactory: (redis: RedisService, config: ConfigService) => ({
+        generateKey: keyedThrottlerKey(throttlerKeySecret(config)),
         throttlers: [
           {
             name: PUBLIC_SCAN_THROTTLER,

@@ -46,7 +46,10 @@ const renderInlineContent = (
 export const TranslatedLegalContent = ({
   translationKey,
 }: {
-  translationKey: "privacy_page.blocks" | "terms_page.blocks";
+  translationKey:
+    | "privacy_page.blocks"
+    | "terms_page.blocks"
+    | "legal_notice_page.blocks";
 }): React.JSX.Element => {
   const { t } = useTranslation();
   const blocks = t(translationKey, { returnObjects: true }) as LegalBlock[];

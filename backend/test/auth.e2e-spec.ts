@@ -37,7 +37,7 @@ describe("Auth E2E", () => {
       { acceptedTerms: undefined }, { acceptedTerms: false }, { acceptedTerms: "true" },
       { termsVersion: undefined }, { privacyVersion: undefined },
       { termsVersion: "outdated" }, { privacyVersion: "outdated" },
-      { privacyVersion: "2026-09-09" },
+      { privacyVersion: "2026-09-09" }, { privacyVersion: "2026-10-09" }, { termsVersion: "2026-09-09" },
     ])("rejects invalid consent without creating an account: %p", async (invalidConsent) => {
       await api.post("/auth/signup").send({
         email: "no-consent@example.com", password: "Secure_P4ssword",
@@ -55,8 +55,8 @@ describe("Auth E2E", () => {
       const user = await prismaService.user.findUniqueOrThrow({ where: { email: "consent@example.com" } });
       expect(user.firstName).toBeNull();
       expect(user.lastName).toBeNull();
-      expect(user.termsVersion).toBe("2026-09-09");
-      expect(user.privacyVersion).toBe("2026-10-09");
+      expect(user.termsVersion).toBe("2026-10-22");
+      expect(user.privacyVersion).toBe("2026-10-22");
       expect(user.termsAcceptedAt!.getTime()).toBeGreaterThanOrEqual(before);
       expect(user.termsAcceptedAt!.getTime()).toBeLessThanOrEqual(Date.now());
     });
@@ -233,8 +233,8 @@ describe("Auth E2E", () => {
       }
       const after = await prismaService.user.findUniqueOrThrow({ where: { id: before.id } });
       expect(after.termsAcceptedAt).toEqual(before.termsAcceptedAt);
-      expect(after.termsVersion).toBe("2026-09-09");
-      expect(after.privacyVersion).toBe("2026-10-09");
+      expect(after.termsVersion).toBe("2026-10-22");
+      expect(after.privacyVersion).toBe("2026-10-22");
     });
 
     it("allows login without rewriting an earlier recorded privacy acceptance", async () => {

@@ -11,6 +11,8 @@ import { SearchQuotaExhaustedException } from "../serpapilens/serpapi-account.se
 export interface GenerateReportJobData {
   userId: string;
   scanId?: string;
+  // Started by the user (button or synchronous route), not by the scheduler.
+  manual?: boolean;
   // BullMQ keeps only the error message, so the HTTP status is stored here for
   // synchronous callers waiting on the job.
   failureStatus?: number;

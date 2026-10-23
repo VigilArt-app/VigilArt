@@ -128,17 +128,28 @@
        browser default and looked different on each operating system. */
     @apply bg-background text-foreground font-sans;
   }
+  /* Tailwind v4 stopped giving buttons a pointer cursor; restore it so
+     everything clickable shows the hand. */
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
 }
 
-.scrollbar-soft {
-  scrollbar-width: thin;
-  scrollbar-color: color-mix(in oklab, var(--muted-foreground) 40%, transparent)
-    transparent;
+/* Chromium ignores the ::-webkit-scrollbar rules below (and so their width)
+   as soon as the standard properties are set, so only browsers without the
+   pseudo-element (Firefox) get them. */
+@supports not selector(::-webkit-scrollbar) {
+  .scrollbar-soft {
+    scrollbar-width: auto;
+    scrollbar-color: color-mix(in oklab, var(--muted-foreground) 40%, transparent)
+      transparent;
+  }
 }
 
 .scrollbar-soft::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
+  width: 14px;
+  height: 14px;
 }
 
 .scrollbar-soft::-webkit-scrollbar-track {
@@ -148,7 +159,7 @@
 .scrollbar-soft::-webkit-scrollbar-thumb {
   background: color-mix(in oklab, var(--muted-foreground) 45%, transparent);
   border-radius: 9999px;
-  border: 2px solid transparent;
+  border: 3px solid transparent;
   background-clip: content-box;
 }
 

@@ -6,7 +6,8 @@ import type { DmcaFormItem, DmcaNoticeGet, DmcaPlatformGet } from "@vigilart/sha
 import { Button } from "@/src/components/ui/button";
 import { Label } from "@/src/components/ui/label";
 import { DmcaSchemaForm } from "../DmcaSchemaForm";
-import type { ArtworkPrefill, JsonLike, PathPart } from "../dmca-form-utils";
+import { InfoHint } from "@/src/components/ui/info-hint";
+import type { ArtworkPrefill, FieldError, JsonLike, PathPart } from "../dmca-form-utils";
 
 type DmcaPreparationStepProps = {
   platforms: DmcaPlatformGet[];
@@ -14,6 +15,7 @@ type DmcaPreparationStepProps = {
   artworkPrefill: ArtworkPrefill;
   detectedInfringingUrls: string[];
   formPayload: JsonLike;
+  invalidFields: Record<string, FieldError>;
   preparingNotice: boolean;
   selectedPlatform: DmcaPlatformGet | null;
   selectedPlatformSlug: string;
@@ -31,6 +33,7 @@ export function DmcaPreparationStep({
   artworkPrefill,
   detectedInfringingUrls,
   formPayload,
+  invalidFields,
   preparingNotice,
   selectedPlatform,
   selectedPlatformSlug,
@@ -54,7 +57,7 @@ export function DmcaPreparationStep({
           <select
             value={selectedPlatformSlug}
             onChange={(event) => onSelectedPlatformChange(event.target.value)}
-            className="w-full rounded-md border border-input px-4 py-3 text-sm font-medium bg-background text-foreground"
+            className="w-full rounded-md border border-input px-4 py-3 text-base font-medium bg-background text-foreground"
           >
             <option value="">-- {t("dmca_page.select_platform")} --</option>
             {platforms.map((platform) => (
@@ -68,13 +71,13 @@ export function DmcaPreparationStep({
         {selectedPlatform && (
           <div className="grid grid-cols-2 gap-6">
             <div>
-              <p className="text-xs font-semibold text-muted-foreground uppercase">
+              <p className="text-sm font-semibold text-muted-foreground uppercase">
                 {t("dmca_page.platform_domain")}
               </p>
               <p className="text-foreground mt-1">{selectedPlatform.domain || t("dmca_page.not_available")}</p>
             </div>
             <div>
-              <p className="text-xs font-semibold text-muted-foreground uppercase">
+              <p className="text-sm font-semibold text-muted-foreground uppercase">
                 {t("dmca_page.platform_email")}
               </p>
               <p className="text-foreground mt-1 break-all">{selectedPlatform.email || t("dmca_page.not_available")}</p>
@@ -83,14 +86,20 @@ export function DmcaPreparationStep({
         )}
 
         {selectedPlatform && (
-          <div className="space-y-4">
-            <div>
-              <h3 className="font-bold text-lg">{t("dmca_page.core_data_title")}</h3>
-              <p className="text-sm text-muted-foreground mt-1">{t("dmca_page.core_data_subtitle")}</p>
+          <div className="space-y-4 border-t pt-6">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div className="flex items-center gap-1.5">
+                <h3 className="font-bold text-xl">{t("dmca_page.core_data_title")}</h3>
+                <InfoHint>{t("dmca_page.core_data_subtitle")}</InfoHint>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                <span className="text-destructive" aria-hidden="true">*</span> {t("dmca_page.required_fields")}
+              </p>
             </div>
             <DmcaSchemaForm
               schema={selectedPlatform.formSchema as DmcaFormItem[]}
               payload={formPayload}
+              invalidFields={invalidFields}
               artworkPrefill={artworkPrefill}
               detectedInfringingUrls={detectedInfringingUrls}
               onUpdatePath={onUpdatePath}
@@ -109,18 +118,18 @@ export function DmcaPreparationStep({
       </div>
 
       <div className="flex gap-3 justify-between pt-4 border-t">
-        <Button variant="outline" onClick={onBack}>
+        <Button className="text-base" size="lg" variant="outline" onClick={onBack}>
           ← {t("dmca_page.back")}
         </Button>
         <div className="flex gap-3">
-          <Button onClick={onPrepareNotice} disabled={preparingNotice || !selectedPlatform}>
-            {preparingNotice && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+          <Button className="text-base" size="lg" onClick={onPrepareNotice} disabled={preparingNotice || !selectedPlatform}>
+            {preparingNotice && <Loader2 className="size-5 animate-spin mr-2" />}
             {t("dmca_page.prepare_notice")}
           </Button>
-          <Button
+          <Button size="lg"
             onClick={onNext}
             disabled={!activeNotice}
-            className="gap-2"
+            className="gap-2 text-base"
           >
             {t("dmca_page.next")} →
           </Button>
