@@ -32,8 +32,8 @@ void main() async {
     await Firebase.initializeApp();
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
-    bool? notificationsEnabled = prefs.getBool('notificationsEnabled');
-    if (isLoggedIn && notificationsEnabled == true) {
+    bool? mobileNotificationsEnabled = prefs.getBool('mobileNotificationsEnabled');
+    if (isLoggedIn && mobileNotificationsEnabled == true) {
       NotificationService().initialize();
     }
   }

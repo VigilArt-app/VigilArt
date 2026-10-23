@@ -42,6 +42,7 @@ import {
   PUBLIC_POLL_LIMIT
 } from "./common/throttler.constants";
 import { keyedThrottlerKey, throttlerKeySecret } from "./common/throttler-key";
+import { MailModule } from "./mail/mail.module";
 
 @Module({
   imports: [
@@ -108,7 +109,8 @@ import { keyedThrottlerKey, throttlerKeySecret } from "./common/throttler-key";
     NotificationsModule,
     VisualSearchModule,
     TurnstileModule,
-    PublicScanModule
+    PublicScanModule,
+    MailModule
   ],
   controllers: [AppController],
   providers: [

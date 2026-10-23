@@ -15,6 +15,7 @@ import { REPORTS_QUEUE } from "./reports.constants";
 import { NotificationsModule } from "../notifications/notifications.module";
 import { ArtworkLimitModule } from "../artworks/artwork-limit.module";
 import { ScanQuotaService } from "./scan-quota.service";
+import { MailModule } from "../mail/mail.module";
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { ScanQuotaService } from "./scan-quota.service";
     VisualSearchModule,
     SerpApiLensModule,
     NotificationsModule,
+    MailModule,
     BullModule.registerQueueAsync({
       name: REPORTS_QUEUE,
       imports: [ConfigModule],

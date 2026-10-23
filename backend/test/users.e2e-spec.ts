@@ -129,7 +129,9 @@ describe("Users E2E", () => {
           createdAt: expect.any(String),
           updatedAt: expect.any(String),
           autoRunReports: false,
-          notificationsEnabled: false
+          mailNotificationsEnabled: false,
+          mobileNotificationsEnabled: false,
+          webNotificationsEnabled: false
         },
         {
           id: expect.any(String),
@@ -141,7 +143,9 @@ describe("Users E2E", () => {
           createdAt: expect.any(String),
           updatedAt: expect.any(String),
           autoRunReports: false,
-          notificationsEnabled: false
+          mailNotificationsEnabled: false,
+          mobileNotificationsEnabled: false,
+          webNotificationsEnabled: false
         },
         {
           id: expect.any(String),
@@ -153,7 +157,9 @@ describe("Users E2E", () => {
           createdAt: expect.any(String),
           updatedAt: expect.any(String),
           autoRunReports: false,
-          notificationsEnabled: false
+          mailNotificationsEnabled: false,
+          mobileNotificationsEnabled: false,
+          webNotificationsEnabled: false
         }
       ];
 
@@ -183,7 +189,9 @@ describe("Users E2E", () => {
           createdAt: expect.any(String),
           updatedAt: expect.any(String),
           autoRunReports: false,
-          notificationsEnabled: false
+          mailNotificationsEnabled: false,
+          mobileNotificationsEnabled: false,
+          webNotificationsEnabled: false
         },
       });
     });
@@ -236,7 +244,9 @@ describe("Users E2E", () => {
           createdAt: expect.any(String),
           updatedAt: expect.any(String),
           autoRunReports: false,
-          notificationsEnabled: false
+          mailNotificationsEnabled: false,
+          mobileNotificationsEnabled: false,
+          webNotificationsEnabled: false
         },
       });
     });
