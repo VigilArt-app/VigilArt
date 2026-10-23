@@ -38,7 +38,7 @@ export class MailService implements OnModuleInit {
     const user = this.config.get<string>("SMTP_USER");
     const pass = this.config.get<string>("SMTP_PASS");
     const from = this.config.get<string>("SMTP_FROM");
-    const configuredAppUrl = this.config.get<string>("APP_URL");
+    const configuredAppUrl = this.config.get<string>("NEXT_PUBLIC_APP_URL");
 
     if (from) {
       this.fromAddress = from;

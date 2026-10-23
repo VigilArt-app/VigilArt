@@ -105,6 +105,7 @@ services:
       SMTP_USER: ${SMTP_USER}
       SMTP_PASS: ${SMTP_PASS}
       SMTP_FROM: ${SMTP_FROM}
+      NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL}
 
     restart: always
     init: true
