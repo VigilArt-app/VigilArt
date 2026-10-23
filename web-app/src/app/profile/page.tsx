@@ -302,13 +302,6 @@ export default function ProfilePage() {
                         <p className="text-xs text-muted-foreground">
                           {t("profil_page.web_notifications_description")}
                         </p>
-                        <p className="text-xs text-muted-foreground pt-0.5">
-                          {notificationPermission === "granted"
-                            ? t("profil_page.notifications_allowed")
-                            : notificationPermission === "denied"
-                              ? t("profil_page.notifications_blocked")
-                              : t("profil_page.notifications_permission_prompt")}
-                        </p>
                         {notificationsError && (
                           <p className="text-xs text-red-600">{notificationsError}</p>
                         )}
