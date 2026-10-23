@@ -44,6 +44,7 @@ import { StorageService } from "../storage/storage.service";
 import { PrismaService } from "../prisma/prisma.service";
 import { MatchingPagesService } from "./matchingPage.service";
 import { VisualSearchService } from "../visualsearch/visual-search.service";
+import { VisualSearchError } from "../visualsearch/visual-search.error";
 import { SerpApiAccountService } from "../serpapilens/serpapi-account.service";
 import { assertResourceOwnership } from "../common/utils/ownership";
 import { normalizeMatchUrl } from "../common/utils/website-class";
@@ -130,7 +131,11 @@ export class ReportsService implements OnModuleDestroy {
     void job?.updateProgress({ processed, total }).catch(() => undefined);
   }
 
-  async findArtworksMatches(userId: string, job?: Job, scanId = randomUUID()): Promise<string[]> {
+  async findArtworksMatches(
+    userId: string,
+    job?: Job,
+    scanId = randomUUID()
+  ): Promise<{ matchingPageIds: string[]; scannedArtworkIds: string[] }> {
     const artworks = await this.artworksService.findAllPerUser(userId);
     if (artworks.length === 0) throw new BadRequestException("Upload an artwork before scanning.");
     // One search per artwork. Checked before the user's scan is consumed, so a
@@ -170,15 +175,28 @@ export class ReportsService implements OnModuleDestroy {
       return result.value;
     });
 
-    // A failed provider attempt remains consumed even when no report is saved.
     if (
       artworks.length > 0 &&
       settled.every((result) => result.status === "rejected")
     ) {
+      // A user-started scan that found nothing because every search failed is
+      // given back. A scheduled one stays consumed, so the hourly cron does not
+      // retry (and pay for) a failing account every hour.
+      if (consumption && job?.data?.manual === true) {
+        await this.scanQuota.releaseScan(userId, scanId).catch((error) =>
+          this.logger.error(`Failed to give back scan ${scanId} of user ${userId}`, error)
+        );
+      }
+      const failure = settled
+        .map((result) => (result as PromiseRejectedResult).reason)
+        .find((reason) => reason instanceof VisualSearchError);
       throw new ServiceUnavailableException(
-        "Scan failed: the visual search provider did not respond in time. Please try again."
+        (failure ?? new VisualSearchError("provider_error")).message
       );
     }
+    const scannedArtworkIds = artworks
+      .filter((_, index) => settled[index].status === "fulfilled")
+      .map((artwork) => artwork.id);
 
     const foundMatchesIds: string[] = [];
     for (
@@ -191,7 +209,7 @@ export class ReportsService implements OnModuleDestroy {
       );
       foundMatchesIds.push(...res.matchingPages.map((m) => m.id));
     }
-    return foundMatchesIds;
+    return { matchingPageIds: foundMatchesIds, scannedArtworkIds };
   }
 
   async checkScanQuota(userId: string) {
@@ -209,18 +227,20 @@ export class ReportsService implements OnModuleDestroy {
     // Old waiting jobs also receive a durable UUID before any provider starts.
     const scanId = job?.data.scanId ?? randomUUID();
     if (job && !job.data.scanId) await job.updateData({ ...job.data, scanId });
-    const matchingPagesIds = await this.findArtworksMatches(userId, job, scanId);
+    const { matchingPageIds, scannedArtworkIds } = await this.findArtworksMatches(userId, job, scanId);
     const report = await this.prisma.artworksReport.create({
       data: {
         userId,
         matchingPages: {
-          connect: matchingPagesIds.map((id) => ({ id }))
+          connect: matchingPageIds.map((id) => ({ id }))
         }
       }
     });
 
+    // An artwork whose search failed keeps its previous status instead of
+    // showing "No matches found".
     await this.prisma.artwork.updateMany({
-      where: { userId },
+      where: { id: { in: scannedArtworkIds } },
       data: { lastScanAt: new Date() }
     });
     await this.cacheManager.del(REPORT_STATS_KEY(userId));
@@ -289,7 +309,7 @@ export class ReportsService implements OnModuleDestroy {
 
     const job = await this.reportsQueue.add(
       GENERATE_REPORT_JOB,
-      { userId, scanId: randomUUID() },
+      { userId, scanId: randomUUID(), ...(interactive && { manual: true }) },
       { jobId, ...options }
     );
     return job;
