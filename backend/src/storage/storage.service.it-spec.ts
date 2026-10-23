@@ -141,8 +141,22 @@ describe("StorageService", () => {
       });
 
       await expect(service.deleteImages(["artworks/a.jpg", "artworks/b.jpg"])).rejects.toThrow(
-        "artworks/a.jpg"
+        "artworks/a.jpg (InternalError: We encountered an internal error.)"
       );
+    });
+
+    it("Should still delete the next batches when a key of the first one fails", async () => {
+      mockSend
+        .mockResolvedValueOnce({
+          Errors: [{ Key: "artworks/a0.jpg", Code: "AccessDenied", Message: "Access Denied" }]
+        })
+        .mockResolvedValue({});
+      const keys = Array.from({ length: 2500 }, (_, i) => `artworks/a${i}.jpg`);
+
+      await expect(service.deleteImages(keys)).rejects.toThrow(
+        "artworks/a0.jpg (AccessDenied: Access Denied)"
+      );
+      expect(deletedKeys().flat()).toEqual(keys);
     });
   });
 });

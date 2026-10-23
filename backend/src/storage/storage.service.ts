@@ -147,7 +147,9 @@ export class StorageService {
 
   async deleteImages(fileKeys: string[]): Promise<void> {
     // DeleteObjects takes at most 1000 keys, and reports per-key failures in
-    // `Errors` with a 200 instead of throwing.
+    // `Errors` with a 200 instead of throwing. Every batch is attempted before
+    // failing, so one bad key does not leave the next batches behind.
+    const failures: string[] = [];
     for (let i = 0; i < fileKeys.length; i += DELETE_OBJECTS_MAX_KEYS) {
       const res = await this.s3.send(
         new DeleteObjectsCommand({
@@ -155,14 +157,20 @@ export class StorageService {
           Delete: {
             Objects: fileKeys
               .slice(i, i + DELETE_OBJECTS_MAX_KEYS)
-              .map((fileKey) => ({ Key: fileKey }))
+              .map((fileKey) => ({ Key: fileKey })),
+            // Only failures come back, not the list of deleted keys.
+            Quiet: true
           }
         })
       );
-      if (res?.Errors?.length) {
-        const keys = res.Errors.map((error) => error.Key).join(", ");
-        throw new InternalServerErrorException(`Could not delete storage objects: ${keys}`);
+      for (const error of res?.Errors ?? []) {
+        failures.push(`${error.Key} (${error.Code}: ${error.Message})`);
       }
+    }
+    if (failures.length) {
+      throw new InternalServerErrorException(
+        `Could not delete storage objects: ${failures.join(", ")}`
+      );
     }
   }
 
