@@ -11,6 +11,7 @@ import { DMCA_CONTROL_CLASS, DMCA_INPUT_CLASS, DMCA_LABEL_CLASS } from "../DmcaS
 type DmcaProfileStepProps = {
   profileForm: ProfileFormState;
   profileExists: boolean;
+  profileEmailInvalid: boolean;
   savingProfile: boolean;
   t: TFunction;
   onProfileChange: (key: keyof ProfileFormState, value: string) => void;
@@ -21,6 +22,7 @@ type DmcaProfileStepProps = {
 export function DmcaProfileStep({
   profileForm,
   profileExists,
+  profileEmailInvalid,
   savingProfile,
   t,
   onProfileChange,
@@ -46,14 +48,22 @@ export function DmcaProfileStep({
             />
           </div>
           <div className="space-y-2">
-            <Label className={`font-semibold ${DMCA_LABEL_CLASS}`}>{t("dmca_page.profile.email")}</Label>
+            <Label htmlFor="dmca-profile-email" className={`font-semibold ${DMCA_LABEL_CLASS}`}>{t("dmca_page.profile.email")}</Label>
             <Input
+              id="dmca-profile-email"
               className={DMCA_INPUT_CLASS}
               type="email"
               placeholder="john@example.com"
               value={profileForm.email}
               onChange={(e) => onProfileChange("email", e.target.value)}
+              aria-invalid={profileEmailInvalid || undefined}
+              aria-describedby={profileEmailInvalid ? "dmca-profile-email-error" : undefined}
             />
+            {profileEmailInvalid && (
+              <p id="dmca-profile-email-error" className="text-sm text-destructive">
+                {t("dmca_page.invalid_email")}
+              </p>
+            )}
           </div>
           <div className="space-y-2">
             <Label className={`font-semibold ${DMCA_LABEL_CLASS}`}>{t("dmca_page.profile.street")}</Label>

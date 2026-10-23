@@ -323,6 +323,10 @@
     "error": "Error"
   },
   "dmca_page": {
+    "invalid_email": "This email address is not valid",
+    "fields_to_fix_one": "One field needs fixing",
+    "fields_to_fix_other": "{{count}} fields need fixing",
+    "field_required": "This field is required",
     "required_fields": "Required fields",
     "title": "DMCA Assistant",
     "subtitle": "Prepare your DMCA notice from dynamic platform fields provided by the backend.",

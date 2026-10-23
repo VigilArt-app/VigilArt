@@ -39,6 +39,7 @@ export default function DmcaPage() {
       {dmca.currentStep === 1 && (
         <DmcaProfileStep
           profileForm={dmca.profileForm}
+          profileEmailInvalid={dmca.profileEmailInvalid}
           profileExists={dmca.profileExists}
           savingProfile={dmca.savingProfile}
           t={t}
@@ -55,6 +56,7 @@ export default function DmcaPage() {
           artworkPrefill={dmca.artworkPrefill}
           detectedInfringingUrls={dmca.detectedInfringingUrls}
           formPayload={dmca.formPayload}
+          invalidFields={dmca.invalidFields}
           preparingNotice={dmca.preparingNotice}
           selectedPlatform={dmca.selectedPlatform}
           selectedPlatformSlug={dmca.selectedPlatformSlug}

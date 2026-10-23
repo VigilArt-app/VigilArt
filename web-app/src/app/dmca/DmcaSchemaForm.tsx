@@ -9,6 +9,7 @@ import {
   getAtPath,
   inputTypeFromField,
   type ArtworkPrefill,
+  type FieldError,
   type JsonLike,
   type PathPart,
 } from "./dmca-form-utils";
@@ -19,8 +20,8 @@ type DmcaFormRepeater = Extract<DmcaFormItem, { kind: "array" }>;
 // Same look as <Input>, for the controls it cannot render. The DMCA forms are
 // long legal text, so labels and values are a step larger than elsewhere.
 export const DMCA_CONTROL_CLASS =
-  "w-full rounded-md border border-input bg-transparent px-3 text-base shadow-xs transition-[color,box-shadow] outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 dark:bg-input/30";
-export const DMCA_INPUT_CLASS = "h-10 md:text-base";
+  "w-full rounded-md border border-input bg-transparent px-3 text-base shadow-xs transition-[color,box-shadow] outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 dark:bg-input/30 aria-invalid:border-destructive aria-invalid:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40";
+export const DMCA_INPUT_CLASS = "h-10 md:text-base aria-invalid:ring-[3px]";
 export const DMCA_LABEL_CLASS = "text-base leading-snug";
 
 type DmcaSchemaFormProps = {
@@ -28,6 +29,8 @@ type DmcaSchemaFormProps = {
   payload: JsonLike;
   artworkPrefill: ArtworkPrefill;
   detectedInfringingUrls: string[];
+  /** Field errors keyed by `path.join("-")`. */
+  invalidFields?: Record<string, FieldError>;
   onUpdatePath: (path: PathPart[], value: JsonLike) => void;
   t: (...args: any[]) => any;
 };
@@ -37,6 +40,7 @@ export function DmcaSchemaForm({
   payload,
   artworkPrefill,
   detectedInfringingUrls,
+  invalidFields = {},
   onUpdatePath,
   t,
 }: DmcaSchemaFormProps) {
@@ -109,10 +113,21 @@ export function DmcaSchemaForm({
     const isFullWidth = field.key === "infringing_url" || field.type === "textarea";
     // The control is pushed to the bottom of its grid cell, so inputs on one
     // row stay level when a neighbour's label wraps onto two lines.
-    const wrapperClass = `flex h-full flex-col justify-between gap-2${isFullWidth ? " md:col-span-2" : ""}`;
+    const wrapperClass = `relative flex h-full flex-col justify-between gap-2${isFullWidth ? " md:col-span-2" : ""}`;
     const fieldId = `dmca-${path.join("-")}`;
     const hintId = `${fieldId}-hint`;
-    const describedBy = getFieldDescription(field) ? hintId : undefined;
+    const errorId = `${fieldId}-error`;
+    const fieldError = invalidFields[path.join("-")];
+    const isInvalid = Boolean(fieldError);
+    const describedBy =
+      [getFieldDescription(field) ? hintId : null, isInvalid ? errorId : null].filter(Boolean).join(" ") || undefined;
+    // Sits in the row gap below the control rather than in the flow, so an
+    // error never pushes this input out of line with its neighbour.
+    const errorMessage = isInvalid && (
+      <p id={errorId} className="absolute left-0 top-full mt-1 text-sm text-destructive">
+        {t(fieldError === "email" ? "dmca_page.invalid_email" : "dmca_page.field_required")}
+      </p>
+    );
 
     if (field.type === "textarea") {
       return (
@@ -121,12 +136,14 @@ export function DmcaSchemaForm({
           <textarea
             id={fieldId}
             aria-describedby={describedBy}
+            aria-invalid={isInvalid || undefined}
             value={typeof currentValue === "string" ? currentValue : ""}
             onChange={(event) => onUpdatePath(path, event.target.value)}
             placeholder={fieldPlaceholder}
             required={Boolean(field.required)}
             className={`${DMCA_CONTROL_CLASS} min-h-28 py-2`}
           />
+          {errorMessage}
         </div>
       );
     }
@@ -138,6 +155,7 @@ export function DmcaSchemaForm({
           <select
             id={fieldId}
             aria-describedby={describedBy}
+            aria-invalid={isInvalid || undefined}
             value={typeof currentValue === "string" ? currentValue : ""}
             onChange={(event) => onUpdatePath(path, event.target.value)}
             required={Boolean(field.required)}
@@ -150,6 +168,7 @@ export function DmcaSchemaForm({
               </option>
             ))}
           </select>
+          {errorMessage}
         </div>
       );
     }
@@ -160,6 +179,7 @@ export function DmcaSchemaForm({
         <Input
           id={fieldId}
           aria-describedby={describedBy}
+          aria-invalid={isInvalid || undefined}
           type={inputTypeFromField(field)}
           value={typeof currentValue === "number" ? String(currentValue) : typeof currentValue === "string" ? currentValue : ""}
           onChange={(event) => {
@@ -174,6 +194,7 @@ export function DmcaSchemaForm({
           required={Boolean(field.required)}
           className={DMCA_INPUT_CLASS}
         />
+        {errorMessage}
       </div>
     );
   };
@@ -245,7 +266,7 @@ export function DmcaSchemaForm({
 
         <div className="space-y-3">
           {rows.map((_, index) => (
-            <div key={`${path.join("-")}-${index}`} className="rounded-lg border bg-muted/30 p-4 space-y-3">
+            <div key={`${path.join("-")}-${index}`} className="rounded-lg border bg-muted/30 p-4 pb-7 space-y-3">
               <div className="flex items-center justify-between">
                 <p className="text-base font-medium">{t("dmca_page.entry_number", { index: index + 1 })}</p>
                 <Button

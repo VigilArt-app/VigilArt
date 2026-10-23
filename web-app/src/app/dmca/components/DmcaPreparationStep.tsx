@@ -7,7 +7,7 @@ import { Button } from "@/src/components/ui/button";
 import { Label } from "@/src/components/ui/label";
 import { DmcaSchemaForm } from "../DmcaSchemaForm";
 import { InfoHint } from "@/src/components/ui/info-hint";
-import type { ArtworkPrefill, JsonLike, PathPart } from "../dmca-form-utils";
+import type { ArtworkPrefill, FieldError, JsonLike, PathPart } from "../dmca-form-utils";
 
 type DmcaPreparationStepProps = {
   platforms: DmcaPlatformGet[];
@@ -15,6 +15,7 @@ type DmcaPreparationStepProps = {
   artworkPrefill: ArtworkPrefill;
   detectedInfringingUrls: string[];
   formPayload: JsonLike;
+  invalidFields: Record<string, FieldError>;
   preparingNotice: boolean;
   selectedPlatform: DmcaPlatformGet | null;
   selectedPlatformSlug: string;
@@ -32,6 +33,7 @@ export function DmcaPreparationStep({
   artworkPrefill,
   detectedInfringingUrls,
   formPayload,
+  invalidFields,
   preparingNotice,
   selectedPlatform,
   selectedPlatformSlug,
@@ -97,6 +99,7 @@ export function DmcaPreparationStep({
             <DmcaSchemaForm
               schema={selectedPlatform.formSchema as DmcaFormItem[]}
               payload={formPayload}
+              invalidFields={invalidFields}
               artworkPrefill={artworkPrefill}
               detectedInfringingUrls={detectedInfringingUrls}
               onUpdatePath={onUpdatePath}
