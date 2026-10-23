@@ -15,7 +15,7 @@ test("public routes remain accessible and use the public shell", async () => {
   const anonymous = { hasAuthToken: false, hasRefreshToken: false };
   const signedIn = { hasAuthToken: true, hasRefreshToken: true };
 
-  for (const pathname of ["/terms", "/privacy", "/faq"]) {
+  for (const pathname of ["/terms", "/privacy", "/legal-notice", "/faq"]) {
     assert.equal(getRouteRedirect(pathname, anonymous), null);
     assert.equal(getRouteRedirect(pathname, signedIn), null);
     assert.equal(PUBLIC_SHELL_ROUTES.includes(pathname), true);

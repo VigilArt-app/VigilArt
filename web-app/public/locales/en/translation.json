@@ -464,6 +464,7 @@
     "footer": {
       "privacy": "Privacy",
       "terms": "Terms",
+      "legal_notice": "Legal notice",
       "faq": "FAQ",
       "wordmark_alt": "VigilArt"
     }
@@ -525,7 +526,7 @@
     "blocks": [
       { "type": "h2", "content": ["1. About This Policy"] },
       { "type": "p", "content": ["This Privacy Policy explains what personal data VigilArt processes and how we use it."] },
-      { "type": "p", "content": ["VigilArt is a student project developed as part of Epitech's EIP program."] },
+      { "type": "p", "content": ["VigilArt is a student project developed as part of Epitech's EIP program. The data controller is Séphorah Aniambossou; see the ", { "text": "Legal Notice", "href": "/legal-notice" }, "."] },
       { "type": "p", "content": ["For privacy-related questions or requests:"] },
       { "type": "p", "content": [{ "text": "vigilart.app@gmail.com", "href": "mailto:vigilart.app@gmail.com", "strong": true }] },
       { "type": "h2", "content": ["2. Data We Process and Why"] },
@@ -647,6 +648,22 @@
       { "type": "h2", "content": ["10. Contact"] },
       { "type": "p", "content": ["For questions about these Terms:"] },
       { "type": "p", "content": [{ "text": "vigilart.app@gmail.com", "href": "mailto:vigilart.app@gmail.com", "strong": true }] }
+    ]
+  },
+  "legal_notice_page": {
+    "metadata_title": "Legal Notice | VigilArt",
+    "title": "Legal Notice",
+    "last_updated": "Last updated: October 23, 2026",
+    "blocks": [
+      { "type": "h2", "content": ["1. Publisher"] },
+      { "type": "p", "content": ["VigilArt is a non-commercial student project developed as part of Epitech's EIP program."] },
+      { "type": "p", "content": ["Publication director and data controller: Séphorah Aniambossou."] },
+      { "type": "p", "content": ["Contact: ", { "text": "vigilart.app@gmail.com", "href": "mailto:vigilart.app@gmail.com" }, "."] },
+      { "type": "h2", "content": ["2. Hosting"] },
+      { "type": "p", "content": ["The website, API, database and cache are hosted on a virtual machine provided by ", { "text": "Epitech, 24 rue Pasteur, 94270 Le Kremlin-Bicêtre, France, +33 1 84 07 14 00", "strong": true }, "."] },
+      { "type": "p", "content": ["Uploaded artwork and generated files are stored with Cloudflare R2: ", { "text": "Cloudflare, Inc., 101 Townsend St, San Francisco, CA 94107, USA", "strong": true }, "."] },
+      { "type": "h2", "content": ["3. Personal data"] },
+      { "type": "p", "content": ["How VigilArt processes personal data is described in the ", { "text": "Privacy Policy", "href": "/privacy" }, "."] }
     ]
   }
 }
