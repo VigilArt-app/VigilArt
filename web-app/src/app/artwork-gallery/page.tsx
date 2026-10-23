@@ -196,12 +196,12 @@ export default function ArtworkGalleryPage() {
         className="flex-1 p-8 overflow-y-auto scrollbar-soft"
         onClick={() => setSelectedArtwork(null)}
       >
-        <div className="bg-black text-white rounded-lg p-6 mb-6 flex items-center justify-between">
+        <div className="bg-card text-card-foreground border shadow-sm rounded-lg p-6 mb-6 flex items-center justify-between">
           <h1 className="text-3xl font-bold">
             {t("artwork_gallery_page.artwork_gallery")}
           </h1>
           <Button
-            className="flex items-center gap-2 mt-4"
+            className="flex items-center gap-2"
             onClick={() => setUploadModalOpen(true)}
           >
             <Upload className="w-4 h-4" />
