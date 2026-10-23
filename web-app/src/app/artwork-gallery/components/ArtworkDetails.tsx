@@ -53,8 +53,8 @@ export function ArtworkDetails({ artwork }: ArtworkDetailsProps) {
       <div className="space-y-4">
         <div className="aspect-square rounded-lg overflow-hidden border">
           {isLoading && (
-            <div className="w-full h-full flex items-center justify-center bg-gray-200">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-400" />
+            <div className="w-full h-full flex items-center justify-center bg-muted">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-muted-foreground" />
             </div>
           )}
           {imageUrl && (

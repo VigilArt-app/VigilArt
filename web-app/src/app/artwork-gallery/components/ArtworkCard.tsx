@@ -63,7 +63,7 @@ export function ArtworkCard({
           <ArtworkStatusBadge status={status} />
           {/* At the top, next to the status: the bottom overlay has no room left on small cards. */}
           {blacklistedCount > 0 && (
-            <p className="inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-amber-400 px-2 py-0.5 text-[11px] font-semibold text-black">
+            <p className="inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-blacklisted px-2 py-0.5 text-[11px] font-semibold text-blacklisted-foreground">
               <TriangleAlert className="size-3 shrink-0" aria-hidden="true" />
               {t("artwork_gallery_page.blacklisted_sites", { count: blacklistedCount })}
             </p>
@@ -76,7 +76,7 @@ export function ArtworkCard({
               e.stopPropagation();
               onEdit?.(artwork, e);
             }}
-            className="bg-white hover:bg-gray-200 text-black p-2.5 rounded-full opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-[opacity,background-color] shadow-md border"
+            className="bg-background hover:bg-muted text-foreground p-2.5 rounded-full opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-[opacity,background-color] shadow-md border"
             aria-label={t("artwork_gallery_page.edit_description")}
           >
             <Pencil className="w-5 h-5" />
@@ -84,7 +84,7 @@ export function ArtworkCard({
 
           <button
             onClick={(e) => onDelete(artwork.id, e)}
-            className="bg-red-500 hover:bg-red-600 text-white p-2.5 rounded-full opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-[opacity,background-color] shadow-md"
+            className="bg-background text-destructive hover:bg-destructive-muted p-2.5 rounded-full opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-[opacity,background-color] shadow-md border"
             aria-label={t("artwork_gallery_page.delete_artwork")}
           >
             <Trash2 className="w-5 h-5" />
@@ -94,8 +94,8 @@ export function ArtworkCard({
 
       <div className="aspect-square bg-muted relative overflow-hidden">
         {isLoading && (
-          <div className="w-full h-full flex items-center justify-center bg-gray-200">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-400" />
+          <div className="w-full h-full flex items-center justify-center bg-muted">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-muted-foreground" />
           </div>
         )}
         {imageUrl && (

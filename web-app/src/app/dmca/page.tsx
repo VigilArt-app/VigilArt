@@ -1,6 +1,6 @@
 "use client";
 
-import { Loader2 } from "lucide-react";
+import { Loader2, TriangleAlert } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { DmcaNoticesHistorySection } from "./components/DmcaNoticesHistorySection";
 import { DmcaPreparationStep } from "./components/DmcaPreparationStep";
@@ -28,7 +28,8 @@ export default function DmcaPage() {
         <p className="text-muted-foreground">{t("dmca_page.subtitle")}</p>
       </div>
 
-      <div className="rounded-lg border border-amber-300/70 bg-amber-50 dark:bg-amber-900/20 p-4">
+      <div className="flex items-start gap-3 rounded-lg border border-warning/30 bg-warning-muted p-4">
+        <TriangleAlert className="size-5 shrink-0 text-warning" aria-hidden="true" />
         <p className="text-base">{t("dmca_page.legal_notice")}</p>
       </div>
 

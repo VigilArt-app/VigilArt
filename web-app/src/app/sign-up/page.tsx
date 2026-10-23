@@ -53,10 +53,10 @@ const SignUpPage = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-white dark:bg-neutral-900">
+    <div className="min-h-screen flex items-center justify-center bg-card">
       <div className="w-full max-w-6xl mx-4 md:mx-6 rounded-lg overflow-hidden">
         <div className="grid grid-cols-1 md:grid-cols-2">
-          <div className="relative flex items-center justify-start p-6 md:p-12 overflow-hidden bg-white dark:bg-neutral-900/30">
+          <div className="relative flex items-center justify-start p-6 md:p-12 overflow-hidden bg-card">
             <div className="relative z-10 max-w-xs md:max-w-md">
               <p className="text-3xl md:text-4xl text-foreground">{t("sign_up_page.welcome")}</p>
               <p className="text-2xl md:text-3xl text-foreground">{t("sign_up_page.on")}</p>

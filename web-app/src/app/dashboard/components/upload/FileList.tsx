@@ -27,12 +27,12 @@ export function FileList({ files, onRemove, onDescriptionChange }: FileListProps
             <img src={item.preview} alt="preview" className="w-16 h-16 object-cover rounded" />
             <div className="flex-1 space-y-2">
               <p className="text-sm font-medium">{item.file.name}</p>
-              <div className="text-xs text-gray-500">
+              <div className="text-xs text-muted-foreground">
                 {(item.file.size / 1024).toFixed(2)} KB
               </div>
               <Input placeholder={t("dashboard_page.upload.add_description")} value={item.description} onChange={(e) => onDescriptionChange(index, e.target.value)} className="text-sm" />
             </div>
-            <button onClick={() => onRemove(index)} className="text-red-500 hover:text-red-700 transition-colors" >
+            <button onClick={() => onRemove(index)} className="text-destructive hover:text-destructive/80 transition-colors" >
               <X className="w-5 h-5" />
             </button>
           </div>

@@ -5,7 +5,7 @@ import { FILTER_STATUS_TRANSLATION_KEYS, type ArtworkStatus } from "./types";
 
 const STATUS_CLASSES: Record<ArtworkStatus, string> = {
   not_scanned: "bg-not-scanned text-white",
-  matches_found: "bg-blue-500 text-white",
+  matches_found: "bg-matches-found text-white",
   no_matches: "bg-no-matches text-white",
   results_unavailable: "bg-muted-foreground text-background",
 };

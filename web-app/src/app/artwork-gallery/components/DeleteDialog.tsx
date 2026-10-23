@@ -29,8 +29,8 @@ export function DeleteDialog({
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <div className="flex items-center gap-3 mb-2">
-            <div className="bg-red-100 dark:bg-red-900/20 p-3 rounded-full">
-              <AlertTriangle className="w-6 h-6 text-red-600 dark:text-red-500" />
+            <div className="bg-destructive-muted p-3 rounded-full">
+              <AlertTriangle className="w-6 h-6 text-destructive" />
             </div>
             <DialogTitle className="text-xl">{t("artwork_gallery_page.delete_artwork")}</DialogTitle>
           </div>

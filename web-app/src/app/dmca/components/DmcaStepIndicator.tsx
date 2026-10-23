@@ -1,10 +1,15 @@
 "use client";
 
+import { Check } from "lucide-react";
+import { useTranslation } from "react-i18next";
+
 type DmcaStepIndicatorProps = {
   currentStep: 1 | 2 | 3;
 };
 
 export function DmcaStepIndicator({ currentStep }: DmcaStepIndicatorProps) {
+  const { t } = useTranslation();
+
   return (
     <div className="flex gap-4 justify-center">
       {[1, 2, 3].map((step) => (
@@ -12,13 +17,20 @@ export function DmcaStepIndicator({ currentStep }: DmcaStepIndicatorProps) {
           key={step}
           className={`flex items-center justify-center w-12 h-12 rounded-full font-semibold transition-all border-2 ${
             currentStep === step
-              ? "border-blue-400 bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 shadow-lg scale-110"
+              ? "border-primary bg-primary/10 dark:bg-primary/15 text-primary shadow-lg scale-110"
               : step < currentStep
-              ? "border-green-400 bg-green-100 dark:bg-green-900/40 text-green-600 dark:text-green-400"
-              : "border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800/50 text-gray-400 dark:text-gray-500"
+              ? "border-success bg-card text-success"
+              : "border-input bg-card text-muted-foreground"
           }`}
         >
-          {step < currentStep ? "✓" : step}
+          {step < currentStep ? (
+            <>
+              <Check className="size-5" aria-hidden="true" />
+              <span className="sr-only">{t("dmca_page.step_completed", { step })}</span>
+            </>
+          ) : (
+            step
+          )}
         </div>
       ))}
     </div>

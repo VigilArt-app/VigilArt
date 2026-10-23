@@ -246,7 +246,7 @@ export default function ProfilePage() {
                     {formData.avatar && formData.avatar !== user?.avatar && (
                       <div className="relative">
                         <img src={avatarDisplayUrl || formData.avatar} alt="Avatar preview" className="h-16 w-16 rounded-full object-cover border-2" />
-                        <button onClick={handleRemoveAvatar} disabled={isSaving} className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 disabled:opacity-50"  >
+                        <button onClick={handleRemoveAvatar} disabled={isSaving} className="absolute -top-2 -right-2 bg-background text-destructive border shadow-sm rounded-full p-1 hover:bg-destructive-muted disabled:opacity-50"  >
                           <X className="size-4" />
                         </button>
                       </div>
@@ -303,7 +303,7 @@ export default function ProfilePage() {
                           {t("profil_page.web_notifications_description")}
                         </p>
                         {notificationsError && (
-                          <p className="text-xs text-red-600">{notificationsError}</p>
+                          <p className="text-xs text-destructive">{notificationsError}</p>
                         )}
                       </div>
 
@@ -382,7 +382,7 @@ export default function ProfilePage() {
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-red-600">
+            <DialogTitle className="flex items-center gap-2 text-destructive">
               <AlertTriangle className="h-5 w-5" />
               {t("profil_page.delete_account_confirm")}
             </DialogTitle>
@@ -390,8 +390,8 @@ export default function ProfilePage() {
               {t("profil_page.delete_account_warning")}
             </DialogDescription>
           </DialogHeader>
-          <div className="my-4 p-4 bg-red-50 border border-red-200 rounded-md">
-            <p className="text-base text-red-700">{t("profil_page.delete_account_irreversible")}</p>
+          <div className="my-4 p-4 bg-destructive-muted border border-destructive/30 rounded-md">
+            <p className="text-base">{t("profil_page.delete_account_irreversible")}</p>
           </div>
           <div className="flex gap-3 justify-end">
             <Button
