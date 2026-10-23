@@ -1,5 +1,6 @@
 import {
   ConflictException,
+  ForbiddenException,
   Injectable,
   UnauthorizedException
 } from "@nestjs/common";
@@ -229,6 +230,11 @@ export class AuthService {
     termsVersion,
     privacyVersion
   }: SignUp): Promise<UserGet> {
+    // Checked before the email lookup so a closed environment does not reveal which emails exist.
+    if (this.config.get<string>("SIGNUP_DISABLED")?.trim().toLowerCase() === "true") {
+      throw new ForbiddenException("Account creation is disabled on this environment");
+    }
+
     const userExists = await this.usersService.findByEmail(email);
     if (userExists) throw new ConflictException("Email already in use");
 

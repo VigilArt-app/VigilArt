@@ -1,4 +1,6 @@
 import type { DmcaFormField, DmcaFormItem } from "@vigilart/shared/types";
+import { mapPlatformItemToZod } from "@vigilart/shared/functions";
+import { z } from "zod";
 
 export type Primitive = string | number | boolean | null;
 export type JsonLike = Primitive | JsonLike[] | { [key: string]: JsonLike };
@@ -247,3 +249,46 @@ export const clearPreselectedInfringingUrls = (
 
   return nextPayload;
 };
+
+const isEmptyValue = (value: JsonLike | undefined) =>
+  value === undefined || value === null || (typeof value === "string" && value.trim() === "");
+
+export type FieldError = "required" | "email";
+
+/** The same email rule the backend applies to DMCA profiles and payloads. */
+export const isValidEmail = (value: string) => z.email().safeParse(value.trim()).success;
+
+/**
+ * Fields the backend would reject, keyed by `path.join("-")`. Paths are built
+ * the same way DmcaSchemaForm builds them, so the keys also locate the inputs.
+ * Emails go through the shared zod mapper the backend validates notices with.
+ */
+export const findInvalidFields = (
+  items: DmcaFormItem[],
+  payload: JsonLike,
+  basePath: PathPart[] = [],
+): Record<string, FieldError> =>
+  Object.assign(
+    {},
+    ...items.map((item): Record<string, FieldError> => {
+      const path = [...basePath, item.key];
+      if (item.kind === "field") {
+        const value = getAtPath(payload, path);
+        if (isEmptyValue(value)) return item.required ? { [path.join("-")]: "required" } : {};
+        if (item.type === "email" && !mapPlatformItemToZod(item).safeParse(typeof value === "string" ? value.trim() : value).success) {
+          return { [path.join("-")]: "email" };
+        }
+        return {};
+      }
+      if (item.kind === "group") {
+        return findInvalidFields(item.items, payload, path);
+      }
+      const rows = getAtPath(payload, path);
+      return Object.assign(
+        {},
+        ...(Array.isArray(rows) ? rows : []).map((_, index) =>
+          findInvalidFields(item.itemSchema, payload, [...path, index]),
+        ),
+      );
+    }),
+  );

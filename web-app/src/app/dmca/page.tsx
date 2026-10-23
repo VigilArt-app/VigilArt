@@ -22,7 +22,7 @@ export default function DmcaPage() {
   }
 
   return (
-    <div className="p-8 max-w-4xl mx-auto space-y-6">
+    <div className="p-8 max-w-5xl mx-auto space-y-6">
       <div className="space-y-2">
         <h1 className="text-3xl font-semibold">{t("dmca_page.title")}</h1>
         <p className="text-muted-foreground">{t("dmca_page.subtitle")}</p>
@@ -30,7 +30,7 @@ export default function DmcaPage() {
 
       <div className="flex items-start gap-3 rounded-lg border border-warning/30 bg-warning-muted p-4">
         <TriangleAlert className="size-5 shrink-0 text-warning" aria-hidden="true" />
-        <p className="text-sm">{t("dmca_page.legal_notice")}</p>
+        <p className="text-base">{t("dmca_page.legal_notice")}</p>
       </div>
 
       <DmcaStepIndicator currentStep={dmca.currentStep} />
@@ -40,6 +40,7 @@ export default function DmcaPage() {
       {dmca.currentStep === 1 && (
         <DmcaProfileStep
           profileForm={dmca.profileForm}
+          profileEmailInvalid={dmca.profileEmailInvalid}
           profileExists={dmca.profileExists}
           savingProfile={dmca.savingProfile}
           t={t}
@@ -56,6 +57,7 @@ export default function DmcaPage() {
           artworkPrefill={dmca.artworkPrefill}
           detectedInfringingUrls={dmca.detectedInfringingUrls}
           formPayload={dmca.formPayload}
+          invalidFields={dmca.invalidFields}
           preparingNotice={dmca.preparingNotice}
           selectedPlatform={dmca.selectedPlatform}
           selectedPlatformSlug={dmca.selectedPlatformSlug}

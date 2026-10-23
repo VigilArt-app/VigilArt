@@ -38,6 +38,7 @@ const SignUpPage = () => {
         method: "POST",
         body: JSON.stringify({ email, password, acceptedTerms, termsVersion: TERMS_VERSION, privacyVersion: PRIVACY_VERSION })
       }, true);
+      if (res.status === 403) throw new Error(t("sign_up_page.sign_up_disabled"))
       if (!res.ok) {
         const data = await res.json().catch(() => null)
         const message = data?.message || t("sign_up_page.sign_up_failed")

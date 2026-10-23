@@ -3,11 +3,13 @@ import type { DmcaFormField, DmcaFormItem } from "@vigilart/shared/types";
 import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
 import { Label } from "@/src/components/ui/label";
+import { InfoHint } from "@/src/components/ui/info-hint";
 import {
   createDefaultValueForItems,
   getAtPath,
   inputTypeFromField,
   type ArtworkPrefill,
+  type FieldError,
   type JsonLike,
   type PathPart,
 } from "./dmca-form-utils";
@@ -15,11 +17,20 @@ import {
 type DmcaFormGroup = Extract<DmcaFormItem, { kind: "group" }>;
 type DmcaFormRepeater = Extract<DmcaFormItem, { kind: "array" }>;
 
+// Same look as <Input>, for the controls it cannot render. The DMCA forms are
+// long legal text, so labels and values are a step larger than elsewhere.
+export const DMCA_CONTROL_CLASS =
+  "w-full rounded-md border border-input bg-transparent px-3 text-base shadow-xs transition-[color,box-shadow] outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 dark:bg-input/30 aria-invalid:border-destructive aria-invalid:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40";
+export const DMCA_INPUT_CLASS = "h-10 md:text-base aria-invalid:ring-[3px]";
+export const DMCA_LABEL_CLASS = "text-base leading-snug";
+
 type DmcaSchemaFormProps = {
   schema: DmcaFormItem[];
   payload: JsonLike;
   artworkPrefill: ArtworkPrefill;
   detectedInfringingUrls: string[];
+  /** Field errors keyed by `path.join("-")`. */
+  invalidFields?: Record<string, FieldError>;
   onUpdatePath: (path: PathPart[], value: JsonLike) => void;
   t: (...args: any[]) => any;
 };
@@ -29,6 +40,7 @@ export function DmcaSchemaForm({
   payload,
   artworkPrefill,
   detectedInfringingUrls,
+  invalidFields = {},
   onUpdatePath,
   t,
 }: DmcaSchemaFormProps) {
@@ -77,28 +89,61 @@ export function DmcaSchemaForm({
     );
   };
 
+  // Platforms send long legal explanations as field descriptions; inline they
+  // bury the form, so they sit behind an "i" next to the label instead.
+  const renderFieldHeader = (field: DmcaFormField, fieldId: string, hintId: string) => {
+    const fieldDescription = getFieldDescription(field);
+    return (
+      <div className="flex items-start gap-1.5 [&>button]:mt-0.5">
+        <Label htmlFor={fieldId} className={DMCA_LABEL_CLASS}>
+          {/* One text run joined by a no-break space, so a wrapped label never leaves its star alone on a line. */}
+          <span>
+            {getFieldLabel(field)}
+            {field.required && <span className="text-destructive" aria-hidden="true">{"\u00A0"}*</span>}
+          </span>
+        </Label>
+        {fieldDescription && <InfoHint id={hintId}>{fieldDescription}</InfoHint>}
+      </div>
+    );
+  };
+
   const renderField = (field: DmcaFormField, path: PathPart[]) => {
     const currentValue = getAtPath(payload, path);
-    const fieldLabel = getFieldLabel(field);
-    const fieldDescription = getFieldDescription(field);
     const fieldPlaceholder = getFieldPlaceholder(field);
     const isFullWidth = field.key === "infringing_url" || field.type === "textarea";
-    const wrapperClass = `space-y-2${isFullWidth ? " md:col-span-2" : ""}`;
+    // The control is pushed to the bottom of its grid cell, so inputs on one
+    // row stay level when a neighbour's label wraps onto two lines.
+    const wrapperClass = `relative flex h-full flex-col justify-between gap-2${isFullWidth ? " md:col-span-2" : ""}`;
+    const fieldId = `dmca-${path.join("-")}`;
+    const hintId = `${fieldId}-hint`;
+    const errorId = `${fieldId}-error`;
+    const fieldError = invalidFields[path.join("-")];
+    const isInvalid = Boolean(fieldError);
+    const describedBy =
+      [getFieldDescription(field) ? hintId : null, isInvalid ? errorId : null].filter(Boolean).join(" ") || undefined;
+    // Sits in the row gap below the control rather than in the flow, so an
+    // error never pushes this input out of line with its neighbour.
+    const errorMessage = isInvalid && (
+      <p id={errorId} className="absolute left-0 top-full mt-1 text-sm text-destructive">
+        {t(fieldError === "email" ? "dmca_page.invalid_email" : "dmca_page.field_required")}
+      </p>
+    );
 
     if (field.type === "textarea") {
       return (
         <div key={path.join("-")} className={wrapperClass}>
-          <Label>{fieldLabel}{field.required ? " *" : ""}</Label>
-          {fieldDescription && (
-            <p className="text-xs text-muted-foreground">{fieldDescription}</p>
-          )}
+          {renderFieldHeader(field, fieldId, hintId)}
           <textarea
+            id={fieldId}
+            aria-describedby={describedBy}
+            aria-invalid={isInvalid || undefined}
             value={typeof currentValue === "string" ? currentValue : ""}
             onChange={(event) => onUpdatePath(path, event.target.value)}
             placeholder={fieldPlaceholder}
             required={Boolean(field.required)}
-            className="w-full min-h-28 rounded-md border border-input bg-transparent px-3 py-2 text-sm"
+            className={`${DMCA_CONTROL_CLASS} min-h-28 py-2`}
           />
+          {errorMessage}
         </div>
       );
     }
@@ -106,15 +151,15 @@ export function DmcaSchemaForm({
     if (shouldUseDetectedUrlDropdown(field, path)) {
       return (
         <div key={path.join("-")} className={wrapperClass}>
-          <Label>{fieldLabel}{field.required ? " *" : ""}</Label>
-          {fieldDescription && (
-            <p className="text-xs text-muted-foreground">{fieldDescription}</p>
-          )}
+          {renderFieldHeader(field, fieldId, hintId)}
           <select
+            id={fieldId}
+            aria-describedby={describedBy}
+            aria-invalid={isInvalid || undefined}
             value={typeof currentValue === "string" ? currentValue : ""}
             onChange={(event) => onUpdatePath(path, event.target.value)}
             required={Boolean(field.required)}
-            className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground shadow-sm"
+            className={`${DMCA_CONTROL_CLASS} h-10 text-foreground`}
           >
             <option value="">{t("dmca_page.detected_urls_dropdown_placeholder")}</option>
             {detectedInfringingUrls.map((url) => (
@@ -123,17 +168,18 @@ export function DmcaSchemaForm({
               </option>
             ))}
           </select>
+          {errorMessage}
         </div>
       );
     }
 
     return (
       <div key={path.join("-")} className={wrapperClass}>
-        <Label>{fieldLabel}{field.required ? " *" : ""}</Label>
-        {fieldDescription && (
-          <p className="text-xs text-muted-foreground">{fieldDescription}</p>
-        )}
+        {renderFieldHeader(field, fieldId, hintId)}
         <Input
+          id={fieldId}
+          aria-describedby={describedBy}
+          aria-invalid={isInvalid || undefined}
           type={inputTypeFromField(field)}
           value={typeof currentValue === "number" ? String(currentValue) : typeof currentValue === "string" ? currentValue : ""}
           onChange={(event) => {
@@ -146,31 +192,35 @@ export function DmcaSchemaForm({
           }}
           placeholder={fieldPlaceholder}
           required={Boolean(field.required)}
+          className={DMCA_INPUT_CLASS}
         />
+        {errorMessage}
       </div>
     );
   };
 
   const renderGroup = (group: DmcaFormGroup, path: PathPart[]) => {
     return (
-      <div key={path.join("-")} className="rounded-lg border p-4 space-y-4">
-        <div>
-          <h3 className="font-semibold">{group.title}</h3>
-          {group.description && (
-            <p className="text-sm text-muted-foreground mt-1">{group.description}</p>
+      // Sections are told apart by their headings, not by another box: the
+      // step is already a card, and nested borders only add noise.
+      <section key={path.join("-")} className="space-y-4">
+        <div className="flex items-center gap-1.5 border-b pb-2">
+          <h3 className="text-lg font-semibold">{group.title}</h3>
+          {group.description && <InfoHint>{group.description}</InfoHint>}
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-6">
+          {group.items.map((item) =>
+            // Fields are grid cells themselves so their own column span applies.
+            item.kind === "field" ? (
+              renderItem(item, [...path, item.key])
+            ) : (
+              <div key={item.key} className="md:col-span-2">
+                {renderItem(item, [...path, item.key])}
+              </div>
+            )
           )}
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {group.items.map((item) => (
-            <div
-              key={item.key}
-              className={item.kind === "array" || item.kind === "group" ? "md:col-span-2" : ""}
-            >
-              {renderItem(item, [...path, item.key])}
-            </div>
-          ))}
-        </div>
-      </div>
+      </section>
     );
   };
 
@@ -198,16 +248,14 @@ export function DmcaSchemaForm({
     };
 
     return (
-      <div key={path.join("-")} className="space-y-3 rounded-lg border p-4">
-        <div className="flex items-center justify-between gap-2 flex-wrap">
-          <div className="min-w-0">
-            <h3 className="font-semibold">{repeater.title}</h3>
-            {repeater.description && (
-              <p className="text-sm text-muted-foreground mt-1">{repeater.description}</p>
-            )}
+      <section key={path.join("-")} className="space-y-3">
+        <div className="flex items-center justify-between gap-2 flex-wrap border-b pb-2">
+          <div className="flex min-w-0 items-center gap-1.5">
+            <h3 className="text-lg font-semibold">{repeater.title}</h3>
+            {repeater.description && <InfoHint>{repeater.description}</InfoHint>}
           </div>
-          <Button type="button" variant="outline" size="sm" onClick={addItem} className="flex-shrink-0">
-            <Plus className="h-4 w-4 mr-2" />
+          <Button type="button" variant="outline" onClick={addItem} className="flex-shrink-0 text-base">
+            <Plus className="size-5 mr-2" />
             {t("dmca_page.add_entry")}
           </Button>
         </div>
@@ -218,25 +266,25 @@ export function DmcaSchemaForm({
 
         <div className="space-y-3">
           {rows.map((_, index) => (
-            <div key={`${path.join("-")}-${index}`} className="rounded-md border p-3 space-y-3">
+            <div key={`${path.join("-")}-${index}`} className="rounded-lg border bg-muted/30 p-4 pb-7 space-y-3">
               <div className="flex items-center justify-between">
-                <p className="text-sm font-medium">{t("dmca_page.entry_number", { index: index + 1 })}</p>
+                <p className="text-base font-medium">{t("dmca_page.entry_number", { index: index + 1 })}</p>
                 <Button
                   type="button"
                   variant="ghost"
-                  size="sm"
+                  size="icon"
                   onClick={() => removeItem(index)}
                 >
-                  <Trash2 className="h-4 w-4" />
+                  <Trash2 className="size-5" />
                 </Button>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-6">
                 {repeater.itemSchema.map((item) => renderItem(item, [...path, index, item.key]))}
               </div>
             </div>
           ))}
         </div>
-      </div>
+      </section>
     );
   };
 
@@ -252,5 +300,5 @@ export function DmcaSchemaForm({
     return renderRepeater(item, path);
   };
 
-  return <div className="space-y-4">{schema.map((item) => renderItem(item, [item.key]))}</div>;
+  return <div className="space-y-8">{schema.map((item) => renderItem(item, [item.key]))}</div>;
 }

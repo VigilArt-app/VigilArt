@@ -3,6 +3,7 @@ import { ServiceUnavailableException } from "@nestjs/common";
 import { VisualSearchService } from "./visual-search.service";
 import { GoogleLensService } from "../googlelens/googlelens.service";
 import { SerpApiLensService } from "../serpapilens/serpapilens.service";
+import { VisualSearchError } from "./visual-search.error";
 
 describe("VisualSearchService", () => {
   let service: VisualSearchService;
@@ -60,6 +61,14 @@ describe("VisualSearchService", () => {
       await expect(
         service.aggregate("https://download.example")
       ).rejects.toBeInstanceOf(ServiceUnavailableException);
+    });
+
+    it("Should keep the provider's failure reason when every provider fails", async () => {
+      serpApiLensService.searchImage.mockRejectedValue(new VisualSearchError("rate_limit"));
+
+      await expect(
+        service.aggregate("https://download.example")
+      ).rejects.toMatchObject({ failure: "rate_limit" });
     });
   });
 });

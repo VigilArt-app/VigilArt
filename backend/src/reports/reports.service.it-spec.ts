@@ -12,6 +12,7 @@ import {
   TIMELINE_MAX_POINTS
 } from "./reports.service";
 import { VisualSearchService } from "../visualsearch/visual-search.service";
+import { VisualSearchError } from "../visualsearch/visual-search.error";
 import { ArtworksService } from "../artworks/artworks.service";
 import { StorageService } from "../storage/storage.service";
 import { MatchingPagesService } from "./matchingPage.service";
@@ -50,7 +51,7 @@ describe("ReportsService", () => {
   };
   let cache: { get: jest.Mock; set: jest.Mock; del: jest.Mock };
   let queue: { add: jest.Mock; getJob: jest.Mock };
-  let quota: { getScanQuota: jest.Mock; consumeScan: jest.Mock };
+  let quota: { getScanQuota: jest.Mock; consumeScan: jest.Mock; releaseScan: jest.Mock };
   let artworkLimit: { assertCapacity: jest.Mock };
   let http: { get: jest.Mock };
 
@@ -61,7 +62,7 @@ describe("ReportsService", () => {
         SerpApiAccountService,
         { provide: HttpService, useValue: { get: jest.fn(() => of(serpApiAccount(250))) } },
         { provide: ConfigService, useValue: { getOrThrow: () => "serpapi-key" } },
-        { provide: ScanQuotaService, useValue: { getScanQuota: jest.fn().mockResolvedValue({ remaining: 3, limit: 3, nextAvailableAt: null }), consumeScan: jest.fn().mockResolvedValue(undefined) } },
+        { provide: ScanQuotaService, useValue: { getScanQuota: jest.fn().mockResolvedValue({ remaining: 3, limit: 3, nextAvailableAt: null }), consumeScan: jest.fn().mockResolvedValue(undefined), releaseScan: jest.fn().mockResolvedValue(undefined) } },
         { provide: ArtworkLimitService, useValue: { assertCapacity: jest.fn().mockResolvedValue(undefined) } },
         { provide: VisualSearchService, useValue: { aggregate: jest.fn() } },
         { provide: ArtworksService, useValue: { findAllPerUser: jest.fn() } },
@@ -207,6 +208,68 @@ describe("ReportsService", () => {
       expect(prisma.artworksReport.create).not.toHaveBeenCalled();
     });
 
+    it("Should tell the user the real reason when every artwork's search fails", async () => {
+      mockScanSuccess();
+      visualSearchService.aggregate
+        .mockReset()
+        .mockRejectedValue(new VisualSearchError("rate_limit"));
+
+      const error = await service.generate("user-id").catch((e: unknown) => e);
+
+      expect(error).toBeInstanceOf(ServiceUnavailableException);
+      expect((error as Error).message).toBe(new VisualSearchError("rate_limit").message);
+      expect((error as Error).message).not.toMatch(/did not respond in time/);
+    });
+
+    const scanJob = (data: Record<string, unknown>) =>
+      ({ data: { userId: "user-id", scanId: "scan-1", ...data }, updateProgress: jest.fn().mockResolvedValue(undefined), updateData: jest.fn() }) as never;
+
+    it("Should give the scan back when every search of a user-started scan fails", async () => {
+      mockScanSuccess();
+      visualSearchService.aggregate.mockReset().mockRejectedValue(new VisualSearchError("provider_error"));
+
+      await expect(service.generate("user-id", scanJob({ manual: true }))).rejects.toBeInstanceOf(ServiceUnavailableException);
+
+      expect(quota.releaseScan).toHaveBeenCalledWith("user-id", "scan-1");
+    });
+
+    it("Should keep the scan consumed when a scheduled scan fails", async () => {
+      mockScanSuccess();
+      visualSearchService.aggregate.mockReset().mockRejectedValue(new VisualSearchError("provider_error"));
+
+      await expect(service.generate("user-id", scanJob({}))).rejects.toBeInstanceOf(ServiceUnavailableException);
+
+      expect(quota.releaseScan).not.toHaveBeenCalled();
+    });
+
+    it("Should keep the scan consumed when at least one artwork was scanned", async () => {
+      mockScanSuccess();
+      visualSearchService.aggregate
+        .mockReset()
+        .mockRejectedValueOnce(new VisualSearchError("provider_error"))
+        .mockResolvedValueOnce([]);
+
+      await service.generate("user-id", scanJob({ manual: true }));
+
+      expect(quota.releaseScan).not.toHaveBeenCalled();
+    });
+
+    // A failed search must not leave the artwork labelled "No matches found".
+    it("Should mark only the artworks whose search succeeded as scanned", async () => {
+      mockScanSuccess();
+      visualSearchService.aggregate
+        .mockReset()
+        .mockRejectedValueOnce(new VisualSearchError("provider_error"))
+        .mockResolvedValueOnce([]);
+
+      await service.generate("user-id");
+
+      expect(prisma.artwork.updateMany).toHaveBeenCalledWith({
+        where: { id: { in: ["a2"] } },
+        data: { lastScanAt: expect.any(Date) }
+      });
+    });
+
     it("Should remove tracking data without discarding resource parameters before persisting", async () => {
       mockScanSuccess();
       artworksService.findAllPerUser.mockResolvedValue([
@@ -299,7 +362,7 @@ describe("ReportsService", () => {
       expect(res).toEqual({ jobId: "scan-user-id" });
       expect(queue.add).toHaveBeenCalledWith(
         expect.anything(),
-        expect.objectContaining({ userId: "user-id", scanId: expect.any(String) }),
+        expect.objectContaining({ userId: "user-id", scanId: expect.any(String), manual: true }),
         expect.objectContaining({ jobId: "scan-user-id" })
       );
     });

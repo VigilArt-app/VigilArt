@@ -41,13 +41,13 @@ export default function StatisticsPanel({
           {t("dashboard_page.statistics.statistics")}
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="flex flex-1 flex-col gap-4">
         <div className="flex items-center gap-2 flex-wrap">
           <Button
             size="sm"
             variant={range === "all" ? "default" : "outline"}
             onClick={() => onRangeChange("all")}
-            className="text-xs"
+            className="text-sm"
           >
             {t("dashboard_page.statistics.range_all", "All Time")}
           </Button>
@@ -55,7 +55,7 @@ export default function StatisticsPanel({
             size="sm"
             variant={range === "month" ? "default" : "outline"}
             onClick={() => onRangeChange("month")}
-            className="text-xs"
+            className="text-sm"
           >
             {t("dashboard_page.statistics.range_month", "Last 30 days")}
           </Button>
@@ -69,11 +69,11 @@ export default function StatisticsPanel({
         </div>
 
         {loading ? (
-          <div className="flex items-center justify-center h-64">
+          <div className="flex flex-1 items-center justify-center min-h-64">
             <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
           </div>
         ) : totalMatches === 0 ? (
-          <div className="rounded-lg border border-dashed p-8 text-center text-muted-foreground h-64 flex items-center justify-center">
+          <div className="rounded-lg border border-dashed p-8 text-center text-muted-foreground flex-1 min-h-64 flex items-center justify-center">
             {t("dashboard_page.statistics.no_data", "No reposts found yet")}
           </div>
         ) : (
@@ -81,6 +81,7 @@ export default function StatisticsPanel({
             totalMatches={totalMatches}
             categoryDistribution={categoryDistribution}
             onSelect={setSelectedCategory}
+            fill
           />
         )}
       </CardContent>

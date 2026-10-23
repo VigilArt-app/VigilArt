@@ -4,6 +4,7 @@ export const ANONYMOUS_ROUTES: readonly string[] = [
   "/sign-up",
   "/terms",
   "/privacy",
+  "/legal-notice",
   "/faq",
 ];
 
@@ -17,6 +18,7 @@ export const PUBLIC_SHELL_ROUTES: readonly string[] = [
   "/",
   "/terms",
   "/privacy",
+  "/legal-notice",
   "/faq",
 ];
 

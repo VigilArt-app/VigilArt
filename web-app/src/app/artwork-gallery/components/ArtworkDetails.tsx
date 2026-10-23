@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { ArtworkWithInsights, getArtworkResultsState, getArtworkStatus } from "./types";
 import { ArtworkStatusBadge } from "./ArtworkStatusBadge";
 import { useArtworkImageUrl } from "./hooks/useArtworkImageUrl";
@@ -8,6 +8,7 @@ import { useTranslation } from "react-i18next";
 import { CategoryFilterSelect } from "../../../components/matches/CategoryFilterSelect";
 import { RestrictedMatch, matchIdentity } from "../../../components/matches/RestrictedMatch";
 import { mostRecentMatch } from "../../../components/matches/mostRecentMatch";
+import { GroupedMatchList } from "../../../components/matches/GroupedMatchList";
 import {
   ALL_CATEGORIES,
   filterAndSortMatches,
@@ -45,7 +46,7 @@ export function ArtworkDetails({ artwork }: ArtworkDetailsProps) {
 
   return (
     <div className="w-96 border-l bg-background p-6 overflow-y-auto scrollbar-soft">
-      <div className="bg-secondary text-secondary-foreground rounded-lg p-4 mb-4 flex items-center justify-between">
+      <div className="bg-card text-card-foreground border shadow-sm rounded-lg p-4 mb-4 flex items-center justify-between">
         <h2 className="text-xl font-bold">{t("artwork_gallery_page.selected_artwork")}</h2>
       </div>
 
@@ -67,69 +68,52 @@ export function ArtworkDetails({ artwork }: ArtworkDetailsProps) {
 
         <ArtworkStatusBadge status={status} />
 
-        <div className="space-y-3 text-sm">
-          <div>
-            <p className="font-semibold">{t("artwork_gallery_page.file_name")}</p>
-            <p className="text-muted-foreground break-all">
-              {artwork.originalFilename || t("artwork_gallery_page.untitled")}
-            </p>
+        {/* What the artist came for first: how many reposts, and the latest. */}
+        <div className="rounded-lg border bg-card p-4 space-y-3">
+          <div className="flex items-baseline gap-2">
+            <span className="text-3xl font-bold">{resultsState === "available" ? totalMatches : "—"}</span>
+            <span className="text-sm text-muted-foreground">{t("artwork_gallery_page.matches")}</span>
           </div>
-
-          {artwork.description && (
-            <div>
-              <p className="font-semibold">{t("artwork_gallery_page.description")}</p>
-              <p className="text-muted-foreground">{artwork.description}</p>
-            </div>
-          )}
-
-          <div>
-            <p className="font-semibold">{t("artwork_gallery_page.upload_date")}</p>
-            <p className="text-muted-foreground">
-              {new Date(artwork.createdAt).toLocaleString(i18n.language)}
-            </p>
-          </div>
-
-          {artwork.sizeBytes && (
-            <div>
-              <p className="font-semibold">{t("artwork_gallery_page.file_size")}</p>
-              <p className="text-muted-foreground">
-                {(artwork.sizeBytes / 1024).toFixed(2)} KB
-              </p>
-            </div>
-          )}
-
-          <div>
-            <p className="font-semibold">{t("artwork_gallery_page.id")}</p>
-            <p className="text-muted-foreground font-mono text-xs break-all">
-              {artwork.id}
-            </p>
-          </div>
-
-          <div>
-            <p className="font-semibold">{t("artwork_gallery_page.matches")}</p>
-            <p className="text-muted-foreground">{resultsState === "available" ? totalMatches : "—"}</p>
-          </div>
-
           <RestrictedMatch unsafeDomain={!!latestMatch?.unsafeDomain} resetKey={`${artwork.id}-${category}-${matchIdentity(latestMatch)}`}>
-          {mostRecentSource && mostRecentSource !== "N/A" && (
-            <div>
-              <p className="font-semibold">{t("artwork_gallery_page.last_source")}</p>
-              <p className="text-muted-foreground break-all">{mostRecentSource}</p>
-            </div>
-          )}
-
-          {mostRecentDate && (
-            <div>
-              <p className="font-semibold">{t("artwork_gallery_page.last_detected")}</p>
-              <p className="text-muted-foreground">{new Date(mostRecentDate).toLocaleString(i18n.language)}</p>
-            </div>
+          {((mostRecentSource && mostRecentSource !== "N/A") || mostRecentDate) && (
+            <dl className="grid grid-cols-2 gap-3">
+              {mostRecentSource && mostRecentSource !== "N/A" && (
+                <DetailItem label={t("artwork_gallery_page.last_source")} value={mostRecentSource} />
+              )}
+              {mostRecentDate && (
+                <DetailItem label={t("artwork_gallery_page.last_detected")} value={new Date(mostRecentDate).toLocaleString(i18n.language)} />
+              )}
+            </dl>
           )}
           </RestrictedMatch>
         </div>
 
-        <div className="border-t pt-4">
-          <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
-            <h3 className="font-semibold">{t("artwork_gallery_page.all_links_matches")}</h3>
+        <dl className="grid grid-cols-2 gap-x-3 gap-y-4">
+          <DetailItem
+            className="col-span-2"
+            label={t("artwork_gallery_page.file_name")}
+            value={artwork.originalFilename || t("artwork_gallery_page.untitled")}
+          />
+          {artwork.description && (
+            <DetailItem className="col-span-2" label={t("artwork_gallery_page.description")} value={artwork.description} />
+          )}
+          <DetailItem
+            label={t("artwork_gallery_page.upload_date")}
+            value={new Date(artwork.createdAt).toLocaleString(i18n.language)}
+          />
+          {artwork.sizeBytes && (
+            <DetailItem label={t("artwork_gallery_page.file_size")} value={`${(artwork.sizeBytes / 1024).toFixed(2)} KB`} />
+          )}
+          <DetailItem
+            className="col-span-2"
+            label={t("artwork_gallery_page.id")}
+            value={<span className="font-mono text-sm break-all">{artwork.id}</span>}
+          />
+        </dl>
+
+        <div className="border-t pt-4 space-y-3">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h3 className="text-lg font-semibold">{t("artwork_gallery_page.all_links_matches")}</h3>
             {categories.length > 1 && (
               <CategoryFilterSelect
                 value={category}
@@ -139,53 +123,42 @@ export function ArtworkDetails({ artwork }: ArtworkDetailsProps) {
             )}
           </div>
           {matchingPages.length === 0 ? (
-            <div className="text-xs text-muted-foreground">
+            <p className="text-sm text-muted-foreground">
               {t(resultsState === "not_scanned"
                 ? "artwork_gallery_page.not_scanned_body"
                 : resultsState === "unavailable"
                   ? "artwork_gallery_page.results_unavailable"
                   : "artwork_gallery_page.no_matches")}
-            </div>
+            </p>
           ) : (
-            <div className="space-y-2">
-              {visiblePages.map((page) => (
-                <RestrictedMatch key={page.id} unsafeDomain={!!page.unsafeDomain} resetKey={`${artwork.id}-${category}-${matchIdentity(page)}`}>
-                {page.unsafeDomain ? (
-                  // Blacklisted sites are never opened from VigilArt, even after reveal.
-                  <div className="block rounded border p-2 text-xs">
-                    <p className="font-semibold truncate">{page.websiteName || page.pageTitle || page.url}</p>
-                    <p className="text-muted-foreground break-all">{page.url}</p>
-                    <p className="text-muted-foreground">{new Date(page.firstDetectedAt).toLocaleString(i18n.language)}</p>
-                  </div>
-                ) : (
-                  <a
-                    key={`${page.id}-${page.url}-${page.firstDetectedAt}`}
-                    href={page.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="block rounded border p-2 text-xs hover:bg-muted/50"
-                  >
-                    <p className="font-semibold truncate">{page.websiteName || page.pageTitle || page.url}</p>
-                    <p className="text-muted-foreground truncate">{page.url}</p>
-                    <p className="text-muted-foreground">{new Date(page.firstDetectedAt).toLocaleString(i18n.language)}</p>
-                  </a>
-                )}
-                </RestrictedMatch>
-              ))}
-            </div>
+            <GroupedMatchList
+              pages={visiblePages}
+              resetKeyPrefix={`${artwork.id}-${category}`}
+              compact
+            />
           )}
           {resultsState === "unavailable" && matchingPages.length > 0 && (
-            <p className="mt-4 text-sm text-muted-foreground">
+            <p className="text-sm text-muted-foreground">
               {t("artwork_gallery_page.results_unavailable")}
             </p>
           )}
           {resultsState === "available" && (
-            <p className="mt-4 text-sm text-muted-foreground">
+            <p className="text-sm text-muted-foreground">
               {t("scan_coverage.result_note")}
             </p>
           )}
         </div>
       </div>
+    </div>
+  );
+}
+
+// Label quiet, value prominent: the value is what the reader is looking for.
+function DetailItem({ label, value, className }: { label: string; value: ReactNode; className?: string }) {
+  return (
+    <div className={className}>
+      <dt className="text-sm text-muted-foreground">{label}</dt>
+      <dd className="mt-0.5 text-base break-words">{value}</dd>
     </div>
   );
 }

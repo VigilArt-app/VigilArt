@@ -5,6 +5,7 @@
     "hide": "Hide"
   },
   "common": {
+    "more_info": "More information",
     "download_apk": "Download APK"
   },
   "login_page": {
@@ -46,7 +47,8 @@
     "sign_in": "Sign in",
     "signing_up": "Signing up...",
     "error_unexpected": "An unexpected error occurred. Please try again.",
-    "sign_up_failed": "Sign up failed. Please check your information and try again."
+    "sign_up_failed": "Sign up failed. Please check your information and try again.",
+    "sign_up_disabled": "Account creation is disabled on this environment."
   },
   "logout_page": {
     "logging_out": "Logging out..."
@@ -191,6 +193,11 @@
     "dmca_notices_load_error": "Failed to load DMCA notices"
   },
   "sidebar": {
+    "theme": "Theme",
+    "theme_light": "Light",
+    "theme_dark": "Dark",
+    "theme_system": "System",
+    "language": "Language",
     "profile": "Profile",
     "dashboard": "Dashboard",
     "artwork_gallery": "Artwork Gallery",
@@ -240,6 +247,8 @@
     "account_deleted": "Account deleted successfully."
   },
   "artwork_gallery_page": {
+    "empty_title": "Protect your first artwork",
+    "empty_subtitle": "Upload your work: VigilArt searches the web and shows you where it gets reposted.",
     "artwork_gallery": "Artwork Gallery",
     "all": "All",
     "not_scanned": "Not scanned yet",
@@ -317,6 +326,11 @@
     "error": "Error"
   },
   "dmca_page": {
+    "invalid_email": "This email address is not valid",
+    "fields_to_fix_one": "One field needs fixing",
+    "fields_to_fix_other": "{{count}} fields need fixing",
+    "field_required": "This field is required",
+    "required_fields": "Required fields",
     "title": "DMCA Assistant",
     "step_completed": "Step {{step}} completed",
     "subtitle": "Prepare your DMCA notice from dynamic platform fields provided by the backend.",
@@ -465,6 +479,7 @@
     "footer": {
       "privacy": "Privacy",
       "terms": "Terms",
+      "legal_notice": "Legal notice",
       "faq": "FAQ",
       "wordmark_alt": "VigilArt"
     }
@@ -522,11 +537,11 @@
   "privacy_page": {
     "metadata_title": "Privacy Policy | VigilArt",
     "title": "Privacy Policy",
-    "last_updated": "Last updated: October 9, 2026",
+    "last_updated": "Last updated: October 22, 2026",
     "blocks": [
       { "type": "h2", "content": ["1. About This Policy"] },
       { "type": "p", "content": ["This Privacy Policy explains what personal data VigilArt processes and how we use it."] },
-      { "type": "p", "content": ["VigilArt is a student project developed as part of Epitech's EIP program."] },
+      { "type": "p", "content": ["VigilArt is a student project developed as part of Epitech's EIP program. The data controller is Séphorah Aniambossou; see the ", { "text": "Legal Notice", "href": "/legal-notice" }, "."] },
       { "type": "p", "content": ["For privacy-related questions or requests:"] },
       { "type": "p", "content": [{ "text": "vigilart.app@gmail.com", "href": "mailto:vigilart.app@gmail.com", "strong": true }] },
       { "type": "h2", "content": ["2. Data We Process and Why"] },
@@ -540,27 +555,33 @@
       ] },
       { "type": "p", "content": ["We use this data to provide VigilArt's features, perform reverse-image searches, secure and maintain the service, prevent abuse, and provide requested notifications."] },
       { "type": "p", "content": ["If you voluntarily complete a feedback or beta-testing form, we may also process the information you provide to improve VigilArt and contact you about your feedback."] },
-      { "type": "p", "content": ["Depending on the purpose, we process your data because it is necessary to provide VigilArt's features, to keep the service secure and operational, because you have given consent where required, or because the law requires it."] },
+      { "type": "p", "content": ["When you create an account, we record the date you accepted the Terms of Service and the versions of the Terms and Privacy Policy you accepted."] },
+      { "type": "p", "content": ["Each use of your data relies on a legal basis under the GDPR:"] },
+      { "type": "ul", "items": [["your account, artworks, scans, matches and DMCA tools: performance of the service you request (Article 6(1)(b));"], ["security and abuse prevention, including the hashed IP address, the bot check and technical logs: our legitimate interest in keeping the service secure (Article 6(1)(f));"], ["the record of your acceptance of the Terms and Privacy Policy: our legitimate interest in proving that acceptance (Article 6(1)(f));"], ["DMCA notices kept after account deletion: our legitimate interest in answering a platform that asks for them (Article 6(1)(f));"], ["push notifications and optional feedback or beta-testing forms: your consent, which you can withdraw at any time (Article 6(1)(a))."]] },
       { "type": "p", "content": ["VigilArt does not use your artwork or personal data to train AI models."] },
       { "type": "h2", "content": ["3. Artwork and Third-Party Services"] },
       { "type": "p", "content": ["Uploaded artwork is stored privately and is not published by VigilArt."] },
       { "type": "p", "content": ["VigilArt currently uses:"] },
-      { "type": "p", "content": [{ "text": "SerpApi Google Lens API", "href": "https://serpapi.com/legal", "strong": true }, " — used for reverse-image searches. A temporary URL allowing access to the artwork being searched is sent to SerpApi. SerpApi states that search data is automatically deleted 31 days after a search is completed."] },
-      { "type": "p", "content": [{ "text": "Cloudflare R2", "href": "https://www.cloudflare.com/cloudflare-customer-dpa/", "strong": true }, " — used to store uploaded artwork and temporary guest-scan images."] },
-      { "type": "p", "content": [{ "text": "Cloudflare Turnstile", "strong": true }, " — used to prevent automated abuse and may process technical information such as your IP address and browser information."] },
-      { "type": "p", "content": [{ "text": "Firebase Cloud Messaging (Google)", "href": "https://firebase.google.com/terms/data-processing-terms", "strong": true }, " — used for push notifications where enabled."] },
-      { "type": "p", "content": [{ "text": "Google Forms / Google Sheets", "strong": true }, " — used for optional beta-testing and feedback forms."] },
-      { "type": "p", "content": [{ "text": "Epitech infrastructure", "strong": true }, " — VigilArt's production backend, PostgreSQL database, and cache are hosted on an Epitech-provided virtual machine."] },
+      { "type": "p", "content": [{ "text": "SerpApi Google Lens API", "href": "https://serpapi.com/legal", "strong": true }, ": used for reverse-image searches. A temporary URL allowing access to the artwork being searched is sent to SerpApi. SerpApi states that search data is automatically deleted 31 days after a search is completed."] },
+      { "type": "p", "content": [{ "text": "Cloudflare R2", "href": "https://www.cloudflare.com/cloudflare-customer-dpa/", "strong": true }, ": used to store uploaded artwork and temporary guest-scan images."] },
+      { "type": "p", "content": [{ "text": "Cloudflare network", "href": "https://www.cloudflare.com/cloudflare-customer-dpa/", "strong": true }, ": the VigilArt website and API are served through Cloudflare, which processes your IP address and the requests you send, including uploaded artwork, to deliver and protect the service."] },
+      { "type": "p", "content": [{ "text": "Cloudflare Turnstile", "strong": true }, ": used to prevent automated abuse and may process technical information such as your IP address and browser information."] },
+      { "type": "p", "content": [{ "text": "Firebase Cloud Messaging (Google)", "href": "https://firebase.google.com/terms/data-processing-terms", "strong": true }, ": used for push notifications where enabled."] },
+      { "type": "p", "content": [{ "text": "Google Forms / Google Sheets", "strong": true }, ": used for optional beta-testing and feedback forms."] },
+      { "type": "p", "content": [{ "text": "Epitech infrastructure", "strong": true }, ": VigilArt's production backend, PostgreSQL database, and cache are hosted on an Epitech-provided virtual machine."] },
       { "type": "p", "content": ["VigilArt does not sell your personal data."] },
       { "type": "h2", "content": ["4. Data Retention and Deletion"] },
       { "type": "p", "content": ["Account data, artwork records, scan history, and matches are generally retained while your account is active or until you delete them."] },
       { "type": "p", "content": ["Guest-scan results become eligible for automatic cleanup one hour after a scan completes or fails. Cleanup is triggered when another scan completes or fails, so results may remain stored and accessible for longer."] },
       { "type": "p", "content": ["VigilArt deletes temporary guest-scan images when processing ends, including after a scan fails. If that deletion fails or processing is interrupted, a storage rule automatically deletes them within one day."] },
+      { "type": "p", "content": ["To limit free scans without an account, VigilArt keeps your IP address for 30 days, only as a hash computed with a secret key."] },
+      { "type": "p", "content": ["Technical logs, which may include your email address, are rotated automatically and kept for a limited time."] },
       { "type": "p", "content": ["When you generate a DMCA notice, VigilArt creates a PDF containing the notice details (your name, address, phone number, email, signature and the reported URLs), stores it with Cloudflare R2 so you can download it, and a storage rule automatically deletes it after one day."] },
       { "type": "p", "content": ["SerpApi retains search data for 31 days under its own policy."] },
       { "type": "p", "content": ["Feedback-form responses are retained only as long as reasonably necessary to analyze feedback and improve VigilArt."] },
       { "type": "p", "content": ["You may delete individual artworks or your account through VigilArt. Deleting an artwork removes its database record and attempts to delete its uploaded file. The file may remain if storage cleanup fails or is interrupted."] },
-      { "type": "p", "content": ["At present, deleting your account removes the account and most associated records from VigilArt's main database. DMCA notice records are retained without a link to the deleted account. Artwork files and profile images are not automatically removed from object storage when the account is deleted."] },
+      { "type": "p", "content": ["Deleting your account permanently deletes your account, artworks, scan history, matches and DMCA profile from VigilArt's database, and deletes your artwork files, profile picture and DMCA notice PDFs from storage. If storage cannot be reached, your account is not deleted and you can try again. Your DMCA notices are kept without a link to the deleted account, for legal reasons: a platform may ask us for them. They still contain the name, address, phone number, email and signature entered in them, and are deleted 3 years after they were created."] },
+      { "type": "p", "content": ["Before each update of the service, VigilArt backs up its database and keeps only the seven most recent backups. Data you delete may remain in these backups until seven further updates have taken place."] },
       { "type": "p", "content": ["For requests concerning your data, including feedback-form data, contact ", { "text": "vigilart.app@gmail.com", "href": "mailto:vigilart.app@gmail.com" }, "."] },
       { "type": "h2", "content": ["5. International Data Transfers"] },
       { "type": "p", "content": ["Some third-party providers used by VigilArt may process data outside the European Economic Area, including:"] },
@@ -587,7 +608,7 @@
   "terms_page": {
     "metadata_title": "Terms of Service | VigilArt",
     "title": "Terms of Service",
-    "last_updated": "Last updated: September 9, 2026",
+    "last_updated": "Last updated: October 22, 2026",
     "blocks": [
       { "type": "h2", "content": ["1. About VigilArt"] },
       { "type": "p", "content": ["VigilArt is a student project developed as part of Epitech's EIP program."] },
@@ -597,7 +618,7 @@
       { "type": "p", "content": ["You must be at least 18 years old to use VigilArt."] },
       { "type": "p", "content": ["You are responsible for providing accurate account information and keeping your login credentials secure."] },
       { "type": "p", "content": ["You may delete your account at any time."] },
-      { "type": "p", "content": ["At present, account deletion removes the account and most associated records from VigilArt's main database. DMCA notice records are retained without a link to the deleted account, and uploaded artwork files or profile images are not automatically removed from object storage. See the Privacy Policy for details."] },
+      { "type": "p", "content": ["Deleting your account permanently deletes your data from VigilArt, except your DMCA notices, which are kept for legal reasons for up to 3 years, as described in the Privacy Policy."] },
       { "type": "h2", "content": ["3. Your Artwork"] },
       { "type": "p", "content": ["You retain ownership of artwork you upload to VigilArt."] },
       { "type": "p", "content": ["You must own the artwork or have the necessary rights or permission to upload and process it through VigilArt."] },
@@ -642,6 +663,22 @@
       { "type": "h2", "content": ["10. Contact"] },
       { "type": "p", "content": ["For questions about these Terms:"] },
       { "type": "p", "content": [{ "text": "vigilart.app@gmail.com", "href": "mailto:vigilart.app@gmail.com", "strong": true }] }
+    ]
+  },
+  "legal_notice_page": {
+    "metadata_title": "Legal Notice | VigilArt",
+    "title": "Legal Notice",
+    "last_updated": "Last updated: October 23, 2026",
+    "blocks": [
+      { "type": "h2", "content": ["1. Publisher"] },
+      { "type": "p", "content": ["VigilArt is a non-commercial student project developed as part of Epitech's EIP program."] },
+      { "type": "p", "content": ["Publication director and data controller: Séphorah Aniambossou."] },
+      { "type": "p", "content": ["Contact: ", { "text": "vigilart.app@gmail.com", "href": "mailto:vigilart.app@gmail.com" }, "."] },
+      { "type": "h2", "content": ["2. Hosting"] },
+      { "type": "p", "content": ["The website, API, database and cache are hosted on a virtual machine provided by ", { "text": "Epitech, 24 rue Pasteur, 94270 Le Kremlin-Bicêtre, France, +33 1 84 07 14 00", "strong": true }, "."] },
+      { "type": "p", "content": ["Uploaded artwork and generated files are stored with Cloudflare R2: ", { "text": "Cloudflare, Inc., 101 Townsend St, San Francisco, CA 94107, USA", "strong": true }, "."] },
+      { "type": "h2", "content": ["3. Personal data"] },
+      { "type": "p", "content": ["How VigilArt processes personal data is described in the ", { "text": "Privacy Policy", "href": "/privacy" }, "."] }
     ]
   }
 }

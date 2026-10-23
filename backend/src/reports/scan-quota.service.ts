@@ -29,6 +29,10 @@ export class ScanQuotaService {
     return this.readQuota(this.prisma, userId, user.subscriptionTier);
   }
 
+  async releaseScan(userId: string, scanId: string): Promise<void> {
+    await this.prisma.scanUsage.deleteMany({ where: { id: scanId, userId } });
+  }
+
   async consumeScan(userId: string, scanId: string): Promise<void> {
     await this.prisma.$transaction(async (tx) => {
       const user = await this.artworkLimit.lockUser(tx, userId);

@@ -2,6 +2,7 @@ import { Injectable, Logger, ServiceUnavailableException } from "@nestjs/common"
 import { MatchingPageGet } from "@vigilart/shared";
 import { GoogleLensService } from "../googlelens/googlelens.service";
 import { SerpApiLensService } from "../serpapilens/serpapilens.service";
+import { VisualSearchError } from "./visual-search.error";
 
 // The reverse-image fan-out, kept apart from ReportsService so a route that
 // only needs a search (the public scan) does not have to build the report
@@ -27,9 +28,12 @@ export class VisualSearchService {
     const matchingPages: MatchingPageGet[] = [];
     settledResults.forEach((result, index) => {
       if (result.status === "rejected") {
+        const reason: unknown = result.reason;
         this.logger.error(
-          `Visual search provider "${providers[index]}" failed`,
-          result.reason
+          reason instanceof VisualSearchError
+            ? `Visual search provider "${providers[index]}" failed: ${reason.failure} (${reason.detail ?? "no detail"})`
+            : `Visual search provider "${providers[index]}" failed`,
+          reason
         );
         return;
       }
@@ -38,6 +42,10 @@ export class VisualSearchService {
       }
     });
     if (settledResults.every((result) => result.status === "rejected")) {
+      const failure = settledResults
+        .map((result) => (result as PromiseRejectedResult).reason)
+        .find((reason) => reason instanceof VisualSearchError);
+      if (failure) throw failure;
       throw new ServiceUnavailableException(
         "Visual search providers are currently unavailable. Please try again later."
       );

@@ -69,6 +69,12 @@ function SidebarProvider({
   const isMobile = useIsMobile()
   const [openMobile, setOpenMobile] = React.useState(false)
 
+  // Leaving the mobile layout unmounts the sheet; drop its open state so it
+  // does not pop back open on the next switch to mobile.
+  React.useEffect(() => {
+    if (!isMobile) setOpenMobile(false)
+  }, [isMobile])
+
   // This is the internal state of the sidebar.
   // We use openProp and setOpenProp for control from outside the component.
   const [_open, _setOpen] = React.useState(defaultOpen)
