@@ -33,7 +33,7 @@ export function SearchAndFilters({
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
-        <span className="text-sm font-medium mr-2">{filteredCount} {t("artwork_gallery_page.images")}</span>
+        <span className="text-base font-medium mr-2">{filteredCount} {t("artwork_gallery_page.images")}</span>
         <Button
           variant={selectedFilter === "All" ? "default" : "outline"}
           size="sm"

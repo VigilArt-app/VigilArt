@@ -1,5 +1,5 @@
 "use client";
-import { Trash2, TriangleAlert } from "lucide-react";
+import { Pencil, Trash2, TriangleAlert } from "lucide-react";
 import { ArtworkWithInsights, getArtworkStatus } from "./types";
 import { ArtworkStatusBadge } from "./ArtworkStatusBadge";
 import { useArtworkImageUrl } from "./hooks/useArtworkImageUrl";
@@ -76,20 +76,18 @@ export function ArtworkCard({
               e.stopPropagation();
               onEdit?.(artwork, e);
             }}
-            className="bg-white text-black p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-md border"
+            className="bg-white hover:bg-gray-200 text-black p-2.5 rounded-full opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-[opacity,background-color] shadow-md border"
             aria-label={t("artwork_gallery_page.edit_description")}
           >
-            <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-              <path strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" d="M4 20h4l10-10a2.5 2.5 0 00-3.5-3.5L4 16v4z" />
-            </svg>
+            <Pencil className="w-5 h-5" />
           </button>
 
           <button
             onClick={(e) => onDelete(artwork.id, e)}
-            className="bg-red-500 hover:bg-red-600 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+            className="bg-red-500 hover:bg-red-600 text-white p-2.5 rounded-full opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-[opacity,background-color] shadow-md"
             aria-label={t("artwork_gallery_page.delete_artwork")}
           >
-            <Trash2 className="w-4 h-4" />
+            <Trash2 className="w-5 h-5" />
           </button>
         </div>
       </div>

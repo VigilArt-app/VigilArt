@@ -16,7 +16,7 @@ export function LanguageToggle() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="icon">
+        <Button variant="outline" size="icon" className="dark:bg-card dark:hover:bg-accent">
           <span className="h-[1.2rem] w-[1.2rem] overflow-hidden rounded-full">
             {i18n.language === 'fr' ? '🇫🇷' : '🇬🇧'}
           </span>

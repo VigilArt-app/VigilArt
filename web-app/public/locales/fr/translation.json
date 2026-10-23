@@ -5,6 +5,7 @@
     "hide": "Masquer"
   },
   "common": {
+    "more_info": "Plus d'informations",
     "download_apk": "Télécharger l'APK"
   },
   "login_page": {
@@ -191,6 +192,11 @@
     "dmca_notices_load_error": "Impossible de charger les avis DMCA"
   },
   "sidebar": {
+    "theme": "Thème",
+    "theme_light": "Clair",
+    "theme_dark": "Sombre",
+    "theme_system": "Système",
+    "language": "Langue",
     "profile": "Profil",
     "dashboard": "Tableau de bord",
     "artwork_gallery": "Galerie d'œuvres",
@@ -240,6 +246,8 @@
     "account_deleted": "Compte supprimé avec succès."
   },
   "artwork_gallery_page": {
+    "empty_title": "Protégez votre première œuvre",
+    "empty_subtitle": "Importez vos créations : VigilArt les recherche sur le web et vous montre où elles sont republiées.",
     "artwork_gallery": "Galerie d'œuvres",
     "all": "Tous",
     "not_scanned": "Pas encore scannée",
@@ -317,6 +325,11 @@
     "error": "Erreur"
   },
   "dmca_page": {
+    "invalid_email": "Cette adresse email n'est pas valide",
+    "fields_to_fix_one": "Un champ est à corriger",
+    "fields_to_fix_other": "{{count}} champs sont à corriger",
+    "field_required": "Ce champ est obligatoire",
+    "required_fields": "Champs obligatoires",
     "title": "Assistant DMCA",
     "subtitle": "Préparez votre notice DMCA à partir des champs dynamiques fournis par la plateforme.",
     "legal_notice": "Important : VigilArt ne soumet jamais une plainte DMCA à votre place. Vous devez vérifier le contenu puis l'envoyer vous-même sur le site concerné.",

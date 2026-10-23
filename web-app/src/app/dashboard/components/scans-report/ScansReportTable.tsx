@@ -125,7 +125,7 @@ export function ScansReportTable({
                         }
                       }}
                     >
-                      <td className={`${TABLE_ROW_CELL_CLASS} text-gray-500`}>{(scan.title || t("dashboard_page.scans_report.unknown_artwork")).substring(0, 20)}</td>
+                      <td className={`${TABLE_ROW_CELL_CLASS} text-foreground`}>{(scan.title || t("dashboard_page.scans_report.unknown_artwork")).substring(0, 20)}</td>
                       <td className={TABLE_ROW_CELL_CLASS}>
                         {scan.imageUrl ? (
                           <img
@@ -154,7 +154,7 @@ export function ScansReportTable({
                         </span>
                       </td>
                       <td className={TABLE_ROW_CELL_CLASS}>
-                        <span className="px-3 py-1 rounded text-gray-700 font-bold">{t("dashboard_page.scans_report.not_available")}</span>
+                        <span className="px-3 py-1 rounded text-foreground font-bold">{t("dashboard_page.scans_report.not_available")}</span>
                       </td>
                       <td className={TABLE_ROW_CELL_CLASS}>
                         <RestrictedMatch unsafeDomain={!!latestMatch?.unsafeDomain} resetKey={`${currentPage}-${sortField}-${sortDirection}-${matchIdentity(latestMatch)}`} compact>

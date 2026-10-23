@@ -29,6 +29,9 @@ interface CategoryBreakdownProps {
   onSelect?: (category: WebsiteCategory) => void;
   /** Pixel height of the donut. Ignored by the bar. */
   chartHeight?: number;
+  /** Grow the donut into the free height of a flex-column parent, with
+   *  chartHeight as its minimum. */
+  fill?: boolean;
   /** "bar" is a single stacked strip instead of the donut. The landing's card
    *  is compact: a donut there hides the match links, which are the evidence,
    *  while the strip costs about 20px and still gives the legend's colour
@@ -44,6 +47,7 @@ export function CategoryBreakdown({
   categoryDistribution,
   onSelect,
   chartHeight = 224,
+  fill = false,
   variant = "donut"
 }: CategoryBreakdownProps) {
   const { t } = useTranslation();
@@ -86,7 +90,10 @@ export function CategoryBreakdown({
       {variant === "bar" ? (
         <CategoryBar slices={slices} />
       ) : (
-      <div className="w-full min-w-0" style={{ height: chartHeight }}>
+      <div
+        className={fill ? "w-full min-w-0 flex-1" : "w-full min-w-0"}
+        style={fill ? { minHeight: chartHeight } : { height: chartHeight }}
+      >
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Pie

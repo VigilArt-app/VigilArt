@@ -16,6 +16,7 @@ import {
 import { ScanRow } from "./types";
 import { RestrictedMatch, matchIdentity } from "../../../../components/matches/RestrictedMatch";
 import { mostRecentMatch } from "../../../../components/matches/mostRecentMatch";
+import { GroupedMatchList } from "../../../../components/matches/GroupedMatchList";
 
 interface ScansReportModalProps {
   artwork: ScanRow | null;
@@ -23,7 +24,7 @@ interface ScansReportModalProps {
 }
 
 export function ScansReportModal({ artwork, onClose }: ScansReportModalProps) {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const [category, setCategory] = useState<CategorySelection>(ALL_CATEGORIES);
 
   // Reset the filter each time a different artwork is opened.
@@ -43,7 +44,7 @@ export function ScansReportModal({ artwork, onClose }: ScansReportModalProps) {
 
   return (
     <Dialog open={!!artwork} onOpenChange={(open) => { if (!open) onClose(); }}>
-      <DialogContent className="w-full max-w-2xl max-h-[80vh] overflow-y-auto">
+      <DialogContent className="w-full max-w-2xl max-h-[80vh] overflow-y-auto scrollbar-soft">
         <DialogHeader>
           <DialogTitle>{artwork.title || t("dashboard_page.scans_report.unknown_artwork")}</DialogTitle>
         </DialogHeader>
@@ -67,40 +68,10 @@ export function ScansReportModal({ artwork, onClose }: ScansReportModalProps) {
                   />
                 )}
               </div>
-              {visiblePages.map((page) => (
-                <div key={`${page.artworkId}-${page.id}-${page.url}-${page.firstDetectedAt}`} className="border rounded-lg p-3">
-                  <RestrictedMatch unsafeDomain={!!page.unsafeDomain} resetKey={`${category}-${artwork.artworkId}-${matchIdentity(page)}`}>
-                  <div className="flex gap-3">
-                    {page.imageUrl && (
-                      <img
-                        src={page.imageUrl}
-                        alt={t("dashboard_page.scans_report.detected")}
-                        className="w-12 h-12 object-cover rounded"
-                      />
-                    )}
-                    <div className="flex-grow text-sm">
-                      <p><span className="font-bold">{t("dashboard_page.scans_report.category")}:</span> {page.category}</p>
-                      <p><span className="font-bold">{t("dashboard_page.scans_report.website")}:</span> {page.websiteName}</p>
-                      <p><span className="font-bold">{t("dashboard_page.scans_report.title")}:</span> {page.pageTitle}</p>
-                      <p><span className="font-bold">{t("dashboard_page.scans_report.found")}:</span> {new Date(page.firstDetectedAt).toLocaleString(i18n.language)}</p>
-                      {page.unsafeDomain ? (
-                        // Blacklisted sites are never opened from VigilArt, even after reveal.
-                        <p className="mt-2 break-all text-muted-foreground">{page.url}</p>
-                      ) : (
-                        <a
-                          href={page.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-blue-600 hover:text-blue-800 inline-block mt-2"
-                        >
-                          {t("dashboard_page.scans_report.visit")} →
-                        </a>
-                      )}
-                    </div>
-                  </div>
-                  </RestrictedMatch>
-                </div>
-              ))}
+              <GroupedMatchList
+                pages={visiblePages}
+                resetKeyPrefix={`${category}-${artwork.artworkId}`}
+              />
             </div>
           ) : (
             <p className="text-center text-muted-foreground py-8">{t("dashboard_page.scans_report.no_matches_for_artwork")}</p>

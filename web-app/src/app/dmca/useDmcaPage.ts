@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { useSearchParams } from "next/navigation";
 import { useTranslation } from "react-i18next";
 import type {
+  DmcaFormItem,
   DmcaNoticeGeneratedContent,
   DmcaNoticeGet,
   DmcaPlatformGet,
@@ -33,6 +34,8 @@ import {
   type JsonLike,
   type PathPart,
   type ProfileFormState,
+  findInvalidFields,
+  isValidEmail,
 } from "./dmca-form-utils";
 
 export function useDmcaPage() {
@@ -46,6 +49,10 @@ export function useDmcaPage() {
 
   const [platforms, setPlatforms] = useState<DmcaPlatformGet[]>([]);
   const [selectedPlatformSlug, setSelectedPlatformSlug] = useState<string>("");
+  // Errors stay hidden until the first attempt to prepare, then follow the
+  // payload live so each one clears as soon as its field is filled.
+  const [showValidation, setShowValidation] = useState(false);
+  const [showProfileValidation, setShowProfileValidation] = useState(false);
 
   const [profileForm, setProfileForm] = useState<ProfileFormState>(EMPTY_PROFILE);
   const [profileExists, setProfileExists] = useState(false);
@@ -185,6 +192,7 @@ export function useDmcaPage() {
     const emptyPayload = createDefaultValueForItems(selectedPlatform.formSchema as any, artworkPrefill);
     setActiveNotice(null);
     setGeneratedContent(null);
+    setShowValidation(false);
     setFormPayload(
       clearPreselectedInfringingUrls(hydrateProfileInPayload(emptyPayload, profileForm), infringingRepeaters),
     );
@@ -197,6 +205,12 @@ export function useDmcaPage() {
 
   const saveProfile = async () => {
     if (!userId) return;
+    if (profileForm.email.trim() !== "" && !isValidEmail(profileForm.email)) {
+      setShowProfileValidation(true);
+      toast.error(t("dmca_page.invalid_email"));
+      document.getElementById("dmca-profile-email")?.focus();
+      return;
+    }
     setSavingProfile(true);
 
     try {
@@ -241,6 +255,20 @@ export function useDmcaPage() {
 
   const handlePrepareNotice = async () => {
     if (!userId || !selectedPlatform) return;
+
+    const invalid = Object.keys(findInvalidFields(selectedPlatform.formSchema as DmcaFormItem[], formPayload));
+    if (invalid.length > 0) {
+      setShowValidation(true);
+      toast.error(t("dmca_page.fields_to_fix", { count: invalid.length }));
+      // After the error styles render, bring the first problem into view.
+      requestAnimationFrame(() => {
+        const firstField = document.getElementById(`dmca-${invalid[0]}`);
+        firstField?.scrollIntoView({ behavior: "smooth", block: "center" });
+        firstField?.focus({ preventScroll: true });
+      });
+      return;
+    }
+
     setPreparingNotice(true);
 
     try {
@@ -387,6 +415,16 @@ export function useDmcaPage() {
       )}&body=${encodeURIComponent(generatedContent.email.body)}`
     : "";
 
+  const invalidFields = useMemo(
+    () =>
+      showValidation && selectedPlatform
+        ? findInvalidFields(selectedPlatform.formSchema as DmcaFormItem[], formPayload)
+        : {},
+    [showValidation, selectedPlatform, formPayload],
+  );
+  const profileEmailInvalid =
+    showProfileValidation && profileForm.email.trim() !== "" && !isValidEmail(profileForm.email);
+
   return {
     t,
     artworkPrefill,
@@ -413,6 +451,8 @@ export function useDmcaPage() {
     handleProfileChange,
     saveProfile,
     handlePrepareNotice,
+    invalidFields,
+    profileEmailInvalid,
     handleGenerate,
     copyToClipboard,
     updatePath,
