@@ -246,6 +246,8 @@
     "account_deleted": "Compte supprimé avec succès."
   },
   "artwork_gallery_page": {
+    "empty_title": "Protégez votre première œuvre",
+    "empty_subtitle": "Importez vos créations : VigilArt les recherche sur le web et vous montre où elles sont republiées.",
     "artwork_gallery": "Galerie d'œuvres",
     "all": "Tous",
     "not_scanned": "Pas encore scannée",

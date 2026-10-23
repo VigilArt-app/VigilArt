@@ -246,6 +246,8 @@
     "account_deleted": "Account deleted successfully."
   },
   "artwork_gallery_page": {
+    "empty_title": "Protect your first artwork",
+    "empty_subtitle": "Upload your work: VigilArt searches the web and shows you where it gets reposted.",
     "artwork_gallery": "Artwork Gallery",
     "all": "All",
     "not_scanned": "Not scanned yet",
