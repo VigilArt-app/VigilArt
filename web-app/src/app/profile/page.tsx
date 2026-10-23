@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Loader2, Upload, X, AlertTriangle, Bell, BellOff, Globe, Smartphone, Mail } from "lucide-react";
+import { Loader2, Upload, X, AlertTriangle, Bell, Globe, Smartphone, Mail } from "lucide-react";
 import type { UserUpdate } from "@vigilart/shared/types";
 import {
   updateUserProfile,
