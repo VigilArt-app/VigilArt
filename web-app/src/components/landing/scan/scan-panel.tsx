@@ -244,11 +244,11 @@ export const ScanPanel = (): React.JSX.Element => {
             <Instagram className="size-4 text-primary" aria-hidden="true" />
             {t("landing_page.upload.context_social_media")}
           </ScanContextLabel>
-          <ScanContextLabel className="lg:-right-3 lg:top-14 xl:-right-8">
+          <ScanContextLabel className="lg:-right-3 lg:top-36 xl:-right-8">
             <ShoppingCart className="size-4 text-primary" aria-hidden="true" />
             {t("landing_page.upload.context_marketplace")}
           </ScanContextLabel>
-          <ScanContextLabel className="lg:-right-3 lg:-bottom-5 xl:-right-8">
+          <ScanContextLabel className="lg:-left-3 lg:-bottom-5 xl:-left-8">
             <Images className="size-4 text-primary" aria-hidden="true" />
             {t("landing_page.upload.context_art_platforms")}
           </ScanContextLabel>
