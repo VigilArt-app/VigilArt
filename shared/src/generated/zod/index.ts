@@ -12,7 +12,7 @@ export type TransactionIsolationLevel = z.infer<typeof TransactionIsolationLevel
 
 // File: UserScalarFieldEnum.schema.ts
 
-export const UserScalarFieldEnumSchema = z.enum(['id', 'email', 'password', 'firstName', 'lastName', 'avatar', 'subscriptionTier', 'autoRunReports', 'notificationsEnabled', 'createdAt', 'updatedAt'])
+export const UserScalarFieldEnumSchema = z.enum(['id', 'email', 'password', 'firstName', 'lastName', 'avatar', 'subscriptionTier', 'autoRunReports', 'mailNotificationsEnabled', 'mobileNotificationsEnabled', 'webNotificationsEnabled', 'createdAt', 'updatedAt'])
 
 export type UserScalarFieldEnum = z.infer<typeof UserScalarFieldEnumSchema>;
 
@@ -135,7 +135,9 @@ export const UserSchema = z.object({
   avatar: z.string().nullable(),
   subscriptionTier: SubscriptionTierSchema.default("FREE"),
   autoRunReports: z.boolean(),
-  notificationsEnabled: z.boolean(),
+  mailNotificationsEnabled: z.boolean(),
+  mobileNotificationsEnabled: z.boolean(),
+  webNotificationsEnabled: z.boolean(),
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),
 });

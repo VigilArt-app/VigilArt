@@ -33,7 +33,9 @@ export type UserMinAggregateOutputType = {
   avatar: string | null
   subscriptionTier: $Enums.SubscriptionTier | null
   autoRunReports: boolean | null
-  notificationsEnabled: boolean | null
+  mailNotificationsEnabled: boolean | null
+  mobileNotificationsEnabled: boolean | null
+  webNotificationsEnabled: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -47,7 +49,9 @@ export type UserMaxAggregateOutputType = {
   avatar: string | null
   subscriptionTier: $Enums.SubscriptionTier | null
   autoRunReports: boolean | null
-  notificationsEnabled: boolean | null
+  mailNotificationsEnabled: boolean | null
+  mobileNotificationsEnabled: boolean | null
+  webNotificationsEnabled: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -61,7 +65,9 @@ export type UserCountAggregateOutputType = {
   avatar: number
   subscriptionTier: number
   autoRunReports: number
-  notificationsEnabled: number
+  mailNotificationsEnabled: number
+  mobileNotificationsEnabled: number
+  webNotificationsEnabled: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -77,7 +83,9 @@ export type UserMinAggregateInputType = {
   avatar?: true
   subscriptionTier?: true
   autoRunReports?: true
-  notificationsEnabled?: true
+  mailNotificationsEnabled?: true
+  mobileNotificationsEnabled?: true
+  webNotificationsEnabled?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -91,7 +99,9 @@ export type UserMaxAggregateInputType = {
   avatar?: true
   subscriptionTier?: true
   autoRunReports?: true
-  notificationsEnabled?: true
+  mailNotificationsEnabled?: true
+  mobileNotificationsEnabled?: true
+  webNotificationsEnabled?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -105,7 +115,9 @@ export type UserCountAggregateInputType = {
   avatar?: true
   subscriptionTier?: true
   autoRunReports?: true
-  notificationsEnabled?: true
+  mailNotificationsEnabled?: true
+  mobileNotificationsEnabled?: true
+  webNotificationsEnabled?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -192,7 +204,9 @@ export type UserGroupByOutputType = {
   avatar: string | null
   subscriptionTier: $Enums.SubscriptionTier
   autoRunReports: boolean
-  notificationsEnabled: boolean
+  mailNotificationsEnabled: boolean
+  mobileNotificationsEnabled: boolean
+  webNotificationsEnabled: boolean
   createdAt: Date
   updatedAt: Date
   _count: UserCountAggregateOutputType | null
@@ -227,7 +241,9 @@ export type UserWhereInput = {
   avatar?: Prisma.StringNullableFilter<"User"> | string | null
   subscriptionTier?: Prisma.EnumSubscriptionTierFilter<"User"> | $Enums.SubscriptionTier
   autoRunReports?: Prisma.BoolFilter<"User"> | boolean
-  notificationsEnabled?: Prisma.BoolFilter<"User"> | boolean
+  mailNotificationsEnabled?: Prisma.BoolFilter<"User"> | boolean
+  mobileNotificationsEnabled?: Prisma.BoolFilter<"User"> | boolean
+  webNotificationsEnabled?: Prisma.BoolFilter<"User"> | boolean
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   artworks?: Prisma.ArtworkListRelationFilter
@@ -247,7 +263,9 @@ export type UserOrderByWithRelationInput = {
   avatar?: Prisma.SortOrderInput | Prisma.SortOrder
   subscriptionTier?: Prisma.SortOrder
   autoRunReports?: Prisma.SortOrder
-  notificationsEnabled?: Prisma.SortOrder
+  mailNotificationsEnabled?: Prisma.SortOrder
+  mobileNotificationsEnabled?: Prisma.SortOrder
+  webNotificationsEnabled?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   artworks?: Prisma.ArtworkOrderByRelationAggregateInput
@@ -270,7 +288,9 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   avatar?: Prisma.StringNullableFilter<"User"> | string | null
   subscriptionTier?: Prisma.EnumSubscriptionTierFilter<"User"> | $Enums.SubscriptionTier
   autoRunReports?: Prisma.BoolFilter<"User"> | boolean
-  notificationsEnabled?: Prisma.BoolFilter<"User"> | boolean
+  mailNotificationsEnabled?: Prisma.BoolFilter<"User"> | boolean
+  mobileNotificationsEnabled?: Prisma.BoolFilter<"User"> | boolean
+  webNotificationsEnabled?: Prisma.BoolFilter<"User"> | boolean
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   artworks?: Prisma.ArtworkListRelationFilter
@@ -290,7 +310,9 @@ export type UserOrderByWithAggregationInput = {
   avatar?: Prisma.SortOrderInput | Prisma.SortOrder
   subscriptionTier?: Prisma.SortOrder
   autoRunReports?: Prisma.SortOrder
-  notificationsEnabled?: Prisma.SortOrder
+  mailNotificationsEnabled?: Prisma.SortOrder
+  mobileNotificationsEnabled?: Prisma.SortOrder
+  webNotificationsEnabled?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.UserCountOrderByAggregateInput
@@ -310,7 +332,9 @@ export type UserScalarWhereWithAggregatesInput = {
   avatar?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   subscriptionTier?: Prisma.EnumSubscriptionTierWithAggregatesFilter<"User"> | $Enums.SubscriptionTier
   autoRunReports?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
-  notificationsEnabled?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
+  mailNotificationsEnabled?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
+  mobileNotificationsEnabled?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
+  webNotificationsEnabled?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
 }
@@ -324,7 +348,9 @@ export type UserCreateInput = {
   avatar?: string | null
   subscriptionTier?: $Enums.SubscriptionTier
   autoRunReports?: boolean
-  notificationsEnabled?: boolean
+  mailNotificationsEnabled?: boolean
+  mobileNotificationsEnabled?: boolean
+  webNotificationsEnabled?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   artworks?: Prisma.ArtworkCreateNestedManyWithoutUserInput
@@ -344,7 +370,9 @@ export type UserUncheckedCreateInput = {
   avatar?: string | null
   subscriptionTier?: $Enums.SubscriptionTier
   autoRunReports?: boolean
-  notificationsEnabled?: boolean
+  mailNotificationsEnabled?: boolean
+  mobileNotificationsEnabled?: boolean
+  webNotificationsEnabled?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   artworks?: Prisma.ArtworkUncheckedCreateNestedManyWithoutUserInput
@@ -364,7 +392,9 @@ export type UserUpdateInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   subscriptionTier?: Prisma.EnumSubscriptionTierFieldUpdateOperationsInput | $Enums.SubscriptionTier
   autoRunReports?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  notificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mailNotificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mobileNotificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  webNotificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   artworks?: Prisma.ArtworkUpdateManyWithoutUserNestedInput
@@ -384,7 +414,9 @@ export type UserUncheckedUpdateInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   subscriptionTier?: Prisma.EnumSubscriptionTierFieldUpdateOperationsInput | $Enums.SubscriptionTier
   autoRunReports?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  notificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mailNotificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mobileNotificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  webNotificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   artworks?: Prisma.ArtworkUncheckedUpdateManyWithoutUserNestedInput
@@ -404,7 +436,9 @@ export type UserCreateManyInput = {
   avatar?: string | null
   subscriptionTier?: $Enums.SubscriptionTier
   autoRunReports?: boolean
-  notificationsEnabled?: boolean
+  mailNotificationsEnabled?: boolean
+  mobileNotificationsEnabled?: boolean
+  webNotificationsEnabled?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -418,7 +452,9 @@ export type UserUpdateManyMutationInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   subscriptionTier?: Prisma.EnumSubscriptionTierFieldUpdateOperationsInput | $Enums.SubscriptionTier
   autoRunReports?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  notificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mailNotificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mobileNotificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  webNotificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -432,7 +468,9 @@ export type UserUncheckedUpdateManyInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   subscriptionTier?: Prisma.EnumSubscriptionTierFieldUpdateOperationsInput | $Enums.SubscriptionTier
   autoRunReports?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  notificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mailNotificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mobileNotificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  webNotificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -446,7 +484,9 @@ export type UserCountOrderByAggregateInput = {
   avatar?: Prisma.SortOrder
   subscriptionTier?: Prisma.SortOrder
   autoRunReports?: Prisma.SortOrder
-  notificationsEnabled?: Prisma.SortOrder
+  mailNotificationsEnabled?: Prisma.SortOrder
+  mobileNotificationsEnabled?: Prisma.SortOrder
+  webNotificationsEnabled?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -460,7 +500,9 @@ export type UserMaxOrderByAggregateInput = {
   avatar?: Prisma.SortOrder
   subscriptionTier?: Prisma.SortOrder
   autoRunReports?: Prisma.SortOrder
-  notificationsEnabled?: Prisma.SortOrder
+  mailNotificationsEnabled?: Prisma.SortOrder
+  mobileNotificationsEnabled?: Prisma.SortOrder
+  webNotificationsEnabled?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -474,7 +516,9 @@ export type UserMinOrderByAggregateInput = {
   avatar?: Prisma.SortOrder
   subscriptionTier?: Prisma.SortOrder
   autoRunReports?: Prisma.SortOrder
-  notificationsEnabled?: Prisma.SortOrder
+  mailNotificationsEnabled?: Prisma.SortOrder
+  mobileNotificationsEnabled?: Prisma.SortOrder
+  webNotificationsEnabled?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -604,7 +648,9 @@ export type UserCreateWithoutRefreshTokensInput = {
   avatar?: string | null
   subscriptionTier?: $Enums.SubscriptionTier
   autoRunReports?: boolean
-  notificationsEnabled?: boolean
+  mailNotificationsEnabled?: boolean
+  mobileNotificationsEnabled?: boolean
+  webNotificationsEnabled?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   artworks?: Prisma.ArtworkCreateNestedManyWithoutUserInput
@@ -623,7 +669,9 @@ export type UserUncheckedCreateWithoutRefreshTokensInput = {
   avatar?: string | null
   subscriptionTier?: $Enums.SubscriptionTier
   autoRunReports?: boolean
-  notificationsEnabled?: boolean
+  mailNotificationsEnabled?: boolean
+  mobileNotificationsEnabled?: boolean
+  webNotificationsEnabled?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   artworks?: Prisma.ArtworkUncheckedCreateNestedManyWithoutUserInput
@@ -658,7 +706,9 @@ export type UserUpdateWithoutRefreshTokensInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   subscriptionTier?: Prisma.EnumSubscriptionTierFieldUpdateOperationsInput | $Enums.SubscriptionTier
   autoRunReports?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  notificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mailNotificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mobileNotificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  webNotificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   artworks?: Prisma.ArtworkUpdateManyWithoutUserNestedInput
@@ -677,7 +727,9 @@ export type UserUncheckedUpdateWithoutRefreshTokensInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   subscriptionTier?: Prisma.EnumSubscriptionTierFieldUpdateOperationsInput | $Enums.SubscriptionTier
   autoRunReports?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  notificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mailNotificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mobileNotificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  webNotificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   artworks?: Prisma.ArtworkUncheckedUpdateManyWithoutUserNestedInput
@@ -696,7 +748,9 @@ export type UserCreateWithoutDeviceTokensInput = {
   avatar?: string | null
   subscriptionTier?: $Enums.SubscriptionTier
   autoRunReports?: boolean
-  notificationsEnabled?: boolean
+  mailNotificationsEnabled?: boolean
+  mobileNotificationsEnabled?: boolean
+  webNotificationsEnabled?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   artworks?: Prisma.ArtworkCreateNestedManyWithoutUserInput
@@ -715,7 +769,9 @@ export type UserUncheckedCreateWithoutDeviceTokensInput = {
   avatar?: string | null
   subscriptionTier?: $Enums.SubscriptionTier
   autoRunReports?: boolean
-  notificationsEnabled?: boolean
+  mailNotificationsEnabled?: boolean
+  mobileNotificationsEnabled?: boolean
+  webNotificationsEnabled?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   artworks?: Prisma.ArtworkUncheckedCreateNestedManyWithoutUserInput
@@ -750,7 +806,9 @@ export type UserUpdateWithoutDeviceTokensInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   subscriptionTier?: Prisma.EnumSubscriptionTierFieldUpdateOperationsInput | $Enums.SubscriptionTier
   autoRunReports?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  notificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mailNotificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mobileNotificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  webNotificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   artworks?: Prisma.ArtworkUpdateManyWithoutUserNestedInput
@@ -769,7 +827,9 @@ export type UserUncheckedUpdateWithoutDeviceTokensInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   subscriptionTier?: Prisma.EnumSubscriptionTierFieldUpdateOperationsInput | $Enums.SubscriptionTier
   autoRunReports?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  notificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mailNotificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mobileNotificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  webNotificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   artworks?: Prisma.ArtworkUncheckedUpdateManyWithoutUserNestedInput
@@ -788,7 +848,9 @@ export type UserCreateWithoutArtworksInput = {
   avatar?: string | null
   subscriptionTier?: $Enums.SubscriptionTier
   autoRunReports?: boolean
-  notificationsEnabled?: boolean
+  mailNotificationsEnabled?: boolean
+  mobileNotificationsEnabled?: boolean
+  webNotificationsEnabled?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   artworksReport?: Prisma.ArtworksReportCreateNestedManyWithoutUserInput
@@ -807,7 +869,9 @@ export type UserUncheckedCreateWithoutArtworksInput = {
   avatar?: string | null
   subscriptionTier?: $Enums.SubscriptionTier
   autoRunReports?: boolean
-  notificationsEnabled?: boolean
+  mailNotificationsEnabled?: boolean
+  mobileNotificationsEnabled?: boolean
+  webNotificationsEnabled?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   artworksReport?: Prisma.ArtworksReportUncheckedCreateNestedManyWithoutUserInput
@@ -842,7 +906,9 @@ export type UserUpdateWithoutArtworksInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   subscriptionTier?: Prisma.EnumSubscriptionTierFieldUpdateOperationsInput | $Enums.SubscriptionTier
   autoRunReports?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  notificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mailNotificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mobileNotificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  webNotificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   artworksReport?: Prisma.ArtworksReportUpdateManyWithoutUserNestedInput
@@ -861,7 +927,9 @@ export type UserUncheckedUpdateWithoutArtworksInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   subscriptionTier?: Prisma.EnumSubscriptionTierFieldUpdateOperationsInput | $Enums.SubscriptionTier
   autoRunReports?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  notificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mailNotificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mobileNotificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  webNotificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   artworksReport?: Prisma.ArtworksReportUncheckedUpdateManyWithoutUserNestedInput
@@ -880,7 +948,9 @@ export type UserCreateWithoutArtworksReportInput = {
   avatar?: string | null
   subscriptionTier?: $Enums.SubscriptionTier
   autoRunReports?: boolean
-  notificationsEnabled?: boolean
+  mailNotificationsEnabled?: boolean
+  mobileNotificationsEnabled?: boolean
+  webNotificationsEnabled?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   artworks?: Prisma.ArtworkCreateNestedManyWithoutUserInput
@@ -899,7 +969,9 @@ export type UserUncheckedCreateWithoutArtworksReportInput = {
   avatar?: string | null
   subscriptionTier?: $Enums.SubscriptionTier
   autoRunReports?: boolean
-  notificationsEnabled?: boolean
+  mailNotificationsEnabled?: boolean
+  mobileNotificationsEnabled?: boolean
+  webNotificationsEnabled?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   artworks?: Prisma.ArtworkUncheckedCreateNestedManyWithoutUserInput
@@ -934,7 +1006,9 @@ export type UserUpdateWithoutArtworksReportInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   subscriptionTier?: Prisma.EnumSubscriptionTierFieldUpdateOperationsInput | $Enums.SubscriptionTier
   autoRunReports?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  notificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mailNotificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mobileNotificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  webNotificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   artworks?: Prisma.ArtworkUpdateManyWithoutUserNestedInput
@@ -953,7 +1027,9 @@ export type UserUncheckedUpdateWithoutArtworksReportInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   subscriptionTier?: Prisma.EnumSubscriptionTierFieldUpdateOperationsInput | $Enums.SubscriptionTier
   autoRunReports?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  notificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mailNotificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mobileNotificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  webNotificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   artworks?: Prisma.ArtworkUncheckedUpdateManyWithoutUserNestedInput
@@ -972,7 +1048,9 @@ export type UserCreateWithoutDmcaProfileInput = {
   avatar?: string | null
   subscriptionTier?: $Enums.SubscriptionTier
   autoRunReports?: boolean
-  notificationsEnabled?: boolean
+  mailNotificationsEnabled?: boolean
+  mobileNotificationsEnabled?: boolean
+  webNotificationsEnabled?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   artworks?: Prisma.ArtworkCreateNestedManyWithoutUserInput
@@ -991,7 +1069,9 @@ export type UserUncheckedCreateWithoutDmcaProfileInput = {
   avatar?: string | null
   subscriptionTier?: $Enums.SubscriptionTier
   autoRunReports?: boolean
-  notificationsEnabled?: boolean
+  mailNotificationsEnabled?: boolean
+  mobileNotificationsEnabled?: boolean
+  webNotificationsEnabled?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   artworks?: Prisma.ArtworkUncheckedCreateNestedManyWithoutUserInput
@@ -1026,7 +1106,9 @@ export type UserUpdateWithoutDmcaProfileInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   subscriptionTier?: Prisma.EnumSubscriptionTierFieldUpdateOperationsInput | $Enums.SubscriptionTier
   autoRunReports?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  notificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mailNotificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mobileNotificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  webNotificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   artworks?: Prisma.ArtworkUpdateManyWithoutUserNestedInput
@@ -1045,7 +1127,9 @@ export type UserUncheckedUpdateWithoutDmcaProfileInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   subscriptionTier?: Prisma.EnumSubscriptionTierFieldUpdateOperationsInput | $Enums.SubscriptionTier
   autoRunReports?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  notificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mailNotificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mobileNotificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  webNotificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   artworks?: Prisma.ArtworkUncheckedUpdateManyWithoutUserNestedInput
@@ -1064,7 +1148,9 @@ export type UserCreateWithoutDmcaNoticesInput = {
   avatar?: string | null
   subscriptionTier?: $Enums.SubscriptionTier
   autoRunReports?: boolean
-  notificationsEnabled?: boolean
+  mailNotificationsEnabled?: boolean
+  mobileNotificationsEnabled?: boolean
+  webNotificationsEnabled?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   artworks?: Prisma.ArtworkCreateNestedManyWithoutUserInput
@@ -1083,7 +1169,9 @@ export type UserUncheckedCreateWithoutDmcaNoticesInput = {
   avatar?: string | null
   subscriptionTier?: $Enums.SubscriptionTier
   autoRunReports?: boolean
-  notificationsEnabled?: boolean
+  mailNotificationsEnabled?: boolean
+  mobileNotificationsEnabled?: boolean
+  webNotificationsEnabled?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   artworks?: Prisma.ArtworkUncheckedCreateNestedManyWithoutUserInput
@@ -1118,7 +1206,9 @@ export type UserUpdateWithoutDmcaNoticesInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   subscriptionTier?: Prisma.EnumSubscriptionTierFieldUpdateOperationsInput | $Enums.SubscriptionTier
   autoRunReports?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  notificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mailNotificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mobileNotificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  webNotificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   artworks?: Prisma.ArtworkUpdateManyWithoutUserNestedInput
@@ -1137,7 +1227,9 @@ export type UserUncheckedUpdateWithoutDmcaNoticesInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   subscriptionTier?: Prisma.EnumSubscriptionTierFieldUpdateOperationsInput | $Enums.SubscriptionTier
   autoRunReports?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  notificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mailNotificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mobileNotificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  webNotificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   artworks?: Prisma.ArtworkUncheckedUpdateManyWithoutUserNestedInput
@@ -1223,7 +1315,9 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   avatar?: boolean
   subscriptionTier?: boolean
   autoRunReports?: boolean
-  notificationsEnabled?: boolean
+  mailNotificationsEnabled?: boolean
+  mobileNotificationsEnabled?: boolean
+  webNotificationsEnabled?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   artworks?: boolean | Prisma.User$artworksArgs<ExtArgs>
@@ -1244,7 +1338,9 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   avatar?: boolean
   subscriptionTier?: boolean
   autoRunReports?: boolean
-  notificationsEnabled?: boolean
+  mailNotificationsEnabled?: boolean
+  mobileNotificationsEnabled?: boolean
+  webNotificationsEnabled?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["user"]>
@@ -1258,7 +1354,9 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   avatar?: boolean
   subscriptionTier?: boolean
   autoRunReports?: boolean
-  notificationsEnabled?: boolean
+  mailNotificationsEnabled?: boolean
+  mobileNotificationsEnabled?: boolean
+  webNotificationsEnabled?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["user"]>
@@ -1272,12 +1370,14 @@ export type UserSelectScalar = {
   avatar?: boolean
   subscriptionTier?: boolean
   autoRunReports?: boolean
-  notificationsEnabled?: boolean
+  mailNotificationsEnabled?: boolean
+  mobileNotificationsEnabled?: boolean
+  webNotificationsEnabled?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "password" | "firstName" | "lastName" | "avatar" | "subscriptionTier" | "autoRunReports" | "notificationsEnabled" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "password" | "firstName" | "lastName" | "avatar" | "subscriptionTier" | "autoRunReports" | "mailNotificationsEnabled" | "mobileNotificationsEnabled" | "webNotificationsEnabled" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   artworks?: boolean | Prisma.User$artworksArgs<ExtArgs>
   artworksReport?: boolean | Prisma.User$artworksReportArgs<ExtArgs>
@@ -1309,7 +1409,9 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     avatar: string | null
     subscriptionTier: $Enums.SubscriptionTier
     autoRunReports: boolean
-    notificationsEnabled: boolean
+    mailNotificationsEnabled: boolean
+    mobileNotificationsEnabled: boolean
+    webNotificationsEnabled: boolean
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["user"]>
@@ -1749,7 +1851,9 @@ export interface UserFieldRefs {
   readonly avatar: Prisma.FieldRef<"User", 'String'>
   readonly subscriptionTier: Prisma.FieldRef<"User", 'SubscriptionTier'>
   readonly autoRunReports: Prisma.FieldRef<"User", 'Boolean'>
-  readonly notificationsEnabled: Prisma.FieldRef<"User", 'Boolean'>
+  readonly mailNotificationsEnabled: Prisma.FieldRef<"User", 'Boolean'>
+  readonly mobileNotificationsEnabled: Prisma.FieldRef<"User", 'Boolean'>
+  readonly webNotificationsEnabled: Prisma.FieldRef<"User", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"User", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"User", 'DateTime'>
 }
