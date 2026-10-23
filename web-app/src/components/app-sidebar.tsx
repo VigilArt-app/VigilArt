@@ -78,7 +78,8 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter className="mb-6 shrink-0 gap-3">
-        <SidebarMenu>
+        {/* The APK only installs on a phone; on a desktop it is noise. */}
+        <SidebarMenu className="md:hidden">
           <SidebarMenuItem>
             <SidebarMenuButton asChild className="h-auto px-5 py-3 text-base [&>svg]:size-5">
               <a href={RELEASES_URL} target="_blank" rel="noopener noreferrer">

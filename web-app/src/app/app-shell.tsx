@@ -29,10 +29,12 @@ export function AppShell({
   const showSidebar = !noSidebarRoutes.includes(pathname || "");
   const shouldRefreshSession = showSidebar && !hasAuthToken && hasRefreshToken;
   const sidebarShell = (
-    <SidebarProvider>
+    // The toggle only exists on mobile, so the desktop sidebar is pinned open:
+    // otherwise a stored collapsed state (or Ctrl+B) would leave no way back.
+    <SidebarProvider open>
       <AppSidebar />
       <main className="w-full min-h-screen overflow-x-hidden">
-        <SidebarTrigger className="fixed top-4 left-4 z-50" />
+        <SidebarTrigger className="fixed top-4 left-4 z-50 md:hidden" />
         {children}
       </main>
     </SidebarProvider>
