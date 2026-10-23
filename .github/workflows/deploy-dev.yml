@@ -148,7 +148,7 @@ jobs:
   deploy:
     name: 🚀 Deploy to dev
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 30
     needs: [run-ci, check-changes, build-backend, build-frontend]
     if: |
       always() &&
@@ -182,7 +182,7 @@ jobs:
   release-mobile:
     name: 📱 Release Mobile App (dev)
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 30
     needs: [run-ci, check-changes]
     permissions:
       contents: write

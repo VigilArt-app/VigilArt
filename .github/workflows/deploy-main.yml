@@ -154,7 +154,7 @@ jobs:
   deploy:
     name: 🚀 Deploy to prod
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 30
     needs: [run-ci, check-changes, build-backend, build-frontend]
     if: |
       github.repository != 'EpitechPGE45-2025/G-EIP-700-PAR-7-1-eip-39' &&
@@ -189,7 +189,7 @@ jobs:
   release-mobile:
     name: 📱 Release Mobile App (prod)
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 30
     needs: [run-ci, check-changes]
     permissions:
       contents: write
