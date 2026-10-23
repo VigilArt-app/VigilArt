@@ -26,7 +26,9 @@ import {
   ScanEnqueuedDTO,
   ScanStatusDTO,
   ScanEnqueued,
-  ScanStatus
+  ScanStatus,
+  ScanQuota,
+  ScanQuotaDTO
 } from "@vigilart/shared";
 import { WebsiteCategory } from "@vigilart/shared/server";
 import { ApiEndpoint } from "../common/decorators/api-endpoint.decorator";
@@ -52,7 +54,19 @@ export class ReportsController {
   async generateArtworkReport(
     @Param("id", ParseUUIDPipe) userId: string
   ): Promise<ArtworksReport> {
-    return this.reportsService.generate(userId);
+    return this.reportsService.generateAndWait(userId);
+  }
+
+  @Get("user/:id/scan-quota")
+  @ApiEndpoint({
+    summary: "Get remaining full artwork scans in the rolling 30-day window",
+    success: { status: HttpStatus.OK, type: ScanQuotaDTO },
+    protected: true,
+    ownerships: [{ data: "id", userField: "id", type: "params" }],
+    errors: [HttpStatus.NOT_FOUND, HttpStatus.FORBIDDEN]
+  })
+  getScanQuota(@Param("id", ParseUUIDPipe) userId: string): Promise<ScanQuota> {
+    return this.reportsService.getScanQuota(userId);
   }
 
   @Post("user/:id/scan")

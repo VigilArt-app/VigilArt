@@ -11,6 +11,7 @@ concurrency:
 jobs:
   check-branch:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - name: Ensure PR source is 'dev'
         if: github.head_ref != 'dev'

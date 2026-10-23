@@ -10,7 +10,8 @@ import {
   ScanStatusSchema,
   ScanProgressSchema,
   ScanJobStateSchema,
-  ScanEnqueuedSchema
+  ScanEnqueuedSchema,
+  ScanQuotaSchema
 } from "../../schemas";
 
 export type ArtworksReport = z.infer<typeof ArtworksReportSchema>;
@@ -42,5 +43,6 @@ export type ScanProgress = z.infer<typeof ScanProgressSchema>;
 export type ScanJobState = z.infer<typeof ScanJobStateSchema>;
 
 export type ScanEnqueued = z.infer<typeof ScanEnqueuedSchema>;
+export type ScanQuota = z.infer<typeof ScanQuotaSchema>;
 
 export * from "./VisualSearchResult";

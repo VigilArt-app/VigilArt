@@ -1,10 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ArtworkWithInsights, getArtworkStatus } from "./types";
+import { ArtworkWithInsights, getArtworkResultsState, getArtworkStatus } from "./types";
+import { ArtworkStatusBadge } from "./ArtworkStatusBadge";
 import { useArtworkImageUrl } from "./hooks/useArtworkImageUrl";
 import { useTranslation } from "react-i18next";
 import { CategoryFilterSelect } from "../../../components/matches/CategoryFilterSelect";
+import { RestrictedMatch, matchIdentity } from "../../../components/matches/RestrictedMatch";
+import { mostRecentMatch } from "../../../components/matches/mostRecentMatch";
 import {
   ALL_CATEGORIES,
   filterAndSortMatches,
@@ -19,6 +22,7 @@ interface ArtworkDetailsProps {
 export function ArtworkDetails({ artwork }: ArtworkDetailsProps) {
   const { t, i18n } = useTranslation();
   const status = getArtworkStatus(artwork);
+  const resultsState = getArtworkResultsState(artwork);
   const totalMatches = artwork.reportInsights?.totalMatches || 0;
   const mostRecentSource = artwork.reportInsights?.mostRecentSource;
   const mostRecentDate = artwork.reportInsights?.mostRecentDate;
@@ -32,7 +36,11 @@ export function ArtworkDetails({ artwork }: ArtworkDetailsProps) {
     setCategory(ALL_CATEGORIES);
   }, [artwork.id]);
 
-  const categories = presentCategories(matchingPages);
+  const categories = presentCategories(matchingPages.filter((page) => !page.unsafeDomain));
+  useEffect(() => {
+    if (category !== ALL_CATEGORIES && !categories.includes(category)) setCategory(ALL_CATEGORIES);
+  }, [category, categories]);
+  const latestMatch = mostRecentMatch(matchingPages);
   const visiblePages = filterAndSortMatches(matchingPages, category);
 
   return (
@@ -57,17 +65,7 @@ export function ArtworkDetails({ artwork }: ArtworkDetailsProps) {
           )}
         </div>
 
-        <div
-          className={`inline-flex px-3 py-1 rounded-full text-xs font-bold ${
-            status === "Scanned"
-              ? "bg-green-500 text-white"
-              : status === "Scanning"
-              ? "bg-purple-500 text-white"
-              : "bg-blue-500 text-white"
-          }`}
-        >
-          {status.toUpperCase()}
-        </div>
+        <ArtworkStatusBadge status={status} />
 
         <div className="space-y-3 text-sm">
           <div>
@@ -109,9 +107,10 @@ export function ArtworkDetails({ artwork }: ArtworkDetailsProps) {
 
           <div>
             <p className="font-semibold">{t("artwork_gallery_page.matches")}</p>
-            <p className="text-muted-foreground">{totalMatches}</p>
+            <p className="text-muted-foreground">{resultsState === "available" ? totalMatches : "—"}</p>
           </div>
 
+          <RestrictedMatch unsafeDomain={!!latestMatch?.unsafeDomain} resetKey={`${artwork.id}-${category}-${matchIdentity(latestMatch)}`}>
           {mostRecentSource && mostRecentSource !== "N/A" && (
             <div>
               <p className="font-semibold">{t("artwork_gallery_page.last_source")}</p>
@@ -125,6 +124,7 @@ export function ArtworkDetails({ artwork }: ArtworkDetailsProps) {
               <p className="text-muted-foreground">{new Date(mostRecentDate).toLocaleString(i18n.language)}</p>
             </div>
           )}
+          </RestrictedMatch>
         </div>
 
         <div className="border-t pt-4">
@@ -140,24 +140,49 @@ export function ArtworkDetails({ artwork }: ArtworkDetailsProps) {
           </div>
           {matchingPages.length === 0 ? (
             <div className="text-xs text-muted-foreground">
-              {t("artwork_gallery_page.no_matches")}
+              {t(resultsState === "not_scanned"
+                ? "artwork_gallery_page.not_scanned_body"
+                : resultsState === "unavailable"
+                  ? "artwork_gallery_page.results_unavailable"
+                  : "artwork_gallery_page.no_matches")}
             </div>
           ) : (
             <div className="space-y-2">
               {visiblePages.map((page) => (
-                <a
-                  key={`${page.id}-${page.url}-${page.firstDetectedAt}`}
-                  href={page.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="block rounded border p-2 text-xs hover:bg-muted/50"
-                >
-                  <p className="font-semibold truncate">{page.websiteName || page.pageTitle || page.url}</p>
-                  <p className="text-muted-foreground truncate">{page.url}</p>
-                  <p className="text-muted-foreground">{new Date(page.firstDetectedAt).toLocaleString(i18n.language)}</p>
-                </a>
+                <RestrictedMatch key={page.id} unsafeDomain={!!page.unsafeDomain} resetKey={`${artwork.id}-${category}-${matchIdentity(page)}`}>
+                {page.unsafeDomain ? (
+                  // Blacklisted sites are never opened from VigilArt, even after reveal.
+                  <div className="block rounded border p-2 text-xs">
+                    <p className="font-semibold truncate">{page.websiteName || page.pageTitle || page.url}</p>
+                    <p className="text-muted-foreground break-all">{page.url}</p>
+                    <p className="text-muted-foreground">{new Date(page.firstDetectedAt).toLocaleString(i18n.language)}</p>
+                  </div>
+                ) : (
+                  <a
+                    key={`${page.id}-${page.url}-${page.firstDetectedAt}`}
+                    href={page.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block rounded border p-2 text-xs hover:bg-muted/50"
+                  >
+                    <p className="font-semibold truncate">{page.websiteName || page.pageTitle || page.url}</p>
+                    <p className="text-muted-foreground truncate">{page.url}</p>
+                    <p className="text-muted-foreground">{new Date(page.firstDetectedAt).toLocaleString(i18n.language)}</p>
+                  </a>
+                )}
+                </RestrictedMatch>
               ))}
             </div>
+          )}
+          {resultsState === "unavailable" && matchingPages.length > 0 && (
+            <p className="mt-4 text-sm text-muted-foreground">
+              {t("artwork_gallery_page.results_unavailable")}
+            </p>
+          )}
+          {resultsState === "available" && (
+            <p className="mt-4 text-sm text-muted-foreground">
+              {t("scan_coverage.result_note")}
+            </p>
           )}
         </div>
       </div>

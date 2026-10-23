@@ -7,14 +7,12 @@ import { useTranslation } from "react-i18next"
 import { Button } from "../../components/ui/button"
 import { Input } from "../../components/ui/input"
 import { Label } from "../../components/ui/label"
-import { Switch } from "../../components/ui/switch"
 import { authenticatedFetch } from "@/src/utils/auth/authenticatedFetch"
 
 export default function LoginPage() {
     const { t } = useTranslation()
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
-    const [remember, setRemember] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
 
@@ -50,15 +48,19 @@ export default function LoginPage() {
                         <div className="relative z-10 max-w-xs md:max-w-md">
                             <p className="text-3xl md:text-4xl text-foreground">{t("login_page.welcome")}</p>
                             <p className="text-2xl md:text-3xl text-foreground">{t("login_page.on")}</p>
-                            <h1 className="text-6xl md:text-9xl font-giaza tracking-tight text-foreground">VigilArt</h1>
+                            <h1 className="mt-2">
+                                <span className="sr-only">VigilArt</span>
+                                <img src="/VigilArt_wordmark_black.png" alt="" aria-hidden="true" className="w-full max-w-md dark:hidden" />
+                                <img src="/VigilArt_wordmark_white.png" alt="" aria-hidden="true" className="hidden w-full max-w-md dark:block" />
+                            </h1>
                         </div>
                     </div>
 
                     <div className="flex items-center justify-center p-8 bg-transparent">
                         <div className="w-full max-w-md rounded-2xl p-8 shadow-lg border border-transparent backdrop-blur-sm bg-white/95 dark:bg-neutral-800/60 text-foreground">
                             <div className="mb-4 flex items-center gap-3 justify-between">
-                                <img src="/vigilart_b.png" alt="VigilArt logo" className="h-20 w-auto dark:hidden" />
-                                <img src="/vigilart_w.png" alt="VigilArt logo" className="h-20 w-auto hidden dark:block" />
+                                <img src="/VigilArt_logo_black.png" alt="VigilArt logo" className="h-20 w-auto dark:hidden" />
+                                <img src="/VigilArt_logo_white.png" alt="VigilArt logo" className="h-20 w-auto hidden dark:block" />
                                 <div className="text-l text-muted-foreground">{t("login_page.greetings")}</div>
                             </div>
 
@@ -71,16 +73,6 @@ export default function LoginPage() {
                                 <div>
                                     <Label htmlFor="password" className="mb-2">{t("login_page.password")}</Label>
                                     <Input id="password" type="password" placeholder={t("login_page.placeholder_password")} value={password} onChange={(e) => setPassword(e.target.value)}/>
-                                </div>
-
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-3">
-                                        <Switch checked={remember} onCheckedChange={(val) => setRemember(Boolean(val))} aria-label="Remember me" />
-                                        <span className="text-sm">{t("login_page.remember_me")}</span>
-                                    </div>
-                                    <Link href="#" className="text-sm text-primary">
-                                        {t("login_page.forgot_password")}
-                                    </Link>
                                 </div>
 
                                 {error && (

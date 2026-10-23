@@ -1,4 +1,5 @@
-import { INestApplication } from "@nestjs/common";
+import { INestApplication, Logger } from "@nestjs/common";
+import { NestExpressApplication } from "@nestjs/platform-express";
 import { ConfigService } from "@nestjs/config";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import { cleanupOpenApiDoc } from "nestjs-zod";
@@ -18,6 +19,25 @@ export const setupApp = (app: INestApplication) => {
     .map((origin) => origin.trim())
     .filter(Boolean);
   const isProd = nodeEnv === "production";
+
+  // Behind Cloudflare, every request reaches the container from the proxy's own
+  // address. Without this, req.ip is that address and all rate limiting collapses
+  // into one bucket shared by the entire internet. The value is a hop count, not
+  // `true`: trusting every hop would let a client spoof its own IP by sending an
+  // X-Forwarded-For header of its choosing.
+  // docker-compose passes an unset variable as "", which must fall back too.
+  const rawHops =
+    configService.get<string>("TRUST_PROXY_HOPS")?.trim() || (isProd ? "1" : "0");
+  const trustProxyHops = Number(rawHops);
+  // Integers only: Express would trust two hops for 1.5, letting a client
+  // forge its own IP with one extra X-Forwarded-For entry.
+  if (!Number.isInteger(trustProxyHops) || trustProxyHops < 0) {
+    new Logger("setupApp").error(
+      `TRUST_PROXY_HOPS="${rawHops}" is not a hop count: no proxy is trusted, so every visitor shares one rate-limit bucket.`
+    );
+  } else if (trustProxyHops > 0) {
+    (app as NestExpressApplication).set("trust proxy", trustProxyHops);
+  }
 
   app.use(helmet({
     hsts: isProd,

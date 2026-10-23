@@ -8,6 +8,16 @@ import { RedisContainer, StartedRedisContainer } from "@testcontainers/redis";
 let postgresContainer: StartedPostgreSqlContainer;
 let redisContainer: StartedRedisContainer;
 
+export const getTestContainerUrls = () => {
+  if (!postgresContainer || !redisContainer) {
+    throw new Error("Disposable test containers have not started");
+  }
+  return {
+    databaseUrl: postgresContainer.getConnectionUri(),
+    redisUrl: redisContainer.getConnectionUrl()
+  };
+};
+
 beforeAll(async () => {
   postgresContainer = await new PostgreSqlContainer(
     "postgres:16-alpine"

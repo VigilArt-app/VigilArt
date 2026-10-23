@@ -1,13 +1,22 @@
+import 'dart:convert';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:url_launcher/url_launcher.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../widgets/logo_header.dart';
 import '../widgets/custom_input_field.dart';
 import '../widgets/custom_button.dart';
 import '../(api)/auth.dart';
+import '../(api)/legal.dart';
 import 'login_page.dart';
 
 class SignupPage extends StatefulWidget {
-  const SignupPage({super.key});
+  const SignupPage({super.key, this.apiService, this.openLink});
+
+  // Injected by tests; the app uses the real API and browser.
+  final ApiService? apiService;
+  final Future<bool> Function(Uri url)? openLink;
 
   @override
   State<SignupPage> createState() => _SignupPageState();
@@ -19,19 +28,29 @@ class _SignupPageState extends State<SignupPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
-  final _firstNameController = TextEditingController();
-  final _lastNameController = TextEditingController();
+  late final ApiService apiService = widget.apiService ?? ApiService();
+  late final TapGestureRecognizer _termsTap = TapGestureRecognizer()..onTap = () => _open(termsUrl);
+  late final TapGestureRecognizer _privacyTap = TapGestureRecognizer()..onTap = () => _open(privacyUrl);
 
-  final ApiService apiService = ApiService();
+  // Unchecked by default: the user must tick it themselves.
+  bool _acceptedTerms = false;
+  bool _showConsentError = false;
+
+  static const String _consentRequired =
+      'You must accept the Terms of Service and acknowledge the Privacy Policy.';
 
   @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
-    _firstNameController.dispose();
-    _lastNameController.dispose();
+    _termsTap.dispose();
+    _privacyTap.dispose();
     super.dispose();
+  }
+
+  void _open(Uri url) {
+    (widget.openLink ?? (uri) => launchUrl(uri, mode: LaunchMode.externalApplication))(url);
   }
 
   void _handleSignup() async {
@@ -39,8 +58,6 @@ class _SignupPageState extends State<SignupPage> {
       String email = _emailController.text.trim();
       String password = _passwordController.text.trim();
       String confirmPassword = _confirmPasswordController.text.trim();
-      String firstName = _firstNameController.text.trim();
-      String lastName = _lastNameController.text.trim();
 
       if (password != confirmPassword) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -52,8 +69,13 @@ class _SignupPageState extends State<SignupPage> {
         return;
       }
 
+      if (!_acceptedTerms) {
+        setState(() => _showConsentError = true);
+        return;
+      }
+
       try {
-        final response = await apiService.signup(email, password, firstName, lastName);
+        final response = await apiService.signup(email, password);
 
         if (response.statusCode == 201) {
           if (mounted) {
@@ -63,7 +85,7 @@ class _SignupPageState extends State<SignupPage> {
             );
           }
         } else {
-          final errorMessage = _parseSignupError(response.statusCode);
+          final errorMessage = _parseSignupError(response);
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text(errorMessage), backgroundColor: Colors.red),
@@ -81,11 +103,29 @@ class _SignupPageState extends State<SignupPage> {
     }
   }
 
-  String _parseSignupError(int statusCode) {
+  String _parseSignupError(http.Response response) {
+    final statusCode = response.statusCode;
     if (statusCode == 409) return 'An account with this email address already exists.';
-    if (statusCode == 400) return 'Invalid information provided. Please check your details.';
+    if (statusCode == 400) {
+      final message = _serverMessage(response);
+      // The app ships the document versions, so a newer policy needs an app update.
+      if (message.contains('termsVersion') || message.contains('privacyVersion')) {
+        return 'Our Terms of Service or Privacy Policy changed. Update the app to sign up.';
+      }
+      if (message.contains('acceptedTerms')) return _consentRequired;
+      return message.isNotEmpty ? message : 'Invalid information provided. Please check your details.';
+    }
     if (statusCode >= 500) return 'Server error. Please try again later.';
     return 'Signup failed. Please try again.';
+  }
+
+  String _serverMessage(http.Response response) {
+    try {
+      final message = jsonDecode(response.body)['message'];
+      return message is String ? message : '';
+    } catch (_) {
+      return '';
+    }
   }
 
   void _handleLogin() {
@@ -135,30 +175,6 @@ class _SignupPageState extends State<SignupPage> {
                   ),
                   const SizedBox(height: 32),
                   CustomInputField(
-                    labelText: 'First Name',
-                    hintText: 'John',
-                    controller: _firstNameController,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your first name';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 20),
-                  CustomInputField(
-                    labelText: 'Last Name',
-                    hintText: 'Doe',
-                    controller: _lastNameController,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your last name';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 20),
-                  CustomInputField(
                     labelText: 'Email address',
                     hintText: 'email@domain.com',
                     controller: _emailController,
@@ -206,6 +222,50 @@ class _SignupPageState extends State<SignupPage> {
                     },
                   ),
                   const SizedBox(height: 20),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Checkbox(
+                        key: const Key('signup-consent'),
+                        value: _acceptedTerms,
+                        onChanged: (value) => setState(() {
+                          _acceptedTerms = value ?? false;
+                          if (_acceptedTerms) _showConsentError = false;
+                        }),
+                      ),
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.only(top: 12),
+                          child: Text.rich(
+                            TextSpan(
+                              style: const TextStyle(fontSize: 13, color: Colors.black87),
+                              children: [
+                                const TextSpan(text: 'I accept the '),
+                                TextSpan(
+                                  text: 'Terms of Service',
+                                  style: const TextStyle(fontWeight: FontWeight.bold, decoration: TextDecoration.underline),
+                                  recognizer: _termsTap,
+                                ),
+                                const TextSpan(text: ' and acknowledge the '),
+                                TextSpan(
+                                  text: 'Privacy Policy',
+                                  style: const TextStyle(fontWeight: FontWeight.bold, decoration: TextDecoration.underline),
+                                  recognizer: _privacyTap,
+                                ),
+                                const TextSpan(text: '.'),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  if (_showConsentError)
+                    const Padding(
+                      padding: EdgeInsets.only(left: 12, top: 4),
+                      child: Text(_consentRequired, style: TextStyle(color: Colors.red, fontSize: 12)),
+                    ),
+                  const SizedBox(height: 20),
                   CustomButton(
                     text: 'Sign Up',
                     onPressed: _handleSignup,
@@ -245,34 +305,6 @@ class _SignupPageState extends State<SignupPage> {
                     showIcon: true,
                     isOutlined: true,
                     backgroundColor: Colors.black87,
-                  ),
-                  const SizedBox(height: 24),
-                  RichText(
-                    textAlign: TextAlign.center,
-                    text: const TextSpan(
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.black54,
-                      ),
-                      children: [
-                        TextSpan(text: 'By signing up, you agree to our '),
-                        TextSpan(
-                          text: 'Terms of Service',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            decoration: TextDecoration.underline,
-                          ),
-                        ),
-                        TextSpan(text: ' and '),
-                        TextSpan(
-                          text: 'Privacy Policy',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            decoration: TextDecoration.underline,
-                          ),
-                        ),
-                      ],
-                    ),
                   ),
                   const SizedBox(height: 40),
                 ],

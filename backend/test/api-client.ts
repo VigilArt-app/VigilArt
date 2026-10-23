@@ -1,6 +1,13 @@
 import request from "supertest";
 import { INestApplication } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
+import { TERMS_VERSION, PRIVACY_VERSION } from "@vigilart/shared/constants";
+
+export const signupConsent = {
+  acceptedTerms: true,
+  termsVersion: TERMS_VERSION,
+  privacyVersion: PRIVACY_VERSION,
+};
 
 export class ApiClient {
   private readonly config: ConfigService;
@@ -17,8 +24,8 @@ export class ApiClient {
     return this.agent.post(this.base + "/auth/login").send({ email, password });
   }
 
-  async signup(email: string, password: string, firstName: string, lastName: string): Promise<request.Response> {
-    return this.agent.post(this.base + "/auth/signup").send({ email, password, firstName, lastName });
+  async signup(email: string, password: string, _firstName?: string, _lastName?: string): Promise<request.Response> {
+    return this.agent.post(this.base + "/auth/signup").send({ email, password, ...signupConsent });
   }
 
   async logout(): Promise<request.Response> {

@@ -12,7 +12,7 @@ export type TransactionIsolationLevel = z.infer<typeof TransactionIsolationLevel
 
 // File: UserScalarFieldEnum.schema.ts
 
-export const UserScalarFieldEnumSchema = z.enum(['id', 'email', 'password', 'firstName', 'lastName', 'avatar', 'subscriptionTier', 'autoRunReports', 'mailNotificationsEnabled', 'mobileNotificationsEnabled', 'webNotificationsEnabled', 'createdAt', 'updatedAt'])
+export const UserScalarFieldEnumSchema = z.enum(['id', 'email', 'password', 'firstName', 'lastName', 'termsAcceptedAt', 'termsVersion', 'privacyVersion', 'avatar', 'subscriptionTier', 'autoRunReports', 'mailNotificationsEnabled', 'mobileNotificationsEnabled', 'webNotificationsEnabled', 'createdAt', 'updatedAt'])
 
 export type UserScalarFieldEnum = z.infer<typeof UserScalarFieldEnumSchema>;
 
@@ -45,6 +45,12 @@ export type MatchingPageScalarFieldEnum = z.infer<typeof MatchingPageScalarField
 export const ArtworksReportScalarFieldEnumSchema = z.enum(['id', 'userId', 'detectionDate'])
 
 export type ArtworksReportScalarFieldEnum = z.infer<typeof ArtworksReportScalarFieldEnumSchema>;
+
+// File: ScanUsageScalarFieldEnum.schema.ts
+
+export const ScanUsageScalarFieldEnumSchema = z.enum(['id', 'userId', 'startedAt'])
+
+export type ScanUsageScalarFieldEnum = z.infer<typeof ScanUsageScalarFieldEnumSchema>;
 
 // File: DmcaPlatformScalarFieldEnum.schema.ts
 
@@ -130,8 +136,11 @@ export const UserSchema = z.object({
   id: z.string(),
   email: z.string(),
   password: z.string(),
-  firstName: z.string(),
-  lastName: z.string(),
+  firstName: z.string().nullable(),
+  lastName: z.string().nullable(),
+  termsAcceptedAt: z.coerce.date().nullable(),
+  termsVersion: z.string().nullable(),
+  privacyVersion: z.string().nullable(),
   avatar: z.string().nullable(),
   subscriptionTier: SubscriptionTierSchema.default("FREE"),
   autoRunReports: z.boolean(),
@@ -220,6 +229,17 @@ export const ArtworksReportSchema = z.object({
 });
 
 export type ArtworksReportType = z.infer<typeof ArtworksReportSchema>;
+
+
+// File: ScanUsage.schema.ts
+
+export const ScanUsageSchema = z.object({
+  id: z.string(),
+  userId: z.string(),
+  startedAt: z.coerce.date(),
+});
+
+export type ScanUsageType = z.infer<typeof ScanUsageSchema>;
 
 
 // File: DmcaPlatform.schema.ts

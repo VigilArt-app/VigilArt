@@ -37,6 +37,7 @@ export default function ArtworkGalleryPage() {
   const [insightsByArtwork, setInsightsByArtwork] = useState<
     Record<string, ArtworkReportInsights>
   >({});
+  const [insightsAvailable, setInsightsAvailable] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedFilter, setSelectedFilter] = useState<FilterStatus>("All");
   const [selectedArtwork, setSelectedArtwork] =
@@ -73,11 +74,13 @@ export default function ArtworkGalleryPage() {
         const enrichedArtworks: ArtworkWithInsights[] = page.items.map(
           (artwork) => ({
             ...artwork,
-            reportInsights: insights[artwork.id]
+            reportInsights: insights.insights[artwork.id],
+            reportInsightsAvailable: insights.available,
           })
         );
 
-        setInsightsByArtwork(insights);
+        setInsightsByArtwork(insights.insights);
+        setInsightsAvailable(insights.available);
         setArtworks(enrichedArtworks);
         setFilteredArtworks(enrichedArtworks);
         setNextCursor(page.nextCursor);
@@ -124,7 +127,8 @@ export default function ArtworkGalleryPage() {
       const page = await fetchArtworks(user.id, nextCursor);
       const enriched = page.items.map((artwork) => ({
         ...artwork,
-        reportInsights: insightsByArtwork[artwork.id]
+        reportInsights: insightsByArtwork[artwork.id],
+        reportInsightsAvailable: insightsAvailable,
       }));
       setArtworks((prev) => prev.concat(enriched));
       setNextCursor(page.nextCursor);
@@ -220,7 +224,10 @@ export default function ArtworkGalleryPage() {
           />
         ) : (
           <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            {/* The details panel consumes 384px; keep cards readable beside it. */}
+            <div className={`grid gap-4 ${selectedArtwork
+              ? "grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3"
+              : "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"}`}>
               {filteredArtworks.map((artwork) => (
                 <ArtworkCard
                   key={artwork.id}

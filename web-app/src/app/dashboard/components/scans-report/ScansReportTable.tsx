@@ -1,6 +1,8 @@
 import { ArrowDown, ArrowUp, ArrowUpDown, Image as ImageIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { SortDirection, SortField, ScanRow } from "./types";
+import { RestrictedMatch, matchIdentity } from "../../../../components/matches/RestrictedMatch";
+import { mostRecentMatch } from "../../../../components/matches/mostRecentMatch";
 
 interface ScansReportTableProps {
   loading: boolean;
@@ -107,56 +109,61 @@ export function ScansReportTable({
               </>
             ) : (
               <>
-                {paginatedRows.map((scan) => (
-                  <tr
-                    key={`${scan.artworkId}-${scan.title}-${scan.mostRecentDate}`}
-                    className="border-b hover:bg-muted/50 cursor-pointer"
-                    onClick={() => onSelectArtwork(scan)}
-                    tabIndex={0}
-                    role="button"
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" || e.key === " ") {
-                        e.preventDefault();
-                        onSelectArtwork(scan);
-                      }
-                    }}
-                  >
-                    <td className={`${TABLE_ROW_CELL_CLASS} text-gray-500`}>{(scan.title || t("dashboard_page.scans_report.unknown_artwork")).substring(0, 20)}</td>
-                    <td className={TABLE_ROW_CELL_CLASS}>
-                      {scan.imageUrl ? (
-                        <img
-                          src={scan.imageUrl}
-                          alt={scan.title}
-                          className="w-12 h-12 object-cover rounded"
-                          onError={(e) => {
-                            e.currentTarget.style.display = "none";
-                            e.currentTarget.nextElementSibling?.classList.remove("hidden");
+                {paginatedRows.map((scan) => {
+                  const latestMatch = mostRecentMatch(scan.matchingPages);
+                  return (
+                    <tr
+                      key={`${scan.artworkId}-${scan.title}-${scan.mostRecentDate}`}
+                      className="border-b hover:bg-muted/50 cursor-pointer"
+                      onClick={() => onSelectArtwork(scan)}
+                      tabIndex={0}
+                      role="button"
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault();
+                          onSelectArtwork(scan);
+                        }
+                      }}
+                    >
+                      <td className={`${TABLE_ROW_CELL_CLASS} text-gray-500`}>{(scan.title || t("dashboard_page.scans_report.unknown_artwork")).substring(0, 20)}</td>
+                      <td className={TABLE_ROW_CELL_CLASS}>
+                        {scan.imageUrl ? (
+                          <img
+                            src={scan.imageUrl}
+                            alt={scan.title}
+                            className="w-12 h-12 object-cover rounded"
+                            onError={(e) => {
+                              e.currentTarget.style.display = "none";
+                              e.currentTarget.nextElementSibling?.classList.remove("hidden");
+                            }}
+                          />
+                        ) : null}
+                        <div className={scan.imageUrl ? "hidden" : "w-12 h-12 bg-gradient-to-br from-orange-400 to-purple-600 rounded-lg flex items-center justify-center"}>
+                          <ImageIcon className="w-6 h-6 text-white" />
+                        </div>
+                      </td>
+                      <td className={TABLE_ROW_CELL_CLASS}>
+                        <span
+                          className="px-3 py-1 rounded text-white font-bold"
+                          style={{
+                            backgroundColor: getMatchColor(scan.matches),
+                            textShadow: "0 0 3px rgba(0,0,0,0.8), 1px 1px 2px rgba(0,0,0,0.5)",
                           }}
-                        />
-                      ) : null}
-                      <div className={scan.imageUrl ? "hidden" : "w-12 h-12 bg-gradient-to-br from-orange-400 to-purple-600 rounded-lg flex items-center justify-center"}>
-                        <ImageIcon className="w-6 h-6 text-white" />
-                      </div>
-                    </td>
-                    <td className={TABLE_ROW_CELL_CLASS}>
-                      <span
-                        className="px-3 py-1 rounded text-white font-bold"
-                        style={{
-                          backgroundColor: getMatchColor(scan.matches),
-                          textShadow: "0 0 3px rgba(0,0,0,0.8), 1px 1px 2px rgba(0,0,0,0.5)",
-                        }}
-                      >
-                        {scan.matches}
-                      </span>
-                    </td>
-                    <td className={TABLE_ROW_CELL_CLASS}>
-                      <span className="px-3 py-1 rounded text-gray-700 font-bold">{t("dashboard_page.scans_report.not_available")}</span>
-                    </td>
-                    <td className={TABLE_ROW_CELL_CLASS}>
-                      <span className="px-3 py-1 rounded bg-purple-900 text-white text-sm">{scan.mostRecentSource}</span>
-                    </td>
-                  </tr>
-                ))}
+                        >
+                          {scan.matches}
+                        </span>
+                      </td>
+                      <td className={TABLE_ROW_CELL_CLASS}>
+                        <span className="px-3 py-1 rounded text-gray-700 font-bold">{t("dashboard_page.scans_report.not_available")}</span>
+                      </td>
+                      <td className={TABLE_ROW_CELL_CLASS}>
+                        <RestrictedMatch unsafeDomain={!!latestMatch?.unsafeDomain} resetKey={`${currentPage}-${sortField}-${sortDirection}-${matchIdentity(latestMatch)}`} compact>
+                        <span className="px-3 py-1 rounded bg-purple-900 text-white text-sm">{scan.mostRecentSource}</span>
+                        </RestrictedMatch>
+                      </td>
+                    </tr>
+                  );
+                })}
 
                 {Array.from({ length: emptyRowsCount }).map((_, index) => (
                   <tr key={`empty-${index}`} className="border-b">

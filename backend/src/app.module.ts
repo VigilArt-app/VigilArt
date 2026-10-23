@@ -13,7 +13,11 @@ import { ConfigModule, ConfigService } from "@nestjs/config";
 import { ScheduleModule } from "@nestjs/schedule";
 import { BullModule } from "@nestjs/bullmq";
 import { CacheModule } from "@nestjs/cache-manager";
+import { ThrottlerModule } from "@nestjs/throttler";
+import { ThrottlerStorageRedisService } from "@nest-lab/throttler-storage-redis";
 import { createKeyv } from "@keyv/redis";
+import { RedisModule } from "./redis/redis.module";
+import { RedisService } from "./redis/redis.service";
 import { AuthModule } from "./auth/auth.module";
 import { VisionModule } from "./vision/vision.module";
 import { ArtworksModule } from "./artworks/artworks.module";
@@ -26,6 +30,17 @@ import { DmcaNoticeModule } from "./dmca/notice/notice.module";
 import { GoogleLensModule } from "./googlelens/googlelens.module";
 import { SerpApiLensModule } from "./serpapilens/serpapilens.module";
 import { NotificationsModule } from "./notifications/notifications.module";
+import { VisualSearchModule } from "./visualsearch/visualsearch.module";
+import { TurnstileModule } from "./turnstile/turnstile.module";
+import { PublicScanModule } from "./public-scan/public-scan.module";
+import {
+  PUBLIC_SCAN_THROTTLER,
+  PUBLIC_SCAN_TTL_MS,
+  PUBLIC_SCAN_LIMIT,
+  PUBLIC_POLL_THROTTLER,
+  PUBLIC_POLL_TTL_MS,
+  PUBLIC_POLL_LIMIT
+} from "./common/throttler.constants";
 import { MailModule } from "./mail/mail.module";
 
 @Module({
@@ -44,6 +59,29 @@ import { MailModule } from "./mail/mail.module";
         }
       })
     }),
+    // Registered without an APP_GUARD on purpose: applied per route via
+    // PublicThrottlerGuard. A global guard would also throttle the dashboard's
+    // own 2-second scan polling. Counters live in Redis so they survive a
+    // restart and are shared across containers.
+    ThrottlerModule.forRootAsync({
+      imports: [RedisModule],
+      inject: [RedisService],
+      useFactory: (redis: RedisService) => ({
+        throttlers: [
+          {
+            name: PUBLIC_SCAN_THROTTLER,
+            ttl: PUBLIC_SCAN_TTL_MS,
+            limit: PUBLIC_SCAN_LIMIT
+          },
+          {
+            name: PUBLIC_POLL_THROTTLER,
+            ttl: PUBLIC_POLL_TTL_MS,
+            limit: PUBLIC_POLL_LIMIT
+          }
+        ],
+        storage: new ThrottlerStorageRedisService(redis)
+      })
+    }),
     CacheModule.registerAsync({
       isGlobal: true,
       imports: [ConfigModule],
@@ -53,6 +91,7 @@ import { MailModule } from "./mail/mail.module";
         ttl: 1 * 60 * 60 * 1000
       })
     }),
+    RedisModule,
     UsersModule,
     AuthModule,
     VisionModule,
@@ -66,6 +105,9 @@ import { MailModule } from "./mail/mail.module";
     GoogleLensModule,
     SerpApiLensModule,
     NotificationsModule,
+    VisualSearchModule,
+    TurnstileModule,
+    PublicScanModule,
     MailModule
   ],
   controllers: [AppController],

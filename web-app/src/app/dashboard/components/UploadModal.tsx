@@ -11,7 +11,7 @@ import {
 } from "../../../components/ui/dialog";
 import { toast } from "sonner";
 import { useFileUpload } from "./upload/useFileUpload";
-import { FileDropzone } from "./upload/FileDropzone";
+import { FileDropzone } from "@/src/components/upload/FileDropzone";
 import { FileList } from "./upload/FileList";
 import { useTranslation } from "react-i18next";
 

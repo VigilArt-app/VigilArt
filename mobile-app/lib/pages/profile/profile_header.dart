@@ -1,18 +1,12 @@
 import 'package:flutter/material.dart';
 
 class ProfileHeader extends StatefulWidget {
-  final String userName;
   final String avatarUrl;
-  final bool isEditMode;
-  final VoidCallback onEditTap;
   final VoidCallback onAvatarTap;
 
   const ProfileHeader({
     super.key,
-    required this.userName,
     required this.avatarUrl,
-    required this.isEditMode,
-    required this.onEditTap,
     required this.onAvatarTap,
   });
 
@@ -85,77 +79,6 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                     backgroundColor: Colors.grey[200],
                   ),
                 ),
-              ),
-              const SizedBox(height: 12),
-
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  if (!widget.isEditMode)
-                    GestureDetector(
-                      onTap: widget.onEditTap,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 14,
-                          vertical: 8,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.black,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Row(
-                          children: const [
-                            Icon(
-                              Icons.edit_outlined,
-                              color: Colors.white,
-                              size: 16,
-                            ),
-                            SizedBox(width: 6),
-                            Text(
-                              'Edit',
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    )
-                  else
-                    GestureDetector(
-                      onTap: widget.onEditTap,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 14,
-                          vertical: 8,
-                        ),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF5E3B7D),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Row(
-                          children: const [
-                            Icon(
-                              Icons.save_outlined,
-                              color: Colors.white,
-                              size: 16,
-                            ),
-                            SizedBox(width: 6),
-                            Text(
-                              'Save',
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                ],
               ),
               const SizedBox(height: 16),
             ],

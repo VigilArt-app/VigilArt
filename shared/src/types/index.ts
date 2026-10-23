@@ -18,3 +18,5 @@ export * from "./Dmca/Platform/JSON-types";
 export * from "./Prisma";
 
 export * from "./Notifications";
+
+export * from "./PublicScan";
