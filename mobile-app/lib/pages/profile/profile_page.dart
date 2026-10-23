@@ -231,7 +231,7 @@ class _ProfilePageState extends State<ProfilePage> {
     } finally {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool('isLoggedIn', false);
-      await prefs.setBool('notificationsEnabled', false);
+      await prefs.setBool('mobileNotificationsEnabled', false);
       if (mounted) {
         Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
       }

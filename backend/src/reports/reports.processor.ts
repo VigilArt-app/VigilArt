@@ -3,6 +3,7 @@ import { HttpException, Logger } from "@nestjs/common";
 import { Job, UnrecoverableError } from "bullmq";
 import { ReportsService } from "./reports.service";
 import { NotificationsService } from "../notifications/notifications.service";
+import { MailService } from "../mail/mail.service";
 import { REPORTS_QUEUE, GENERATE_REPORT_JOB } from "./reports.constants";
 import type { NotificationPayload } from "@vigilart/shared";
 import { SearchQuotaExhaustedException } from "../serpapilens/serpapi-account.service";
@@ -23,7 +24,8 @@ export class ReportsProcessor extends WorkerHost {
 
   constructor(
     private readonly reportsService: ReportsService,
-    private readonly notificationsService: NotificationsService
+    private readonly notificationsService: NotificationsService,
+    private readonly mailService: MailService
   ) {
     super();
   }
@@ -45,6 +47,13 @@ export class ReportsProcessor extends WorkerHost {
         } catch (err) {
           this.logger.error("Failed to send report notification", err);
         }
+
+        try {
+          await this.mailService.sendReportReadyEmail(job.data.userId, report.id);
+        } catch (mailErr) {
+          this.logger.error("Failed to send report ready email", mailErr);
+        }
+
         return report.id;
       } catch (err) {
         this.logger.error(
