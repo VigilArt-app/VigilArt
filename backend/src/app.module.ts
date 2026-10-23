@@ -26,6 +26,7 @@ import { DmcaNoticeModule } from "./dmca/notice/notice.module";
 import { GoogleLensModule } from "./googlelens/googlelens.module";
 import { SerpApiLensModule } from "./serpapilens/serpapilens.module";
 import { NotificationsModule } from "./notifications/notifications.module";
+import { MailModule } from "./mail/mail.module";
 
 @Module({
   imports: [
@@ -64,7 +65,8 @@ import { NotificationsModule } from "./notifications/notifications.module";
     DmcaNoticeModule,
     GoogleLensModule,
     SerpApiLensModule,
-    NotificationsModule
+    NotificationsModule,
+    MailModule
   ],
   controllers: [AppController],
   providers: [

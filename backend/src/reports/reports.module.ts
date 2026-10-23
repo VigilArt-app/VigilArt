@@ -14,6 +14,7 @@ import { ReportsProcessor } from "./reports.processor";
 import { ReportsScheduler } from "./reports.scheduler";
 import { REPORTS_QUEUE } from "./reports.constants";
 import { NotificationsModule } from "../notifications/notifications.module";
+import { MailModule } from "../mail/mail.module";
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { NotificationsModule } from "../notifications/notifications.module";
     GoogleLensModule,
     SerpApiLensModule,
     NotificationsModule,
+    MailModule,
     BullModule.registerQueueAsync({
       name: REPORTS_QUEUE,
       imports: [ConfigModule],
