@@ -10,7 +10,7 @@ import {
   getAvatarDownloadUrl,
   deleteAccount,
 } from "./api";
-import { Button } from "@/src/components/ui/button";
+import { Button, buttonVariants } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
 import { Label } from "@/src/components/ui/label";
 import {
@@ -205,7 +205,7 @@ export default function ProfilePage() {
                     <img src={avatarDisplayUrl} alt="Profile" className="h-24 w-24 rounded-full object-cover border-2 shrink-0" />
                   ) : (
                     <div className="h-24 w-24 rounded-full flex items-center justify-center border-2 shrink-0">
-                      <span className="text-xs">{t("profil_page.no_avatar")}</span>
+                      <span className="text-sm text-muted-foreground">{t("profil_page.no_avatar")}</span>
                     </div>
                   )}
 
@@ -219,21 +219,21 @@ export default function ProfilePage() {
 
               <div className="space-y-6 border-t pt-6">
                 <div>
-                  <Label className="block font-semibold mb-3">{t("profil_page.profile_picture")}</Label>
+                  <Label className="block text-base font-semibold mb-3">{t("profil_page.profile_picture")}</Label>
                   <div className="flex items-center gap-4">
                     {formData.avatar && formData.avatar !== user?.avatar && (
                       <div className="relative">
                         <img src={avatarDisplayUrl || formData.avatar} alt="Avatar preview" className="h-16 w-16 rounded-full object-cover border-2" />
                         <button onClick={handleRemoveAvatar} disabled={isSaving} className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 disabled:opacity-50"  >
-                          <X className="h-3 w-3" />
+                          <X className="size-4" />
                         </button>
                       </div>
                     )}
-                    <label className={`flex items-center gap-2 ${isSaving ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'} text-sm`}>
+                    <label className={`${buttonVariants({ variant: "outline", size: "lg" })} text-base ${isSaving ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}>
                       {isSaving && formData.avatarFile ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
+                        <Loader2 className="size-5 animate-spin" />
                       ) : (
-                        <Upload className="h-4 w-4" />
+                        <Upload className="size-5" />
                       )}
                       <span>{isSaving && formData.avatarFile ? t("profil_page.uploading") : t("profil_page.upload_picture")}</span>
                       <input type="file" accept="image/*" onChange={handleAvatarFileChange} className="hidden" disabled={isSaving} />
@@ -243,29 +243,29 @@ export default function ProfilePage() {
 
                 <div className="grid grid-cols-2 gap-6">
                   <div>
-                    <Label htmlFor="email" className="block font-semibold mb-2">
+                    <Label htmlFor="email" className="block text-base font-semibold mb-2">
                       {t("profil_page.email")}
                     </Label>
-                    <Input id="email" name="email" value={formData.email} type="email" disabled className="w-full cursor-not-allowed" />
+                    <Input id="email" name="email" value={formData.email} type="email" disabled className="w-full h-10 md:text-base cursor-not-allowed" />
                   </div>
 
                   {/* If we want to be able to change the password, we need a route to update it */}
                   <div>
-                    <Label className="block font-semibold mb-2">
+                    <Label className="block text-base font-semibold mb-2">
                       {t("profil_page.password")}
                     </Label>
-                    <Input type="password" value="••••••••••" disabled className="w-full cursor-not-allowed" />
+                    <Input type="password" value="••••••••••" disabled className="w-full h-10 md:text-base cursor-not-allowed" />
                   </div>
                 </div>
 
                 <div className="rounded-lg border bg-muted/30 p-4 space-y-3">
                   <div className="flex items-start justify-between gap-4">
                     <div className="space-y-1">
-                      <Label className="flex items-center gap-2 font-semibold">
-                        {(user?.notificationsEnabled ?? false) ? <Bell className="h-4 w-4" /> : <BellOff className="h-4 w-4" />}
+                      <Label className="flex items-center gap-2 text-base font-semibold">
+                        {(user?.notificationsEnabled ?? false) ? <Bell className="size-5" /> : <BellOff className="size-5" />}
                         {t("profil_page.notifications_title")}
                       </Label>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-base text-muted-foreground">
                         {t("profil_page.notifications_description")}
                       </p>
                     </div>
@@ -277,7 +277,7 @@ export default function ProfilePage() {
                     />
                   </div>
 
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-base text-muted-foreground">
                     {notificationPermission === "granted"
                       ? t("profil_page.notifications_allowed")
                       : notificationPermission === "denied"
@@ -286,22 +286,23 @@ export default function ProfilePage() {
                   </p>
 
                   {notificationsError && (
-                    <p className="text-sm text-red-600">{notificationsError}</p>
+                    <p className="text-base text-red-600">{notificationsError}</p>
                   )}
                 </div>
 
                 <div className="flex justify-between pt-6 border-t">
                   <Button
                     variant="destructive"
+                    size="lg"
                     onClick={() => setDeleteDialogOpen(true)}
                     disabled={isDeleting || isSaving}
-                    className="gap-2"
+                    className="gap-2 text-base"
                   >
-                    {isDeleting && <Loader2 className="h-4 w-4 animate-spin" />}
+                    {isDeleting && <Loader2 className="size-5 animate-spin" />}
                     {t("profil_page.delete_account")}
                   </Button>
-                  <Button onClick={handleSaveProfile} disabled={isSaving} className="gap-2" >
-                    {isSaving && <Loader2 className="h-4 w-4 animate-spin" />}
+                  <Button size="lg" onClick={handleSaveProfile} disabled={isSaving} className="gap-2 text-base">
+                    {isSaving && <Loader2 className="size-5 animate-spin" />}
                     {t("profil_page.save")}
                   </Button>
                 </div>
@@ -323,11 +324,13 @@ export default function ProfilePage() {
             </DialogDescription>
           </DialogHeader>
           <div className="my-4 p-4 bg-red-50 border border-red-200 rounded-md">
-            <p className="text-sm text-red-700">{t("profil_page.delete_account_irreversible")}</p>
+            <p className="text-base text-red-700">{t("profil_page.delete_account_irreversible")}</p>
           </div>
           <div className="flex gap-3 justify-end">
             <Button
               variant="outline"
+              size="lg"
+              className="text-base"
               onClick={() => setDeleteDialogOpen(false)}
               disabled={isDeleting}
             >
@@ -335,11 +338,12 @@ export default function ProfilePage() {
             </Button>
             <Button
               variant="destructive"
+              size="lg"
               onClick={handleConfirmDeleteAccount}
               disabled={isDeleting}
-              className="gap-2"
+              className="gap-2 text-base"
             >
-              {isDeleting && <Loader2 className="h-4 w-4 animate-spin" />}
+              {isDeleting && <Loader2 className="size-5 animate-spin" />}
               {t("profil_page.delete_permanently")}
             </Button>
           </div>
