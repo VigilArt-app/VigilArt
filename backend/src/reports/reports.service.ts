@@ -1,16 +1,22 @@
 import {
+  BadRequestException,
   ForbiddenException,
+  GatewayTimeoutException,
+  HttpStatus,
   Inject,
   Injectable,
   Logger,
   NotFoundException,
+  OnModuleDestroy,
   ServiceUnavailableException
 } from "@nestjs/common";
 import { CACHE_MANAGER } from "@nestjs/cache-manager";
 import type { Cache } from "cache-manager";
 import { InjectQueue } from "@nestjs/bullmq";
-import { Job, JobsOptions, Queue } from "bullmq";
-import { VisionService } from "../vision/vision.service";
+import { Job, JobsOptions, Queue, QueueEvents } from "bullmq";
+import { randomUUID } from "node:crypto";
+import { ScanQuotaService } from "./scan-quota.service";
+import { ArtworkLimitService } from "../artworks/artwork-limit.service";
 import {
   ArtworksReport,
   Artwork,
@@ -29,20 +35,20 @@ import {
   ScanEnqueued,
   ScanStatus,
   ScanProgress,
-  ScanJobState
+  ScanJobState,
+  ScanQuota
 } from "@vigilart/shared";
 import { Prisma } from "@vigilart/shared/server";
 import { ArtworksService } from "../artworks/artworks.service";
 import { StorageService } from "../storage/storage.service";
 import { PrismaService } from "../prisma/prisma.service";
 import { MatchingPagesService } from "./matchingPage.service";
-import { GoogleLensService } from "../googlelens/googlelens.service";
-import { SerpApiLensService } from "../serpapilens/serpapilens.service";
+import { VisualSearchService } from "../visualsearch/visual-search.service";
+import { VisualSearchError } from "../visualsearch/visual-search.error";
+import { SerpApiAccountService } from "../serpapilens/serpapi-account.service";
 import { assertResourceOwnership } from "../common/utils/ownership";
 import { normalizeMatchUrl } from "../common/utils/website-class";
 import {
-  MAX_SCANS_PER_WINDOW,
-  SCAN_WINDOW_DAYS,
   REPORTS_QUEUE,
   GENERATE_REPORT_JOB,
   REPORT_STATS_KEY
@@ -50,6 +56,14 @@ import {
 
 const REPORTS_STATS_TTL = 30 * 24 * 60 * 60 * 1000;
 const STATS_MONTH_WINDOW_MS = 30 * 24 * 60 * 60 * 1000;
+const INTERACTIVE_SCAN_OPTIONS: JobsOptions = {
+  attempts: 1,
+  removeOnComplete: { age: 3600 },
+  removeOnFail: { age: 86400 }
+};
+// Artworks are searched in parallel, each bounded by the 120 s Lens HTTP
+// timeout, so a running scan ends in about that time; 30 s covers storage and DB.
+export const SYNC_SCAN_TIMEOUT_MS = 150_000;
 
 // Cap the statistics drill-down lists (per-category and per-report): a slice can
 // accumulate thousands of matches, and the modal renders every row (with an
@@ -63,64 +77,48 @@ export const MATCHES_MODAL_LIMIT = 100;
 export const TIMELINE_MAX_POINTS = 30;
 
 @Injectable()
-export class ReportsService {
+export class ReportsService implements OnModuleDestroy {
   constructor(
-    private readonly visionService: VisionService,
-    private readonly googleLensService: GoogleLensService,
-    private readonly serpApiLensService: SerpApiLensService,
+    private readonly visualSearchService: VisualSearchService,
     private readonly artworksService: ArtworksService,
     private readonly storageService: StorageService,
     private readonly matchingPagesService: MatchingPagesService,
     private readonly prisma: PrismaService,
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
-    @InjectQueue(REPORTS_QUEUE) private readonly reportsQueue: Queue
+    @InjectQueue(REPORTS_QUEUE) private readonly reportsQueue: Queue,
+    private readonly scanQuota: ScanQuotaService,
+    private readonly artworkLimit: ArtworkLimitService,
+    private readonly serpApiAccount: SerpApiAccountService
   ) {}
 
   private readonly logger = new Logger(ReportsService.name);
+  // One Redis subscriber shared by every synchronous scan, opened on first use.
+  private queueEvents?: QueueEvents;
 
+  async onModuleDestroy(): Promise<void> {
+    await this.queueEvents?.close();
+  }
+
+  // Kept as a forward so the logged-in scan path and its callers are
+  // unchanged; the fan-out itself now lives in VisualSearchService.
   async aggregateVisualSearchResults(
     imageDownloadUrl: string
   ): Promise<MatchingPageGet[]> {
-    const settledResults = await Promise.allSettled([
-      // BrightData Google Lens disabled: the exact_matches tab regressed
-      // server-side (returns the "All" tab, no exact_matches array). Replaced
-      // by SerpAPI Google Lens below until BrightData resolves the zone.
-      // this.googleLensService.searchImage(imageDownloadUrl)
-      this.serpApiLensService.searchImage(imageDownloadUrl)
-    ]);
-    const providers = ["serpApiLens"] as const;
-    const matchingPages: MatchingPageGet[] = [];
-    settledResults.forEach((result, index) => {
-      if (result.status === "rejected") {
-        this.logger.error(
-          `Visual search provider "${providers[index]}" failed`,
-          result.reason
-        );
-        return;
-      }
-      if (result.value) {
-        matchingPages.push(...result.value.matchingPages);
-      }
-    });
-    if (settledResults.every((result) => result.status === "rejected")) {
-      throw new ServiceUnavailableException(
-        "Visual search providers are currently unavailable. Please try again later."
-      );
-    }
-    return matchingPages;
+    return this.visualSearchService.aggregate(imageDownloadUrl);
   }
 
-  async findArtworkMatches(artwork: Artwork): Promise<MatchingPageCreateMany> {
+  async findArtworkMatches(artwork: Artwork, beforeSearch?: () => Promise<void>): Promise<MatchingPageCreateMany> {
     const imageDownloadUrl = await this.storageService.getDownloadUrl(
       artwork.storageKey
     );
+    await beforeSearch?.();
     const matchingPages =
       await this.aggregateVisualSearchResults(imageDownloadUrl);
     const matchingPagesData = matchingPages.map((match) => ({
       artworkId: artwork.id,
       ...match,
-      // Dedup on the canonical page URL: drop query string + fragment so
-      // `.../123?lang=es` and `.../123` collapse to one MatchingPage row.
+      // Dedup on the canonical page URL: drop tracking/share params and the
+      // fragment so `.../123?lang=es` and `.../123` collapse to one row.
       url: normalizeMatchUrl(match.url)
     }));
 
@@ -133,8 +131,20 @@ export class ReportsService {
     void job?.updateProgress({ processed, total }).catch(() => undefined);
   }
 
-  async findArtworksMatches(userId: string, job?: Job): Promise<string[]> {
+  async findArtworksMatches(
+    userId: string,
+    job?: Job,
+    scanId = randomUUID()
+  ): Promise<{ matchingPageIds: string[]; scannedArtworkIds: string[] }> {
     const artworks = await this.artworksService.findAllPerUser(userId);
+    if (artworks.length === 0) throw new BadRequestException("Upload an artwork before scanning.");
+    // One search per artwork. Checked before the user's scan is consumed, so a
+    // refusal does not cost them a scan.
+    const releaseSearches = await this.serpApiAccount.reserveSearches(artworks.length);
+    let consumption: Promise<void> | undefined;
+    // All artwork fan-outs share one gate, immediately before the first search.
+    const beforeSearch = () => consumption ??= this.scanQuota.consumeScan(userId, scanId)
+      .catch((error) => { releaseSearches(); throw error; });
     const total = artworks.length;
     let processed = 0;
     this.emitProgress(job, processed, total);
@@ -143,12 +153,17 @@ export class ReportsService {
     // timeout) must not discard the matches already found for the others.
     const settled = await Promise.allSettled(
       artworks.map((artwork) =>
-        this.findArtworkMatches(artwork).finally(() => {
+        this.findArtworkMatches(artwork, beforeSearch).finally(() => {
           processed += 1;
           this.emitProgress(job, processed, total);
         })
       )
     );
+    // No search ran when every storage URL failed before the gate.
+    if (!consumption) releaseSearches();
+    for (const result of settled) {
+      if (result.status === "rejected" && result.reason instanceof ForbiddenException) throw result.reason;
+    }
     const matchingPagesData = settled.flatMap((result, index) => {
       if (result.status === "rejected") {
         this.logger.error(
@@ -160,16 +175,28 @@ export class ReportsService {
       return result.value;
     });
 
-    // If EVERY artwork failed, the scan never actually ran — fail the job so
-    // the user sees an error, instead of saving a misleading "0 detections".
     if (
       artworks.length > 0 &&
       settled.every((result) => result.status === "rejected")
     ) {
+      // A user-started scan that found nothing because every search failed is
+      // given back. A scheduled one stays consumed, so the hourly cron does not
+      // retry (and pay for) a failing account every hour.
+      if (consumption && job?.data?.manual === true) {
+        await this.scanQuota.releaseScan(userId, scanId).catch((error) =>
+          this.logger.error(`Failed to give back scan ${scanId} of user ${userId}`, error)
+        );
+      }
+      const failure = settled
+        .map((result) => (result as PromiseRejectedResult).reason)
+        .find((reason) => reason instanceof VisualSearchError);
       throw new ServiceUnavailableException(
-        "Scan failed: the visual search provider did not respond in time. Please try again."
+        (failure ?? new VisualSearchError("provider_error")).message
       );
     }
+    const scannedArtworkIds = artworks
+      .filter((_, index) => settled[index].status === "fulfilled")
+      .map((artwork) => artwork.id);
 
     const foundMatchesIds: string[] = [];
     for (
@@ -182,44 +209,38 @@ export class ReportsService {
       );
       foundMatchesIds.push(...res.matchingPages.map((m) => m.id));
     }
-    return foundMatchesIds;
+    return { matchingPageIds: foundMatchesIds, scannedArtworkIds };
   }
 
   async checkScanQuota(userId: string) {
-    const windowStart = new Date(
-      Date.now() - SCAN_WINDOW_DAYS * 24 * 60 * 60 * 1000
-    );
-    const scansInWindow = await this.prisma.artworksReport.count({
-      where: {
-        userId,
-        detectionDate: {
-          gt: windowStart
-        }
-      }
-    });
+    const quota = await this.scanQuota.getScanQuota(userId);
+    if (quota.remaining === 0) throw new ForbiddenException(`You have reached the maximum of ${quota.limit} scans per 30 days.`);
+  }
 
-    if (scansInWindow >= MAX_SCANS_PER_WINDOW)
-      throw new ForbiddenException(
-        `You have reached the maximum of ${MAX_SCANS_PER_WINDOW} scans per ${SCAN_WINDOW_DAYS} days. Please wait before generating a new report.`
-      );
+  getScanQuota(userId: string): Promise<ScanQuota> {
+    return this.scanQuota.getScanQuota(userId);
   }
 
   async generate(userId: string, job?: Job): Promise<ArtworksReport> {
-    await this.checkScanQuota(userId);
+    await this.artworkLimit.assertCapacity(userId, 0);
     this.logger.log(`Generate new report for user ${userId}`);
-
-    const matchingPagesIds = await this.findArtworksMatches(userId, job);
+    // Old waiting jobs also receive a durable UUID before any provider starts.
+    const scanId = job?.data.scanId ?? randomUUID();
+    if (job && !job.data.scanId) await job.updateData({ ...job.data, scanId });
+    const { matchingPageIds, scannedArtworkIds } = await this.findArtworksMatches(userId, job, scanId);
     const report = await this.prisma.artworksReport.create({
       data: {
         userId,
         matchingPages: {
-          connect: matchingPagesIds.map((id) => ({ id }))
+          connect: matchingPageIds.map((id) => ({ id }))
         }
       }
     });
 
+    // An artwork whose search failed keeps its previous status instead of
+    // showing "No matches found".
     await this.prisma.artwork.updateMany({
-      where: { userId },
+      where: { id: { in: scannedArtworkIds } },
       data: { lastScanAt: new Date() }
     });
     await this.cacheManager.del(REPORT_STATS_KEY(userId));
@@ -260,39 +281,67 @@ export class ReportsService {
   // rather than being force-removed here.
   private async enqueueScanJob(
     userId: string,
-    options: JobsOptions
-  ): Promise<string> {
+    options: JobsOptions,
+    interactive = false
+  ): Promise<Job> {
     const jobId = this.scanJobId(userId);
     const existing = await this.reportsQueue.getJob(jobId);
     if (existing) {
       const state = await existing.getState();
       if (this.isRunningState(state)) {
-        return jobId;
+        return existing;
       }
-      // Terminal (completed/failed) job retained only so the status endpoint
-      // could read its result; clear it so the id can be reused.
+    }
+
+    if (interactive) {
+      await this.artworkLimit.assertCapacity(userId, 0);
+      const artworks = await this.artworksService.findAllPerUser(userId);
+      if (artworks.length === 0) throw new BadRequestException("Upload an artwork before scanning.");
+      await this.checkScanQuota(userId);
+      await this.serpApiAccount.assertSearchesLeft(artworks.length);
+    }
+
+    if (existing) {
+      // Preserve the previous result when a replacement fails validation.
+      // Only clear a terminal job after all interactive preflights pass.
       await existing.remove().catch(() => undefined);
     }
 
     const job = await this.reportsQueue.add(
       GENERATE_REPORT_JOB,
-      { userId },
+      { userId, scanId: randomUUID(), ...(interactive && { manual: true }) },
       { jobId, ...options }
     );
-    return job.id ?? jobId;
+    return job;
   }
 
   // Enqueue an interactive async scan (fail fast, retain the finished job so
   // the frontend can poll its result). Quota is checked up front for
   // immediate feedback before a job is created.
   async enqueueScan(userId: string): Promise<ScanEnqueued> {
-    await this.checkScanQuota(userId);
-    const jobId = await this.enqueueScanJob(userId, {
-      attempts: 1,
-      removeOnComplete: { age: 3600 },
-      removeOnFail: { age: 86400 }
-    });
-    return { jobId };
+    const job = await this.enqueueScanJob(userId, INTERACTIVE_SCAN_OPTIONS, true);
+    return { jobId: job.id ?? this.scanJobId(userId) };
+  }
+
+  async generateAndWait(userId: string, timeoutMs = SYNC_SCAN_TIMEOUT_MS): Promise<ArtworksReport> {
+    this.queueEvents ??= new QueueEvents(REPORTS_QUEUE, { connection: this.reportsQueue.opts.connection });
+    await this.queueEvents.waitUntilReady();
+    const job = await this.enqueueScanJob(userId, INTERACTIVE_SCAN_OPTIONS, true);
+    let reportId: string;
+    try {
+      reportId = await job.waitUntilFinished(this.queueEvents, timeoutMs);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Scan failed.";
+      // The rejection is a plain Error rebuilt from the message: read the state and status the worker stored.
+      const current = await this.reportsQueue.getJob(job.id ?? this.scanJobId(userId)).catch(() => undefined);
+      const state = await current?.getState().catch(() => undefined);
+      if (state && this.isRunningState(state)) {
+        throw new GatewayTimeoutException("The scan is taking longer than expected. It continues in the background: check your reports later.");
+      }
+      if (current?.data.failureStatus === HttpStatus.FORBIDDEN) throw new ForbiddenException(message);
+      throw new ServiceUnavailableException(message);
+    }
+    return this.prisma.artworksReport.findUniqueOrThrow({ where: { id: reportId } });
   }
 
   // Enqueue an auto-scan from the scheduler: retry-friendly and self-cleaning.
@@ -302,7 +351,7 @@ export class ReportsService {
     await this.enqueueScanJob(userId, {
       attempts: 3,
       backoff: { type: "exponential", delay: 5000 },
-      removeOnComplete: true,
+      removeOnComplete: { age: 3600 },
       removeOnFail: 100
     });
   }

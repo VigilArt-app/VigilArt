@@ -7,11 +7,14 @@ export function useIsMobile() {
 
   React.useEffect(() => {
     const mql = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`)
-    const onChange = () => {
-      setIsMobile(window.innerWidth < MOBILE_BREAKPOINT)
+    // Read the query's own result: when DevTools leaves device mode the change
+    // event fires before window.innerWidth updates, which left this stuck on
+    // "mobile" and the desktop sidebar never came back.
+    const onChange = (event: MediaQueryListEvent) => {
+      setIsMobile(event.matches)
     }
     mql.addEventListener("change", onChange)
-    setIsMobile(window.innerWidth < MOBILE_BREAKPOINT)
+    setIsMobile(mql.matches)
     return () => mql.removeEventListener("change", onChange)
   }, [])
 

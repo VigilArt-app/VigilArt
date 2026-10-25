@@ -3,27 +3,30 @@ import { BullModule } from "@nestjs/bullmq";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { ReportsController } from "./reports.controller";
 import { ReportsService } from "./reports.service";
-import { VisionModule } from "../vision/vision.module";
 import { ArtworksModule } from "../artworks/artworks.module";
 import { StorageModule } from "../storage/storage.module";
 import { MatchingPagesService } from "./matchingPage.service";
 import { PrismaModule } from "../prisma/prisma.module";
-import { GoogleLensModule } from "../googlelens/googlelens.module";
+import { VisualSearchModule } from "../visualsearch/visualsearch.module";
 import { SerpApiLensModule } from "../serpapilens/serpapilens.module";
 import { ReportsProcessor } from "./reports.processor";
 import { ReportsScheduler } from "./reports.scheduler";
 import { REPORTS_QUEUE } from "./reports.constants";
 import { NotificationsModule } from "../notifications/notifications.module";
+import { ArtworkLimitModule } from "../artworks/artwork-limit.module";
+import { ScanQuotaService } from "./scan-quota.service";
+import { MailModule } from "../mail/mail.module";
 
 @Module({
   imports: [
     PrismaModule,
-    VisionModule,
+    ArtworkLimitModule,
     ArtworksModule,
     StorageModule,
-    GoogleLensModule,
+    VisualSearchModule,
     SerpApiLensModule,
     NotificationsModule,
+    MailModule,
     BullModule.registerQueueAsync({
       name: REPORTS_QUEUE,
       imports: [ConfigModule],
@@ -36,6 +39,6 @@ import { NotificationsModule } from "../notifications/notifications.module";
     })
   ],
   controllers: [ReportsController],
-  providers: [ReportsService, MatchingPagesService, ReportsProcessor, ReportsScheduler]
+  providers: [ReportsService, MatchingPagesService, ReportsProcessor, ReportsScheduler, ScanQuotaService]
 })
 export class ReportsModule {}

@@ -59,9 +59,9 @@ export function DmcaSubmissionStep({
         <div className="space-y-4">
           <div className="rounded-lg border p-4 space-y-3">
             {selectedPlatform.dmcaUrl ? (
-              <Button asChild className="w-full">
+              <Button size="lg" asChild className="w-full text-base">
                 <a href={selectedPlatform.dmcaUrl} target="_blank" rel="noopener noreferrer">
-                  <ExternalLink className="h-4 w-4 mr-2" />
+                  <ExternalLink className="size-5 mr-2" />
                   {t("dmca_page.open_platform_form")}
                 </a>
               </Button>
@@ -76,41 +76,41 @@ export function DmcaSubmissionStep({
             <div className="space-y-4">
               <div className="rounded-lg border-2 border-dashed p-4 space-y-3">
                 <div>
-                  <p className="font-semibold text-sm text-gray-600">{t("dmca_page.email_to")}</p>
+                  <p className="font-semibold text-sm text-muted-foreground">{t("dmca_page.email_to")}</p>
                   <p className="text-foreground font-mono text-sm">{generatedContent.email.to}</p>
                 </div>
                 <div>
-                  <p className="font-semibold text-sm text-gray-600">{t("dmca_page.email_subject")}</p>
+                  <p className="font-semibold text-sm text-muted-foreground">{t("dmca_page.email_subject")}</p>
                   <p className="text-foreground text-sm break-words">{generatedContent.email.subject}</p>
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <Button
+                <Button size="lg"
                   variant="outline"
                   onClick={() => onCopyToClipboard(generatedContent.email.subject, "subject")}
-                  className="gap-2"
+                  className="gap-2 text-base"
                 >
-                  {copiedField === "subject" ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                  {copiedField === "subject" ? <Check className="size-5" /> : <Copy className="size-5" />}
                   {t("dmca_page.copy_subject")}
                 </Button>
-                <Button
+                <Button size="lg"
                   variant="outline"
                   onClick={() => onCopyToClipboard(generatedContent.email.body, "body")}
-                  className="gap-2"
+                  className="gap-2 text-base"
                 >
-                  {copiedField === "body" ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                  {copiedField === "body" ? <Check className="size-5" /> : <Copy className="size-5" />}
                   {t("dmca_page.copy_body")}
                 </Button>
               </div>
 
-              <Button asChild variant="outline" className="w-full">
+              <Button size="lg" asChild variant="outline" className="w-full text-base">
                 <a href={mailtoHref} className="gap-2">
                   ✉️ {t("dmca_page.open_mail_app")}
                 </a>
               </Button>
 
-              <Button asChild className="w-full gap-2">
+              <Button size="lg" asChild className="w-full gap-2 text-base">
                 <a href={generatedContent.pdf.url} target="_blank" rel="noopener noreferrer">
                   📄 {t("dmca_page.download_pdf")}
                 </a>
@@ -119,8 +119,8 @@ export function DmcaSubmissionStep({
           ) : (
             <div className="rounded-lg border p-4">
               <p className="text-sm">{t("dmca_page.generate_notice_first")}</p>
-              <Button onClick={onGenerate} disabled={generating || !activeNotice} className="mt-3 gap-2">
-                {generating && <Loader2 className="h-4 w-4 animate-spin" />}
+              <Button size="lg" onClick={onGenerate} disabled={generating || !activeNotice} className="mt-3 gap-2 text-base">
+                {generating && <Loader2 className="size-5 animate-spin" />}
                 {t("dmca_page.generate_content")}
               </Button>
             </div>
@@ -129,25 +129,25 @@ export function DmcaSubmissionStep({
       )}
 
       {activeNotice && !isSubmitted && (
-        <div className="rounded-lg border border-amber-300/70 bg-amber-50 dark:bg-amber-900/20 p-4">
+        <div className="rounded-lg border border-warning/30 bg-warning-muted p-4">
           <p className="text-sm mb-3">{t("dmca_page.mark_submitted_warning")}</p>
-          <Button
+          <Button size="lg"
             variant="outline"
             onClick={() => setConfirmOpen(true)}
             disabled={submittingStatus}
-            className="gap-2"
+            className="gap-2 text-base"
           >
-            {submittingStatus && <Loader2 className="h-4 w-4 animate-spin" />}
+            {submittingStatus && <Loader2 className="size-5 animate-spin" />}
             {t("dmca_page.mark_submitted")}
           </Button>
         </div>
       )}
 
       <div className="flex gap-3 justify-between pt-4">
-        <Button variant="outline" onClick={onBack} disabled={isSubmitted}>
+        <Button className="text-base" size="lg" variant="outline" onClick={onBack} disabled={isSubmitted}>
           ← {t("dmca_page.back")}
         </Button>
-        <Button onClick={onStartNew} className="gap-2">
+        <Button size="lg" onClick={onStartNew} className="gap-2 text-base">
           {t("dmca_page.start_new_report")}
         </Button>
       </div>
@@ -159,17 +159,17 @@ export function DmcaSubmissionStep({
             <DialogDescription>{t("dmca_page.confirm_submit_description")}</DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setConfirmOpen(false)}>
+            <Button className="text-base" size="lg" variant="outline" onClick={() => setConfirmOpen(false)}>
               {t("dmca_page.cancel")}
             </Button>
-            <Button
+            <Button className="text-base" size="lg"
               onClick={() => {
                 setConfirmOpen(false);
                 onMarkSubmitted();
               }}
               disabled={submittingStatus}
             >
-              {submittingStatus && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+              {submittingStatus && <Loader2 className="size-5 animate-spin mr-2" />}
               {t("dmca_page.confirm_submit")}
             </Button>
           </DialogFooter>

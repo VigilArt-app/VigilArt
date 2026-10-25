@@ -30,10 +30,15 @@ export type UserMinAggregateOutputType = {
   password: string | null
   firstName: string | null
   lastName: string | null
+  termsAcceptedAt: Date | null
+  termsVersion: string | null
+  privacyVersion: string | null
   avatar: string | null
   subscriptionTier: $Enums.SubscriptionTier | null
   autoRunReports: boolean | null
-  notificationsEnabled: boolean | null
+  mailNotificationsEnabled: boolean | null
+  mobileNotificationsEnabled: boolean | null
+  webNotificationsEnabled: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -44,10 +49,15 @@ export type UserMaxAggregateOutputType = {
   password: string | null
   firstName: string | null
   lastName: string | null
+  termsAcceptedAt: Date | null
+  termsVersion: string | null
+  privacyVersion: string | null
   avatar: string | null
   subscriptionTier: $Enums.SubscriptionTier | null
   autoRunReports: boolean | null
-  notificationsEnabled: boolean | null
+  mailNotificationsEnabled: boolean | null
+  mobileNotificationsEnabled: boolean | null
+  webNotificationsEnabled: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -58,10 +68,15 @@ export type UserCountAggregateOutputType = {
   password: number
   firstName: number
   lastName: number
+  termsAcceptedAt: number
+  termsVersion: number
+  privacyVersion: number
   avatar: number
   subscriptionTier: number
   autoRunReports: number
-  notificationsEnabled: number
+  mailNotificationsEnabled: number
+  mobileNotificationsEnabled: number
+  webNotificationsEnabled: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -74,10 +89,15 @@ export type UserMinAggregateInputType = {
   password?: true
   firstName?: true
   lastName?: true
+  termsAcceptedAt?: true
+  termsVersion?: true
+  privacyVersion?: true
   avatar?: true
   subscriptionTier?: true
   autoRunReports?: true
-  notificationsEnabled?: true
+  mailNotificationsEnabled?: true
+  mobileNotificationsEnabled?: true
+  webNotificationsEnabled?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -88,10 +108,15 @@ export type UserMaxAggregateInputType = {
   password?: true
   firstName?: true
   lastName?: true
+  termsAcceptedAt?: true
+  termsVersion?: true
+  privacyVersion?: true
   avatar?: true
   subscriptionTier?: true
   autoRunReports?: true
-  notificationsEnabled?: true
+  mailNotificationsEnabled?: true
+  mobileNotificationsEnabled?: true
+  webNotificationsEnabled?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -102,10 +127,15 @@ export type UserCountAggregateInputType = {
   password?: true
   firstName?: true
   lastName?: true
+  termsAcceptedAt?: true
+  termsVersion?: true
+  privacyVersion?: true
   avatar?: true
   subscriptionTier?: true
   autoRunReports?: true
-  notificationsEnabled?: true
+  mailNotificationsEnabled?: true
+  mobileNotificationsEnabled?: true
+  webNotificationsEnabled?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -187,12 +217,17 @@ export type UserGroupByOutputType = {
   id: string
   email: string
   password: string
-  firstName: string
-  lastName: string
+  firstName: string | null
+  lastName: string | null
+  termsAcceptedAt: Date | null
+  termsVersion: string | null
+  privacyVersion: string | null
   avatar: string | null
   subscriptionTier: $Enums.SubscriptionTier
   autoRunReports: boolean
-  notificationsEnabled: boolean
+  mailNotificationsEnabled: boolean
+  mobileNotificationsEnabled: boolean
+  webNotificationsEnabled: boolean
   createdAt: Date
   updatedAt: Date
   _count: UserCountAggregateOutputType | null
@@ -222,16 +257,22 @@ export type UserWhereInput = {
   id?: Prisma.StringFilter<"User"> | string
   email?: Prisma.StringFilter<"User"> | string
   password?: Prisma.StringFilter<"User"> | string
-  firstName?: Prisma.StringFilter<"User"> | string
-  lastName?: Prisma.StringFilter<"User"> | string
+  firstName?: Prisma.StringNullableFilter<"User"> | string | null
+  lastName?: Prisma.StringNullableFilter<"User"> | string | null
+  termsAcceptedAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  termsVersion?: Prisma.StringNullableFilter<"User"> | string | null
+  privacyVersion?: Prisma.StringNullableFilter<"User"> | string | null
   avatar?: Prisma.StringNullableFilter<"User"> | string | null
   subscriptionTier?: Prisma.EnumSubscriptionTierFilter<"User"> | $Enums.SubscriptionTier
   autoRunReports?: Prisma.BoolFilter<"User"> | boolean
-  notificationsEnabled?: Prisma.BoolFilter<"User"> | boolean
+  mailNotificationsEnabled?: Prisma.BoolFilter<"User"> | boolean
+  mobileNotificationsEnabled?: Prisma.BoolFilter<"User"> | boolean
+  webNotificationsEnabled?: Prisma.BoolFilter<"User"> | boolean
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   artworks?: Prisma.ArtworkListRelationFilter
   artworksReport?: Prisma.ArtworksReportListRelationFilter
+  scanUsages?: Prisma.ScanUsageListRelationFilter
   dmcaProfile?: Prisma.XOR<Prisma.DmcaProfileNullableScalarRelationFilter, Prisma.DmcaProfileWhereInput> | null
   dmcaNotices?: Prisma.DmcaNoticeListRelationFilter
   refreshTokens?: Prisma.RefreshTokenListRelationFilter
@@ -242,16 +283,22 @@ export type UserOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   email?: Prisma.SortOrder
   password?: Prisma.SortOrder
-  firstName?: Prisma.SortOrder
-  lastName?: Prisma.SortOrder
+  firstName?: Prisma.SortOrderInput | Prisma.SortOrder
+  lastName?: Prisma.SortOrderInput | Prisma.SortOrder
+  termsAcceptedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  termsVersion?: Prisma.SortOrderInput | Prisma.SortOrder
+  privacyVersion?: Prisma.SortOrderInput | Prisma.SortOrder
   avatar?: Prisma.SortOrderInput | Prisma.SortOrder
   subscriptionTier?: Prisma.SortOrder
   autoRunReports?: Prisma.SortOrder
-  notificationsEnabled?: Prisma.SortOrder
+  mailNotificationsEnabled?: Prisma.SortOrder
+  mobileNotificationsEnabled?: Prisma.SortOrder
+  webNotificationsEnabled?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   artworks?: Prisma.ArtworkOrderByRelationAggregateInput
   artworksReport?: Prisma.ArtworksReportOrderByRelationAggregateInput
+  scanUsages?: Prisma.ScanUsageOrderByRelationAggregateInput
   dmcaProfile?: Prisma.DmcaProfileOrderByWithRelationInput
   dmcaNotices?: Prisma.DmcaNoticeOrderByRelationAggregateInput
   refreshTokens?: Prisma.RefreshTokenOrderByRelationAggregateInput
@@ -265,16 +312,22 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.UserWhereInput[]
   NOT?: Prisma.UserWhereInput | Prisma.UserWhereInput[]
   password?: Prisma.StringFilter<"User"> | string
-  firstName?: Prisma.StringFilter<"User"> | string
-  lastName?: Prisma.StringFilter<"User"> | string
+  firstName?: Prisma.StringNullableFilter<"User"> | string | null
+  lastName?: Prisma.StringNullableFilter<"User"> | string | null
+  termsAcceptedAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  termsVersion?: Prisma.StringNullableFilter<"User"> | string | null
+  privacyVersion?: Prisma.StringNullableFilter<"User"> | string | null
   avatar?: Prisma.StringNullableFilter<"User"> | string | null
   subscriptionTier?: Prisma.EnumSubscriptionTierFilter<"User"> | $Enums.SubscriptionTier
   autoRunReports?: Prisma.BoolFilter<"User"> | boolean
-  notificationsEnabled?: Prisma.BoolFilter<"User"> | boolean
+  mailNotificationsEnabled?: Prisma.BoolFilter<"User"> | boolean
+  mobileNotificationsEnabled?: Prisma.BoolFilter<"User"> | boolean
+  webNotificationsEnabled?: Prisma.BoolFilter<"User"> | boolean
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   artworks?: Prisma.ArtworkListRelationFilter
   artworksReport?: Prisma.ArtworksReportListRelationFilter
+  scanUsages?: Prisma.ScanUsageListRelationFilter
   dmcaProfile?: Prisma.XOR<Prisma.DmcaProfileNullableScalarRelationFilter, Prisma.DmcaProfileWhereInput> | null
   dmcaNotices?: Prisma.DmcaNoticeListRelationFilter
   refreshTokens?: Prisma.RefreshTokenListRelationFilter
@@ -285,12 +338,17 @@ export type UserOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   email?: Prisma.SortOrder
   password?: Prisma.SortOrder
-  firstName?: Prisma.SortOrder
-  lastName?: Prisma.SortOrder
+  firstName?: Prisma.SortOrderInput | Prisma.SortOrder
+  lastName?: Prisma.SortOrderInput | Prisma.SortOrder
+  termsAcceptedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  termsVersion?: Prisma.SortOrderInput | Prisma.SortOrder
+  privacyVersion?: Prisma.SortOrderInput | Prisma.SortOrder
   avatar?: Prisma.SortOrderInput | Prisma.SortOrder
   subscriptionTier?: Prisma.SortOrder
   autoRunReports?: Prisma.SortOrder
-  notificationsEnabled?: Prisma.SortOrder
+  mailNotificationsEnabled?: Prisma.SortOrder
+  mobileNotificationsEnabled?: Prisma.SortOrder
+  webNotificationsEnabled?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.UserCountOrderByAggregateInput
@@ -305,12 +363,17 @@ export type UserScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"User"> | string
   email?: Prisma.StringWithAggregatesFilter<"User"> | string
   password?: Prisma.StringWithAggregatesFilter<"User"> | string
-  firstName?: Prisma.StringWithAggregatesFilter<"User"> | string
-  lastName?: Prisma.StringWithAggregatesFilter<"User"> | string
+  firstName?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  lastName?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  termsAcceptedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
+  termsVersion?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  privacyVersion?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   avatar?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   subscriptionTier?: Prisma.EnumSubscriptionTierWithAggregatesFilter<"User"> | $Enums.SubscriptionTier
   autoRunReports?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
-  notificationsEnabled?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
+  mailNotificationsEnabled?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
+  mobileNotificationsEnabled?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
+  webNotificationsEnabled?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
 }
@@ -319,16 +382,22 @@ export type UserCreateInput = {
   id?: string
   email: string
   password: string
-  firstName: string
-  lastName: string
+  firstName?: string | null
+  lastName?: string | null
+  termsAcceptedAt?: Date | string | null
+  termsVersion?: string | null
+  privacyVersion?: string | null
   avatar?: string | null
   subscriptionTier?: $Enums.SubscriptionTier
   autoRunReports?: boolean
-  notificationsEnabled?: boolean
+  mailNotificationsEnabled?: boolean
+  mobileNotificationsEnabled?: boolean
+  webNotificationsEnabled?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   artworks?: Prisma.ArtworkCreateNestedManyWithoutUserInput
   artworksReport?: Prisma.ArtworksReportCreateNestedManyWithoutUserInput
+  scanUsages?: Prisma.ScanUsageCreateNestedManyWithoutUserInput
   dmcaProfile?: Prisma.DmcaProfileCreateNestedOneWithoutUserInput
   dmcaNotices?: Prisma.DmcaNoticeCreateNestedManyWithoutUserInput
   refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
@@ -339,16 +408,22 @@ export type UserUncheckedCreateInput = {
   id?: string
   email: string
   password: string
-  firstName: string
-  lastName: string
+  firstName?: string | null
+  lastName?: string | null
+  termsAcceptedAt?: Date | string | null
+  termsVersion?: string | null
+  privacyVersion?: string | null
   avatar?: string | null
   subscriptionTier?: $Enums.SubscriptionTier
   autoRunReports?: boolean
-  notificationsEnabled?: boolean
+  mailNotificationsEnabled?: boolean
+  mobileNotificationsEnabled?: boolean
+  webNotificationsEnabled?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   artworks?: Prisma.ArtworkUncheckedCreateNestedManyWithoutUserInput
   artworksReport?: Prisma.ArtworksReportUncheckedCreateNestedManyWithoutUserInput
+  scanUsages?: Prisma.ScanUsageUncheckedCreateNestedManyWithoutUserInput
   dmcaProfile?: Prisma.DmcaProfileUncheckedCreateNestedOneWithoutUserInput
   dmcaNotices?: Prisma.DmcaNoticeUncheckedCreateNestedManyWithoutUserInput
   refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
@@ -359,16 +434,22 @@ export type UserUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
-  firstName?: Prisma.StringFieldUpdateOperationsInput | string
-  lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  termsAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  termsVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  privacyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   subscriptionTier?: Prisma.EnumSubscriptionTierFieldUpdateOperationsInput | $Enums.SubscriptionTier
   autoRunReports?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  notificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mailNotificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mobileNotificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  webNotificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   artworks?: Prisma.ArtworkUpdateManyWithoutUserNestedInput
   artworksReport?: Prisma.ArtworksReportUpdateManyWithoutUserNestedInput
+  scanUsages?: Prisma.ScanUsageUpdateManyWithoutUserNestedInput
   dmcaProfile?: Prisma.DmcaProfileUpdateOneWithoutUserNestedInput
   dmcaNotices?: Prisma.DmcaNoticeUpdateManyWithoutUserNestedInput
   refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
@@ -379,16 +460,22 @@ export type UserUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
-  firstName?: Prisma.StringFieldUpdateOperationsInput | string
-  lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  termsAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  termsVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  privacyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   subscriptionTier?: Prisma.EnumSubscriptionTierFieldUpdateOperationsInput | $Enums.SubscriptionTier
   autoRunReports?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  notificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mailNotificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mobileNotificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  webNotificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   artworks?: Prisma.ArtworkUncheckedUpdateManyWithoutUserNestedInput
   artworksReport?: Prisma.ArtworksReportUncheckedUpdateManyWithoutUserNestedInput
+  scanUsages?: Prisma.ScanUsageUncheckedUpdateManyWithoutUserNestedInput
   dmcaProfile?: Prisma.DmcaProfileUncheckedUpdateOneWithoutUserNestedInput
   dmcaNotices?: Prisma.DmcaNoticeUncheckedUpdateManyWithoutUserNestedInput
   refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -399,12 +486,17 @@ export type UserCreateManyInput = {
   id?: string
   email: string
   password: string
-  firstName: string
-  lastName: string
+  firstName?: string | null
+  lastName?: string | null
+  termsAcceptedAt?: Date | string | null
+  termsVersion?: string | null
+  privacyVersion?: string | null
   avatar?: string | null
   subscriptionTier?: $Enums.SubscriptionTier
   autoRunReports?: boolean
-  notificationsEnabled?: boolean
+  mailNotificationsEnabled?: boolean
+  mobileNotificationsEnabled?: boolean
+  webNotificationsEnabled?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -413,12 +505,17 @@ export type UserUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
-  firstName?: Prisma.StringFieldUpdateOperationsInput | string
-  lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  termsAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  termsVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  privacyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   subscriptionTier?: Prisma.EnumSubscriptionTierFieldUpdateOperationsInput | $Enums.SubscriptionTier
   autoRunReports?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  notificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mailNotificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mobileNotificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  webNotificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -427,12 +524,17 @@ export type UserUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
-  firstName?: Prisma.StringFieldUpdateOperationsInput | string
-  lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  termsAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  termsVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  privacyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   subscriptionTier?: Prisma.EnumSubscriptionTierFieldUpdateOperationsInput | $Enums.SubscriptionTier
   autoRunReports?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  notificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mailNotificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mobileNotificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  webNotificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -443,10 +545,15 @@ export type UserCountOrderByAggregateInput = {
   password?: Prisma.SortOrder
   firstName?: Prisma.SortOrder
   lastName?: Prisma.SortOrder
+  termsAcceptedAt?: Prisma.SortOrder
+  termsVersion?: Prisma.SortOrder
+  privacyVersion?: Prisma.SortOrder
   avatar?: Prisma.SortOrder
   subscriptionTier?: Prisma.SortOrder
   autoRunReports?: Prisma.SortOrder
-  notificationsEnabled?: Prisma.SortOrder
+  mailNotificationsEnabled?: Prisma.SortOrder
+  mobileNotificationsEnabled?: Prisma.SortOrder
+  webNotificationsEnabled?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -457,10 +564,15 @@ export type UserMaxOrderByAggregateInput = {
   password?: Prisma.SortOrder
   firstName?: Prisma.SortOrder
   lastName?: Prisma.SortOrder
+  termsAcceptedAt?: Prisma.SortOrder
+  termsVersion?: Prisma.SortOrder
+  privacyVersion?: Prisma.SortOrder
   avatar?: Prisma.SortOrder
   subscriptionTier?: Prisma.SortOrder
   autoRunReports?: Prisma.SortOrder
-  notificationsEnabled?: Prisma.SortOrder
+  mailNotificationsEnabled?: Prisma.SortOrder
+  mobileNotificationsEnabled?: Prisma.SortOrder
+  webNotificationsEnabled?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -471,10 +583,15 @@ export type UserMinOrderByAggregateInput = {
   password?: Prisma.SortOrder
   firstName?: Prisma.SortOrder
   lastName?: Prisma.SortOrder
+  termsAcceptedAt?: Prisma.SortOrder
+  termsVersion?: Prisma.SortOrder
+  privacyVersion?: Prisma.SortOrder
   avatar?: Prisma.SortOrder
   subscriptionTier?: Prisma.SortOrder
   autoRunReports?: Prisma.SortOrder
-  notificationsEnabled?: Prisma.SortOrder
+  mailNotificationsEnabled?: Prisma.SortOrder
+  mobileNotificationsEnabled?: Prisma.SortOrder
+  webNotificationsEnabled?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -495,6 +612,10 @@ export type StringFieldUpdateOperationsInput = {
 
 export type NullableStringFieldUpdateOperationsInput = {
   set?: string | null
+}
+
+export type NullableDateTimeFieldUpdateOperationsInput = {
+  set?: Date | string | null
 }
 
 export type EnumSubscriptionTierFieldUpdateOperationsInput = {
@@ -565,6 +686,20 @@ export type UserUpdateOneRequiredWithoutArtworksReportNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutArtworksReportInput, Prisma.UserUpdateWithoutArtworksReportInput>, Prisma.UserUncheckedUpdateWithoutArtworksReportInput>
 }
 
+export type UserCreateNestedOneWithoutScanUsagesInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutScanUsagesInput, Prisma.UserUncheckedCreateWithoutScanUsagesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutScanUsagesInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutScanUsagesNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutScanUsagesInput, Prisma.UserUncheckedCreateWithoutScanUsagesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutScanUsagesInput
+  upsert?: Prisma.UserUpsertWithoutScanUsagesInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutScanUsagesInput, Prisma.UserUpdateWithoutScanUsagesInput>, Prisma.UserUncheckedUpdateWithoutScanUsagesInput>
+}
+
 export type UserCreateNestedOneWithoutDmcaProfileInput = {
   create?: Prisma.XOR<Prisma.UserCreateWithoutDmcaProfileInput, Prisma.UserUncheckedCreateWithoutDmcaProfileInput>
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutDmcaProfileInput
@@ -599,16 +734,22 @@ export type UserCreateWithoutRefreshTokensInput = {
   id?: string
   email: string
   password: string
-  firstName: string
-  lastName: string
+  firstName?: string | null
+  lastName?: string | null
+  termsAcceptedAt?: Date | string | null
+  termsVersion?: string | null
+  privacyVersion?: string | null
   avatar?: string | null
   subscriptionTier?: $Enums.SubscriptionTier
   autoRunReports?: boolean
-  notificationsEnabled?: boolean
+  mailNotificationsEnabled?: boolean
+  mobileNotificationsEnabled?: boolean
+  webNotificationsEnabled?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   artworks?: Prisma.ArtworkCreateNestedManyWithoutUserInput
   artworksReport?: Prisma.ArtworksReportCreateNestedManyWithoutUserInput
+  scanUsages?: Prisma.ScanUsageCreateNestedManyWithoutUserInput
   dmcaProfile?: Prisma.DmcaProfileCreateNestedOneWithoutUserInput
   dmcaNotices?: Prisma.DmcaNoticeCreateNestedManyWithoutUserInput
   deviceTokens?: Prisma.DeviceTokenCreateNestedManyWithoutUserInput
@@ -618,16 +759,22 @@ export type UserUncheckedCreateWithoutRefreshTokensInput = {
   id?: string
   email: string
   password: string
-  firstName: string
-  lastName: string
+  firstName?: string | null
+  lastName?: string | null
+  termsAcceptedAt?: Date | string | null
+  termsVersion?: string | null
+  privacyVersion?: string | null
   avatar?: string | null
   subscriptionTier?: $Enums.SubscriptionTier
   autoRunReports?: boolean
-  notificationsEnabled?: boolean
+  mailNotificationsEnabled?: boolean
+  mobileNotificationsEnabled?: boolean
+  webNotificationsEnabled?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   artworks?: Prisma.ArtworkUncheckedCreateNestedManyWithoutUserInput
   artworksReport?: Prisma.ArtworksReportUncheckedCreateNestedManyWithoutUserInput
+  scanUsages?: Prisma.ScanUsageUncheckedCreateNestedManyWithoutUserInput
   dmcaProfile?: Prisma.DmcaProfileUncheckedCreateNestedOneWithoutUserInput
   dmcaNotices?: Prisma.DmcaNoticeUncheckedCreateNestedManyWithoutUserInput
   deviceTokens?: Prisma.DeviceTokenUncheckedCreateNestedManyWithoutUserInput
@@ -653,16 +800,22 @@ export type UserUpdateWithoutRefreshTokensInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
-  firstName?: Prisma.StringFieldUpdateOperationsInput | string
-  lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  termsAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  termsVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  privacyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   subscriptionTier?: Prisma.EnumSubscriptionTierFieldUpdateOperationsInput | $Enums.SubscriptionTier
   autoRunReports?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  notificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mailNotificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mobileNotificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  webNotificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   artworks?: Prisma.ArtworkUpdateManyWithoutUserNestedInput
   artworksReport?: Prisma.ArtworksReportUpdateManyWithoutUserNestedInput
+  scanUsages?: Prisma.ScanUsageUpdateManyWithoutUserNestedInput
   dmcaProfile?: Prisma.DmcaProfileUpdateOneWithoutUserNestedInput
   dmcaNotices?: Prisma.DmcaNoticeUpdateManyWithoutUserNestedInput
   deviceTokens?: Prisma.DeviceTokenUpdateManyWithoutUserNestedInput
@@ -672,16 +825,22 @@ export type UserUncheckedUpdateWithoutRefreshTokensInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
-  firstName?: Prisma.StringFieldUpdateOperationsInput | string
-  lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  termsAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  termsVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  privacyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   subscriptionTier?: Prisma.EnumSubscriptionTierFieldUpdateOperationsInput | $Enums.SubscriptionTier
   autoRunReports?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  notificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mailNotificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mobileNotificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  webNotificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   artworks?: Prisma.ArtworkUncheckedUpdateManyWithoutUserNestedInput
   artworksReport?: Prisma.ArtworksReportUncheckedUpdateManyWithoutUserNestedInput
+  scanUsages?: Prisma.ScanUsageUncheckedUpdateManyWithoutUserNestedInput
   dmcaProfile?: Prisma.DmcaProfileUncheckedUpdateOneWithoutUserNestedInput
   dmcaNotices?: Prisma.DmcaNoticeUncheckedUpdateManyWithoutUserNestedInput
   deviceTokens?: Prisma.DeviceTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -691,16 +850,22 @@ export type UserCreateWithoutDeviceTokensInput = {
   id?: string
   email: string
   password: string
-  firstName: string
-  lastName: string
+  firstName?: string | null
+  lastName?: string | null
+  termsAcceptedAt?: Date | string | null
+  termsVersion?: string | null
+  privacyVersion?: string | null
   avatar?: string | null
   subscriptionTier?: $Enums.SubscriptionTier
   autoRunReports?: boolean
-  notificationsEnabled?: boolean
+  mailNotificationsEnabled?: boolean
+  mobileNotificationsEnabled?: boolean
+  webNotificationsEnabled?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   artworks?: Prisma.ArtworkCreateNestedManyWithoutUserInput
   artworksReport?: Prisma.ArtworksReportCreateNestedManyWithoutUserInput
+  scanUsages?: Prisma.ScanUsageCreateNestedManyWithoutUserInput
   dmcaProfile?: Prisma.DmcaProfileCreateNestedOneWithoutUserInput
   dmcaNotices?: Prisma.DmcaNoticeCreateNestedManyWithoutUserInput
   refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
@@ -710,16 +875,22 @@ export type UserUncheckedCreateWithoutDeviceTokensInput = {
   id?: string
   email: string
   password: string
-  firstName: string
-  lastName: string
+  firstName?: string | null
+  lastName?: string | null
+  termsAcceptedAt?: Date | string | null
+  termsVersion?: string | null
+  privacyVersion?: string | null
   avatar?: string | null
   subscriptionTier?: $Enums.SubscriptionTier
   autoRunReports?: boolean
-  notificationsEnabled?: boolean
+  mailNotificationsEnabled?: boolean
+  mobileNotificationsEnabled?: boolean
+  webNotificationsEnabled?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   artworks?: Prisma.ArtworkUncheckedCreateNestedManyWithoutUserInput
   artworksReport?: Prisma.ArtworksReportUncheckedCreateNestedManyWithoutUserInput
+  scanUsages?: Prisma.ScanUsageUncheckedCreateNestedManyWithoutUserInput
   dmcaProfile?: Prisma.DmcaProfileUncheckedCreateNestedOneWithoutUserInput
   dmcaNotices?: Prisma.DmcaNoticeUncheckedCreateNestedManyWithoutUserInput
   refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
@@ -745,16 +916,22 @@ export type UserUpdateWithoutDeviceTokensInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
-  firstName?: Prisma.StringFieldUpdateOperationsInput | string
-  lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  termsAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  termsVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  privacyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   subscriptionTier?: Prisma.EnumSubscriptionTierFieldUpdateOperationsInput | $Enums.SubscriptionTier
   autoRunReports?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  notificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mailNotificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mobileNotificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  webNotificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   artworks?: Prisma.ArtworkUpdateManyWithoutUserNestedInput
   artworksReport?: Prisma.ArtworksReportUpdateManyWithoutUserNestedInput
+  scanUsages?: Prisma.ScanUsageUpdateManyWithoutUserNestedInput
   dmcaProfile?: Prisma.DmcaProfileUpdateOneWithoutUserNestedInput
   dmcaNotices?: Prisma.DmcaNoticeUpdateManyWithoutUserNestedInput
   refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
@@ -764,16 +941,22 @@ export type UserUncheckedUpdateWithoutDeviceTokensInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
-  firstName?: Prisma.StringFieldUpdateOperationsInput | string
-  lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  termsAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  termsVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  privacyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   subscriptionTier?: Prisma.EnumSubscriptionTierFieldUpdateOperationsInput | $Enums.SubscriptionTier
   autoRunReports?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  notificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mailNotificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mobileNotificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  webNotificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   artworks?: Prisma.ArtworkUncheckedUpdateManyWithoutUserNestedInput
   artworksReport?: Prisma.ArtworksReportUncheckedUpdateManyWithoutUserNestedInput
+  scanUsages?: Prisma.ScanUsageUncheckedUpdateManyWithoutUserNestedInput
   dmcaProfile?: Prisma.DmcaProfileUncheckedUpdateOneWithoutUserNestedInput
   dmcaNotices?: Prisma.DmcaNoticeUncheckedUpdateManyWithoutUserNestedInput
   refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -783,15 +966,21 @@ export type UserCreateWithoutArtworksInput = {
   id?: string
   email: string
   password: string
-  firstName: string
-  lastName: string
+  firstName?: string | null
+  lastName?: string | null
+  termsAcceptedAt?: Date | string | null
+  termsVersion?: string | null
+  privacyVersion?: string | null
   avatar?: string | null
   subscriptionTier?: $Enums.SubscriptionTier
   autoRunReports?: boolean
-  notificationsEnabled?: boolean
+  mailNotificationsEnabled?: boolean
+  mobileNotificationsEnabled?: boolean
+  webNotificationsEnabled?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   artworksReport?: Prisma.ArtworksReportCreateNestedManyWithoutUserInput
+  scanUsages?: Prisma.ScanUsageCreateNestedManyWithoutUserInput
   dmcaProfile?: Prisma.DmcaProfileCreateNestedOneWithoutUserInput
   dmcaNotices?: Prisma.DmcaNoticeCreateNestedManyWithoutUserInput
   refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
@@ -802,15 +991,21 @@ export type UserUncheckedCreateWithoutArtworksInput = {
   id?: string
   email: string
   password: string
-  firstName: string
-  lastName: string
+  firstName?: string | null
+  lastName?: string | null
+  termsAcceptedAt?: Date | string | null
+  termsVersion?: string | null
+  privacyVersion?: string | null
   avatar?: string | null
   subscriptionTier?: $Enums.SubscriptionTier
   autoRunReports?: boolean
-  notificationsEnabled?: boolean
+  mailNotificationsEnabled?: boolean
+  mobileNotificationsEnabled?: boolean
+  webNotificationsEnabled?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   artworksReport?: Prisma.ArtworksReportUncheckedCreateNestedManyWithoutUserInput
+  scanUsages?: Prisma.ScanUsageUncheckedCreateNestedManyWithoutUserInput
   dmcaProfile?: Prisma.DmcaProfileUncheckedCreateNestedOneWithoutUserInput
   dmcaNotices?: Prisma.DmcaNoticeUncheckedCreateNestedManyWithoutUserInput
   refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
@@ -837,15 +1032,21 @@ export type UserUpdateWithoutArtworksInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
-  firstName?: Prisma.StringFieldUpdateOperationsInput | string
-  lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  termsAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  termsVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  privacyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   subscriptionTier?: Prisma.EnumSubscriptionTierFieldUpdateOperationsInput | $Enums.SubscriptionTier
   autoRunReports?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  notificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mailNotificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mobileNotificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  webNotificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   artworksReport?: Prisma.ArtworksReportUpdateManyWithoutUserNestedInput
+  scanUsages?: Prisma.ScanUsageUpdateManyWithoutUserNestedInput
   dmcaProfile?: Prisma.DmcaProfileUpdateOneWithoutUserNestedInput
   dmcaNotices?: Prisma.DmcaNoticeUpdateManyWithoutUserNestedInput
   refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
@@ -856,15 +1057,21 @@ export type UserUncheckedUpdateWithoutArtworksInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
-  firstName?: Prisma.StringFieldUpdateOperationsInput | string
-  lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  termsAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  termsVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  privacyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   subscriptionTier?: Prisma.EnumSubscriptionTierFieldUpdateOperationsInput | $Enums.SubscriptionTier
   autoRunReports?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  notificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mailNotificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mobileNotificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  webNotificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   artworksReport?: Prisma.ArtworksReportUncheckedUpdateManyWithoutUserNestedInput
+  scanUsages?: Prisma.ScanUsageUncheckedUpdateManyWithoutUserNestedInput
   dmcaProfile?: Prisma.DmcaProfileUncheckedUpdateOneWithoutUserNestedInput
   dmcaNotices?: Prisma.DmcaNoticeUncheckedUpdateManyWithoutUserNestedInput
   refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -875,15 +1082,21 @@ export type UserCreateWithoutArtworksReportInput = {
   id?: string
   email: string
   password: string
-  firstName: string
-  lastName: string
+  firstName?: string | null
+  lastName?: string | null
+  termsAcceptedAt?: Date | string | null
+  termsVersion?: string | null
+  privacyVersion?: string | null
   avatar?: string | null
   subscriptionTier?: $Enums.SubscriptionTier
   autoRunReports?: boolean
-  notificationsEnabled?: boolean
+  mailNotificationsEnabled?: boolean
+  mobileNotificationsEnabled?: boolean
+  webNotificationsEnabled?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   artworks?: Prisma.ArtworkCreateNestedManyWithoutUserInput
+  scanUsages?: Prisma.ScanUsageCreateNestedManyWithoutUserInput
   dmcaProfile?: Prisma.DmcaProfileCreateNestedOneWithoutUserInput
   dmcaNotices?: Prisma.DmcaNoticeCreateNestedManyWithoutUserInput
   refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
@@ -894,15 +1107,21 @@ export type UserUncheckedCreateWithoutArtworksReportInput = {
   id?: string
   email: string
   password: string
-  firstName: string
-  lastName: string
+  firstName?: string | null
+  lastName?: string | null
+  termsAcceptedAt?: Date | string | null
+  termsVersion?: string | null
+  privacyVersion?: string | null
   avatar?: string | null
   subscriptionTier?: $Enums.SubscriptionTier
   autoRunReports?: boolean
-  notificationsEnabled?: boolean
+  mailNotificationsEnabled?: boolean
+  mobileNotificationsEnabled?: boolean
+  webNotificationsEnabled?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   artworks?: Prisma.ArtworkUncheckedCreateNestedManyWithoutUserInput
+  scanUsages?: Prisma.ScanUsageUncheckedCreateNestedManyWithoutUserInput
   dmcaProfile?: Prisma.DmcaProfileUncheckedCreateNestedOneWithoutUserInput
   dmcaNotices?: Prisma.DmcaNoticeUncheckedCreateNestedManyWithoutUserInput
   refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
@@ -929,15 +1148,21 @@ export type UserUpdateWithoutArtworksReportInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
-  firstName?: Prisma.StringFieldUpdateOperationsInput | string
-  lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  termsAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  termsVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  privacyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   subscriptionTier?: Prisma.EnumSubscriptionTierFieldUpdateOperationsInput | $Enums.SubscriptionTier
   autoRunReports?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  notificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mailNotificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mobileNotificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  webNotificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   artworks?: Prisma.ArtworkUpdateManyWithoutUserNestedInput
+  scanUsages?: Prisma.ScanUsageUpdateManyWithoutUserNestedInput
   dmcaProfile?: Prisma.DmcaProfileUpdateOneWithoutUserNestedInput
   dmcaNotices?: Prisma.DmcaNoticeUpdateManyWithoutUserNestedInput
   refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
@@ -948,15 +1173,137 @@ export type UserUncheckedUpdateWithoutArtworksReportInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
-  firstName?: Prisma.StringFieldUpdateOperationsInput | string
-  lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  termsAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  termsVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  privacyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   subscriptionTier?: Prisma.EnumSubscriptionTierFieldUpdateOperationsInput | $Enums.SubscriptionTier
   autoRunReports?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  notificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mailNotificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mobileNotificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  webNotificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   artworks?: Prisma.ArtworkUncheckedUpdateManyWithoutUserNestedInput
+  scanUsages?: Prisma.ScanUsageUncheckedUpdateManyWithoutUserNestedInput
+  dmcaProfile?: Prisma.DmcaProfileUncheckedUpdateOneWithoutUserNestedInput
+  dmcaNotices?: Prisma.DmcaNoticeUncheckedUpdateManyWithoutUserNestedInput
+  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
+  deviceTokens?: Prisma.DeviceTokenUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutScanUsagesInput = {
+  id?: string
+  email: string
+  password: string
+  firstName?: string | null
+  lastName?: string | null
+  termsAcceptedAt?: Date | string | null
+  termsVersion?: string | null
+  privacyVersion?: string | null
+  avatar?: string | null
+  subscriptionTier?: $Enums.SubscriptionTier
+  autoRunReports?: boolean
+  mailNotificationsEnabled?: boolean
+  mobileNotificationsEnabled?: boolean
+  webNotificationsEnabled?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  artworks?: Prisma.ArtworkCreateNestedManyWithoutUserInput
+  artworksReport?: Prisma.ArtworksReportCreateNestedManyWithoutUserInput
+  dmcaProfile?: Prisma.DmcaProfileCreateNestedOneWithoutUserInput
+  dmcaNotices?: Prisma.DmcaNoticeCreateNestedManyWithoutUserInput
+  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
+  deviceTokens?: Prisma.DeviceTokenCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutScanUsagesInput = {
+  id?: string
+  email: string
+  password: string
+  firstName?: string | null
+  lastName?: string | null
+  termsAcceptedAt?: Date | string | null
+  termsVersion?: string | null
+  privacyVersion?: string | null
+  avatar?: string | null
+  subscriptionTier?: $Enums.SubscriptionTier
+  autoRunReports?: boolean
+  mailNotificationsEnabled?: boolean
+  mobileNotificationsEnabled?: boolean
+  webNotificationsEnabled?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  artworks?: Prisma.ArtworkUncheckedCreateNestedManyWithoutUserInput
+  artworksReport?: Prisma.ArtworksReportUncheckedCreateNestedManyWithoutUserInput
+  dmcaProfile?: Prisma.DmcaProfileUncheckedCreateNestedOneWithoutUserInput
+  dmcaNotices?: Prisma.DmcaNoticeUncheckedCreateNestedManyWithoutUserInput
+  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
+  deviceTokens?: Prisma.DeviceTokenUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutScanUsagesInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutScanUsagesInput, Prisma.UserUncheckedCreateWithoutScanUsagesInput>
+}
+
+export type UserUpsertWithoutScanUsagesInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutScanUsagesInput, Prisma.UserUncheckedUpdateWithoutScanUsagesInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutScanUsagesInput, Prisma.UserUncheckedCreateWithoutScanUsagesInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutScanUsagesInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutScanUsagesInput, Prisma.UserUncheckedUpdateWithoutScanUsagesInput>
+}
+
+export type UserUpdateWithoutScanUsagesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  termsAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  termsVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  privacyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subscriptionTier?: Prisma.EnumSubscriptionTierFieldUpdateOperationsInput | $Enums.SubscriptionTier
+  autoRunReports?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mailNotificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mobileNotificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  webNotificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  artworks?: Prisma.ArtworkUpdateManyWithoutUserNestedInput
+  artworksReport?: Prisma.ArtworksReportUpdateManyWithoutUserNestedInput
+  dmcaProfile?: Prisma.DmcaProfileUpdateOneWithoutUserNestedInput
+  dmcaNotices?: Prisma.DmcaNoticeUpdateManyWithoutUserNestedInput
+  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
+  deviceTokens?: Prisma.DeviceTokenUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutScanUsagesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  termsAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  termsVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  privacyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subscriptionTier?: Prisma.EnumSubscriptionTierFieldUpdateOperationsInput | $Enums.SubscriptionTier
+  autoRunReports?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mailNotificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mobileNotificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  webNotificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  artworks?: Prisma.ArtworkUncheckedUpdateManyWithoutUserNestedInput
+  artworksReport?: Prisma.ArtworksReportUncheckedUpdateManyWithoutUserNestedInput
   dmcaProfile?: Prisma.DmcaProfileUncheckedUpdateOneWithoutUserNestedInput
   dmcaNotices?: Prisma.DmcaNoticeUncheckedUpdateManyWithoutUserNestedInput
   refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -967,16 +1314,22 @@ export type UserCreateWithoutDmcaProfileInput = {
   id?: string
   email: string
   password: string
-  firstName: string
-  lastName: string
+  firstName?: string | null
+  lastName?: string | null
+  termsAcceptedAt?: Date | string | null
+  termsVersion?: string | null
+  privacyVersion?: string | null
   avatar?: string | null
   subscriptionTier?: $Enums.SubscriptionTier
   autoRunReports?: boolean
-  notificationsEnabled?: boolean
+  mailNotificationsEnabled?: boolean
+  mobileNotificationsEnabled?: boolean
+  webNotificationsEnabled?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   artworks?: Prisma.ArtworkCreateNestedManyWithoutUserInput
   artworksReport?: Prisma.ArtworksReportCreateNestedManyWithoutUserInput
+  scanUsages?: Prisma.ScanUsageCreateNestedManyWithoutUserInput
   dmcaNotices?: Prisma.DmcaNoticeCreateNestedManyWithoutUserInput
   refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
   deviceTokens?: Prisma.DeviceTokenCreateNestedManyWithoutUserInput
@@ -986,16 +1339,22 @@ export type UserUncheckedCreateWithoutDmcaProfileInput = {
   id?: string
   email: string
   password: string
-  firstName: string
-  lastName: string
+  firstName?: string | null
+  lastName?: string | null
+  termsAcceptedAt?: Date | string | null
+  termsVersion?: string | null
+  privacyVersion?: string | null
   avatar?: string | null
   subscriptionTier?: $Enums.SubscriptionTier
   autoRunReports?: boolean
-  notificationsEnabled?: boolean
+  mailNotificationsEnabled?: boolean
+  mobileNotificationsEnabled?: boolean
+  webNotificationsEnabled?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   artworks?: Prisma.ArtworkUncheckedCreateNestedManyWithoutUserInput
   artworksReport?: Prisma.ArtworksReportUncheckedCreateNestedManyWithoutUserInput
+  scanUsages?: Prisma.ScanUsageUncheckedCreateNestedManyWithoutUserInput
   dmcaNotices?: Prisma.DmcaNoticeUncheckedCreateNestedManyWithoutUserInput
   refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
   deviceTokens?: Prisma.DeviceTokenUncheckedCreateNestedManyWithoutUserInput
@@ -1021,16 +1380,22 @@ export type UserUpdateWithoutDmcaProfileInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
-  firstName?: Prisma.StringFieldUpdateOperationsInput | string
-  lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  termsAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  termsVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  privacyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   subscriptionTier?: Prisma.EnumSubscriptionTierFieldUpdateOperationsInput | $Enums.SubscriptionTier
   autoRunReports?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  notificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mailNotificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mobileNotificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  webNotificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   artworks?: Prisma.ArtworkUpdateManyWithoutUserNestedInput
   artworksReport?: Prisma.ArtworksReportUpdateManyWithoutUserNestedInput
+  scanUsages?: Prisma.ScanUsageUpdateManyWithoutUserNestedInput
   dmcaNotices?: Prisma.DmcaNoticeUpdateManyWithoutUserNestedInput
   refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
   deviceTokens?: Prisma.DeviceTokenUpdateManyWithoutUserNestedInput
@@ -1040,16 +1405,22 @@ export type UserUncheckedUpdateWithoutDmcaProfileInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
-  firstName?: Prisma.StringFieldUpdateOperationsInput | string
-  lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  termsAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  termsVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  privacyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   subscriptionTier?: Prisma.EnumSubscriptionTierFieldUpdateOperationsInput | $Enums.SubscriptionTier
   autoRunReports?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  notificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mailNotificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mobileNotificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  webNotificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   artworks?: Prisma.ArtworkUncheckedUpdateManyWithoutUserNestedInput
   artworksReport?: Prisma.ArtworksReportUncheckedUpdateManyWithoutUserNestedInput
+  scanUsages?: Prisma.ScanUsageUncheckedUpdateManyWithoutUserNestedInput
   dmcaNotices?: Prisma.DmcaNoticeUncheckedUpdateManyWithoutUserNestedInput
   refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
   deviceTokens?: Prisma.DeviceTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -1059,16 +1430,22 @@ export type UserCreateWithoutDmcaNoticesInput = {
   id?: string
   email: string
   password: string
-  firstName: string
-  lastName: string
+  firstName?: string | null
+  lastName?: string | null
+  termsAcceptedAt?: Date | string | null
+  termsVersion?: string | null
+  privacyVersion?: string | null
   avatar?: string | null
   subscriptionTier?: $Enums.SubscriptionTier
   autoRunReports?: boolean
-  notificationsEnabled?: boolean
+  mailNotificationsEnabled?: boolean
+  mobileNotificationsEnabled?: boolean
+  webNotificationsEnabled?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   artworks?: Prisma.ArtworkCreateNestedManyWithoutUserInput
   artworksReport?: Prisma.ArtworksReportCreateNestedManyWithoutUserInput
+  scanUsages?: Prisma.ScanUsageCreateNestedManyWithoutUserInput
   dmcaProfile?: Prisma.DmcaProfileCreateNestedOneWithoutUserInput
   refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
   deviceTokens?: Prisma.DeviceTokenCreateNestedManyWithoutUserInput
@@ -1078,16 +1455,22 @@ export type UserUncheckedCreateWithoutDmcaNoticesInput = {
   id?: string
   email: string
   password: string
-  firstName: string
-  lastName: string
+  firstName?: string | null
+  lastName?: string | null
+  termsAcceptedAt?: Date | string | null
+  termsVersion?: string | null
+  privacyVersion?: string | null
   avatar?: string | null
   subscriptionTier?: $Enums.SubscriptionTier
   autoRunReports?: boolean
-  notificationsEnabled?: boolean
+  mailNotificationsEnabled?: boolean
+  mobileNotificationsEnabled?: boolean
+  webNotificationsEnabled?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   artworks?: Prisma.ArtworkUncheckedCreateNestedManyWithoutUserInput
   artworksReport?: Prisma.ArtworksReportUncheckedCreateNestedManyWithoutUserInput
+  scanUsages?: Prisma.ScanUsageUncheckedCreateNestedManyWithoutUserInput
   dmcaProfile?: Prisma.DmcaProfileUncheckedCreateNestedOneWithoutUserInput
   refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
   deviceTokens?: Prisma.DeviceTokenUncheckedCreateNestedManyWithoutUserInput
@@ -1113,16 +1496,22 @@ export type UserUpdateWithoutDmcaNoticesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
-  firstName?: Prisma.StringFieldUpdateOperationsInput | string
-  lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  termsAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  termsVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  privacyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   subscriptionTier?: Prisma.EnumSubscriptionTierFieldUpdateOperationsInput | $Enums.SubscriptionTier
   autoRunReports?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  notificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mailNotificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mobileNotificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  webNotificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   artworks?: Prisma.ArtworkUpdateManyWithoutUserNestedInput
   artworksReport?: Prisma.ArtworksReportUpdateManyWithoutUserNestedInput
+  scanUsages?: Prisma.ScanUsageUpdateManyWithoutUserNestedInput
   dmcaProfile?: Prisma.DmcaProfileUpdateOneWithoutUserNestedInput
   refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
   deviceTokens?: Prisma.DeviceTokenUpdateManyWithoutUserNestedInput
@@ -1132,16 +1521,22 @@ export type UserUncheckedUpdateWithoutDmcaNoticesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
-  firstName?: Prisma.StringFieldUpdateOperationsInput | string
-  lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  termsAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  termsVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  privacyVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   subscriptionTier?: Prisma.EnumSubscriptionTierFieldUpdateOperationsInput | $Enums.SubscriptionTier
   autoRunReports?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  notificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mailNotificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mobileNotificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  webNotificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   artworks?: Prisma.ArtworkUncheckedUpdateManyWithoutUserNestedInput
   artworksReport?: Prisma.ArtworksReportUncheckedUpdateManyWithoutUserNestedInput
+  scanUsages?: Prisma.ScanUsageUncheckedUpdateManyWithoutUserNestedInput
   dmcaProfile?: Prisma.DmcaProfileUncheckedUpdateOneWithoutUserNestedInput
   refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
   deviceTokens?: Prisma.DeviceTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -1155,6 +1550,7 @@ export type UserUncheckedUpdateWithoutDmcaNoticesInput = {
 export type UserCountOutputType = {
   artworks: number
   artworksReport: number
+  scanUsages: number
   dmcaNotices: number
   refreshTokens: number
   deviceTokens: number
@@ -1163,6 +1559,7 @@ export type UserCountOutputType = {
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   artworks?: boolean | UserCountOutputTypeCountArtworksArgs
   artworksReport?: boolean | UserCountOutputTypeCountArtworksReportArgs
+  scanUsages?: boolean | UserCountOutputTypeCountScanUsagesArgs
   dmcaNotices?: boolean | UserCountOutputTypeCountDmcaNoticesArgs
   refreshTokens?: boolean | UserCountOutputTypeCountRefreshTokensArgs
   deviceTokens?: boolean | UserCountOutputTypeCountDeviceTokensArgs
@@ -1195,6 +1592,13 @@ export type UserCountOutputTypeCountArtworksReportArgs<ExtArgs extends runtime.T
 /**
  * UserCountOutputType without action
  */
+export type UserCountOutputTypeCountScanUsagesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ScanUsageWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
 export type UserCountOutputTypeCountDmcaNoticesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.DmcaNoticeWhereInput
 }
@@ -1220,14 +1624,20 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   password?: boolean
   firstName?: boolean
   lastName?: boolean
+  termsAcceptedAt?: boolean
+  termsVersion?: boolean
+  privacyVersion?: boolean
   avatar?: boolean
   subscriptionTier?: boolean
   autoRunReports?: boolean
-  notificationsEnabled?: boolean
+  mailNotificationsEnabled?: boolean
+  mobileNotificationsEnabled?: boolean
+  webNotificationsEnabled?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   artworks?: boolean | Prisma.User$artworksArgs<ExtArgs>
   artworksReport?: boolean | Prisma.User$artworksReportArgs<ExtArgs>
+  scanUsages?: boolean | Prisma.User$scanUsagesArgs<ExtArgs>
   dmcaProfile?: boolean | Prisma.User$dmcaProfileArgs<ExtArgs>
   dmcaNotices?: boolean | Prisma.User$dmcaNoticesArgs<ExtArgs>
   refreshTokens?: boolean | Prisma.User$refreshTokensArgs<ExtArgs>
@@ -1241,10 +1651,15 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   password?: boolean
   firstName?: boolean
   lastName?: boolean
+  termsAcceptedAt?: boolean
+  termsVersion?: boolean
+  privacyVersion?: boolean
   avatar?: boolean
   subscriptionTier?: boolean
   autoRunReports?: boolean
-  notificationsEnabled?: boolean
+  mailNotificationsEnabled?: boolean
+  mobileNotificationsEnabled?: boolean
+  webNotificationsEnabled?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["user"]>
@@ -1255,10 +1670,15 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   password?: boolean
   firstName?: boolean
   lastName?: boolean
+  termsAcceptedAt?: boolean
+  termsVersion?: boolean
+  privacyVersion?: boolean
   avatar?: boolean
   subscriptionTier?: boolean
   autoRunReports?: boolean
-  notificationsEnabled?: boolean
+  mailNotificationsEnabled?: boolean
+  mobileNotificationsEnabled?: boolean
+  webNotificationsEnabled?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["user"]>
@@ -1269,18 +1689,24 @@ export type UserSelectScalar = {
   password?: boolean
   firstName?: boolean
   lastName?: boolean
+  termsAcceptedAt?: boolean
+  termsVersion?: boolean
+  privacyVersion?: boolean
   avatar?: boolean
   subscriptionTier?: boolean
   autoRunReports?: boolean
-  notificationsEnabled?: boolean
+  mailNotificationsEnabled?: boolean
+  mobileNotificationsEnabled?: boolean
+  webNotificationsEnabled?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "password" | "firstName" | "lastName" | "avatar" | "subscriptionTier" | "autoRunReports" | "notificationsEnabled" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "password" | "firstName" | "lastName" | "termsAcceptedAt" | "termsVersion" | "privacyVersion" | "avatar" | "subscriptionTier" | "autoRunReports" | "mailNotificationsEnabled" | "mobileNotificationsEnabled" | "webNotificationsEnabled" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   artworks?: boolean | Prisma.User$artworksArgs<ExtArgs>
   artworksReport?: boolean | Prisma.User$artworksReportArgs<ExtArgs>
+  scanUsages?: boolean | Prisma.User$scanUsagesArgs<ExtArgs>
   dmcaProfile?: boolean | Prisma.User$dmcaProfileArgs<ExtArgs>
   dmcaNotices?: boolean | Prisma.User$dmcaNoticesArgs<ExtArgs>
   refreshTokens?: boolean | Prisma.User$refreshTokensArgs<ExtArgs>
@@ -1295,6 +1721,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   objects: {
     artworks: Prisma.$ArtworkPayload<ExtArgs>[]
     artworksReport: Prisma.$ArtworksReportPayload<ExtArgs>[]
+    scanUsages: Prisma.$ScanUsagePayload<ExtArgs>[]
     dmcaProfile: Prisma.$DmcaProfilePayload<ExtArgs> | null
     dmcaNotices: Prisma.$DmcaNoticePayload<ExtArgs>[]
     refreshTokens: Prisma.$RefreshTokenPayload<ExtArgs>[]
@@ -1304,12 +1731,17 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     id: string
     email: string
     password: string
-    firstName: string
-    lastName: string
+    firstName: string | null
+    lastName: string | null
+    termsAcceptedAt: Date | null
+    termsVersion: string | null
+    privacyVersion: string | null
     avatar: string | null
     subscriptionTier: $Enums.SubscriptionTier
     autoRunReports: boolean
-    notificationsEnabled: boolean
+    mailNotificationsEnabled: boolean
+    mobileNotificationsEnabled: boolean
+    webNotificationsEnabled: boolean
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["user"]>
@@ -1708,6 +2140,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   readonly [Symbol.toStringTag]: "PrismaPromise"
   artworks<T extends Prisma.User$artworksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$artworksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ArtworkPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   artworksReport<T extends Prisma.User$artworksReportArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$artworksReportArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ArtworksReportPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  scanUsages<T extends Prisma.User$scanUsagesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$scanUsagesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ScanUsagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   dmcaProfile<T extends Prisma.User$dmcaProfileArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$dmcaProfileArgs<ExtArgs>>): Prisma.Prisma__DmcaProfileClient<runtime.Types.Result.GetResult<Prisma.$DmcaProfilePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   dmcaNotices<T extends Prisma.User$dmcaNoticesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$dmcaNoticesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DmcaNoticePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   refreshTokens<T extends Prisma.User$refreshTokensArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$refreshTokensArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RefreshTokenPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -1746,10 +2179,15 @@ export interface UserFieldRefs {
   readonly password: Prisma.FieldRef<"User", 'String'>
   readonly firstName: Prisma.FieldRef<"User", 'String'>
   readonly lastName: Prisma.FieldRef<"User", 'String'>
+  readonly termsAcceptedAt: Prisma.FieldRef<"User", 'DateTime'>
+  readonly termsVersion: Prisma.FieldRef<"User", 'String'>
+  readonly privacyVersion: Prisma.FieldRef<"User", 'String'>
   readonly avatar: Prisma.FieldRef<"User", 'String'>
   readonly subscriptionTier: Prisma.FieldRef<"User", 'SubscriptionTier'>
   readonly autoRunReports: Prisma.FieldRef<"User", 'Boolean'>
-  readonly notificationsEnabled: Prisma.FieldRef<"User", 'Boolean'>
+  readonly mailNotificationsEnabled: Prisma.FieldRef<"User", 'Boolean'>
+  readonly mobileNotificationsEnabled: Prisma.FieldRef<"User", 'Boolean'>
+  readonly webNotificationsEnabled: Prisma.FieldRef<"User", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"User", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"User", 'DateTime'>
 }
@@ -2185,6 +2623,30 @@ export type User$artworksReportArgs<ExtArgs extends runtime.Types.Extensions.Int
   take?: number
   skip?: number
   distinct?: Prisma.ArtworksReportScalarFieldEnum | Prisma.ArtworksReportScalarFieldEnum[]
+}
+
+/**
+ * User.scanUsages
+ */
+export type User$scanUsagesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ScanUsage
+   */
+  select?: Prisma.ScanUsageSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ScanUsage
+   */
+  omit?: Prisma.ScanUsageOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ScanUsageInclude<ExtArgs> | null
+  where?: Prisma.ScanUsageWhereInput
+  orderBy?: Prisma.ScanUsageOrderByWithRelationInput | Prisma.ScanUsageOrderByWithRelationInput[]
+  cursor?: Prisma.ScanUsageWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ScanUsageScalarFieldEnum | Prisma.ScanUsageScalarFieldEnum[]
 }
 
 /**

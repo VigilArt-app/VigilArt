@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Loader2, Upload, X, AlertTriangle, Bell, BellOff } from "lucide-react";
+import { Loader2, Upload, X, AlertTriangle, Bell, Globe, Smartphone, Mail } from "lucide-react";
 import type { UserUpdate } from "@vigilart/shared/types";
 import {
   updateUserProfile,
@@ -10,7 +10,7 @@ import {
   getAvatarDownloadUrl,
   deleteAccount,
 } from "./api";
-import { Button } from "@/src/components/ui/button";
+import { Button, buttonVariants } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
 import { Label } from "@/src/components/ui/label";
 import {
@@ -42,8 +42,6 @@ export default function ProfilePage() {
   } = useNotificationsSettings();
 
   const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
     email: "",
     avatar: "",
     avatarFile: null as File | null,
@@ -52,8 +50,6 @@ export default function ProfilePage() {
   useEffect(() => {
     if (user) {
       setFormData({
-        firstName: user.firstName || "",
-        lastName: user.lastName || "",
         email: user.email || "",
         avatar: user.avatar || "",
         avatarFile: null,
@@ -82,14 +78,6 @@ export default function ProfilePage() {
 
     loadAvatarUrl();
   }, [formData.avatar]);
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
 
   const handleAvatarFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -120,13 +108,6 @@ export default function ProfilePage() {
     setIsSaving(true);
     try {
       const updatePayload: UserUpdate = {};
-
-      if (formData.firstName !== user?.firstName) {
-        updatePayload.firstName = formData.firstName;
-      }
-      if (formData.lastName !== user?.lastName) {
-        updatePayload.lastName = formData.lastName;
-      }
 
       if (formData.avatarFile) {
         try {
@@ -169,7 +150,7 @@ export default function ProfilePage() {
     }
   };
 
-  const handleNotificationsChange = async (enabled: boolean) => {
+  const handleWebNotificationsChange = async (enabled: boolean) => {
     if (!notificationsSupported) {
       toast.error(t("profil_page.notifications_unsupported"));
       return;
@@ -187,13 +168,35 @@ export default function ProfilePage() {
           return;
         }
       }
-      await updateUserProfile(user.id, { notificationsEnabled: enabled });
+      await updateUserProfile(user.id, { webNotificationsEnabled: enabled });
       if (!enabled)
         await setNotificationsEnabled(false);
       await refreshUser();
     } catch {
       if (enabled)
         await setNotificationsEnabled(false);
+      toast.error(t("profil_page.failed_update_notifications"));
+    }
+  };
+
+  const handleMobileNotificationsChange = async (enabled: boolean) => {
+    if (!user?.id)
+      return;
+    try {
+      await updateUserProfile(user.id, { mobileNotificationsEnabled: enabled });
+      await refreshUser();
+    } catch {
+      toast.error(t("profil_page.failed_update_notifications"));
+    }
+  };
+
+  const handleMailNotificationsChange = async (enabled: boolean) => {
+    if (!user?.id)
+      return;
+    try {
+      await updateUserProfile(user.id, { mailNotificationsEnabled: enabled });
+      await refreshUser();
+    } catch {
       toast.error(t("profil_page.failed_update_notifications"));
     }
   };
@@ -211,7 +214,7 @@ export default function ProfilePage() {
       <div className="relative z-10 min-h-screen flex flex-col p-8">
         {user && (
           <div className=" text-4xl font-bold mb-8 pt-4">
-            {t("profil_page.welcome")}, {user.firstName || "User"}
+            {t("profil_page.welcome")}
           </div>
         )}
 
@@ -224,36 +227,35 @@ export default function ProfilePage() {
                     <img src={avatarDisplayUrl} alt="Profile" className="h-24 w-24 rounded-full object-cover border-2 shrink-0" />
                   ) : (
                     <div className="h-24 w-24 rounded-full flex items-center justify-center border-2 shrink-0">
-                      <span className="text-xs">{t("profil_page.no_avatar")}</span>
+                      <span className="text-sm text-muted-foreground">{t("profil_page.no_avatar")}</span>
                     </div>
                   )}
 
                   <div>
                     <h2 className="text-2xl font-bold">
-                      {user.firstName} {user.lastName}
+                      {user.email}
                     </h2>
-                    <p className="text-sm mt-1">{user.email}</p>
                   </div>
                 </div>
               </div>
 
               <div className="space-y-6 border-t pt-6">
                 <div>
-                  <Label className="block font-semibold mb-3">{t("profil_page.profile_picture")}</Label>
+                  <Label className="block text-base font-semibold mb-3">{t("profil_page.profile_picture")}</Label>
                   <div className="flex items-center gap-4">
                     {formData.avatar && formData.avatar !== user?.avatar && (
                       <div className="relative">
                         <img src={avatarDisplayUrl || formData.avatar} alt="Avatar preview" className="h-16 w-16 rounded-full object-cover border-2" />
-                        <button onClick={handleRemoveAvatar} disabled={isSaving} className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 disabled:opacity-50"  >
-                          <X className="h-3 w-3" />
+                        <button onClick={handleRemoveAvatar} disabled={isSaving} className="absolute -top-2 -right-2 bg-background text-destructive border shadow-sm rounded-full p-1 hover:bg-destructive-muted disabled:opacity-50"  >
+                          <X className="size-4" />
                         </button>
                       </div>
                     )}
-                    <label className={`flex items-center gap-2 ${isSaving ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'} text-sm`}>
+                    <label className={`${buttonVariants({ variant: "outline", size: "lg" })} text-base ${isSaving ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}>
                       {isSaving && formData.avatarFile ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
+                        <Loader2 className="size-5 animate-spin" />
                       ) : (
-                        <Upload className="h-4 w-4" />
+                        <Upload className="size-5" />
                       )}
                       <span>{isSaving && formData.avatarFile ? t("profil_page.uploading") : t("profil_page.upload_picture")}</span>
                       <input type="file" accept="image/*" onChange={handleAvatarFileChange} className="hidden" disabled={isSaving} />
@@ -263,79 +265,111 @@ export default function ProfilePage() {
 
                 <div className="grid grid-cols-2 gap-6">
                   <div>
-                    <Label htmlFor="lastName" className="block font-semibold mb-2">
-                      {t("profil_page.last_name")}
-                    </Label>
-                    <Input id="lastName" name="lastName" value={formData.lastName} onChange={handleInputChange} placeholder={t("profil_page.enter_last_name")} type="text" className="w-full" />
-                  </div>
-
-                  <div>
-                    <Label htmlFor="firstName" className="block font-semibold mb-2">
-                      {t("profil_page.first_name")}
-                    </Label>
-                    <Input id="firstName" name="firstName" value={formData.firstName} onChange={handleInputChange} placeholder={t("profil_page.enter_first_name")} type="text" className="w-full" />
-                  </div>
-
-                  <div>
-                    <Label htmlFor="email" className="block font-semibold mb-2">
+                    <Label htmlFor="email" className="block text-base font-semibold mb-2">
                       {t("profil_page.email")}
                     </Label>
-                    <Input id="email" name="email" value={formData.email} type="email" disabled className="w-full cursor-not-allowed" />
+                    <Input id="email" name="email" value={formData.email} type="email" disabled className="w-full h-10 md:text-base cursor-not-allowed" />
                   </div>
 
                   {/* If we want to be able to change the password, we need a route to update it */}
                   <div>
-                    <Label className="block font-semibold mb-2">
+                    <Label className="block text-base font-semibold mb-2">
                       {t("profil_page.password")}
                     </Label>
-                    <Input type="password" value="••••••••••" disabled className="w-full cursor-not-allowed" />
+                    <Input type="password" value="••••••••••" disabled className="w-full h-10 md:text-base cursor-not-allowed" />
                   </div>
                 </div>
 
-                <div className="rounded-lg border bg-muted/30 p-4 space-y-3">
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="space-y-1">
-                      <Label className="flex items-center gap-2 font-semibold">
-                        {(user?.notificationsEnabled ?? false) ? <Bell className="h-4 w-4" /> : <BellOff className="h-4 w-4" />}
-                        {t("profil_page.notifications_title")}
-                      </Label>
-                      <p className="text-sm text-muted-foreground">
-                        {t("profil_page.notifications_description")}
-                      </p>
-                    </div>
-
-                    <Switch
-                      checked={user?.notificationsEnabled ?? false}
-                      onCheckedChange={handleNotificationsChange}
-                      disabled={!notificationsSupported || isSaving || isDeleting}
-                    />
+                <div className="rounded-lg border bg-muted/30 p-4 space-y-4">
+                  <div className="space-y-1">
+                    <Label className="flex items-center gap-2 font-semibold text-base">
+                      <Bell className="h-4 w-4" />
+                      {t("profil_page.notifications_title")}
+                    </Label>
+                    <p className="text-base text-muted-foreground">
+                      {t("profil_page.notifications_description")}
+                    </p>
                   </div>
 
-                  <p className="text-sm text-muted-foreground">
-                    {notificationPermission === "granted"
-                      ? t("profil_page.notifications_allowed")
-                      : notificationPermission === "denied"
-                        ? t("profil_page.notifications_blocked")
-                        : t("profil_page.notifications_permission_prompt")}
-                  </p>
+                  <div className="divide-y divide-border/60">
+                    {/* Web Notifications Toggle */}
+                    <div className="py-3 flex items-start justify-between gap-4">
+                      <div className="space-y-1">
+                        <Label htmlFor="web-notifications-switch" className="flex items-center gap-2 font-medium text-sm cursor-pointer">
+                          <Globe className="h-4 w-4 text-primary" />
+                          {t("profil_page.web_notifications_title")}
+                        </Label>
+                        <p className="text-xs text-muted-foreground">
+                          {t("profil_page.web_notifications_description")}
+                        </p>
+                        {notificationsError && (
+                          <p className="text-xs text-destructive">{notificationsError}</p>
+                        )}
+                      </div>
 
-                  {notificationsError && (
-                    <p className="text-sm text-red-600">{notificationsError}</p>
-                  )}
+                      <Switch
+                        id="web-notifications-switch"
+                        checked={user?.webNotificationsEnabled ?? false}
+                        onCheckedChange={handleWebNotificationsChange}
+                        disabled={!notificationsSupported || isSaving || isDeleting}
+                      />
+                    </div>
+
+                    {/* Mobile Notifications Toggle */}
+                    <div className="py-3 flex items-start justify-between gap-4">
+                      <div className="space-y-1">
+                        <Label htmlFor="mobile-notifications-switch" className="flex items-center gap-2 font-medium text-sm cursor-pointer">
+                          <Smartphone className="h-4 w-4 text-primary" />
+                          {t("profil_page.mobile_notifications_title")}
+                        </Label>
+                        <p className="text-xs text-muted-foreground">
+                          {t("profil_page.mobile_notifications_description")}
+                        </p>
+                      </div>
+
+                      <Switch
+                        id="mobile-notifications-switch"
+                        checked={user?.mobileNotificationsEnabled ?? false}
+                        onCheckedChange={handleMobileNotificationsChange}
+                        disabled={isSaving || isDeleting}
+                      />
+                    </div>
+
+                    {/* Mail Notifications Toggle */}
+                    <div className="pt-3 flex items-start justify-between gap-4">
+                      <div className="space-y-1">
+                        <Label htmlFor="mail-notifications-switch" className="flex items-center gap-2 font-medium text-sm cursor-pointer">
+                          <Mail className="h-4 w-4 text-primary" />
+                          {t("profil_page.mail_notifications_title")}
+                        </Label>
+                        <p className="text-xs text-muted-foreground">
+                          {t("profil_page.mail_notifications_description")}
+                        </p>
+                      </div>
+
+                      <Switch
+                        id="mail-notifications-switch"
+                        checked={user?.mailNotificationsEnabled ?? false}
+                        onCheckedChange={handleMailNotificationsChange}
+                        disabled={isSaving || isDeleting}
+                      />
+                    </div>
+                  </div>
                 </div>
 
                 <div className="flex justify-between pt-6 border-t">
                   <Button
                     variant="destructive"
+                    size="lg"
                     onClick={() => setDeleteDialogOpen(true)}
                     disabled={isDeleting || isSaving}
-                    className="gap-2"
+                    className="gap-2 text-base"
                   >
-                    {isDeleting && <Loader2 className="h-4 w-4 animate-spin" />}
+                    {isDeleting && <Loader2 className="size-5 animate-spin" />}
                     {t("profil_page.delete_account")}
                   </Button>
-                  <Button onClick={handleSaveProfile} disabled={isSaving} className="gap-2" >
-                    {isSaving && <Loader2 className="h-4 w-4 animate-spin" />}
+                  <Button size="lg" onClick={handleSaveProfile} disabled={isSaving} className="gap-2 text-base">
+                    {isSaving && <Loader2 className="size-5 animate-spin" />}
                     {t("profil_page.save")}
                   </Button>
                 </div>
@@ -348,7 +382,7 @@ export default function ProfilePage() {
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-red-600">
+            <DialogTitle className="flex items-center gap-2 text-destructive">
               <AlertTriangle className="h-5 w-5" />
               {t("profil_page.delete_account_confirm")}
             </DialogTitle>
@@ -356,12 +390,14 @@ export default function ProfilePage() {
               {t("profil_page.delete_account_warning")}
             </DialogDescription>
           </DialogHeader>
-          <div className="my-4 p-4 bg-red-50 border border-red-200 rounded-md">
-            <p className="text-sm text-red-700">{t("profil_page.delete_account_irreversible")}</p>
+          <div className="my-4 p-4 bg-destructive-muted border border-destructive/30 rounded-md">
+            <p className="text-base">{t("profil_page.delete_account_irreversible")}</p>
           </div>
           <div className="flex gap-3 justify-end">
             <Button
               variant="outline"
+              size="lg"
+              className="text-base"
               onClick={() => setDeleteDialogOpen(false)}
               disabled={isDeleting}
             >
@@ -369,11 +405,12 @@ export default function ProfilePage() {
             </Button>
             <Button
               variant="destructive"
+              size="lg"
               onClick={handleConfirmDeleteAccount}
               disabled={isDeleting}
-              className="gap-2"
+              className="gap-2 text-base"
             >
-              {isDeleting && <Loader2 className="h-4 w-4 animate-spin" />}
+              {isDeleting && <Loader2 className="size-5 animate-spin" />}
               {t("profil_page.delete_permanently")}
             </Button>
           </div>

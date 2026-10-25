@@ -10,6 +10,7 @@ import {
 import { Button } from "../../../components/ui/button";
 import { AlertCircle, CheckCircle } from "lucide-react";
 import type { ReportData, ScanProgress } from "@/src/hooks/useCreateReport";
+import { RestrictedMatch, matchIdentity } from "../../../components/matches/RestrictedMatch";
 
 interface ReportModalProps {
   open: boolean;
@@ -53,9 +54,9 @@ export function ReportModal({
         {loading ? (
           <div className="py-8 space-y-4">
             <div className="flex items-center justify-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
             </div>
-            <p className="text-center text-sm text-gray-600">
+            <p className="text-center text-sm text-muted-foreground">
               {scanStarted
                 ? t("artworks_report_page.scanning_artwork", {
                     processed: progress.processed,
@@ -64,43 +65,49 @@ export function ReportModal({
                 : t("artworks_report_page.queued")}
             </p>
             {hasBar && (
-              <div className="w-full bg-gray-200 rounded-full h-2">
+              <div className="w-full bg-muted rounded-full h-2">
                 <div
-                  className="bg-blue-600 h-2 rounded-full transition-all"
+                  className="bg-primary h-2 rounded-full transition-all"
                   style={{ width: `${percent}%` }}
                 />
               </div>
             )}
           </div>
         ) : error ? (
-          <div className="flex gap-3 p-4 bg-red-50 rounded-lg border border-red-200">
-            <AlertCircle className="text-red-600 flex-shrink-0" />
+          <div className="flex gap-3 p-4 bg-destructive-muted rounded-lg border border-destructive/30">
+            <AlertCircle className="text-destructive flex-shrink-0" />
             <div>
-              <p className="font-semibold text-red-900">{t("artworks_report_page.error")}</p>
-              <p className="text-sm text-red-700 mt-1">{error}</p>
+              <p className="font-semibold">{t("artworks_report_page.error")}</p>
+              <p className="text-sm mt-1">{error}</p>
             </div>
           </div>
         ) : report ? (
           <div className="space-y-6">
-            <div className="flex gap-3 p-4 bg-green-50 rounded-lg border border-green-200">
-              <CheckCircle className="text-green-600 flex-shrink-0" />
+            <div className="flex gap-3 p-4 bg-success-muted rounded-lg border border-success/30">
+              <CheckCircle className="text-success flex-shrink-0" />
               <div>
-                <p className="font-semibold text-green-900">
+                <p className="font-semibold">
                   {t("artworks_report_page.report_created")}
                 </p>
-                <p className="text-sm text-green-700 mt-1">
+                <p className="text-sm mt-1">
                   {report.matchingPages?.length || 0}{" "}
                   {t("artworks_report_page.detections_found")}
+                </p>
+                {/* Kept in the summary box: at the end of the list it sat
+                    below the fold and nobody saw it. */}
+                {/* Gray, not green: it is a limit, not part of the success. */}
+                <p className="text-sm text-muted-foreground mt-2">
+                  {t("scan_coverage.result_note")}
                 </p>
               </div>
             </div>
 
-            <div className="bg-gray-50 rounded-lg p-4">
-              <p className="text-sm text-gray-600">
+            <div className="bg-muted rounded-lg p-4">
+              <p className="text-sm text-muted-foreground">
                 <strong>{t("artworks_report_page.detection_date")}:</strong>{" "}
                 {new Date(report.detectionDate).toLocaleString(i18n.language)}
               </p>
-              <p className="text-sm text-gray-600 mt-2">
+              <p className="text-sm text-muted-foreground mt-2">
                 <strong>{t("artworks_report_page.detections_count")}:</strong>{" "}
                 {report.matchingPages?.length || 0}
               </p>
@@ -117,6 +124,7 @@ export function ReportModal({
                       key={`${page.artworkId}-${page.id}-${page.url}-${page.firstDetectedAt}`}
                       className="border rounded-lg p-4"
                     >
+                      <RestrictedMatch unsafeDomain={!!page.unsafeDomain} resetKey={`${open}-${report.id}-${matchIdentity(page)}`}>
                       <div className="flex gap-4">
                         {page.imageUrl && (
                           <div className="flex-shrink-0">
@@ -146,16 +154,22 @@ export function ReportModal({
                               i18n.language
                             )}
                           </p>
-                          <a
-                            href={page.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-blue-600 hover:text-blue-800 text-sm mt-2 inline-block"
-                          >
-                            {t("artworks_report_page.view_page")} →
-                          </a>
+                          {page.unsafeDomain ? (
+                            // Blacklisted sites are never opened from VigilArt, even after reveal.
+                            <p className="mt-2 break-all text-muted-foreground">{page.url}</p>
+                          ) : (
+                            <a
+                              href={page.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-primary underline-offset-4 hover:underline text-sm mt-2 inline-block"
+                            >
+                              {t("artworks_report_page.view_page")} →
+                            </a>
+                          )}
                         </div>
                       </div>
+                      </RestrictedMatch>
                     </div>
                   ))}
                 </div>

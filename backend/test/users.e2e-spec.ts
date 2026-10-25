@@ -7,6 +7,18 @@ import { ApiClient } from "./api-client";
 import { SubscriptionTier, type UserGet } from "@vigilart/shared";
 import { CACHE_MANAGER } from "@nestjs/cache-manager";
 import type { Cache } from "cache-manager";
+import { addUsers, initialUsers } from "../src/prisma/seeds/add-users";
+import { DeviantArtDmcaFormJSON } from "@vigilart/shared";
+
+// Account deletion removes the user's files from R2: keep tests off the real bucket.
+const mockS3Send = jest.fn();
+jest.mock("@aws-sdk/client-s3", () => ({
+  S3Client: jest.fn().mockImplementation(() => ({ send: mockS3Send })),
+  GetObjectCommand: jest.fn(),
+  PutObjectCommand: jest.fn(),
+  DeleteObjectCommand: jest.fn(),
+  DeleteObjectsCommand: jest.fn().mockImplementation((input) => ({ input }))
+}));
 
 describe("Users E2E", () => {
   let app: INestApplication;
@@ -50,9 +62,39 @@ describe("Users E2E", () => {
     await cacheManager.clear();
   });
 
+  describe("seeded users", () => {
+    it("creates nameless demo users without recording legal acceptance", async () => {
+      await addUsers(prismaService);
+      const users = await prismaService.user.findMany({
+        where: { id: { in: initialUsers.map(({ id }) => id) } },
+      });
+      expect(users).toHaveLength(2);
+      for (const user of users) {
+        expect(user.firstName).toBeNull();
+        expect(user.lastName).toBeNull();
+        expect(user.termsAcceptedAt).toBeNull();
+        expect(user.termsVersion).toBeNull();
+        expect(user.privacyVersion).toBeNull();
+      }
+    });
+
+    it("does not rewrite existing seeded accounts when rerun", async () => {
+      const existing = await prismaService.user.create({ data: {
+        id: initialUsers[0].id, email: initialUsers[0].email,
+        password: "existing-password-hash", firstName: "Legacy", lastName: "Artist",
+        termsAcceptedAt: new Date("2026-09-10T12:00:00.000Z"),
+        termsVersion: "previous-terms", privacyVersion: "previous-privacy",
+      } });
+      await addUsers(prismaService);
+      await addUsers(prismaService);
+      expect(await prismaService.user.findUniqueOrThrow({ where: { id: existing.id } })).toEqual(existing);
+    });
+  });
+
   describe("POST /users", () => {
-    it("Should create a user", async () => {
-      const res = await api
+    // Removed route: it created accounts without signup consent (#271).
+    it("no longer creates an account, even for a logged-in user", async () => {
+      await api
         .post("/users")
         .send({
           email: "yuki.endo@mail.com",
@@ -60,86 +102,9 @@ describe("Users E2E", () => {
           firstName: "Yuki",
           lastName: "Endo"
         })
-        .expect(HttpStatus.CREATED);
+        .expect(HttpStatus.NOT_FOUND);
 
-      expect(res.body).toEqual({
-        success: true,
-        statusCode: HttpStatus.CREATED,
-        message: "Created",
-        data: {
-          id: expect.any(String),
-          email: "yuki.endo@mail.com",
-          firstName: "Yuki",
-          lastName: "Endo",
-          avatar: null,
-          subscriptionTier: expect.any(String),
-          createdAt: expect.any(String),
-          updatedAt: expect.any(String),
-          autoRunReports: false,
-          notificationsEnabled: false
-        },
-      });
-    });
-
-    it("Shouldn't create a user with an email already used", async () => {
-      await prismaService.user.create({
-        data: {
-          email: "anna@raimon.com",
-          password: "Hashed_P4ssword2",
-          firstName: "Anna",
-          lastName: "Raimon",
-          subscriptionTier: SubscriptionTier.FREE
-        }
-      });
-      const res = await api
-        .post("/users")
-        .send({
-          email: "anna@raimon.com",
-          password: "Secure_P4ssword_",
-          firstName: "Anna",
-          lastName: "Willows"
-        })
-        .expect(HttpStatus.CONFLICT);
-
-      expect(res.body).toEqual({
-        success: false,
-        statusCode: HttpStatus.CONFLICT,
-        message: expect.any(String),
-        error: "Conflict"
-      });
-    });
-
-    it("Shouldn't create a user when required fields are missing", async () => {
-      const res = await api
-        .post("/users")
-        .send({ email: "amelia@mail.com" })
-        .expect(HttpStatus.BAD_REQUEST);
-
-      expect(res.body).toEqual({
-        success: false,
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: expect.any(String),
-        error: "Bad Request"
-      });
-    });
-
-    it("Shouldn't create a user with invalid mail", async () => {
-      const res = await api
-        .post("/users")
-        .send({
-          email: "amanda",
-          password: "Secure_P4ssword",
-          firstName: "Amanda",
-          lastName: "Rowles"
-        })
-        .expect(HttpStatus.BAD_REQUEST);
-
-      expect(res.body).toEqual({
-        success: false,
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: expect.any(String),
-        error: "Bad Request"
-      });
+      expect(await prismaService.user.findUnique({ where: { email: "yuki.endo@mail.com" } })).toBeNull();
     });
   });
 
@@ -168,14 +133,16 @@ describe("Users E2E", () => {
         {
           id: expect.any(String),
           email: "test.auth@mail.com",
-          firstName: "Test",
-          lastName: "User",
+          firstName: null,
+          lastName: null,
           subscriptionTier: SubscriptionTier.FREE,
           avatar: null,
           createdAt: expect.any(String),
           updatedAt: expect.any(String),
           autoRunReports: false,
-          notificationsEnabled: false
+          mailNotificationsEnabled: false,
+          mobileNotificationsEnabled: false,
+          webNotificationsEnabled: false
         },
         {
           id: expect.any(String),
@@ -187,7 +154,9 @@ describe("Users E2E", () => {
           createdAt: expect.any(String),
           updatedAt: expect.any(String),
           autoRunReports: false,
-          notificationsEnabled: false
+          mailNotificationsEnabled: false,
+          mobileNotificationsEnabled: false,
+          webNotificationsEnabled: false
         },
         {
           id: expect.any(String),
@@ -199,7 +168,9 @@ describe("Users E2E", () => {
           createdAt: expect.any(String),
           updatedAt: expect.any(String),
           autoRunReports: false,
-          notificationsEnabled: false
+          mailNotificationsEnabled: false,
+          mobileNotificationsEnabled: false,
+          webNotificationsEnabled: false
         }
       ];
 
@@ -222,14 +193,16 @@ describe("Users E2E", () => {
         data: {
           id: expect.any(String),
           email: "test.auth@mail.com",
-          firstName: "Test",
-          lastName: "User",
+          firstName: null,
+          lastName: null,
           subscriptionTier: SubscriptionTier.FREE,
           avatar: null,
           createdAt: expect.any(String),
           updatedAt: expect.any(String),
           autoRunReports: false,
-          notificationsEnabled: false
+          mailNotificationsEnabled: false,
+          mobileNotificationsEnabled: false,
+          webNotificationsEnabled: false
         },
       });
     });
@@ -275,14 +248,16 @@ describe("Users E2E", () => {
         data: {
           id: expect.any(String),
           email: "test.auth@mail.com",
-          firstName: "Test",
-          lastName: "User",
+          firstName: null,
+          lastName: null,
           subscriptionTier: SubscriptionTier.FREE,
           avatar: "new_url",
           createdAt: expect.any(String),
           updatedAt: expect.any(String),
           autoRunReports: false,
-          notificationsEnabled: false
+          mailNotificationsEnabled: false,
+          mobileNotificationsEnabled: false,
+          webNotificationsEnabled: false
         },
       });
     });
@@ -357,6 +332,90 @@ describe("Users E2E", () => {
         message: expect.any(String),
         error: "Forbidden"
       });
+    });
+  });
+
+  describe("DELETE /users/:id removes the account's files from storage", () => {
+    let noticeId: string;
+
+    beforeAll(async () => {
+      await prismaService.dmcaPlatform.upsert({
+        where: { slug: DeviantArtDmcaFormJSON.slug },
+        create: DeviantArtDmcaFormJSON,
+        update: {}
+      });
+    });
+
+    beforeEach(async () => {
+      mockS3Send.mockReset().mockResolvedValue({});
+      await prismaService.user.update({
+        where: { id: testUser.id },
+        data: {
+          avatar: "profiles/portrait-1b2c.png",
+          artworks: {
+            create: {
+              originalFilename: "starry-night.jpg",
+              storageKey: "artworks/starry-night-9f8e.jpg",
+              contentType: "image/jpeg",
+              sizeBytes: 603716,
+              width: 1280,
+              height: 1014
+            }
+          }
+        }
+      });
+      noticeId = (await prismaService.dmcaNotice.create({
+        data: { userId: testUser.id, dmcaPlatformSlug: DeviantArtDmcaFormJSON.slug }
+      })).id;
+    });
+
+    afterAll(async () => {
+      await prismaService.dmcaNotice.deleteMany();
+      await prismaService.dmcaPlatform.deleteMany();
+    });
+
+    const deletedKeys = () =>
+      mockS3Send.mock.calls.flatMap(([command]) =>
+        command.input.Delete.Objects.map(({ Key }: { Key: string }) => Key)
+      );
+
+    it("deletes the artwork, the profile picture and the DMCA notice PDF", async () => {
+      await api.delete(`/users/${testUser.id}`).expect(HttpStatus.NO_CONTENT);
+
+      expect(deletedKeys().sort()).toEqual([
+        "artworks/starry-night-9f8e.jpg",
+        `dmca-notices/${noticeId}.pdf`,
+        "profiles/portrait-1b2c.png"
+      ]);
+      expect(await prismaService.user.count({ where: { id: testUser.id } })).toBe(0);
+    });
+
+    it("keeps the account when storage fails, so deleting again removes everything", async () => {
+      mockS3Send.mockRejectedValueOnce(new Error("R2 unavailable"));
+
+      await api.delete(`/users/${testUser.id}`).expect(HttpStatus.SERVICE_UNAVAILABLE);
+      expect(await prismaService.user.count({ where: { id: testUser.id } })).toBe(1);
+      expect(await prismaService.artwork.count({ where: { userId: testUser.id } })).toBe(1);
+
+      await api.delete(`/users/${testUser.id}`).expect(HttpStatus.NO_CONTENT);
+      expect(deletedKeys()).toContain("artworks/starry-night-9f8e.jpg");
+      expect(await prismaService.user.count({ where: { id: testUser.id } })).toBe(0);
+    });
+
+    it("finishes on a second attempt when the database fails after the files were removed", async () => {
+      const userDelete = jest
+        .spyOn(prismaService.user, "delete")
+        .mockRejectedValueOnce(new Error("Connection terminated unexpectedly"));
+
+      const failed = await api.delete(`/users/${testUser.id}`);
+      expect(failed.status).toBeGreaterThanOrEqual(500);
+      expect(await prismaService.user.count({ where: { id: testUser.id } })).toBe(1);
+
+      // The files are already gone; R2 accepts deleting missing keys again.
+      await api.delete(`/users/${testUser.id}`).expect(HttpStatus.NO_CONTENT);
+      expect(mockS3Send).toHaveBeenCalledTimes(2);
+      expect(await prismaService.user.count({ where: { id: testUser.id } })).toBe(0);
+      userDelete.mockRestore();
     });
   });
 

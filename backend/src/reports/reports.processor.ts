@@ -1,13 +1,21 @@
 import { Processor, WorkerHost } from "@nestjs/bullmq";
-import { Logger } from "@nestjs/common";
-import { Job } from "bullmq";
+import { HttpException, Logger } from "@nestjs/common";
+import { Job, UnrecoverableError } from "bullmq";
 import { ReportsService } from "./reports.service";
 import { NotificationsService } from "../notifications/notifications.service";
+import { MailService } from "../mail/mail.service";
 import { REPORTS_QUEUE, GENERATE_REPORT_JOB } from "./reports.constants";
 import type { NotificationPayload } from "@vigilart/shared";
+import { SearchQuotaExhaustedException } from "../serpapilens/serpapi-account.service";
 
 export interface GenerateReportJobData {
   userId: string;
+  scanId?: string;
+  // Started by the user (button or synchronous route), not by the scheduler.
+  manual?: boolean;
+  // BullMQ keeps only the error message, so the HTTP status is stored here for
+  // synchronous callers waiting on the job.
+  failureStatus?: number;
 }
 
 @Processor(REPORTS_QUEUE)
@@ -16,7 +24,8 @@ export class ReportsProcessor extends WorkerHost {
 
   constructor(
     private readonly reportsService: ReportsService,
-    private readonly notificationsService: NotificationsService
+    private readonly notificationsService: NotificationsService,
+    private readonly mailService: MailService
   ) {
     super();
   }
@@ -38,29 +47,49 @@ export class ReportsProcessor extends WorkerHost {
         } catch (err) {
           this.logger.error("Failed to send report notification", err);
         }
+
+        try {
+          await this.mailService.sendReportReadyEmail(job.data.userId, report.id);
+        } catch (mailErr) {
+          this.logger.error("Failed to send report ready email", mailErr);
+        }
+
         return report.id;
       } catch (err) {
         this.logger.error(
           `Report generation failed for user ${job.data.userId}`,
           err
         );
+        const failureStatus = err instanceof HttpException ? err.getStatus() : undefined;
+        // A 4xx (quota, artwork cap, no artwork) fails identically on retry, and
+        // so does an exhausted SerpApi quota until the plan renews.
+        const unrecoverable = (failureStatus !== undefined && failureStatus >= 400 && failureStatus < 500)
+          || err instanceof SearchQuotaExhaustedException;
+        // attemptsMade counts previous attempts only while the job is processing.
+        const lastAttempt = unrecoverable || job.attemptsMade + 1 >= (job.opts.attempts ?? 1);
+        await job
+          .updateData({ ...job.data, failureStatus })
+          .catch(() => undefined);
 
-        const notification: NotificationPayload = {
-          type: "REPORT_FAILED",
-          title: "Report Failed",
-          body: "An error occurred during the artwork scan. Please try again.",
-          data: { error: err instanceof Error ? err.message : "Unknown error" }
-        };
+        if (lastAttempt) {
+          const notification: NotificationPayload = {
+            type: "REPORT_FAILED",
+            title: "Report Failed",
+            body: "An error occurred during the artwork scan. Please try again.",
+            data: { error: err instanceof Error ? err.message : "Unknown error" }
+          };
 
-        try {
-          await this.notificationsService.send(job.data.userId, notification);
-        } catch (notifErr) {
-          this.logger.error(
-            "Failed to send report failure notification",
-            notifErr
-          );
+          try {
+            await this.notificationsService.send(job.data.userId, notification);
+          } catch (notifErr) {
+            this.logger.error(
+              "Failed to send report failure notification",
+              notifErr
+            );
+          }
         }
 
+        if (unrecoverable) throw new UnrecoverableError((err as HttpException).message);
         throw err;
       }
     }

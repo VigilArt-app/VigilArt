@@ -11,19 +11,31 @@ import {
   ReportsService,
   TIMELINE_MAX_POINTS
 } from "./reports.service";
-import { VisionService } from "../vision/vision.service";
-import { GoogleLensService } from "../googlelens/googlelens.service";
-import { SerpApiLensService } from "../serpapilens/serpapilens.service";
+import { VisualSearchService } from "../visualsearch/visual-search.service";
+import { VisualSearchError } from "../visualsearch/visual-search.error";
 import { ArtworksService } from "../artworks/artworks.service";
 import { StorageService } from "../storage/storage.service";
 import { MatchingPagesService } from "./matchingPage.service";
 import { PrismaService } from "../prisma/prisma.service";
 import { MAX_SCANS_PER_WINDOW, REPORTS_QUEUE } from "./reports.constants";
+import { ScanQuotaService } from "./scan-quota.service";
+import { ArtworkLimitService } from "../artworks/artwork-limit.service";
+import { HttpService } from "@nestjs/axios";
+import { ConfigService } from "@nestjs/config";
+import { of, throwError } from "rxjs";
+import {
+  SearchQuotaExhaustedException,
+  SerpApiAccountService
+} from "../serpapilens/serpapi-account.service";
+
+// Shape of https://serpapi.com/account.json, trimmed to the fields read.
+const serpApiAccount = (searchesLeft: number) => ({
+  data: { total_searches_left: searchesLeft, plan_renewal_date: "2026-11-05" }
+});
 
 describe("ReportsService", () => {
   let service: ReportsService;
-  let visionService: { searchImage: jest.Mock };
-  let serpApiLensService: { searchImage: jest.Mock };
+  let visualSearchService: { aggregate: jest.Mock };
   let artworksService: { findAllPerUser: jest.Mock };
   let storageService: { getImage: jest.Mock; getDownloadUrl: jest.Mock };
   let matchingPagesService: { createMany: jest.Mock };
@@ -39,14 +51,20 @@ describe("ReportsService", () => {
   };
   let cache: { get: jest.Mock; set: jest.Mock; del: jest.Mock };
   let queue: { add: jest.Mock; getJob: jest.Mock };
+  let quota: { getScanQuota: jest.Mock; consumeScan: jest.Mock; releaseScan: jest.Mock };
+  let artworkLimit: { assertCapacity: jest.Mock };
+  let http: { get: jest.Mock };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         ReportsService,
-        { provide: VisionService, useValue: { searchImage: jest.fn() } },
-        { provide: GoogleLensService, useValue: { searchImage: jest.fn() } },
-        { provide: SerpApiLensService, useValue: { searchImage: jest.fn() } },
+        SerpApiAccountService,
+        { provide: HttpService, useValue: { get: jest.fn(() => of(serpApiAccount(250))) } },
+        { provide: ConfigService, useValue: { getOrThrow: () => "serpapi-key" } },
+        { provide: ScanQuotaService, useValue: { getScanQuota: jest.fn().mockResolvedValue({ remaining: 3, limit: 3, nextAvailableAt: null }), consumeScan: jest.fn().mockResolvedValue(undefined), releaseScan: jest.fn().mockResolvedValue(undefined) } },
+        { provide: ArtworkLimitService, useValue: { assertCapacity: jest.fn().mockResolvedValue(undefined) } },
+        { provide: VisualSearchService, useValue: { aggregate: jest.fn() } },
         { provide: ArtworksService, useValue: { findAllPerUser: jest.fn() } },
         {
           provide: StorageService,
@@ -78,14 +96,17 @@ describe("ReportsService", () => {
     }).compile();
 
     service = module.get(ReportsService);
-    visionService = module.get(VisionService);
-    serpApiLensService = module.get(SerpApiLensService);
+    visualSearchService = module.get(VisualSearchService);
     artworksService = module.get(ArtworksService);
     storageService = module.get(StorageService);
     matchingPagesService = module.get(MatchingPagesService);
     prisma = module.get(PrismaService);
     cache = module.get(CACHE_MANAGER);
     queue = module.get(getQueueToken(REPORTS_QUEUE));
+    quota = module.get(ScanQuotaService);
+    artworkLimit = module.get(ArtworkLimitService);
+    http = module.get(HttpService);
+    artworksService.findAllPerUser.mockResolvedValue([{ id: "a1", storageKey: "k1" }]);
   });
 
   afterEach(() => {
@@ -96,61 +117,9 @@ describe("ReportsService", () => {
     expect(service).toBeDefined();
   });
 
-  describe("aggregateVisualSearchResults", () => {
-    it("Should return Google Lens matches", async () => {
-      serpApiLensService.searchImage.mockResolvedValue({
-        matchingPages: [{ url: "https://b.example" }]
-      });
-
-      const res = await service.aggregateVisualSearchResults(
-        "https://download.example"
-      );
-
-      expect(res).toEqual([{ url: "https://b.example" }]);
-    });
-
-    it("Should return the surviving provider's matches when one provider fails", async () => {
-      visionService.searchImage.mockRejectedValue(new Error("vision down"));
-      serpApiLensService.searchImage.mockResolvedValue({
-        matchingPages: [{ url: "https://b.example" }]
-      });
-
-      const res = await service.aggregateVisualSearchResults(
-        // Buffer.from(""),
-        "https://download.example"
-      );
-
-      expect(res).toEqual([{ url: "https://b.example" }]);
-    });
-
-    it("Should return an empty array for a genuine zero-match scan", async () => {
-      visionService.searchImage.mockResolvedValue(null);
-      serpApiLensService.searchImage.mockResolvedValue({ matchingPages: [] });
-
-      const res = await service.aggregateVisualSearchResults(
-        // Buffer.from(""),
-        "https://download.example"
-      );
-
-      expect(res).toEqual([]);
-    });
-
-    it("Should throw when all providers fail", async () => {
-      visionService.searchImage.mockRejectedValue(new Error("vision down"));
-      serpApiLensService.searchImage.mockRejectedValue(new Error("lens down"));
-
-      await expect(
-        service.aggregateVisualSearchResults(
-          // Buffer.from(""),
-          "https://download.example"
-        )
-      ).rejects.toBeInstanceOf(ServiceUnavailableException);
-    });
-  });
-
   describe("checkScanQuota", () => {
     it(`Should allow a scan below the ${MAX_SCANS_PER_WINDOW}-scan limit`, async () => {
-      prisma.artworksReport.count.mockResolvedValue(MAX_SCANS_PER_WINDOW - 1);
+      quota.getScanQuota.mockResolvedValue({ remaining: 1, limit: 3, nextAvailableAt: null });
 
       await expect(
         service.checkScanQuota("user-id")
@@ -158,21 +127,19 @@ describe("ReportsService", () => {
     });
 
     it(`Should throw once the ${MAX_SCANS_PER_WINDOW}-scan limit is reached`, async () => {
-      prisma.artworksReport.count.mockResolvedValue(MAX_SCANS_PER_WINDOW);
+      quota.getScanQuota.mockResolvedValue({ remaining: 0, limit: 3, nextAvailableAt: "2026-11-01T00:00:00.000Z" });
 
       await expect(service.checkScanQuota("user-id")).rejects.toBeInstanceOf(
         ForbiddenException
       );
     });
 
-    it("Should count only reports inside the rolling window", async () => {
-      prisma.artworksReport.count.mockResolvedValue(0);
+    it("Should consult durable quota instead of completed reports", async () => {
 
       await service.checkScanQuota("user-id");
 
-      const where = prisma.artworksReport.count.mock.calls[0][0].where;
-      expect(where.userId).toBe("user-id");
-      expect(where.detectionDate.gt).toBeInstanceOf(Date);
+      expect(quota.getScanQuota).toHaveBeenCalledWith("user-id");
+      expect(prisma.artworksReport.count).not.toHaveBeenCalled();
     });
   });
 
@@ -185,8 +152,7 @@ describe("ReportsService", () => {
       ]);
       storageService.getImage.mockResolvedValue(Buffer.from(""));
       storageService.getDownloadUrl.mockResolvedValue("https://dl.example");
-      visionService.searchImage.mockResolvedValue({ matchingPages: [] });
-      serpApiLensService.searchImage.mockResolvedValue({ matchingPages: [] });
+      visualSearchService.aggregate.mockResolvedValue([]);
       matchingPagesService.createMany.mockResolvedValue({ matchingPages: [] });
       prisma.artworksReport.create.mockResolvedValue({ id: "report-1" });
       prisma.artwork.updateMany.mockResolvedValue({ count: 2 });
@@ -194,7 +160,7 @@ describe("ReportsService", () => {
 
     it("Should report progress to the job per artwork", async () => {
       mockScanSuccess();
-      const job = { updateProgress: jest.fn().mockResolvedValue(undefined) };
+      const job = { data: { scanId: "logical-scan" }, updateProgress: jest.fn().mockResolvedValue(undefined) };
 
       const report = await service.generate("user-id", job as never);
 
@@ -220,10 +186,10 @@ describe("ReportsService", () => {
     it("Should still complete the scan when one artwork's search fails", async () => {
       mockScanSuccess();
       // Two artworks; the first one's Lens call fails, the second succeeds.
-      serpApiLensService.searchImage
+      visualSearchService.aggregate
         .mockReset()
         .mockRejectedValueOnce(new Error("lens timeout"))
-        .mockResolvedValueOnce({ matchingPages: [] });
+        .mockResolvedValueOnce([]);
 
       const report = await service.generate("user-id");
 
@@ -232,7 +198,7 @@ describe("ReportsService", () => {
 
     it("Should fail the scan (no report) when every artwork's search fails", async () => {
       mockScanSuccess();
-      serpApiLensService.searchImage
+      visualSearchService.aggregate
         .mockReset()
         .mockRejectedValue(new Error("lens timeout"));
 
@@ -242,34 +208,146 @@ describe("ReportsService", () => {
       expect(prisma.artworksReport.create).not.toHaveBeenCalled();
     });
 
-    it("Should normalize match URLs (strip query/fragment) before persisting", async () => {
+    it("Should tell the user the real reason when every artwork's search fails", async () => {
+      mockScanSuccess();
+      visualSearchService.aggregate
+        .mockReset()
+        .mockRejectedValue(new VisualSearchError("rate_limit"));
+
+      const error = await service.generate("user-id").catch((e: unknown) => e);
+
+      expect(error).toBeInstanceOf(ServiceUnavailableException);
+      expect((error as Error).message).toBe(new VisualSearchError("rate_limit").message);
+      expect((error as Error).message).not.toMatch(/did not respond in time/);
+    });
+
+    const scanJob = (data: Record<string, unknown>) =>
+      ({ data: { userId: "user-id", scanId: "scan-1", ...data }, updateProgress: jest.fn().mockResolvedValue(undefined), updateData: jest.fn() }) as never;
+
+    it("Should give the scan back when every search of a user-started scan fails", async () => {
+      mockScanSuccess();
+      visualSearchService.aggregate.mockReset().mockRejectedValue(new VisualSearchError("provider_error"));
+
+      await expect(service.generate("user-id", scanJob({ manual: true }))).rejects.toBeInstanceOf(ServiceUnavailableException);
+
+      expect(quota.releaseScan).toHaveBeenCalledWith("user-id", "scan-1");
+    });
+
+    it("Should keep the scan consumed when a scheduled scan fails", async () => {
+      mockScanSuccess();
+      visualSearchService.aggregate.mockReset().mockRejectedValue(new VisualSearchError("provider_error"));
+
+      await expect(service.generate("user-id", scanJob({}))).rejects.toBeInstanceOf(ServiceUnavailableException);
+
+      expect(quota.releaseScan).not.toHaveBeenCalled();
+    });
+
+    it("Should keep the scan consumed when at least one artwork was scanned", async () => {
+      mockScanSuccess();
+      visualSearchService.aggregate
+        .mockReset()
+        .mockRejectedValueOnce(new VisualSearchError("provider_error"))
+        .mockResolvedValueOnce([]);
+
+      await service.generate("user-id", scanJob({ manual: true }));
+
+      expect(quota.releaseScan).not.toHaveBeenCalled();
+    });
+
+    // A failed search must not leave the artwork labelled "No matches found".
+    it("Should mark only the artworks whose search succeeded as scanned", async () => {
+      mockScanSuccess();
+      visualSearchService.aggregate
+        .mockReset()
+        .mockRejectedValueOnce(new VisualSearchError("provider_error"))
+        .mockResolvedValueOnce([]);
+
+      await service.generate("user-id");
+
+      expect(prisma.artwork.updateMany).toHaveBeenCalledWith({
+        where: { id: { in: ["a2"] } },
+        data: { lastScanAt: expect.any(Date) }
+      });
+    });
+
+    it("Should remove tracking data without discarding resource parameters before persisting", async () => {
       mockScanSuccess();
       artworksService.findAllPerUser.mockResolvedValue([
         { id: "a1", storageKey: "k1" }
       ]);
       const base = "https://x.com/ayaka_s/status/1777995868702171417";
-      serpApiLensService.searchImage.mockReset().mockResolvedValue({
-        matchingPages: [
-          { url: `${base}?lang=es`, category: "SOCIAL" },
-          { url: base, category: "SOCIAL" }
-        ]
-      });
+      visualSearchService.aggregate.mockReset().mockResolvedValue([
+        { url: `${base}?lang=es&utm_source=provider#results`, category: "SOCIAL" },
+        { url: `${base}?s=20&fbclid=abc`, category: "SOCIAL" },
+        {
+          url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ&si=AbC123xyz",
+          category: "SOCIAL"
+        }
+      ]);
 
       await service.generate("user-id");
 
-      // Both provider results collapse onto the same canonical URL; the DB's
+      // Both tweet results collapse onto the same canonical URL; the DB's
       // `skipDuplicates` on `[url, artworkId]` then dedupes them to one row.
       const persisted = matchingPagesService.createMany.mock.calls[0][0];
-      expect(persisted.map((m: { url: string }) => m.url)).toEqual([base, base]);
+      expect(persisted.map((m: { url: string }) => m.url)).toEqual([
+        base,
+        base,
+        "https://youtube.com/watch?v=dQw4w9WgXcQ"
+      ]);
     });
 
     it("Should not create a report when over quota", async () => {
-      prisma.artworksReport.count.mockResolvedValue(MAX_SCANS_PER_WINDOW);
+      mockScanSuccess();
+      quota.consumeScan.mockRejectedValue(new ForbiddenException());
 
       await expect(service.generate("user-id")).rejects.toBeInstanceOf(
         ForbiddenException
       );
       expect(prisma.artworksReport.create).not.toHaveBeenCalled();
+    });
+
+    it("Should refuse without searching or counting the user's scan when SerpApi has fewer searches left than artworks", async () => {
+      mockScanSuccess();
+      http.get.mockReturnValue(of(serpApiAccount(1)));
+
+      const scan = service.generate("user-id");
+
+      await expect(scan).rejects.toBeInstanceOf(SearchQuotaExhaustedException);
+      await expect(scan).rejects.toMatchObject({
+        status: 503,
+        message: "Scans are paused until 2026-11-05: the monthly search quota is reached."
+      });
+      expect(quota.consumeScan).not.toHaveBeenCalled();
+      expect(visualSearchService.aggregate).not.toHaveBeenCalled();
+      expect(prisma.artworksReport.create).not.toHaveBeenCalled();
+    });
+
+    it("Should scan exactly the last searches left, then refuse the next scan", async () => {
+      mockScanSuccess();
+      http.get.mockReturnValue(of(serpApiAccount(2)));
+
+      await expect(service.generate("user-id")).resolves.toEqual({ id: "report-1" });
+      await expect(service.generate("user-id")).rejects.toBeInstanceOf(SearchQuotaExhaustedException);
+      expect(visualSearchService.aggregate).toHaveBeenCalledTimes(2);
+    });
+
+    // Otherwise a refused scan would make the next one look out of searches.
+    it("Should give the searches back when the user's own quota refuses the scan", async () => {
+      mockScanSuccess();
+      http.get.mockReturnValue(of(serpApiAccount(2)));
+      quota.consumeScan.mockRejectedValueOnce(new ForbiddenException());
+
+      await expect(service.generate("user-id")).rejects.toBeInstanceOf(ForbiddenException);
+      await expect(service.generate("user-id")).resolves.toEqual({ id: "report-1" });
+    });
+
+    it("Should still scan when the SerpApi quota cannot be read", async () => {
+      mockScanSuccess();
+      http.get.mockReturnValue(throwError(() => new Error("connect ETIMEDOUT")));
+
+      await expect(service.generate("user-id")).resolves.toEqual({ id: "report-1" });
+      expect(quota.consumeScan).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -284,7 +362,7 @@ describe("ReportsService", () => {
       expect(res).toEqual({ jobId: "scan-user-id" });
       expect(queue.add).toHaveBeenCalledWith(
         expect.anything(),
-        { userId: "user-id" },
+        expect.objectContaining({ userId: "user-id", scanId: expect.any(String), manual: true }),
         expect.objectContaining({ jobId: "scan-user-id" })
       );
     });
@@ -321,11 +399,62 @@ describe("ReportsService", () => {
     });
 
     it("Should reject before enqueuing when over quota", async () => {
-      prisma.artworksReport.count.mockResolvedValue(MAX_SCANS_PER_WINDOW);
+      quota.getScanQuota.mockResolvedValue({ remaining: 0, limit: 3, nextAvailableAt: "2026-11-01T00:00:00.000Z" });
 
       await expect(service.enqueueScan("user-id")).rejects.toBeInstanceOf(
         ForbiddenException
       );
+      expect(queue.add).not.toHaveBeenCalled();
+    });
+
+    it("Should reject before enqueuing when SerpApi has no searches left", async () => {
+      queue.getJob.mockResolvedValue(null);
+      http.get.mockReturnValue(of(serpApiAccount(0)));
+
+      await expect(service.enqueueScan("user-id")).rejects.toBeInstanceOf(SearchQuotaExhaustedException);
+      expect(queue.add).not.toHaveBeenCalled();
+    });
+
+    it.each(["completed", "failed"])("preserves a retained %s scan when quota rejects its replacement", async (state) => {
+      const remove = jest.fn().mockResolvedValue(undefined);
+      queue.getJob.mockResolvedValue({ getState: jest.fn().mockResolvedValue(state), remove });
+      quota.getScanQuota.mockResolvedValue({ remaining: 0, limit: 3, nextAvailableAt: "2026-11-01T00:00:00.000Z" });
+
+      await expect(service.enqueueScan("user-id")).rejects.toBeInstanceOf(ForbiddenException);
+
+      expect(remove).not.toHaveBeenCalled();
+      expect(queue.add).not.toHaveBeenCalled();
+    });
+
+    it.each(["completed", "failed"])("preserves a retained %s scan when artwork capacity rejects its replacement", async (state) => {
+      const remove = jest.fn().mockResolvedValue(undefined);
+      queue.getJob.mockResolvedValue({ getState: jest.fn().mockResolvedValue(state), remove });
+      artworkLimit.assertCapacity.mockRejectedValue(new ForbiddenException("Free accounts are limited to 3 artworks."));
+
+      await expect(service.enqueueScan("user-id")).rejects.toBeInstanceOf(ForbiddenException);
+
+      expect(remove).not.toHaveBeenCalled();
+      expect(queue.add).not.toHaveBeenCalled();
+    });
+
+    it.each(["completed", "failed"])("preserves a retained %s scan when there are no artworks to scan", async (state) => {
+      const remove = jest.fn().mockResolvedValue(undefined);
+      queue.getJob.mockResolvedValue({ getState: jest.fn().mockResolvedValue(state), remove });
+      artworksService.findAllPerUser.mockResolvedValue([]);
+
+      await expect(service.enqueueScan("user-id")).rejects.toMatchObject({ status: 400 });
+
+      expect(remove).not.toHaveBeenCalled();
+      expect(queue.add).not.toHaveBeenCalled();
+    });
+
+    it("reuses an active scan even when its already-consumed quota leaves no remaining slot", async () => {
+      queue.getJob.mockResolvedValue({ id: "scan-user-id", getState: jest.fn().mockResolvedValue("active") });
+      quota.getScanQuota.mockResolvedValue({ remaining: 0, limit: 3, nextAvailableAt: null });
+
+      await expect(service.enqueueScan("user-id")).resolves.toEqual({ jobId: "scan-user-id" });
+
+      expect(quota.getScanQuota).not.toHaveBeenCalled();
       expect(queue.add).not.toHaveBeenCalled();
     });
   });
@@ -350,7 +479,7 @@ describe("ReportsService", () => {
 
       expect(queue.add).toHaveBeenCalledWith(
         expect.anything(),
-        { userId: "user-id" },
+        expect.objectContaining({ userId: "user-id", scanId: expect.any(String) }),
         expect.objectContaining({ jobId: "scan-user-id", attempts: 3 })
       );
     });

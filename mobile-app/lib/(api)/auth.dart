@@ -2,17 +2,26 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'legal.dart';
 
 class ApiService {
   final FlutterSecureStorage secureStorage = const FlutterSecureStorage();
-  final String serverUrl = dotenv.env['API_BASE_URL'] ?? 
-      (throw Exception('CRITICAL: API_BASE_URL is not set in the .env file.'));
+  final String serverUrl = _requireApiBaseUrl();
+  final http.Client? _client;
+
+  ApiService({http.Client? client}) : _client = client;
+
+  static String _requireApiBaseUrl() {
+    final String? value = dotenv.env['API_BASE_URL'];
+    if (value == null || value.isEmpty) {
+      throw Exception('CRITICAL: API_BASE_URL is not set in the .env file.');
+    }
+    return value;
+  }
 
   static const String keyAccessToken = 'accessToken';
   static const String keyRefreshToken = 'refreshToken';
   static const String keyUserId = 'userId';
-  static const String keyUserFirstName = 'userFirstName';
-  static const String keyUserLastName = 'userLastName';
   static const String keyUserEmail = 'userEmail';
   static const String keyUserAvatar = 'userAvatar';
 
@@ -71,8 +80,6 @@ class ApiService {
         await secureStorage.write(key: keyAccessToken, value: accessToken);
         await secureStorage.write(key: keyRefreshToken, value: refreshToken);
         await secureStorage.write(key: keyUserId, value: user['id'].toString());
-        await secureStorage.write(key: keyUserFirstName, value: user['firstName'].toString());
-        await secureStorage.write(key: keyUserLastName, value: user['lastName'].toString());
         await secureStorage.write(key: keyUserEmail, value: user['email'].toString());
         await secureStorage.write(key: keyUserAvatar, value: user['avatar']?.toString() ?? '');
       }
@@ -80,20 +87,23 @@ class ApiService {
     return response; 
   }
 
-  Future<http.Response> signup(String email, String password, String firstName, String lastName) async {
+  // Only called once the user ticked the consent checkbox: acceptance is
+  // never sent on their behalf.
+  Future<http.Response> signup(String email, String password) async {
     final url = Uri.parse('$serverUrl/auth/signup');
-    
-    final response = await http.post(
+    final post = _client?.post ?? http.post;
+
+    return post(
       url,
       headers: _authHeaders(),
       body: jsonEncode({
         'email': email,
         'password': password,
-        'firstName': firstName,
-        'lastName': lastName,
+        'acceptedTerms': true,
+        'termsVersion': termsVersion,
+        'privacyVersion': privacyVersion,
       }),
     );
-    return response;
   }
 
   Future<http.Response> refreshAccessToken() async {

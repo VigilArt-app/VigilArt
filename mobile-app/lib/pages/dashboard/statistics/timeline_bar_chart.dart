@@ -2,9 +2,6 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'models/statistics_model.dart';
 
-/// Per-report "monthly comparison" bars — one bar per report (already capped to
-/// the 30 most recent backend-side). Tapping a bar drills into that report's
-/// matches. Mirrors the web `MonthlyComparison` chart.
 class TimelineBarChart extends StatelessWidget {
   final List<TimelinePoint> timeline;
   final void Function(TimelinePoint point) onTapPoint;
@@ -15,7 +12,6 @@ class TimelineBarChart extends StatelessWidget {
     required this.onTapPoint,
   });
 
-  // Single categorical series (dataviz slot 1, blue), matching the web bar.
   static const Color _barColor = Color(0xFF2A78D6);
 
   String _shortDate(String iso) {
@@ -34,7 +30,6 @@ class TimelineBarChart extends StatelessWidget {
       return const Center(child: Text('No reports yet'));
     }
 
-    // Show at most ~6 x-axis labels so they don't overlap on a phone.
     final labelStep = (timeline.length / 6).ceil().clamp(1, timeline.length);
 
     return BarChart(

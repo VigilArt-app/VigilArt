@@ -37,6 +37,7 @@ export default function ArtworkGalleryPage() {
   const [insightsByArtwork, setInsightsByArtwork] = useState<
     Record<string, ArtworkReportInsights>
   >({});
+  const [insightsAvailable, setInsightsAvailable] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedFilter, setSelectedFilter] = useState<FilterStatus>("All");
   const [selectedArtwork, setSelectedArtwork] =
@@ -73,11 +74,13 @@ export default function ArtworkGalleryPage() {
         const enrichedArtworks: ArtworkWithInsights[] = page.items.map(
           (artwork) => ({
             ...artwork,
-            reportInsights: insights[artwork.id]
+            reportInsights: insights.insights[artwork.id],
+            reportInsightsAvailable: insights.available,
           })
         );
 
-        setInsightsByArtwork(insights);
+        setInsightsByArtwork(insights.insights);
+        setInsightsAvailable(insights.available);
         setArtworks(enrichedArtworks);
         setFilteredArtworks(enrichedArtworks);
         setNextCursor(page.nextCursor);
@@ -124,7 +127,8 @@ export default function ArtworkGalleryPage() {
       const page = await fetchArtworks(user.id, nextCursor);
       const enriched = page.items.map((artwork) => ({
         ...artwork,
-        reportInsights: insightsByArtwork[artwork.id]
+        reportInsights: insightsByArtwork[artwork.id],
+        reportInsightsAvailable: insightsAvailable,
       }));
       setArtworks((prev) => prev.concat(enriched));
       setNextCursor(page.nextCursor);
@@ -192,35 +196,45 @@ export default function ArtworkGalleryPage() {
         className="flex-1 p-8 overflow-y-auto scrollbar-soft"
         onClick={() => setSelectedArtwork(null)}
       >
-        <div className="bg-black text-white rounded-lg p-6 mb-6 flex items-center justify-between">
+        <div className="bg-card text-card-foreground border shadow-sm rounded-lg p-6 mb-6 flex items-center justify-between">
           <h1 className="text-3xl font-bold">
             {t("artwork_gallery_page.artwork_gallery")}
           </h1>
           <Button
-            className="flex items-center gap-2 mt-4"
+            size="lg"
+            className="h-12 px-8 text-base gap-2"
             onClick={() => setUploadModalOpen(true)}
           >
-            <Upload className="w-4 h-4" />
+            <Upload className="size-5" />
             {t("dashboard_page.upload.upload_artworks")}
           </Button>
         </div>
 
-        <SearchAndFilters
-          searchQuery={searchQuery}
-          onSearchChange={setSearchQuery}
-          selectedFilter={selectedFilter}
-          onFilterChange={setSelectedFilter}
-          filteredCount={filteredArtworks.length}
-        />
+        {/* Searching and filtering an empty gallery is noise; the empty state
+            below explains what to do instead. */}
+        {artworks.length > 0 && (
+          <SearchAndFilters
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+            selectedFilter={selectedFilter}
+            onFilterChange={setSelectedFilter}
+            filteredCount={filteredArtworks.length}
+          />
+        )}
 
         {filteredArtworks.length === 0 ? (
           <EmptyState
             searchQuery={searchQuery}
             selectedFilter={selectedFilter}
+            isGalleryEmpty={artworks.length === 0}
+            onUpload={() => setUploadModalOpen(true)}
           />
         ) : (
           <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            {/* The details panel consumes 384px; keep cards readable beside it. */}
+            <div className={`grid gap-4 ${selectedArtwork
+              ? "grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3"
+              : "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"}`}>
               {filteredArtworks.map((artwork) => (
                 <ArtworkCard
                   key={artwork.id}

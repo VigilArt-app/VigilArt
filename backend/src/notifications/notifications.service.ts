@@ -6,7 +6,7 @@ import {
 } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { PrismaService } from "../prisma/prisma.service";
-import type { NotificationPayload, DeviceToken } from "@vigilart/shared";
+import { DevicePlatform, type NotificationPayload, type DeviceToken } from "@vigilart/shared";
 import { RegisterDeviceDTO } from "@vigilart/shared";
 import {
   type App,
@@ -98,13 +98,30 @@ export class NotificationsService implements OnModuleInit, OnModuleDestroy {
 
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
-      select: { notificationsEnabled: true }
+      select: {
+        webNotificationsEnabled: true,
+        mobileNotificationsEnabled: true
+      }
     });
-    if (!user?.notificationsEnabled)
+    if (!user)
       return;
 
+    if (!user.webNotificationsEnabled && !user.mobileNotificationsEnabled)
+      return;
+
+    const allowedPlatforms: DevicePlatform[] = [];
+    if (user.webNotificationsEnabled) {
+      allowedPlatforms.push(DevicePlatform.WEB);
+    }
+    if (user.mobileNotificationsEnabled) {
+      allowedPlatforms.push(DevicePlatform.ANDROID, DevicePlatform.IOS);
+    }
+
     const deviceTokens = await this.prisma.deviceToken.findMany({
-      where: { userId },
+      where: {
+        userId,
+        platform: { in: allowedPlatforms }
+      },
       select: { token: true, id: true }
     });
     if (deviceTokens.length === 0)

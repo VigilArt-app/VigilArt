@@ -27,7 +27,7 @@ export default function LogoutPage() {
   return (
     <div className="min-h-screen flex items-center justify-center">
       {error ? (
-        <p className="text-red-500">Error logging out: {error}</p>
+        <p className="text-destructive">Error logging out: {error}</p>
       ) : (
         
       <p>{t("logout_page.logging_out")}</p>

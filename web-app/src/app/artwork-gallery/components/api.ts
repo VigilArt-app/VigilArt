@@ -1,5 +1,5 @@
 import { toast } from "sonner";
-import { Artwork, ArtworkReportInsights, MatchingPage } from "./types";
+import { Artwork, ArtworkReportInsights, ArtworkReportInsightsResult, MatchingPage } from "./types";
 import { authenticatedFetch } from "../../../utils/auth/authenticatedFetch";
 import { PaginatedResult } from "@vigilart/shared/types";
 import i18next from "i18next";
@@ -39,7 +39,7 @@ interface ReportDetails {
   matchingPages: MatchingPage[];
 }
 
-export const fetchArtworkReportInsights = async (userId: string): Promise<Record<string, ArtworkReportInsights>> => {
+export const fetchArtworkReportInsights = async (userId: string): Promise<ArtworkReportInsightsResult> => {
   try {
     const reportsRes = await authenticatedFetch(`/reports/user/${userId}`);
 
@@ -48,10 +48,11 @@ export const fetchArtworkReportInsights = async (userId: string): Promise<Record
     }
 
     const reportsData = await reportsRes.json();
-    const reports: ReportSummary[] = reportsData.data || [];
+    if (!Array.isArray(reportsData.data)) throw new Error("Invalid reports response");
+    const reports: ReportSummary[] = reportsData.data;
 
     if (reports.length === 0) {
-      return {};
+      return { available: true, insights: {} };
     }
 
     const detailsResults = await Promise.all(
@@ -102,10 +103,11 @@ export const fetchArtworkReportInsights = async (userId: string): Promise<Record
       };
     });
 
-    return insightsByArtwork;
+    // A missing report must not turn a partial history into a zero result.
+    return { available: detailsResults.every((details) => details !== null), insights: insightsByArtwork };
   } catch {
     toast.error(t("artwork_gallery_page.failed_load_reports", "Failed to load reports data"));
-    return {};
+    return { available: false, insights: {} };
   }
 };
 

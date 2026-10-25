@@ -5,8 +5,21 @@ import {
 import { execSync } from "child_process";
 import { RedisContainer, StartedRedisContainer } from "@testcontainers/redis";
 
+// The shared ../.env may carry the dev value; every e2e suite signs users up.
+process.env.SIGNUP_DISABLED = "false";
+
 let postgresContainer: StartedPostgreSqlContainer;
 let redisContainer: StartedRedisContainer;
+
+export const getTestContainerUrls = () => {
+  if (!postgresContainer || !redisContainer) {
+    throw new Error("Disposable test containers have not started");
+  }
+  return {
+    databaseUrl: postgresContainer.getConnectionUri(),
+    redisUrl: redisContainer.getConnectionUrl()
+  };
+};
 
 beforeAll(async () => {
   postgresContainer = await new PostgreSqlContainer(

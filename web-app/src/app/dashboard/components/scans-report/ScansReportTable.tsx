@@ -1,6 +1,8 @@
 import { ArrowDown, ArrowUp, ArrowUpDown, Image as ImageIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { SortDirection, SortField, ScanRow } from "./types";
+import { RestrictedMatch, matchIdentity } from "../../../../components/matches/RestrictedMatch";
+import { mostRecentMatch } from "../../../../components/matches/mostRecentMatch";
 
 interface ScansReportTableProps {
   loading: boolean;
@@ -18,12 +20,10 @@ interface ScansReportTableProps {
 
 const TABLE_ROW_CELL_CLASS = "py-3 px-2";
 
-const getMatchColor = (matches: number): string => {
-  if (matches === 0) return "rgb(200, 200, 200)";
-  if (matches < 5) return "rgb(255, 193, 7)";
-  if (matches < 10) return "rgb(255, 152, 0)";
-  return "rgb(244, 67, 54)";
-};
+// One neutral plum pill whatever the count: a match is information, not an
+// alert, so no yellow-to-red scale. Zero stays grey.
+const getMatchBadgeClass = (matches: number): string =>
+  matches === 0 ? "bg-muted text-muted-foreground" : "bg-primary/10 text-primary dark:bg-primary/15";
 
 function SortIcon({
   field,
@@ -107,56 +107,55 @@ export function ScansReportTable({
               </>
             ) : (
               <>
-                {paginatedRows.map((scan) => (
-                  <tr
-                    key={`${scan.artworkId}-${scan.title}-${scan.mostRecentDate}`}
-                    className="border-b hover:bg-muted/50 cursor-pointer"
-                    onClick={() => onSelectArtwork(scan)}
-                    tabIndex={0}
-                    role="button"
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" || e.key === " ") {
-                        e.preventDefault();
-                        onSelectArtwork(scan);
-                      }
-                    }}
-                  >
-                    <td className={`${TABLE_ROW_CELL_CLASS} text-gray-500`}>{(scan.title || t("dashboard_page.scans_report.unknown_artwork")).substring(0, 20)}</td>
-                    <td className={TABLE_ROW_CELL_CLASS}>
-                      {scan.imageUrl ? (
-                        <img
-                          src={scan.imageUrl}
-                          alt={scan.title}
-                          className="w-12 h-12 object-cover rounded"
-                          onError={(e) => {
-                            e.currentTarget.style.display = "none";
-                            e.currentTarget.nextElementSibling?.classList.remove("hidden");
-                          }}
-                        />
-                      ) : null}
-                      <div className={scan.imageUrl ? "hidden" : "w-12 h-12 bg-gradient-to-br from-orange-400 to-purple-600 rounded-lg flex items-center justify-center"}>
-                        <ImageIcon className="w-6 h-6 text-white" />
-                      </div>
-                    </td>
-                    <td className={TABLE_ROW_CELL_CLASS}>
-                      <span
-                        className="px-3 py-1 rounded text-white font-bold"
-                        style={{
-                          backgroundColor: getMatchColor(scan.matches),
-                          textShadow: "0 0 3px rgba(0,0,0,0.8), 1px 1px 2px rgba(0,0,0,0.5)",
-                        }}
-                      >
-                        {scan.matches}
-                      </span>
-                    </td>
-                    <td className={TABLE_ROW_CELL_CLASS}>
-                      <span className="px-3 py-1 rounded text-gray-700 font-bold">{t("dashboard_page.scans_report.not_available")}</span>
-                    </td>
-                    <td className={TABLE_ROW_CELL_CLASS}>
-                      <span className="px-3 py-1 rounded bg-purple-900 text-white text-sm">{scan.mostRecentSource}</span>
-                    </td>
-                  </tr>
-                ))}
+                {paginatedRows.map((scan) => {
+                  const latestMatch = mostRecentMatch(scan.matchingPages);
+                  return (
+                    <tr
+                      key={`${scan.artworkId}-${scan.title}-${scan.mostRecentDate}`}
+                      className="border-b hover:bg-muted/50 cursor-pointer"
+                      onClick={() => onSelectArtwork(scan)}
+                      tabIndex={0}
+                      role="button"
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault();
+                          onSelectArtwork(scan);
+                        }
+                      }}
+                    >
+                      <td className={`${TABLE_ROW_CELL_CLASS} text-foreground`}>{(scan.title || t("dashboard_page.scans_report.unknown_artwork")).substring(0, 20)}</td>
+                      <td className={TABLE_ROW_CELL_CLASS}>
+                        {scan.imageUrl ? (
+                          <img
+                            src={scan.imageUrl}
+                            alt={scan.title}
+                            className="w-12 h-12 object-cover rounded"
+                            onError={(e) => {
+                              e.currentTarget.style.display = "none";
+                              e.currentTarget.nextElementSibling?.classList.remove("hidden");
+                            }}
+                          />
+                        ) : null}
+                        <div className={scan.imageUrl ? "hidden" : "w-12 h-12 bg-muted rounded-lg flex items-center justify-center"}>
+                          <ImageIcon className="w-6 h-6 text-muted-foreground" />
+                        </div>
+                      </td>
+                      <td className={TABLE_ROW_CELL_CLASS}>
+                        <span className={`px-3 py-1 rounded font-bold ${getMatchBadgeClass(scan.matches)}`}>
+                          {scan.matches}
+                        </span>
+                      </td>
+                      <td className={TABLE_ROW_CELL_CLASS}>
+                        <span className="px-3 py-1 rounded text-foreground font-bold">{t("dashboard_page.scans_report.not_available")}</span>
+                      </td>
+                      <td className={TABLE_ROW_CELL_CLASS}>
+                        <RestrictedMatch unsafeDomain={!!latestMatch?.unsafeDomain} resetKey={`${currentPage}-${sortField}-${sortDirection}-${matchIdentity(latestMatch)}`} compact>
+                        <span className="px-3 py-1 rounded bg-secondary text-secondary-foreground text-sm">{scan.mostRecentSource}</span>
+                        </RestrictedMatch>
+                      </td>
+                    </tr>
+                  );
+                })}
 
                 {Array.from({ length: emptyRowsCount }).map((_, index) => (
                   <tr key={`empty-${index}`} className="border-b">

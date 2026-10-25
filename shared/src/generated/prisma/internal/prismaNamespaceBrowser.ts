@@ -57,6 +57,7 @@ export const ModelName = {
   Artwork: 'Artwork',
   MatchingPage: 'MatchingPage',
   ArtworksReport: 'ArtworksReport',
+  ScanUsage: 'ScanUsage',
   DmcaPlatform: 'DmcaPlatform',
   DmcaProfile: 'DmcaProfile',
   DmcaNotice: 'DmcaNotice',
@@ -85,10 +86,15 @@ export const UserScalarFieldEnum = {
   password: 'password',
   firstName: 'firstName',
   lastName: 'lastName',
+  termsAcceptedAt: 'termsAcceptedAt',
+  termsVersion: 'termsVersion',
+  privacyVersion: 'privacyVersion',
   avatar: 'avatar',
   subscriptionTier: 'subscriptionTier',
   autoRunReports: 'autoRunReports',
-  notificationsEnabled: 'notificationsEnabled',
+  mailNotificationsEnabled: 'mailNotificationsEnabled',
+  mobileNotificationsEnabled: 'mobileNotificationsEnabled',
+  webNotificationsEnabled: 'webNotificationsEnabled',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -161,6 +167,15 @@ export const ArtworksReportScalarFieldEnum = {
 } as const
 
 export type ArtworksReportScalarFieldEnum = (typeof ArtworksReportScalarFieldEnum)[keyof typeof ArtworksReportScalarFieldEnum]
+
+
+export const ScanUsageScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  startedAt: 'startedAt'
+} as const
+
+export type ScanUsageScalarFieldEnum = (typeof ScanUsageScalarFieldEnum)[keyof typeof ScanUsageScalarFieldEnum]
 
 
 export const DmcaPlatformScalarFieldEnum = {

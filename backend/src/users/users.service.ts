@@ -2,11 +2,13 @@ import {
   Inject,
   Injectable,
   Logger,
-  NotFoundException
+  NotFoundException,
+  ServiceUnavailableException
 } from "@nestjs/common";
 import { CACHE_MANAGER } from "@nestjs/cache-manager";
 import type { Cache } from "cache-manager";
 import { PrismaService } from "../prisma/prisma.service";
+import { StorageService } from "../storage/storage.service";
 import type {
   UserCreate,
   UserUpdate,
@@ -17,6 +19,19 @@ import { SubscriptionTier } from "@vigilart/shared";
 import { createHash } from "crypto";
 
 const USERS_TTL = 7 * 24 * 60 * 60 * 1000;
+
+const PUBLIC_USER_OMIT = {
+  password: true,
+  termsAcceptedAt: true,
+  termsVersion: true,
+  privacyVersion: true,
+} as const;
+
+type SignupAcceptance = {
+  termsAcceptedAt: Date;
+  termsVersion: string;
+  privacyVersion: string;
+};
 
 const USER_KEY = (id: string) => {
   return `users:${id}`;
@@ -32,7 +47,8 @@ const USER_EMAIL_KEY = (email: string) => {
 export class UsersService {
   constructor(
     private readonly prisma: PrismaService,
-    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
+    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
+    private readonly storageService: StorageService
   ) {}
 
   private readonly logger = new Logger(UsersService.name);
@@ -53,9 +69,7 @@ export class UsersService {
     this.logger.log(`Finding user ${"id" in by ? by.id : by.email}`);
     const user = await this.prisma.user.findUnique({
       where: by,
-      omit: {
-        password: true
-      }
+      omit: PUBLIC_USER_OMIT
     });
 
     if (user) {
@@ -65,25 +79,22 @@ export class UsersService {
     return user;
   }
 
-  async create(user: UserCreate): Promise<UserGet> {
+  async create(user: UserCreate, acceptance?: SignupAcceptance): Promise<UserGet> {
     this.logger.log(`Creating new user ${user.email}`);
     return this.prisma.user.create({
       data: {
         ...user,
+        ...acceptance,
         subscriptionTier: SubscriptionTier.FREE
       },
-      omit: {
-        password: true
-      }
+      omit: PUBLIC_USER_OMIT
     });
   }
 
   async findAll(): Promise<UserGet[]> {
     this.logger.log("Finding all users");
     return this.prisma.user.findMany({
-      omit: {
-        password: true
-      }
+      omit: PUBLIC_USER_OMIT
     });
   }
 
@@ -122,7 +133,7 @@ export class UsersService {
     const user = await this.prisma.user.update({
       where: { id },
       data: updateUserDto,
-      omit: { password: true }
+      omit: PUBLIC_USER_OMIT
     });
 
     await this.cacheManager.del(USER_KEY(id));
@@ -136,6 +147,21 @@ export class UsersService {
     this.logger.log(`Removing user ${id}`);
     const user = await this.findOneWithoutPassword(id);
 
+    // Files go first: if storage fails, the rows that list them are still
+    // there, so deleting the account again finishes the job.
+    const storageKeys = await this.storageKeysOf(id);
+    try {
+      await this.storageService.deleteImages(storageKeys);
+    } catch (error) {
+      this.logger.error(
+        `Failed to delete storage objects of user ${id}`,
+        error instanceof Error ? error.stack : String(error)
+      );
+      throw new ServiceUnavailableException(
+        "Your account could not be deleted right now. Please try again in a few minutes."
+      );
+    }
+
     await this.prisma.user.delete({
       where: {
         id
@@ -144,5 +170,24 @@ export class UsersService {
     await this.cacheManager.del(USER_KEY(id));
     if (user)
       await this.cacheManager.del(USER_EMAIL_KEY(user.email));
+  }
+
+  // Every object stored for the account: artworks, DMCA notice PDFs and the
+  // profile picture when it is a key under profiles/ (clients also accept a
+  // full URL, which is not ours to delete).
+  private async storageKeysOf(id: string): Promise<string[]> {
+    const { avatar, artworks, dmcaNotices } = await this.prisma.user.findUniqueOrThrow({
+      where: { id },
+      select: {
+        avatar: true,
+        artworks: { select: { storageKey: true } },
+        dmcaNotices: { select: { id: true } }
+      }
+    });
+    return [
+      ...artworks.map(({ storageKey }) => storageKey),
+      ...(avatar?.startsWith("profiles/") ? [avatar] : []),
+      ...dmcaNotices.map((notice) => `dmca-notices/${notice.id}.pdf`)
+    ];
   }
 }

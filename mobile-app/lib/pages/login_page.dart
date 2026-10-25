@@ -43,7 +43,7 @@ class _LoginPageState extends State<LoginPage> {
           await prefs.setBool('isLoggedIn', true);
           if (!mounted) return;
 
-          if (prefs.getBool('notificationsEnabled') == true) {
+          if (prefs.getBool('mobileNotificationsEnabled') == true) {
             NotificationService().initialize();
           }
 

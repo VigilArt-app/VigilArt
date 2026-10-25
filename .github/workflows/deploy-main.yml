@@ -31,11 +31,14 @@ jobs:
   run-ci:
     if: github.repository != 'EpitechPGE45-2025/G-EIP-700-PAR-7-1-eip-39'
     uses: ./.github/workflows/ci.yml
+    with:
+      base: main
     secrets: inherit
 
   check-changes:
     if: github.repository != 'EpitechPGE45-2025/G-EIP-700-PAR-7-1-eip-39'
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     outputs:
       backend: ${{ steps.filter.outputs.backend }}
       frontend: ${{ steps.filter.outputs.frontend }}
@@ -48,6 +51,7 @@ jobs:
         uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
         id: filter
         with:
+          base: main
           filters: |
             backend:
               - 'backend/**'
@@ -63,6 +67,7 @@ jobs:
   build-backend:
     name: 📦 Build & Push Backend
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     needs: [run-ci, check-changes]
     if: |
       github.repository != 'EpitechPGE45-2025/G-EIP-700-PAR-7-1-eip-39' &&
@@ -98,6 +103,7 @@ jobs:
   build-frontend:
     name: 📦 Build & Push Frontend
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     needs: [run-ci, check-changes]
     if: |
       github.repository != 'EpitechPGE45-2025/G-EIP-700-PAR-7-1-eip-39' &&
@@ -144,10 +150,12 @@ jobs:
             NEXT_PUBLIC_FIREBASE_APP_ID=${{ secrets.NEXT_PUBLIC_FIREBASE_APP_ID }}
             NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID=${{ secrets.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID }}
             NEXT_PUBLIC_FIREBASE_VAPID_KEY=${{ secrets.NEXT_PUBLIC_FIREBASE_VAPID_KEY }}
+            NEXT_PUBLIC_TURNSTILE_SITE_KEY=${{ secrets.NEXT_PUBLIC_TURNSTILE_SITE_KEY }}
 
   deploy:
     name: 🚀 Deploy to prod
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     needs: [run-ci, check-changes, build-backend, build-frontend]
     if: |
       github.repository != 'EpitechPGE45-2025/G-EIP-700-PAR-7-1-eip-39' &&
@@ -182,6 +190,7 @@ jobs:
   release-mobile:
     name: 📱 Release Mobile App (prod)
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     needs: [run-ci, check-changes]
     permissions:
       contents: write

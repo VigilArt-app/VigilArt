@@ -9,3 +9,4 @@ infra
 .agent
 .idea
 CLAUDE.md
+.playwright-mcp/

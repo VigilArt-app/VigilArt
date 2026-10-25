@@ -9,10 +9,12 @@ import {
   SidebarMenuItem,
   SidebarFooter,
 } from "../components/ui/sidebar"
+import { SidebarPreferences } from "./sidebar-preferences"
+import { RELEASES_URL } from "./download-apk-button"
 import Image from "next/image";
 import Link from "next/link";
 
-import { Palette, User, LayoutDashboard, LogOut, ShieldAlert } from "lucide-react"
+import { Palette, User, LayoutDashboard, LogOut, ShieldAlert, Smartphone } from "lucide-react"
 import { useTranslation } from "react-i18next";
 
 
@@ -52,7 +54,8 @@ export function AppSidebar() {
     <Sidebar>
       <SidebarHeader>
         <div className="w-full flex items-center justify-center py-4">
-          <Image src="/vigilart_b.png" alt="VigilArt logo" width={100} height={100} className="invert-0 dark:invert" priority />
+          <Image src="/VigilArt_logo_black.png" alt="VigilArt logo" width={100} height={100} className="dark:hidden" priority />
+          <Image src="/VigilArt_logo_white.png" alt="VigilArt logo" width={100} height={100} className="hidden dark:block" priority />
         </div>
       </SidebarHeader>
       <SidebarContent>
@@ -62,7 +65,7 @@ export function AppSidebar() {
             <SidebarMenu>
               {items.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild className="p-5">
+                  <SidebarMenuButton asChild className="h-auto px-5 py-4 text-lg [&>svg]:size-5">
                     <Link href={item.url}>
                       <item.icon />
                       <span>{item.title}</span>
@@ -74,22 +77,33 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-      <SidebarMenu>
-        {logout_items.map((item) => (
-          <SidebarMenuItem key={item.title}>
-            <SidebarMenuButton asChild className="p-5">
-              <Link href={item.url}>
-                <item.icon />
-                <span>{item.title}</span>
-              </Link>
+      <SidebarFooter className="mb-6 shrink-0 gap-3">
+        {/* The APK only installs on a phone; on a desktop it is noise. */}
+        <SidebarMenu className="md:hidden">
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild className="h-auto px-5 py-3 text-base [&>svg]:size-5">
+              <a href={RELEASES_URL} target="_blank" rel="noopener noreferrer">
+                <Smartphone />
+                <span>{t("common.download_apk")}</span>
+              </a>
             </SidebarMenuButton>
           </SidebarMenuItem>
-        ))}
-      </SidebarMenu>
-      <SidebarFooter>
-        <div className="w-full flex items-center justify-center py-4">
-          {t("sidebar.upgrade")}
-        </div>
+        </SidebarMenu>
+        <SidebarPreferences />
+        <SidebarMenu>
+          {logout_items.map((item) => (
+            <SidebarMenuItem key={item.title}>
+              {/* A way out, not a destination: quieter than the navigation,
+                  and red only once the pointer is on it. */}
+              <SidebarMenuButton asChild className="h-auto px-5 py-3 text-base text-sidebar-foreground/70 hover:bg-destructive/10 hover:text-destructive [&>svg]:size-5">
+                <Link href={item.url}>
+                  <item.icon />
+                  <span>{item.title}</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          ))}
+        </SidebarMenu>
       </SidebarFooter>
     </Sidebar>
   )
