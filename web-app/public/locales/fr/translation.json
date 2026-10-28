@@ -303,7 +303,7 @@
     "create_report": "Lancer un scan",
     "scan_quota_one": "{{count}} scan restant sur {{limit}}",
     "scan_quota_other": "{{count}} scans restants sur {{limit}}",
-    "scan_quota_window": "Chaque scan est décompté de votre quota pendant 30 jours, puis il vous est rendu.",
+    "scan_quota_window": "Chaque scan utilisé vous est rendu 30 jours plus tard.",
     "scan_quota_loading": "Chargement du quota de scans…",
     "scan_quota_unavailable": "Quota de scans indisponible.",
     "scan_quota_retry": "Réessayer",

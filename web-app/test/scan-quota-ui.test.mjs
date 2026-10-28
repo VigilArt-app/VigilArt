@@ -89,7 +89,7 @@ test("shows server free and paid quotas right under Start a scan", () => {
   for (const [remaining, limit] of [[2, 3], [7, 10]]) {
     const html = renderActions({ quota: { remaining, limit, nextAvailableAt: null }, loading: false, error: null });
     assert.match(html, new RegExp(`${remaining} scans? left out of ${limit}`));
-    assert.match(html, /Each scan counts against your quota for 30 days, then you get it back/);
+    assert.match(html, /Each used scan comes back 30 days later/);
     assert.ok(html.indexOf("Start a scan") < html.indexOf("left out of"));
     assert.doesNotMatch(html, /disabled=""/);
     assert.doesNotMatch(html, /upgrade|pro plan/i);
@@ -100,7 +100,7 @@ test("French dashboard actions say import and start a scan, and explain the 30-d
   const html = renderActions({ quota: { remaining: 2, limit: 3, nextAvailableAt: null }, loading: false, error: null }, "fr");
   assert.match(html, /Importer des œuvres/);
   assert.match(html, /Lancer un scan/);
-  assert.match(html, /Chaque scan est décompté de votre quota pendant 30 jours, puis il vous est rendu/);
+  assert.match(html, /Chaque scan utilisé vous est rendu 30 jours plus tard/);
   // "Télécharger" reads as a download in French; the dashboard only sends files.
   assert.doesNotMatch(html, /[Tt]éléchar/);
 });

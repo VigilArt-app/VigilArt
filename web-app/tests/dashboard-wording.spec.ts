@@ -29,11 +29,11 @@ const mockDashboard = async (page: Page) => {
 const copy = {
   en: {
     upload: "Upload artworks", uploadTitle: "Upload Picture(s)", scan: "Start a scan", reposts: "Detected reposts",
-    quota: "Each scan counts against your quota for 30 days, then you get it back.", progress: "Scanning artwork 1 of 3",
+    quota: "Each used scan comes back 30 days later.", progress: "Scanning artwork 1 of 3",
   },
   fr: {
     upload: "Importer des œuvres", uploadTitle: "Importer une ou plusieurs image(s)", scan: "Lancer un scan", reposts: "Reposts détectés",
-    quota: "Chaque scan est décompté de votre quota pendant 30 jours, puis il vous est rendu.", progress: "Analyse de l'artwork 1 sur 3",
+    quota: "Chaque scan utilisé vous est rendu 30 jours plus tard.", progress: "Analyse de l'artwork 1 sur 3",
   },
 };
 
