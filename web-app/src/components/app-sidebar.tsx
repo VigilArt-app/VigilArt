@@ -10,13 +10,13 @@ import {
   SidebarFooter,
 } from "../components/ui/sidebar"
 import { SidebarPreferences } from "./sidebar-preferences"
-import { RELEASES_URL } from "./download-apk-button"
 import Image from "next/image";
 import Link from "next/link";
 
 import { Palette, User, LayoutDashboard, LogOut, ShieldAlert, Smartphone } from "lucide-react"
 import { useTranslation } from "react-i18next";
 
+const RELEASES_URL = "https://github.com/VigilArt-app/VigilArt/releases/latest"
 
 export function AppSidebar() {
   const { t } = useTranslation();
