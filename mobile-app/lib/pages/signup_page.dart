@@ -3,6 +3,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../widgets/logo_header.dart';
 import '../widgets/custom_input_field.dart';
 import '../widgets/custom_button.dart';
@@ -295,6 +296,17 @@ class _SignupPageState extends State<SignupPage> {
                   CustomButton(
                     text: 'Already have an account? Login',
                     onPressed: _handleLogin,
+                    isOutlined: true,
+                    backgroundColor: Colors.black87,
+                  ),
+                  const SizedBox(height: 24),
+                  CustomButton(
+                    text: 'Continue with Google',
+                    onPressed: () {
+                      debugPrint('Google Sign-In pressed');
+                    },
+                    icon: const FaIcon(FontAwesomeIcons.google), 
+                    showIcon: true,
                     isOutlined: true,
                     backgroundColor: Colors.black87,
                   ),

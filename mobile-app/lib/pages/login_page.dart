@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'dashboard/dashboard.dart';
 import 'signup_page.dart';
 import '../widgets/logo_header.dart';
@@ -76,6 +77,10 @@ class _LoginPageState extends State<LoginPage> {
       context,
       MaterialPageRoute(builder: (context) => const SignupPage()),
     );
+  }
+
+  void _handleGoogleSignIn() {
+    debugPrint('Google Sign-In pressed');
   }
 
   @override
@@ -175,6 +180,15 @@ class _LoginPageState extends State<LoginPage> {
                   CustomButton(
                     text: "Doesn't have an account ? Sign Up",
                     onPressed: _handleSignup,
+                    isOutlined: true,
+                    backgroundColor: Colors.black87,
+                  ),
+                  const SizedBox(height: 24),
+                  CustomButton(
+                    text: 'Continue with Google',
+                    onPressed: _handleGoogleSignIn,
+                    icon: const FaIcon(FontAwesomeIcons.google),
+                    showIcon: true,
                     isOutlined: true,
                     backgroundColor: Colors.black87,
                   ),
