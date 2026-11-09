@@ -173,10 +173,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get tabStatistics => 'Statistiques';
 
   @override
-  String get tabReposts => 'Rapport des scans';
+  String get tabReposts => 'Reposts détectés';
 
   @override
-  String get tabUpload => 'Télécharger';
+  String get tabUpload => 'Importer';
 
   @override
   String get searchByName => 'Rechercher par nom ou source';
@@ -204,7 +204,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get failedToLoadReposts =>
-      'Impossible de charger le rapport de scans. Veuillez réessayer.';
+      'Impossible de charger les reposts détectés. Veuillez réessayer.';
 
   @override
   String get matchesLabel => 'Correspondances';
@@ -235,7 +235,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get filterByCategory => 'Filtrer par catégorie';
 
   @override
-  String get startScan => 'Créer le report';
+  String get startScan => 'Lancer un scan';
 
   @override
   String quotaOne(int count, int limit) {
@@ -249,7 +249,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get quotaWindow =>
-      'Chaque scan redevient disponible 30 jours après son lancement.';
+      'Chaque scan utilisé vous est rendu 30 jours plus tard.';
 
   @override
   String get quotaLoading => 'Chargement du quota de scans…';
@@ -363,7 +363,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get recentScansEmpty => 'Aucun rapport pour l\'instant';
 
   @override
-  String get uploadArtworks => 'Télécharger des œuvres';
+  String get uploadArtworks => 'Importer des œuvres';
 
   @override
   String get uploadSupportedFormats => 'Formats supportés : JPEG, PNG';
@@ -378,10 +378,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get uploadAddDescription => 'Ajouter une description (optionnel)';
 
   @override
-  String get uploadAction => 'Télécharger';
+  String get uploadAction => 'Importer';
 
   @override
-  String get uploadUploading => 'Téléchargement en cours...';
+  String get uploadUploading => 'Importation en cours...';
 
   @override
   String get uploadPreparing => 'Préparation de votre image...';
@@ -396,7 +396,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get uploadFailedAny =>
-      'Échec du téléchargement de tous les fichiers. Veuillez réessayer.';
+      'Échec de l\'importation de tous les fichiers. Veuillez réessayer.';
 
   @override
   String get uploadSeeGallery => 'Voir la galerie';
@@ -455,7 +455,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get artworkDescription => 'Description:';
 
   @override
-  String get artworkUploadDate => 'Date de téléchargement:';
+  String get artworkUploadDate => 'Date d\'importation:';
 
   @override
   String get artworkFileSize => 'Taille du fichier:';
@@ -745,10 +745,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get profileEmail => 'Adresse email';
 
   @override
-  String get profileUploadPicture => 'Télécharger une photo';
+  String get profileUploadPicture => 'Importer une photo';
 
   @override
-  String get profileUploading => 'Téléchargement en cours...';
+  String get profileUploading => 'Importation en cours...';
 
   @override
   String get profileSave => 'Enregistrer';
@@ -766,7 +766,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get profileFailedAvatar =>
-      'Échec du téléchargement de l\'avatar. Veuillez réessayer.';
+      'Échec de l\'importation de l\'avatar. Veuillez réessayer.';
 
   @override
   String get notificationsTitle => 'Préférences de notification';

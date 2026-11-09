@@ -28,6 +28,11 @@ android {
         manifestPlaceholders["appName"] = "VigilArt"
     }
 
+    // The app is available in English and French only (store listings too).
+    androidResources {
+        localeFilters += listOf("en", "fr")
+    }
+
     flavorDimensions += listOf("default")
     productFlavors {
         create("dev") {

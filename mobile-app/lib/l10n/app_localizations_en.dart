@@ -171,7 +171,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tabStatistics => 'Statistics';
 
   @override
-  String get tabReposts => 'Scans Report';
+  String get tabReposts => 'Detected reposts';
 
   @override
   String get tabUpload => 'Upload';
@@ -202,7 +202,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get failedToLoadReposts =>
-      'Failed to load scans report. Please try again.';
+      'Failed to load detected reposts. Please try again.';
 
   @override
   String get matchesLabel => 'Matches';
@@ -232,7 +232,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get filterByCategory => 'Filter by category';
 
   @override
-  String get startScan => 'Create report';
+  String get startScan => 'Start a scan';
 
   @override
   String quotaOne(int count, int limit) {
@@ -245,8 +245,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get quotaWindow =>
-      'Each scan becomes available again 30 days after it started.';
+  String get quotaWindow => 'Each used scan comes back 30 days later.';
 
   @override
   String get quotaLoading => 'Loading scan quota…';

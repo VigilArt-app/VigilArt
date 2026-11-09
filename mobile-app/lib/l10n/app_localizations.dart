@@ -413,7 +413,7 @@ abstract class AppLocalizations {
   /// No description provided for @tabReposts.
   ///
   /// In en, this message translates to:
-  /// **'Scans Report'**
+  /// **'Detected reposts'**
   String get tabReposts;
 
   /// No description provided for @tabUpload.
@@ -473,7 +473,7 @@ abstract class AppLocalizations {
   /// No description provided for @failedToLoadReposts.
   ///
   /// In en, this message translates to:
-  /// **'Failed to load scans report. Please try again.'**
+  /// **'Failed to load detected reposts. Please try again.'**
   String get failedToLoadReposts;
 
   /// No description provided for @matchesLabel.
@@ -533,7 +533,7 @@ abstract class AppLocalizations {
   /// No description provided for @startScan.
   ///
   /// In en, this message translates to:
-  /// **'Create report'**
+  /// **'Start a scan'**
   String get startScan;
 
   /// No description provided for @quotaOne.
@@ -551,7 +551,7 @@ abstract class AppLocalizations {
   /// No description provided for @quotaWindow.
   ///
   /// In en, this message translates to:
-  /// **'Each scan becomes available again 30 days after it started.'**
+  /// **'Each used scan comes back 30 days later.'**
   String get quotaWindow;
 
   /// No description provided for @quotaLoading.

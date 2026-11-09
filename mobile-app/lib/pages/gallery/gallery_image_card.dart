@@ -86,8 +86,8 @@ class GalleryImageCard extends StatelessWidget {
                   icon: const Icon(LucideIcons.ellipsis, size: 20),
                   onSelected: (v) => v == 'edit' ? onEdit() : onDelete(),
                   itemBuilder: (_) => [
-                    PopupMenuItem(value: 'edit', child: Row(children: [const Icon(LucideIcons.pencil, size: 18), const SizedBox(width: 8), Text(l10n.artworkEditTitle)])),
-                    PopupMenuItem(value: 'delete', child: Row(children: [Icon(LucideIcons.trash2, size: 18, color: c.error), const SizedBox(width: 8), Text(l10n.artworkDelete, style: TextStyle(color: c.error))])),
+                    PopupMenuItem(value: 'edit', child: Row(mainAxisSize: MainAxisSize.min, children: [const Icon(LucideIcons.pencil, size: 18), const SizedBox(width: 8), Flexible(child: Text(l10n.artworkEditTitle))])),
+                    PopupMenuItem(value: 'delete', child: Row(mainAxisSize: MainAxisSize.min, children: [Icon(LucideIcons.trash2, size: 18, color: c.error), const SizedBox(width: 8), Flexible(child: Text(l10n.artworkDelete, style: TextStyle(color: c.error)))])),
                   ],
                 ),
               ],

@@ -33,7 +33,10 @@ extension on TimelineFilter {
 /// "Detected reposts": one card per artwork, with the filters of the website
 /// and the Start a scan action.
 class ScanResultsPage extends StatefulWidget {
-  const ScanResultsPage({super.key, this.apiService, this.scanPollInterval = const Duration(seconds: 2)});
+  const ScanResultsPage(
+      {super.key,
+      this.apiService,
+      this.scanPollInterval = const Duration(seconds: 2)});
 
   // Injected by tests.
   final ApiService? apiService;
@@ -117,7 +120,9 @@ class _ScanResultsPageState extends State<ScanResultsPage> {
       }
       if (_category != kAllCategories) {
         final pages = (r['matchingPages'] as List?) ?? [];
-        if (!pages.any((m) => (m as Map)['category']?.toString() == _category)) return false;
+        if (!pages.any((m) => (m as Map)['category']?.toString() == _category)) {
+          return false;
+        }
       }
       if (_onlyUncredited) {
         final matches = (r['matchesCount'] as int?) ?? 0;
@@ -148,7 +153,9 @@ class _ScanResultsPageState extends State<ScanResultsPage> {
       context: context,
       isDismissible: false,
       enableDrag: false,
-      builder: (_) => _ScanSheet(state: progress),
+      isScrollControlled: true,
+      builder: (_) => SafeArea(
+          child: SingleChildScrollView(child: _ScanSheet(state: progress))),
     );
     setState(() => _isScanning = true);
     try {
@@ -174,21 +181,30 @@ class _ScanResultsPageState extends State<ScanResultsPage> {
     final l10n = AppLocalizations.of(context);
     return showModalBottomSheet<bool>(
       context: context,
-      builder: (ctx) => Padding(
-        padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Icon(LucideIcons.shield, size: 28, color: ctx.colors.primaryText),
-            const SizedBox(height: 12),
-            Text(l10n.scanConsentTitle, style: Theme.of(ctx).textTheme.titleLarge),
-            const SizedBox(height: 8),
-            Text(l10n.scanConsentBody, style: TextStyle(color: ctx.colors.textMuted)),
-            const SizedBox(height: 16),
-            CustomButton(text: l10n.scanConsentContinue, onPressed: () => Navigator.pop(ctx, true)),
-            TextButton(onPressed: () => openExternalUrl(ctx, privacyUrl), child: Text(l10n.scanConsentPolicy)),
-          ],
+      isScrollControlled: true,
+      builder: (ctx) => SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Icon(LucideIcons.shield, size: 28, color: ctx.colors.primaryText),
+              const SizedBox(height: 12),
+              Text(l10n.scanConsentTitle,
+                  style: Theme.of(ctx).textTheme.titleLarge),
+              const SizedBox(height: 8),
+              Text(l10n.scanConsentBody,
+                  style: TextStyle(color: ctx.colors.textMuted)),
+              const SizedBox(height: 16),
+              CustomButton(
+                  text: l10n.scanConsentContinue,
+                  onPressed: () => Navigator.pop(ctx, true)),
+              TextButton(
+                  onPressed: () => openExternalUrl(ctx, privacyUrl),
+                  child: Text(l10n.scanConsentPolicy)),
+            ],
+          ),
         ),
       ),
     );
@@ -212,7 +228,8 @@ class _ScanResultsPageState extends State<ScanResultsPage> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      builder: (context) => FractionallySizedBox(heightFactor: 0.85, child: ArtworkDetailsSheet(artwork: artwork)),
+      builder: (context) => FractionallySizedBox(
+          heightFactor: 0.85, child: ArtworkDetailsSheet(artwork: artwork)),
     );
   }
 
@@ -230,16 +247,24 @@ class _ScanResultsPageState extends State<ScanResultsPage> {
     final quota = _quota;
     if (quota != null) {
       final locale = Localizations.localeOf(context).toString();
-      final count = quota.remaining == 1 ? l10n.quotaOne(1, quota.limit) : l10n.quotaOther(quota.remaining, quota.limit);
+      final count = quota.remaining == 1
+          ? l10n.quotaOne(1, quota.limit)
+          : l10n.quotaOther(quota.remaining, quota.limit);
       final second = quota.remaining == 0 && quota.nextAvailableAt != null
-          ? l10n.nextScanAvailable(DateFormat.yMMMd(locale).add_Hm().format(quota.nextAvailableAt!))
+          ? l10n.nextScanAvailable(
+              DateFormat.yMMMd(locale).add_Hm().format(quota.nextAvailableAt!))
           : l10n.quotaWindow;
       return Text('$count. $second', style: style);
     }
     if (_quotaFailed) {
-      return Row(children: [
+      return Wrap(crossAxisAlignment: WrapCrossAlignment.center, children: [
         Text(l10n.quotaUnavailable, style: style),
-        TextButton(onPressed: () { setState(() => _quotaFailed = false); _fetchQuota(); }, child: Text(l10n.retry)),
+        TextButton(
+            onPressed: () {
+              setState(() => _quotaFailed = false);
+              _fetchQuota();
+            },
+            child: Text(l10n.retry)),
       ]);
     }
     return Text(l10n.quotaLoading, style: style);
@@ -271,10 +296,12 @@ class _ScanResultsPageState extends State<ScanResultsPage> {
                             children: [
                               TextField(
                                 controller: _searchController,
-                                onChanged: (v) => setState(() => _searchQuery = v),
+                                onChanged: (v) =>
+                                    setState(() => _searchQuery = v),
                                 decoration: InputDecoration(
                                   hintText: l10n.searchByName,
-                                  prefixIcon: const Icon(LucideIcons.search, size: 20),
+                                  prefixIcon:
+                                      const Icon(LucideIcons.search, size: 20),
                                 ),
                               ),
                               const SizedBox(height: 8),
@@ -285,12 +312,18 @@ class _ScanResultsPageState extends State<ScanResultsPage> {
                                   children: [
                                     for (final f in TimelineFilter.values)
                                       Padding(
-                                        padding: const EdgeInsets.only(right: 8),
+                                        padding:
+                                            const EdgeInsets.only(right: 8),
                                         child: ChoiceChip(
                                           label: Text(_timelineLabel(l10n, f)),
                                           selected: _timelineFilter == f,
-                                          labelStyle: TextStyle(color: _timelineFilter == f ? c.onPrimary : c.text, fontWeight: FontWeight.w500),
-                                          onSelected: (_) => setState(() => _timelineFilter = f),
+                                          labelStyle: TextStyle(
+                                              color: _timelineFilter == f
+                                                  ? c.onPrimary
+                                                  : c.text,
+                                              fontWeight: FontWeight.w500),
+                                          onSelected: (_) => setState(
+                                              () => _timelineFilter = f),
                                         ),
                                       ),
                                   ],
@@ -302,13 +335,26 @@ class _ScanResultsPageState extends State<ScanResultsPage> {
                                     child: DropdownButtonFormField<String>(
                                       initialValue: _category,
                                       isExpanded: true,
-                                      decoration: const InputDecoration(contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8)),
+                                      decoration: const InputDecoration(
+                                          contentPadding: EdgeInsets.symmetric(
+                                              horizontal: 12, vertical: 8)),
                                       items: [
-                                        DropdownMenuItem(value: kAllCategories, child: Text(l10n.allCategories, overflow: TextOverflow.ellipsis)),
-                                        for (final cat in kCategoryOrder.where(_availableCategories.contains))
-                                          DropdownMenuItem(value: cat, child: Text(categoryLabel(l10n, cat), overflow: TextOverflow.ellipsis)),
+                                        DropdownMenuItem(
+                                            value: kAllCategories,
+                                            child: Text(l10n.allCategories,
+                                                overflow:
+                                                    TextOverflow.ellipsis)),
+                                        for (final cat in kCategoryOrder.where(
+                                            _availableCategories.contains))
+                                          DropdownMenuItem(
+                                              value: cat,
+                                              child: Text(
+                                                  categoryLabel(l10n, cat),
+                                                  overflow:
+                                                      TextOverflow.ellipsis)),
                                       ],
-                                      onChanged: (v) => setState(() => _category = v ?? kAllCategories),
+                                      onChanged: (v) => setState(() =>
+                                          _category = v ?? kAllCategories),
                                     ),
                                   ),
                                   const SizedBox(width: 8),
@@ -316,8 +362,15 @@ class _ScanResultsPageState extends State<ScanResultsPage> {
                                     child: Row(
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
-                                        Switch(value: _onlyUncredited, onChanged: (v) => setState(() => _onlyUncredited = v)),
-                                        Flexible(child: Text(l10n.onlyUncredited, style: const TextStyle(fontSize: 13, height: 16 / 13))),
+                                        Switch(
+                                            value: _onlyUncredited,
+                                            onChanged: (v) => setState(
+                                                () => _onlyUncredited = v)),
+                                        Flexible(
+                                            child: Text(l10n.onlyUncredited,
+                                                style: const TextStyle(
+                                                    fontSize: 13,
+                                                    height: 16 / 13))),
                                       ],
                                     ),
                                   ),
@@ -331,12 +384,23 @@ class _ScanResultsPageState extends State<ScanResultsPage> {
                       SliverPadding(
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                         sliver: _loadFailed
-                            ? SliverToBoxAdapter(child: _StateMessage(icon: LucideIcons.triangleAlert, text: l10n.failedToLoadReposts, action: l10n.retry, onAction: _fetchData))
+                            ? SliverToBoxAdapter(
+                                child: _StateMessage(
+                                    icon: LucideIcons.triangleAlert,
+                                    text: l10n.failedToLoadReposts,
+                                    action: l10n.retry,
+                                    onAction: _fetchData))
                             : results.isEmpty
-                                ? SliverToBoxAdapter(child: _StateMessage(icon: LucideIcons.search, text: l10n.noScans))
+                                ? SliverToBoxAdapter(
+                                    child: _StateMessage(
+                                        icon: LucideIcons.search,
+                                        text: l10n.noScans))
                                 : SliverList(
                                     delegate: SliverChildBuilderDelegate(
-                                      (context, index) => ScanResultCard(result: results[index], onTap: () => _showDetailsSheet(results[index])),
+                                      (context, index) => ScanResultCard(
+                                          result: results[index],
+                                          onTap: () => _showDetailsSheet(
+                                              results[index])),
                                       childCount: results.length,
                                     ),
                                   ),
@@ -347,7 +411,8 @@ class _ScanResultsPageState extends State<ScanResultsPage> {
         ),
         Container(
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-          decoration: BoxDecoration(color: c.bg, border: Border(top: BorderSide(color: c.border))),
+          decoration: BoxDecoration(
+              color: c.bg, border: Border(top: BorderSide(color: c.border))),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             mainAxisSize: MainAxisSize.min,
@@ -375,7 +440,8 @@ class _StateMessage extends StatelessWidget {
   final String? action;
   final VoidCallback? onAction;
 
-  const _StateMessage({required this.icon, required this.text, this.action, this.onAction});
+  const _StateMessage(
+      {required this.icon, required this.text, this.action, this.onAction});
 
   @override
   Widget build(BuildContext context) {
@@ -386,10 +452,16 @@ class _StateMessage extends StatelessWidget {
         children: [
           Icon(icon, size: 48, color: c.textMuted),
           const SizedBox(height: 12),
-          Text(text, textAlign: TextAlign.center, style: TextStyle(color: c.textMuted)),
+          Text(text,
+              textAlign: TextAlign.center,
+              style: TextStyle(color: c.textMuted)),
           if (action != null) ...[
             const SizedBox(height: 12),
-            OutlinedButton(onPressed: onAction, style: OutlinedButton.styleFrom(minimumSize: const Size(160, 48)), child: Text(action!)),
+            OutlinedButton(
+                onPressed: onAction,
+                style:
+                    OutlinedButton.styleFrom(minimumSize: const Size(160, 48)),
+                child: Text(action!)),
           ],
         ],
       ),
@@ -405,9 +477,12 @@ class _ScanState {
 
   const _ScanState._(this.kind, {this.progress, this.matches = 0, this.error});
   factory _ScanState.queued() => const _ScanState._('queued');
-  factory _ScanState.running(ScanProgress? p) => _ScanState._('running', progress: p);
-  factory _ScanState.done(int matches) => _ScanState._('done', matches: matches);
-  factory _ScanState.failed(String error) => _ScanState._('failed', error: error);
+  factory _ScanState.running(ScanProgress? p) =>
+      _ScanState._('running', progress: p);
+  factory _ScanState.done(int matches) =>
+      _ScanState._('done', matches: matches);
+  factory _ScanState.failed(String error) =>
+      _ScanState._('failed', error: error);
 }
 
 /// Status sheet while a scan runs, then its result. The title is a status
@@ -440,21 +515,47 @@ class _ScanSheet extends StatelessWidget {
               Text(title, style: Theme.of(context).textTheme.titleLarge),
               const SizedBox(height: 8),
               if (!finished) ...[
-                Text(p == null ? l10n.scanQueued : l10n.scanningArtwork(p.processed + 1 > p.total ? p.total : p.processed + 1, p.total)),
+                Text(p == null
+                    ? l10n.scanQueued
+                    : l10n.scanningArtwork(
+                        p.processed + 1 > p.total ? p.total : p.processed + 1,
+                        p.total)),
                 const SizedBox(height: 12),
-                LinearProgressIndicator(value: p == null || p.total == 0 ? null : p.processed / p.total, minHeight: 8, borderRadius: BorderRadius.circular(4)),
+                LinearProgressIndicator(
+                    value: p == null || p.total == 0
+                        ? null
+                        : p.processed / p.total,
+                    minHeight: 8,
+                    borderRadius: BorderRadius.circular(4)),
                 const SizedBox(height: 8),
-                Text(l10n.coverageNote, style: TextStyle(color: c.textMuted, fontSize: 12)),
+                Text(l10n.coverageNote,
+                    style: TextStyle(color: c.textMuted, fontSize: 12)),
               ] else if (s.kind == 'done') ...[
-                _Banner(color: c.success, bg: c.successBg, icon: LucideIcons.check, text: '${s.matches} ${l10n.detectionsFound}'),
+                _Banner(
+                    color: c.success,
+                    bg: c.successBg,
+                    icon: LucideIcons.check,
+                    text: '${s.matches} ${l10n.detectionsFound}'),
                 const SizedBox(height: 8),
-                _Banner(color: c.warning, bg: c.warningBg, icon: LucideIcons.triangleAlert, text: l10n.coverageNote),
+                _Banner(
+                    color: c.warning,
+                    bg: c.warningBg,
+                    icon: LucideIcons.triangleAlert,
+                    text: l10n.coverageNote),
                 const SizedBox(height: 16),
-                CustomButton(text: MaterialLocalizations.of(context).okButtonLabel, onPressed: () => Navigator.pop(context)),
+                CustomButton(
+                    text: MaterialLocalizations.of(context).okButtonLabel,
+                    onPressed: () => Navigator.pop(context)),
               ] else ...[
-                _Banner(color: c.error, bg: c.errorBg, icon: LucideIcons.triangleAlert, text: s.error ?? l10n.scanFailed),
+                _Banner(
+                    color: c.error,
+                    bg: c.errorBg,
+                    icon: LucideIcons.triangleAlert,
+                    text: s.error ?? l10n.scanFailed),
                 const SizedBox(height: 16),
-                CustomButton(text: MaterialLocalizations.of(context).okButtonLabel, onPressed: () => Navigator.pop(context)),
+                CustomButton(
+                    text: MaterialLocalizations.of(context).okButtonLabel,
+                    onPressed: () => Navigator.pop(context)),
               ],
             ],
           ),
@@ -470,19 +571,27 @@ class _Banner extends StatelessWidget {
   final IconData icon;
   final String text;
 
-  const _Banner({required this.color, required this.bg, required this.icon, required this.text});
+  const _Banner(
+      {required this.color,
+      required this.bg,
+      required this.icon,
+      required this.text});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(12), border: Border.all(color: color.withValues(alpha: 0.3))),
+      decoration: BoxDecoration(
+          color: bg,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: color.withValues(alpha: 0.3))),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(icon, size: 20, color: color),
           const SizedBox(width: 12),
-          Expanded(child: Text(text, style: TextStyle(color: context.colors.text))),
+          Expanded(
+              child: Text(text, style: TextStyle(color: context.colors.text))),
         ],
       ),
     );

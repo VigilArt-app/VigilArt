@@ -52,7 +52,7 @@
   "signupFailed": "Sign up failed. Please check your information and try again.",
   "signupDisabled": "Account creation is disabled on this environment.",
   "tabStatistics": "Statistics",
-  "tabReposts": "Scans Report",
+  "tabReposts": "Detected reposts",
   "tabUpload": "Upload",
   "searchByName": "Search by name or source",
   "timelineAll": "All Time",
@@ -62,7 +62,7 @@
   "timelineYear": "Last Year",
   "onlyUncredited": "Only uncredited",
   "noScans": "No scans found",
-  "failedToLoadReposts": "Failed to load scans report. Please try again.",
+  "failedToLoadReposts": "Failed to load detected reposts. Please try again.",
   "matchesLabel": "Matches",
   "mostRecentSource": "Most recent source",
   "allDetectedReposts": "All detected reposts",
@@ -72,7 +72,7 @@
   "repostVisit": "Visit",
   "allCategories": "All categories",
   "filterByCategory": "Filter by category",
-  "startScan": "Create report",
+  "startScan": "Start a scan",
   "quotaOne": "{count} scan left out of {limit}",
   "@quotaOne": {
     "placeholders": {
@@ -95,7 +95,7 @@
       }
     }
   },
-  "quotaWindow": "Each scan becomes available again 30 days after it started.",
+  "quotaWindow": "Each used scan comes back 30 days later.",
   "quotaLoading": "Loading scan quota…",
   "quotaUnavailable": "Scan quota unavailable.",
   "nextScanAvailable": "Next scan available on {date}.",

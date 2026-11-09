@@ -81,3 +81,8 @@ class FakeBackend {
   /// Runs [body] with every top-level `http.get/post/...` call going to this backend.
   Future<T> run<T>(Future<T> Function() body) => http.runWithClient(body, () => client);
 }
+
+http.Response http200(Object data) => http.Response(jsonEncode({'data': data}), 200);
+http.Response http500() => http.Response('{"message":"boom"}', 500);
+
+http.Response http404() => http.Response('{"message":"not found"}', 404);

@@ -43,10 +43,17 @@ class _ProfilePageState extends State<ProfilePage> {
   bool _pushEnabled = false;
   bool _mailEnabled = false;
 
+  late AppLocalizations l10n;
+  bool _started = false;
+
   @override
-  void initState() {
-    super.initState();
-    _load();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    l10n = AppLocalizations.of(context);
+    if (!_started) {
+      _started = true;
+      _load();
+    }
   }
 
   @override
@@ -63,7 +70,6 @@ class _ProfilePageState extends State<ProfilePage> {
 
   Future<void> _load() async {
     setState(() => _isLoading = true);
-    final l10n = AppLocalizations.of(context);
     try {
       final profile = await _apiService.fetchUserProfile();
       if (profile != null && mounted) {
@@ -97,7 +103,6 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Future<void> _saveProfile() async {
-    final l10n = AppLocalizations.of(context);
     setState(() => _isSaving = true);
     final updated = await _apiService.updateUserProfile({
       'firstName': _firstName.text.trim().isEmpty ? null : _firstName.text.trim(),
@@ -109,7 +114,6 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Future<void> _uploadAvatar() async {
-    final l10n = AppLocalizations.of(context);
     try {
       final image = await ImagePicker().pickImage(source: ImageSource.gallery);
       if (image == null) return;
@@ -137,7 +141,6 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Future<void> _togglePush(bool value) async {
-    final l10n = AppLocalizations.of(context);
     final ok = await updateMobileNotifications(value, api: _apiService);
     if (!mounted) return;
     if (ok) {
@@ -148,7 +151,6 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Future<void> _toggleMail(bool value) async {
-    final l10n = AppLocalizations.of(context);
     final updated = await _apiService.updateUserProfile({'mailNotificationsEnabled': value});
     if (!mounted) return;
     if (updated == null) {
@@ -212,7 +214,6 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
     final c = context.colors;
     final prefs = context.watch<AppPreferences>();
     final theme = Theme.of(context);
