@@ -20,6 +20,27 @@ Flutter app for Android and iOS (package / bundle ID `app.vigilart`).
 
 2. `flutter pub get`, then `flutter run --flavor dev` (Android) or `flutter run` (iOS).
 
+## Design system and languages
+
+The screens follow the "VigilArt Mobile" design system: AAA colour tokens for light and dark (`lib/theme/app_colors.dart`), the theme (`lib/theme/app_theme.dart`), Geist fonts, Lucide icons and the 8px grid. The user picks Light, Dark or System, and French or English, in Profile → Preferences (same choices as the website); both persist.
+
+Strings are generated from the website translations, so the app says exactly what the website says:
+
+```
+node scripts/gen-mobile-l10n.cjs   # writes lib/l10n/arb/app_{en,fr}.arb
+cd mobile-app && flutter gen-l10n  # writes lib/l10n/app_localizations*.dart
+```
+
+Edit `scripts/gen-mobile-l10n.cjs`, never the ARB files: `WEB` maps a Flutter key to a website key, `MOBILE` holds the few strings that only exist in the app. Commit the generated Dart files.
+
+## Tests
+
+`flutter analyze` and `flutter test` (CI runs both). The suite covers the AAA contrast of every colour pair, the website/mobile string parity, login, sign-up with consent and the password rules, the asynchronous scan with its quota, the gallery statuses, blacklisted matches, profile preferences, account deletion, the DMCA assistant, and every main screen on small and large phones, in French, dark, and at 200% text size.
+
+## Supported devices
+
+Phones only, in portrait. On iOS the project targets iPhone (`TARGETED_DEVICE_FAMILY = 1`): an iPad runs the iPhone app in its compatibility window, so no iPad layout or screenshots are needed. The app is available in English and French (`CFBundleLocalizations`, Android `localeFilters`).
+
 ## Android release (Google Play)
 
 Merging to `main` runs `release-mobile` in `.github/workflows/deploy-main.yml`. semantic-release builds, with the release keystore:
