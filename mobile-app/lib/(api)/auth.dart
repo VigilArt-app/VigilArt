@@ -59,7 +59,8 @@ class ApiService {
 
   Future<http.Response> login(String email, String password) async {
     final url = Uri.parse('$serverUrl/auth/mobile/login');
-    final response = await http.post(
+    final post = _client?.post ?? http.post;
+    final response = await post(
       url,
       headers: _authHeaders(),
       body: jsonEncode({

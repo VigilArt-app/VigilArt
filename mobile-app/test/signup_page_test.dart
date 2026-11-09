@@ -10,6 +10,7 @@ import 'package:http/testing.dart';
 import 'package:vigilart/(api)/auth.dart';
 import 'package:vigilart/(api)/legal.dart';
 import 'package:vigilart/pages/signup_page.dart';
+import 'support/test_app.dart';
 
 // Mirrors web-app/tests/signup-profile.spec.ts: consent is explicit, unchecked
 // by default, required before any request, and sent with the policy versions.
@@ -26,12 +27,9 @@ void main() {
       requests.add(request);
       return http.Response(jsonEncode(body ?? {'success': true}), status);
     });
-    // Wide surface: the test font is wider than real fonts and overflows the
-    // existing outlined buttons at phone width.
-    await tester.binding.setSurfaceSize(const Size(800, 1400));
-    addTearDown(() => tester.binding.setSurfaceSize(null));
-    await tester.pumpWidget(MaterialApp(
-      home: SignupPage(
+    await usePhoneSurface(tester);
+    await tester.pumpWidget(await testApp(
+      SignupPage(
         apiService: ApiService(client: client),
         openLink: (url) async {
           openedLinks.add(url);
@@ -49,15 +47,16 @@ void main() {
   }
 
   Future<void> submit(WidgetTester tester) async {
-    await tester.tap(find.text('Sign Up'));
+    await tester.ensureVisible(find.widgetWithText(FilledButton, 'Sign up'));
+    await tester.tap(find.widgetWithText(FilledButton, 'Sign up'));
     await tester.pumpAndSettle();
   }
 
   testWidgets('asks for no name and starts with consent unchecked', (tester) async {
     await pumpSignup(tester);
     expect(find.byType(TextFormField), findsNWidgets(3));
-    expect(find.text('First Name'), findsNothing);
-    expect(find.text('Last Name'), findsNothing);
+    expect(find.text('First name'), findsNothing);
+    expect(find.text('Last name'), findsNothing);
     expect(tester.widget<Checkbox>(find.byKey(const Key('signup-consent'))).value, isFalse);
   });
 
@@ -66,7 +65,7 @@ void main() {
     await fillForm(tester);
     await submit(tester);
     expect(requests, isEmpty);
-    expect(find.text('You must accept the Terms of Service and acknowledge the Privacy Policy.'), findsOneWidget);
+    expect(find.text('Accept the Terms of Service and acknowledge the Privacy Policy to create your account.'), findsOneWidget);
   });
 
   testWidgets('sends explicit acceptance with the current policy versions', (tester) async {

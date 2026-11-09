@@ -80,7 +80,7 @@
         "type": "int"
       },
       "limit": {
-        "type": "String"
+        "type": "int"
       }
     }
   },
@@ -91,7 +91,7 @@
         "type": "int"
       },
       "limit": {
-        "type": "String"
+        "type": "int"
       }
     }
   },
@@ -113,7 +113,7 @@
   "@scanningArtwork": {
     "placeholders": {
       "processed": {
-        "type": "String"
+        "type": "int"
       },
       "total": {
         "type": "int"
@@ -183,7 +183,7 @@
   "@uploadArtworkLimit": {
     "placeholders": {
       "limit": {
-        "type": "String"
+        "type": "int"
       }
     }
   },
@@ -277,6 +277,7 @@
   "dmcaConfirmSubmitTitle": "Mark notice as submitted?",
   "dmcaConfirmSubmitDescription": "This action is irreversible. Once marked as submitted, the notice can no longer be modified.",
   "dmcaConfirmSubmit": "Confirm",
+  "dmcaNoticeLoaded": "Notice loaded successfully",
   "dmcaStatusUpdated": "Notice marked as submitted.",
   "dmcaStatusUpdateFailed": "Failed to update notice status.",
   "dmcaNoNotices": "No DMCA notices yet",
@@ -364,5 +365,7 @@
   "connectionError": "Could not reach VigilArt. Check your connection and try again.",
   "sessionExpired": "Your session has expired. Please log in again.",
   "loading": "Loading…",
+  "policyChanged": "Our Terms of Service or Privacy Policy changed. Update the app to sign up.",
+  "accountExists": "An account with this email address already exists.",
   "rangeToday": "Today"
 }

@@ -41,7 +41,9 @@ extension ScanReportsApi on ApiService {
           creditedCount = matches.where((m) => m['isCredited'] == true).length;
         }
 
-        final mostRecentMatch = matches.isNotEmpty ? matches.first : null;
+        // A blacklisted site is never shown as the "most recent source" (#326).
+        final safeMatches = matches.where((m) => m['unsafeDomain'] != true);
+        final mostRecentMatch = safeMatches.isNotEmpty ? safeMatches.first : null;
         final storageKey = art['storageKey'];
         final imageUrl = storageKey != null ? downloadUrls[storageKey] : null;
 
@@ -50,6 +52,7 @@ extension ScanReportsApi on ApiService {
           'title': art['title'] ?? art['originalFilename']?.split('.').first ?? 'Unknown Artwork',
           'imageUrl': imageUrl,
           'matchesCount': matches.length,
+          'blacklistedCount': matches.where((m) => m['unsafeDomain'] == true).length,
           'creditedMatches': creditedCount,
           'mostRecentSource': mostRecentMatch != null ? mostRecentMatch['websiteName'] : 'N/A',
           'mostRecentDate': mostRecentMatch != null ? mostRecentMatch['firstDetectedAt'] : null,
@@ -132,39 +135,96 @@ extension ScanReportsApi on ApiService {
     return {};
   }
 
-  Future<Map<String, dynamic>> triggerManualScan() async {
+  /// Remaining scans in the rolling 30-day window (`/reports/user/:id/scan-quota`).
+  Future<ScanQuota> fetchScanQuota() async {
+    final userId = await secureStorage.read(key: ApiService.keyUserId);
+    if (userId == null) throw Exception('User ID not found');
+    final response = await authenticatedRequest(
+      (headers) => http.get(Uri.parse('$serverUrl/reports/user/$userId/scan-quota'), headers: headers),
+    );
+    if (response.statusCode != 200) throw Exception(response.body);
+    final decoded = jsonDecode(response.body);
+    return ScanQuota.fromJson(Map<String, dynamic>.from(decoded['data'] ?? decoded));
+  }
+
+  /// Starts a scan the way the website does: enqueue, then poll short
+  /// requests. No request stays open for minutes, so a proxy timeout cannot
+  /// cut the scan (#327). Returns the finished report's details.
+  Future<Map<String, dynamic>> runScan({
+    void Function(ScanProgress? progress, String state)? onProgress,
+    Duration pollInterval = const Duration(seconds: 2),
+    Duration timeout = const Duration(minutes: 10),
+  }) async {
     final userId = await secureStorage.read(key: ApiService.keyUserId);
     if (userId == null) throw Exception('User ID not found');
 
-    final response = await authenticatedRequest(
-      (headers) => http.post(
-        Uri.parse('$serverUrl/reports/user/$userId'),
-        headers: headers,
-      ),
+    final enqueue = await authenticatedRequest(
+      (headers) => http.post(Uri.parse('$serverUrl/reports/user/$userId/scan'), headers: headers),
     );
-    
-    if (response.statusCode != 200 && response.statusCode != 201) {
-      throw Exception(response.body); 
+    if (enqueue.statusCode != 200 && enqueue.statusCode != 201) throw Exception(enqueue.body);
+    final enqueued = jsonDecode(enqueue.body);
+    final jobId = (enqueued['data'] ?? enqueued)['jobId']?.toString();
+    if (jobId == null) throw Exception('Scan queued but no job ID returned');
+
+    final deadline = DateTime.now().add(timeout);
+    while (true) {
+      if (DateTime.now().isAfter(deadline)) throw const ScanTimeoutException();
+      final res = await authenticatedRequest(
+        (headers) => http.get(Uri.parse('$serverUrl/reports/user/$userId/scan/$jobId'), headers: headers),
+      );
+      if (res.statusCode == 404) throw Exception('Scan job not found');
+      if (res.statusCode == 200) {
+        final decoded = jsonDecode(res.body);
+        final status = Map<String, dynamic>.from(decoded['data'] ?? decoded);
+        final state = status['state']?.toString() ?? 'waiting';
+        final progress = status['progress'] is Map
+            ? ScanProgress.fromJson(Map<String, dynamic>.from(status['progress'] as Map))
+            : null;
+        onProgress?.call(progress, state);
+        if (state == 'failed') throw Exception(status['error'] ?? 'Scan failed');
+        if (state == 'completed') {
+          final reportId = status['reportId']?.toString();
+          if (reportId == null) throw Exception('Report created but no ID returned');
+          final details = await authenticatedRequest(
+            (headers) => http.get(Uri.parse('$serverUrl/reports/details/$reportId'), headers: headers),
+          );
+          if (details.statusCode != 200) throw Exception(details.body);
+          final data = jsonDecode(details.body);
+          return Map<String, dynamic>.from(data['data'] ?? data);
+        }
+      }
+      await Future<void>.delayed(pollInterval);
     }
-
-    final createdData = jsonDecode(response.body);
-    final reportId = (createdData['data'] ?? createdData)['id'];
-
-    if (reportId == null) throw Exception('Report created but no ID returned');
-
-    final detailsRes = await authenticatedRequest(
-      (headers) => http.get(
-        Uri.parse('$serverUrl/reports/details/$reportId'),
-        headers: headers,
-      ),
-    );
-
-    if (detailsRes.statusCode != 200) {
-      throw Exception(detailsRes.body);
-    }
-
-    final detailsData = jsonDecode(detailsRes.body);
-    return detailsData['data'] ?? detailsData;
   }
 
+}
+
+class ScanQuota {
+  final int remaining;
+  final int limit;
+  final DateTime? nextAvailableAt;
+
+  const ScanQuota({required this.remaining, required this.limit, this.nextAvailableAt});
+
+  factory ScanQuota.fromJson(Map<String, dynamic> json) => ScanQuota(
+        remaining: (json['remaining'] as num).toInt(),
+        limit: (json['limit'] as num).toInt(),
+        nextAvailableAt:
+            json['nextAvailableAt'] == null ? null : DateTime.tryParse(json['nextAvailableAt'].toString())?.toLocal(),
+      );
+}
+
+class ScanProgress {
+  final int processed;
+  final int total;
+
+  const ScanProgress({required this.processed, required this.total});
+
+  factory ScanProgress.fromJson(Map<String, dynamic> json) =>
+      ScanProgress(processed: (json['processed'] as num).toInt(), total: (json['total'] as num).toInt());
+}
+
+/// The scan is still running on the server, but the app stopped waiting for it.
+class ScanTimeoutException implements Exception {
+  const ScanTimeoutException();
 }

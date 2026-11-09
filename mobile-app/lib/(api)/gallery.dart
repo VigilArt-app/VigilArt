@@ -12,19 +12,17 @@ extension GalleryApi on ApiService {
       final artworks = await _fetchUserArtworks(userId);
       if (artworks == null) return null;
 
-      final reports = await _fetchUserReports(userId);
+      final reportsResult = await _fetchUserReportsOrNull(userId);
+      final reportsLoaded = reportsResult != null;
+      final reports = reportsResult ?? <dynamic>[];
 
       final allMatchingPages = await _fetchAllMatchingPages(reports);
 
-      final matchesCountByArtwork = <String, int>{};
-      final urlsByArtwork = <String, List<String>>{};
-
-      for (var page in allMatchingPages) {
+      final matchesByArtwork = <String, List<Map<String, dynamic>>>{};
+      for (final page in allMatchingPages) {
         final artId = page['artworkId']?.toString();
-        final url = page['url']?.toString();
         if (artId != null) {
-          matchesCountByArtwork[artId] = (matchesCountByArtwork[artId] ?? 0) + 1;
-          if (url != null) urlsByArtwork.putIfAbsent(artId, () => []).add(url);
+          matchesByArtwork.putIfAbsent(artId, () => []).add(Map<String, dynamic>.from(page as Map));
         }
       }
 
@@ -35,24 +33,27 @@ extension GalleryApi on ApiService {
         final artId = art['id'].toString();
         final storageKey = art['storageKey'];
         final imageUrl = storageKey != null ? downloadUrls[storageKey] : null;
-
-        final matchesCount = matchesCountByArtwork[artId] ?? 0;
-
-        String status = 'scanning';
-        if (matchesCount > 0) {
-          status = 'scanned';
-        } else if (reports.isNotEmpty) {
-          status = 'protected';
-        }
+        final matches = matchesByArtwork[artId] ?? [];
+        matches.sort((a, b) => (b['firstDetectedAt']?.toString() ?? '').compareTo(a['firstDetectedAt']?.toString() ?? ''));
+        final blacklisted = matches.where((m) => m['unsafeDomain'] == true).toList();
+        final safe = matches.where((m) => m['unsafeDomain'] != true).toList();
 
         return {
           'id': artId,
-          'title': art['description'] ?? art['originalFilename'] ?? 'Untitled',
+          'title': art['description'] ?? art['originalFilename'] ?? '',
+          'originalFilename': art['originalFilename'] ?? '',
+          'description': art['description'] ?? '',
+          'sizeBytes': art['sizeBytes'],
           'url': imageUrl ?? '',
           'date': art['createdAt'] ?? DateTime.now().toIso8601String(),
-          'status': status,
-          'matchesCount': matchesCount,
-          'infringingUrls': urlsByArtwork[artId] ?? [],
+          // Same inputs as the website's getArtworkStatus.
+          'lastScanAt': art['lastScanAt'],
+          'reportsLoaded': reportsLoaded,
+          'matchesCount': matches.length,
+          'blacklistedCount': blacklisted.length,
+          'mostRecentSource': safe.isNotEmpty ? safe.first['websiteName'] : null,
+          'mostRecentDate': safe.isNotEmpty ? safe.first['firstDetectedAt'] : null,
+          'matches': matches,
         };
       }).toList();
     } catch (e) {
@@ -113,11 +114,13 @@ extension GalleryApi on ApiService {
     return allArtworks;
   }
 
-  Future<List<dynamic>> _fetchUserReports(String userId) async {
-    final reportsRes = await authenticatedRequest((headers) => http.get(Uri.parse('$serverUrl/reports/user/$userId'), headers: headers));
-    if (reportsRes.statusCode != 200) return [];
-    final reportsData = jsonDecode(reportsRes.body);
-    return reportsData['data'] ?? [];
+  /// null when the reports could not be loaded: the gallery then says
+  /// "Results unavailable" instead of claiming that nothing was found.
+  Future<List<dynamic>?> _fetchUserReportsOrNull(String userId) async {
+    final res = await authenticatedRequest((headers) => http.get(Uri.parse('$serverUrl/reports/user/$userId'), headers: headers));
+    if (res.statusCode != 200) return null;
+    final data = jsonDecode(res.body);
+    return data['data'] ?? [];
   }
 
   Future<Map<String, dynamic>> _getDownloadUrls(List<String> storageKeys) async {
@@ -129,6 +132,21 @@ extension GalleryApi on ApiService {
       return urlsData['data'] ?? urlsData;
     }
     return {};
+  }
+
+  Future<bool> updateArtworkDescription(String artworkId, String description) async {
+    try {
+      final response = await authenticatedRequest(
+        (headers) => http.patch(
+          Uri.parse('$serverUrl/artworks/$artworkId'),
+          headers: headers,
+          body: jsonEncode({'description': description}),
+        ),
+      );
+      return response.statusCode == 200 || response.statusCode == 204;
+    } catch (e) {
+      return false;
+    }
   }
 
   Future<bool> deleteArtwork(String artworkId) async {

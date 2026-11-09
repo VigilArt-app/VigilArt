@@ -1,13 +1,21 @@
+import 'dart:async';
+import 'dart:io';
 import 'dart:typed_data';
+import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
-import 'dart:io';
-import 'dart:async';
-import 'dart:ui' as ui;
+import 'package:lucide_icons_flutter/lucide_icons.dart';
+
 import '../../../(api)/auth.dart';
-import '../../../(api)/upload_artworks_api.dart'; 
-import 'package:vigilart/pages/dashboard/upload_picture/drag_drop_upload_zone.dart';
-import 'package:vigilart/pages/dashboard/upload_picture/file_upload_card.dart';
+import '../../../(api)/upload_artworks_api.dart';
+import '../../../l10n/app_localizations.dart';
+import '../../../theme/app_colors.dart';
+import '../../../widgets/custom_button.dart';
+import 'drag_drop_upload_zone.dart';
+import 'file_upload_card.dart';
+
+/// Largest image accepted, as on the website.
+const int kMaxUploadBytes = 5 * 1024 * 1024;
 
 class UploadPhotosPage extends StatefulWidget {
   const UploadPhotosPage({super.key});
@@ -23,288 +31,110 @@ class _UploadPhotosPageState extends State<UploadPhotosPage> {
 
   final ApiService apiService = ApiService();
 
+  /// Same rules as the website: JPEG or PNG, 5 MB at most.
+  Future<void> _addFiles(List<String> paths) async {
+    final l10n = AppLocalizations.of(context);
+    for (final path in paths) {
+      final originalName = path.split('/').last;
+      final extension = originalName.contains('.') ? originalName.split('.').last.toLowerCase() : '';
+      if (!const ['jpg', 'jpeg', 'png'].contains(extension)) {
+        _showSnackBar(l10n.uploadErrorType);
+        continue;
+      }
+      if (await File(path).length() > kMaxUploadBytes) {
+        _showSnackBar(l10n.uploadErrorSize);
+        continue;
+      }
+      final safeExtension = extension == 'png' ? 'png' : 'jpg';
+      final baseName = originalName.contains('.') ? originalName.substring(0, originalName.lastIndexOf('.')) : originalName;
+      if (!mounted) return;
+      setState(() => _uploadingFiles.add({
+            'name': '$baseName.$safeExtension',
+            'path': path,
+            'progress': 0.0,
+            'description': '',
+          }));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final c = context.colors;
+    final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
       body: SingleChildScrollView(
-        physics: const BouncingScrollPhysics(),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Upload Artworks',
-                style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: -0.5,
-                  color: Color(0xFF1A1A1A),
-                ),
-              ),
+        padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(l10n.uploadArtworks, style: theme.textTheme.headlineMedium),
+            const SizedBox(height: 12),
+            DragDropUploadZone(acceptedFormats: const ['JPEG', 'PNG'], onFilesSelected: _addFiles),
+            const SizedBox(height: 16),
+            if (_uploadingFiles.isNotEmpty) ...[
+              Text(l10n.uploadReady, style: theme.textTheme.titleMedium),
               const SizedBox(height: 8),
-              Text(
-                'Drag and drop or browse to add new pieces to your gallery.',
-                style: TextStyle(
-                  fontSize: 15,
-                  color: Colors.grey.shade600,
-                ),
-              ),
-              const SizedBox(height: 24),
-
-              DragDropUploadZone(
-                acceptedFormats: const ['JPEG', 'PNG'],
-                onFilesSelected: (filePaths) {
-                  setState(() {
-                    for (String path in filePaths) {
-                      String originalName = path.split('/').last;
-                      
-                      String extension = originalName.contains('.') 
-                          ? originalName.split('.').last.toLowerCase() 
-                          : '';
-                      
-                      String safeExtension = (extension == 'png') ? 'png' : 'jpg';
-                      
-                      String baseName = originalName.contains('.') 
-                          ? originalName.substring(0, originalName.lastIndexOf('.'))
-                          : originalName;
-                          
-                      String safeFileName = '$baseName.$safeExtension';
-
-                      _uploadingFiles.add({
-                        'name': safeFileName,
-                        'path': path,
-                        'progress': 0.0,
-                        'description': '',
-                      });
-                    }
-                  });
-                },
-              ),
-
-              const SizedBox(height: 32),
-
-              if (_uploadingFiles.isNotEmpty) ...[
-                const Text(
-                  'Ready to Upload',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
-                    color: Color(0xFF1A1A1A),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                
-                ..._uploadingFiles.map((file) {
-                  return Container(
-                    margin: const EdgeInsets.only(bottom: 20),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(20),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.03),
-                          blurRadius: 20,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          FileUploadCard(
-                            fileName: file['name'],
-                            status: 'uploading',
-                            uploadProgress: file['progress'],
-                            onRemove: _isUploading ? () {} : () { 
-                              setState(() {
-                                _uploadingFiles.remove(file);
-                              });
-                            },
-                          ),
-                          
-                          Divider(height: 24, color: Colors.grey.shade100, thickness: 1.5),
-                          
-                          TextField(
-                            enabled: !_isUploading,
-                            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
-                            decoration: InputDecoration(
-                              hintText: 'Add a description for this artwork...',
-                              hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 14),
-                              prefixIcon: Icon(Icons.edit_outlined, size: 20, color: Colors.grey.shade400),
-                              filled: true,
-                              fillColor: const Color(0xFFF8F9FA),
-                              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide.none,
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide.none,
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: const BorderSide(color: Color(0xFF5E3B7D), width: 1.5),
-                              ),
-                            ),
-                            onChanged: (value) {
-                              file['description'] = value; 
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                }),
-              ],
-
-              if (_uploadedFiles.isNotEmpty) ...[
-                const Padding(
-                  padding: EdgeInsets.only(top: 16, bottom: 16),
-                  child: Text(
-                    'Uploaded Successfully',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w700,
-                      color: Color(0xFF1A1A1A),
-                    ),
-                  ),
-                ),
-                ..._uploadedFiles.map((file) {
-                  return Container(
-                    margin: const EdgeInsets.only(bottom: 12),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: Colors.green.withValues(alpha: 0.3), width: 1),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.green.withValues(alpha: 0.02),
-                          blurRadius: 10,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(4.0),
-                      child: FileUploadCard(
-                        fileName: file['name'],
-                        status: 'uploaded',
-                        onRemove: () {
-                          setState(() {
-                            _uploadedFiles.remove(file);
-                          });
-                        },
-                      ),
-                    ),
-                  );
-                }),
-                const SizedBox(height: 24),
-              ],
-
-              if (_uploadingFiles.isNotEmpty || _uploadedFiles.isNotEmpty)
-                Container(
-                  width: double.infinity,
-                  margin: const EdgeInsets.only(top: 16, bottom: 32),
-                  height: 56, 
-                  child: ElevatedButton(
-                    onPressed: _isUploading || _uploadingFiles.isEmpty
-                        ? null
-                        : () {
-                            _handleUpload();
-                          },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF5E3B7D),
-                      disabledBackgroundColor: Colors.grey.shade300,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      elevation: _isUploading ? 0 : 4,
-                      shadowColor: const Color(0xFF5E3B7D).withValues(alpha: 0.4),
-                    ),
-                    child: _isUploading
-                        ? Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const SizedBox(
-                                width: 20,
-                                height: 20,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2.5,
-                                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              const Text(
-                                'UPLOADING...',
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w700,
-                                  color: Colors.white,
-                                  letterSpacing: 1.0,
-                                ),
-                              ),
-                            ],
-                          )
-                        : const Text(
-                            'UPLOAD FILES',
-                            style: TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w700,
-                              color: Colors.white,
-                              letterSpacing: 1.0,
-                            ),
-                          ),
-                  ),
-                ),
-
-              if (_uploadingFiles.isEmpty && _uploadedFiles.isEmpty && !_isUploading)
-                Padding(
-                  padding: const EdgeInsets.only(top: 40),
-                  child: Center(
+              for (final file in List.of(_uploadingFiles))
+                Card(
+                  margin: const EdgeInsets.only(bottom: 8),
+                  child: Padding(
+                    padding: const EdgeInsets.all(12),
                     child: Column(
                       children: [
-                        Icon(Icons.photo_library_outlined, size: 48, color: Colors.grey.shade300),
-                        const SizedBox(height: 16),
-                        Text(
-                          'Your queue is empty',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.grey.shade400,
-                          ),
+                        FileUploadCard(
+                          fileName: file['name'],
+                          status: 'uploading',
+                          uploadProgress: file['progress'],
+                          onRemove: _isUploading ? () {} : () => setState(() => _uploadingFiles.remove(file)),
+                        ),
+                        const SizedBox(height: 8),
+                        TextField(
+                          enabled: !_isUploading,
+                          onChanged: (value) => file['description'] = value,
+                          decoration: InputDecoration(hintText: l10n.uploadAddDescription),
                         ),
                       ],
                     ),
                   ),
                 ),
             ],
-          ),
+            if (_uploadedFiles.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              Text(l10n.uploadDone, style: theme.textTheme.titleMedium),
+              const SizedBox(height: 8),
+              for (final file in List.of(_uploadedFiles))
+                Container(
+                  margin: const EdgeInsets.only(bottom: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: c.successBg,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: c.success.withValues(alpha: 0.3)),
+                  ),
+                  child: FileUploadCard(fileName: file['name'], status: 'uploaded', onRemove: () => setState(() => _uploadedFiles.remove(file))),
+                ),
+              TextButton(onPressed: () => Navigator.pushReplacementNamed(context, '/gallery'), child: Text(l10n.uploadSeeGallery)),
+            ],
+            if (_uploadingFiles.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              CustomButton(
+                text: _isUploading ? l10n.uploadUploading : l10n.uploadAction,
+                icon: const Icon(LucideIcons.upload),
+                showIcon: true,
+                isLoading: _isUploading,
+                onPressed: _isUploading ? null : _handleUpload,
+              ),
+            ],
+          ],
         ),
       ),
     );
   }
 
-  void _showSnackBar(String message, Color color, {IconData? icon}) {
+  void _showSnackBar(String message) {
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            if (icon != null) ...[Icon(icon, color: Colors.white), const SizedBox(width: 12)],
-            Expanded(child: Text(message, style: const TextStyle(fontWeight: FontWeight.w600))),
-          ],
-        ),
-        backgroundColor: color,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        margin: const EdgeInsets.all(16),
-      ),
-    );
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
   }
 
   void _handleUpload() async {
@@ -369,12 +199,12 @@ class _UploadPhotosPageState extends State<UploadPhotosPage> {
             _uploadedFiles.addAll(successfullyUploaded);
             _uploadingFiles.removeWhere((f) => successfullyUploaded.contains(f));
           });
-          _showSnackBar('Artworks uploaded successfully!', const Color(0xFF22C55E), icon: Icons.check_circle);
+          _showSnackBar(AppLocalizations.of(context).uploadDone);
         }
       }
 
     } catch (e) {
-      if (mounted) _showSnackBar('Upload Error: $e', Colors.red);
+      if (mounted) _showSnackBar(AppLocalizations.of(context).uploadFailedAny);
     } finally {
       if (mounted) setState(() => _isUploading = false);
     }

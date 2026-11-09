@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
+
+import '../../../../l10n/app_localizations.dart';
+import '../../../../theme/app_colors.dart';
 import '../../categories.dart';
+import '../../statistics/widgets/matches_modal.dart';
 import '../match_category_filter.dart';
 
+/// Reposts of one artwork, with the category filter of the website.
+/// Matches on a blacklisted website stay hidden until revealed (#326).
 class ArtworkDetailsSheet extends StatefulWidget {
   final Map<String, dynamic> artwork;
 
@@ -13,161 +18,60 @@ class ArtworkDetailsSheet extends StatefulWidget {
 }
 
 class _ArtworkDetailsSheetState extends State<ArtworkDetailsSheet> {
-  final String _category = kAllCategories;
-
-  Future<void> _openLink(BuildContext context, String urlString) async {
-    final Uri url = Uri.parse(urlString);
-    if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Could not open link')),
-        );
-      }
-    }
-  }
+  String _category = kAllCategories;
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final c = context.colors;
     final List<dynamic> matches = widget.artwork['matchingPages'] ?? [];
-    final List<Map<String, dynamic>> visibleMatches =
-        filterAndSortMatches(matches, _category);
+    final present = presentCategories(matches);
+    final visible = filterAndSortMatches(matches, _category);
 
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(24),
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
         children: [
-          Center(
-            child: Container(
-              width: 40,
-              height: 4,
-              margin: const EdgeInsets.only(bottom: 24),
-              decoration: BoxDecoration(
-                color: Colors.grey[300],
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-          ),
-
-          Text(
-            widget.artwork['title'] ?? 'Unknown Artwork',
-            style: const TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.w900,
-              color: Colors.black87,
-              letterSpacing: -0.5,
-            ),
-          ),
+          Text(widget.artwork['title']?.toString() ?? '', style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: 4),
-
-          Row(
-            children: [
-              Icon(Icons.insert_drive_file_outlined, size: 16, color: Colors.grey[500]),
-              const SizedBox(width: 6),
-              Expanded(
-                child: Text(
-                  widget.artwork['originalFilename'] ?? 'Filename not available',
-                  style: TextStyle(fontSize: 14, color: Colors.grey[600], fontWeight: FontWeight.w500),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
+          Text('${widget.artwork['matchesCount'] ?? matches.length} ${l10n.matchesLabel.toLowerCase()}', style: TextStyle(color: c.textMuted)),
+          const SizedBox(height: 12),
+          Text(l10n.allDetectedReposts, style: Theme.of(context).textTheme.titleMedium),
+          if (present.length > 1) ...[
+            const SizedBox(height: 8),
+            SizedBox(
+              height: 48,
+              child: ListView(
+                scrollDirection: Axis.horizontal,
+                children: [
+                  for (final cat in [kAllCategories, ...present])
+                    Padding(
+                      padding: const EdgeInsets.only(right: 8),
+                      child: ChoiceChip(
+                        label: Text(cat == kAllCategories ? l10n.allCategories : categoryLabel(l10n, cat)),
+                        selected: _category == cat,
+                        labelStyle: TextStyle(color: _category == cat ? c.onPrimary : c.text, fontWeight: FontWeight.w500),
+                        onSelected: (_) => setState(() => _category = cat),
+                      ),
+                    ),
+                ],
               ),
-            ],
-          ),
-          const SizedBox(height: 24),
-
-          const Divider(),
-          const SizedBox(height: 16),
-          
-          Text(
-            '${matches.length} Matches Found',
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 16),
-
+            ),
+          ],
+          const SizedBox(height: 8),
           Expanded(
-            child: visibleMatches.isEmpty
-                ? Center(
-                    child: Text('No external links found.', style: TextStyle(color: Colors.grey[500])),
-                  )
+            child: visible.isEmpty
+                ? Center(child: Text(l10n.noMatchesForArtwork, style: TextStyle(color: c.textMuted)))
                 : ListView.separated(
-                    shrinkWrap: true,
-                    itemCount: visibleMatches.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: 12),
-                    itemBuilder: (context, index) {
-                      final match = visibleMatches[index];
-                      return Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: Colors.grey[50],
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: Colors.grey[200]!),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    match['websiteName'] ?? 'Unknown Source',
-                                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-                                  ),
-                                ),
-                                if (match['category'] != null)
-                                  _buildCategoryBadge(match['category'].toString()),
-                              ],
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              match['url'] ?? '',
-                              style: TextStyle(color: Colors.grey[600], fontSize: 12),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            const SizedBox(height: 12),
-                            SizedBox(
-                              width: double.infinity,
-                              child: FilledButton.icon(
-                                onPressed: match['url'] != null
-                                    ? () => _openLink(context, match['url'] as String)
-                                    : null,
-                                style: FilledButton.styleFrom(
-                                  backgroundColor: const Color(0xFF5E3B7D),
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                                ),
-                                icon: const Icon(Icons.open_in_new, size: 16),
-                                label: const Text('Visit Source'),
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
+                    itemCount: visible.length,
+                    separatorBuilder: (_, __) => const SizedBox(height: 8),
+                    itemBuilder: (_, i) => MatchTile(match: visible[i]),
                   ),
           ),
+          const SizedBox(height: 8),
+          Text(l10n.coverageNote, style: TextStyle(color: c.textMuted, fontSize: 12)),
         ],
-      ),
-    );
-  }
-
-  Widget _buildCategoryBadge(String category) {
-    final color = categoryColor(category);
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(6),
-      ),
-      child: Text(
-        categoryLabel(category),
-        style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: color),
       ),
     );
   }

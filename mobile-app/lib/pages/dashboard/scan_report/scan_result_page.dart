@@ -1,337 +1,489 @@
-import 'package:flutter/material.dart';
 import 'dart:convert';
+
+import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 import '../../../(api)/auth.dart';
+import '../../../(api)/legal.dart';
 import '../../../(api)/scan_reports_api.dart';
-import 'widgets/scan_result_card.dart';
+import '../../../l10n/app_localizations.dart';
+import '../../../theme/app_colors.dart';
+import '../../../widgets/app_links.dart';
+import '../../../widgets/custom_button.dart';
+import '../categories.dart';
+import 'match_category_filter.dart';
 import 'widgets/artwork_details_sheet.dart';
+import 'widgets/scan_result_card.dart';
 
 enum TimelineFilter { all, week, month, quarter, year }
 
+extension on TimelineFilter {
+  /// null means "no limit".
+  Duration? get window => switch (this) {
+        TimelineFilter.all => null,
+        TimelineFilter.week => const Duration(days: 7),
+        TimelineFilter.month => const Duration(days: 30),
+        TimelineFilter.quarter => const Duration(days: 90),
+        TimelineFilter.year => const Duration(days: 365),
+      };
+}
+
+/// "Detected reposts": one card per artwork, with the filters of the website
+/// and the Start a scan action.
 class ScanResultsPage extends StatefulWidget {
-  const ScanResultsPage({super.key});
+  const ScanResultsPage({super.key, this.apiService, this.scanPollInterval = const Duration(seconds: 2)});
+
+  // Injected by tests.
+  final ApiService? apiService;
+  final Duration scanPollInterval;
 
   @override
   State<ScanResultsPage> createState() => _ScanResultsPageState();
 }
 
 class _ScanResultsPageState extends State<ScanResultsPage> {
+  late final ApiService apiService = widget.apiService ?? ApiService();
   final TextEditingController _searchController = TextEditingController();
-  final ApiService apiService = ApiService();
-  
-  List<Map<String, dynamic>> _allResults = []; 
+
+  List<Map<String, dynamic>> _allResults = [];
   bool _isLoading = true;
+  bool _loadFailed = false;
   bool _isScanning = false;
-  String _searchQuery = "";
+  String _searchQuery = '';
   TimelineFilter _timelineFilter = TimelineFilter.all;
+  String _category = kAllCategories;
+  bool _onlyUncredited = false;
+  ScanQuota? _quota;
+  bool _quotaFailed = false;
 
   @override
   void initState() {
     super.initState();
     _fetchData();
+    _fetchQuota();
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 
   Future<void> _fetchData() async {
-    setState(() => _isLoading = true);
+    setState(() {
+      _isLoading = true;
+      _loadFailed = false;
+    });
     try {
       final matches = await apiService.getMasterScanReportMatches();
-      if (matches != null && mounted) setState(() => _allResults = matches);
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
-      }
+      if (!mounted) return;
+      setState(() {
+        if (matches == null) {
+          _loadFailed = true;
+        } else {
+          _allResults = matches;
+        }
+      });
+    } catch (_) {
+      if (mounted) setState(() => _loadFailed = true);
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
   }
 
-  void _showErrorDialog(String title, String message) {
-    showDialog(
+  Future<void> _fetchQuota() async {
+    try {
+      final quota = await apiService.fetchScanQuota();
+      if (mounted) setState(() => _quota = quota);
+    } catch (_) {
+      if (mounted) setState(() => _quotaFailed = true);
+    }
+  }
+
+  List<Map<String, dynamic>> get _filteredResults {
+    final window = _timelineFilter.window;
+    final since = window == null ? null : DateTime.now().subtract(window);
+    final query = _searchQuery.trim().toLowerCase();
+    return _allResults.where((r) {
+      if (query.isNotEmpty) {
+        final haystack = '${r['title']} ${r['mostRecentSource']}'.toLowerCase();
+        if (!haystack.contains(query)) return false;
+      }
+      if (since != null) {
+        final date = DateTime.tryParse(r['mostRecentDate']?.toString() ?? '');
+        if (date == null || date.isBefore(since)) return false;
+      }
+      if (_category != kAllCategories) {
+        final pages = (r['matchingPages'] as List?) ?? [];
+        if (!pages.any((m) => (m as Map)['category']?.toString() == _category)) return false;
+      }
+      if (_onlyUncredited) {
+        final matches = (r['matchesCount'] as int?) ?? 0;
+        final credited = (r['creditedMatches'] as int?) ?? 0;
+        if (matches - credited <= 0) return false;
+      }
+      return true;
+    }).toList();
+  }
+
+  Set<String> get _availableCategories {
+    final all = _allResults.expand((r) => (r['matchingPages'] as List?) ?? []);
+    return presentCategories(all.toList()).toSet();
+  }
+
+  Future<void> _startScan() async {
+    final l10n = AppLocalizations.of(context);
+    final prefs = await SharedPreferences.getInstance();
+    if (prefs.getBool('scanConsentSeen') != true) {
+      if (!mounted) return;
+      final accepted = await _showScanConsent();
+      if (accepted != true) return;
+      await prefs.setBool('scanConsentSeen', true);
+    }
+    if (!mounted) return;
+    final progress = ValueNotifier<_ScanState>(_ScanState.queued());
+    final sheet = showModalBottomSheet<void>(
       context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: Colors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        icon: Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.red.withValues(alpha: 0.1),
-            shape: BoxShape.circle,
-          ),
-          child: const Icon(Icons.error_outline_rounded, color: Colors.redAccent, size: 40),
+      isDismissible: false,
+      enableDrag: false,
+      builder: (_) => _ScanSheet(state: progress),
+    );
+    setState(() => _isScanning = true);
+    try {
+      final report = await apiService.runScan(
+        pollInterval: widget.scanPollInterval,
+        onProgress: (p, state) => progress.value = _ScanState.running(p),
+      );
+      final count = ((report['matchingPages'] as List?) ?? []).length;
+      progress.value = _ScanState.done(count);
+      await _fetchData();
+      await _fetchQuota();
+    } catch (e) {
+      progress.value = _ScanState.failed(_scanErrorMessage(l10n, e));
+      await _fetchQuota();
+    } finally {
+      if (mounted) setState(() => _isScanning = false);
+    }
+    await sheet;
+    progress.dispose();
+  }
+
+  Future<bool?> _showScanConsent() {
+    final l10n = AppLocalizations.of(context);
+    return showModalBottomSheet<bool>(
+      context: context,
+      builder: (ctx) => Padding(
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Icon(LucideIcons.shield, size: 28, color: ctx.colors.primaryText),
+            const SizedBox(height: 12),
+            Text(l10n.scanConsentTitle, style: Theme.of(ctx).textTheme.titleLarge),
+            const SizedBox(height: 8),
+            Text(l10n.scanConsentBody, style: TextStyle(color: ctx.colors.textMuted)),
+            const SizedBox(height: 16),
+            CustomButton(text: l10n.scanConsentContinue, onPressed: () => Navigator.pop(ctx, true)),
+            TextButton(onPressed: () => openExternalUrl(ctx, privacyUrl), child: Text(l10n.scanConsentPolicy)),
+          ],
         ),
-        title: Text(title, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 20)),
-        content: Text(
-          message,
-          textAlign: TextAlign.center,
-          style: TextStyle(color: Colors.grey[700], fontSize: 15, height: 1.4),
-        ),
-        actionsAlignment: MainAxisAlignment.center,
-        actionsPadding: const EdgeInsets.only(bottom: 20, left: 20, right: 20),
-        actions: [
-          SizedBox(
-            width: double.infinity,
-            child: FilledButton(
-              onPressed: () => Navigator.of(ctx).pop(),
-              style: FilledButton.styleFrom(
-                backgroundColor: Colors.grey[200],
-                foregroundColor: Colors.black87,
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                elevation: 0,
-              ),
-              child: const Text('Understood', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-            ),
-          ),
-        ],
       ),
     );
   }
 
-  Future<void> _runManualScan() async {
-    setState(() => _isScanning = true);
-
-    try {
-      final reportData = await apiService.triggerManualScan();
-
-      if (!mounted) return;
-      await _fetchData();
-
-      if (mounted) {
-        final List<dynamic> matchingPages = reportData['matchingPages'] ?? [];
-        final int matchCount = matchingPages.length;
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Row(
-              children: [
-                const Icon(Icons.check_circle, color: Colors.white),
-                const SizedBox(width: 12),
-                Expanded(child: Text('Scan complete! Found $matchCount new matches.')),
-              ],
-            ), 
-            backgroundColor: const Color(0xFF22C55E),
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-          ),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        final parsed = _extractServerErrorMessage(e);
-        _showErrorDialog(parsed['title']!, parsed['message']!);
-      }
-    } finally {
-      if (mounted) setState(() => _isScanning = false);
+  String _scanErrorMessage(AppLocalizations l10n, Object e) {
+    if (e is ScanTimeoutException) return l10n.scanTimeout;
+    var message = e.toString().replaceFirst('Exception:', '').trim();
+    final start = message.indexOf('{');
+    if (start != -1) {
+      try {
+        final decoded = jsonDecode(message.substring(start));
+        final m = decoded['message'];
+        message = m is List ? m.join('\n') : m.toString();
+      } catch (_) {}
     }
-  }
-
-  Map<String, String> _extractServerErrorMessage(Object e) {
-    String serverMessage = 'An error occurred.';
-    String title = 'Error';
-
-    try {
-      String errorString = e.toString();
-      int jsonStartIndex = errorString.indexOf('{');
-
-      if (jsonStartIndex != -1) {
-        String jsonPart = errorString.substring(jsonStartIndex);
-        final Map<String, dynamic> errorJson = jsonDecode(jsonPart);
-
-        if (errorJson.containsKey('message')) {
-          var msg = errorJson['message'];
-          serverMessage = msg is List ? msg.join('\n') : msg.toString();
-        }
-      } else {
-        serverMessage = errorString.replaceAll('Exception:', '').trim();
-      }
-    } catch (_) {
-      serverMessage = e.toString().replaceAll('Exception:', '').trim();
-    }
-
-    if (serverMessage.toLowerCase().contains('unauthorized')) {
-      title = 'Authentication Error';
-    } else if (serverMessage.toLowerCase().contains('30 days')) {
-      title = 'Scan Limit';
-    }
-
-    return {'title': title, 'message': serverMessage};
-  }
-
-  List<Map<String, dynamic>> get _filteredResults {
-    return _allResults.where((result) {
-      if (_searchQuery.isNotEmpty) {
-        final query = _searchQuery.toLowerCase();
-        if (!result['title'].toString().toLowerCase().contains(query)) return false;
-      }
-      return true;
-    }).toList();
+    return message.isEmpty ? l10n.scanFailed : message;
   }
 
   void _showDetailsSheet(Map<String, dynamic> artwork) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => FractionallySizedBox(
-        heightFactor: 0.85, 
-        child: ArtworkDetailsSheet(artwork: artwork),
-      ),
+      builder: (context) => FractionallySizedBox(heightFactor: 0.85, child: ArtworkDetailsSheet(artwork: artwork)),
     );
+  }
+
+  String _timelineLabel(AppLocalizations l10n, TimelineFilter f) => switch (f) {
+        TimelineFilter.all => l10n.timelineAll,
+        TimelineFilter.week => l10n.timelineWeek,
+        TimelineFilter.month => l10n.timelineMonth,
+        TimelineFilter.quarter => l10n.timelineQuarter,
+        TimelineFilter.year => l10n.timelineYear,
+      };
+
+  Widget _quotaNote(AppLocalizations l10n) {
+    final c = context.colors;
+    final style = TextStyle(color: c.textMuted, fontSize: 12);
+    final quota = _quota;
+    if (quota != null) {
+      final locale = Localizations.localeOf(context).toString();
+      final count = quota.remaining == 1 ? l10n.quotaOne(1, quota.limit) : l10n.quotaOther(quota.remaining, quota.limit);
+      final second = quota.remaining == 0 && quota.nextAvailableAt != null
+          ? l10n.nextScanAvailable(DateFormat.yMMMd(locale).add_Hm().format(quota.nextAvailableAt!))
+          : l10n.quotaWindow;
+      return Text('$count. $second', style: style);
+    }
+    if (_quotaFailed) {
+      return Row(children: [
+        Text(l10n.quotaUnavailable, style: style),
+        TextButton(onPressed: () { setState(() => _quotaFailed = false); _fetchQuota(); }, child: Text(l10n.retry)),
+      ]);
+    }
+    return Text(l10n.quotaLoading, style: style);
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final c = context.colors;
     final results = _filteredResults;
+    final scanDisabled = _isLoading || _isScanning || _quota?.remaining == 0;
 
-    return Scaffold(
-      backgroundColor: const Color(0xFFF9FAFB),
-      body: SafeArea( 
-        child: _isLoading 
-          ? const Center(child: CircularProgressIndicator(color: Color(0xFF5E3B7D)))
-          : RefreshIndicator(
-              onRefresh: _fetchData,
-              color: const Color(0xFF5E3B7D),
-              child: CustomScrollView(
-                slivers: [
-                  SliverToBoxAdapter(
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          TextField(
-                            controller: _searchController,
-                            onChanged: (val) => setState(() => _searchQuery = val),
-                            decoration: InputDecoration(
-                              hintText: 'Search artworks...',
-                              prefixIcon: const Icon(Icons.search, color: Colors.grey),
-                              filled: true,
-                              fillColor: Colors.white,
-                              contentPadding: const EdgeInsets.symmetric(vertical: 14),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(16),
-                                borderSide: BorderSide(color: Colors.grey[200]!),
+    return Column(
+      children: [
+        Expanded(
+          child: _isLoading && _allResults.isEmpty
+              ? const Center(child: CircularProgressIndicator())
+              : RefreshIndicator(
+                  onRefresh: () async {
+                    await Future.wait([_fetchData(), _fetchQuota()]);
+                  },
+                  child: CustomScrollView(
+                    slivers: [
+                      SliverToBoxAdapter(
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              TextField(
+                                controller: _searchController,
+                                onChanged: (v) => setState(() => _searchQuery = v),
+                                decoration: InputDecoration(
+                                  hintText: l10n.searchByName,
+                                  prefixIcon: const Icon(LucideIcons.search, size: 20),
+                                ),
                               ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(16),
-                                borderSide: BorderSide(color: Colors.grey[200]!),
+                              const SizedBox(height: 8),
+                              SizedBox(
+                                height: 48,
+                                child: ListView(
+                                  scrollDirection: Axis.horizontal,
+                                  children: [
+                                    for (final f in TimelineFilter.values)
+                                      Padding(
+                                        padding: const EdgeInsets.only(right: 8),
+                                        child: ChoiceChip(
+                                          label: Text(_timelineLabel(l10n, f)),
+                                          selected: _timelineFilter == f,
+                                          labelStyle: TextStyle(color: _timelineFilter == f ? c.onPrimary : c.text, fontWeight: FontWeight.w500),
+                                          onSelected: (_) => setState(() => _timelineFilter = f),
+                                        ),
+                                      ),
+                                  ],
+                                ),
                               ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(16),
-                                borderSide: const BorderSide(color: Color(0xFF5E3B7D), width: 1.5),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                          
-                          SingleChildScrollView(
-                            scrollDirection: Axis.horizontal,
-                            physics: const BouncingScrollPhysics(),
-                            child: Row(
-                              children: TimelineFilter.values.map((filter) {
-                                final isSelected = _timelineFilter == filter;
-                                return Padding(
-                                  padding: const EdgeInsets.only(right: 8.0),
-                                  child: ChoiceChip(
-                                    label: Text(filter.name.toUpperCase()),
-                                    selected: isSelected,
-                                    selectedColor: const Color(0xFF5E3B7D),
-                                    backgroundColor: Colors.white,
-                                    side: BorderSide(color: isSelected ? const Color(0xFF5E3B7D) : Colors.grey[300]!),
-                                    labelStyle: TextStyle(
-                                      color: isSelected ? Colors.white : Colors.black87,
-                                      fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
-                                      fontSize: 12,
-                                    ),
-                                    onSelected: (bool selected) {
-                                      setState(() => _timelineFilter = filter);
-                                    },
-                                  ),
-                                );
-                              }).toList(),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  
-                  SliverPadding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    sliver: results.isEmpty
-                      ? const SliverToBoxAdapter(
-                          child: Padding(
-                            padding: EdgeInsets.only(top: 60),
-                            child: Center(
-                              child: Column(
+                              Row(
                                 children: [
-                                  Icon(Icons.image_search_rounded, size: 64, color: Colors.black12),
-                                  SizedBox(height: 16),
-                                  Text("No scans found matching your criteria.", style: TextStyle(color: Colors.black54)),
+                                  Expanded(
+                                    child: DropdownButtonFormField<String>(
+                                      initialValue: _category,
+                                      isExpanded: true,
+                                      decoration: const InputDecoration(contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8)),
+                                      items: [
+                                        DropdownMenuItem(value: kAllCategories, child: Text(l10n.allCategories, overflow: TextOverflow.ellipsis)),
+                                        for (final cat in kCategoryOrder.where(_availableCategories.contains))
+                                          DropdownMenuItem(value: cat, child: Text(categoryLabel(l10n, cat), overflow: TextOverflow.ellipsis)),
+                                      ],
+                                      onChanged: (v) => setState(() => _category = v ?? kAllCategories),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Flexible(
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Switch(value: _onlyUncredited, onChanged: (v) => setState(() => _onlyUncredited = v)),
+                                        Flexible(child: Text(l10n.onlyUncredited, style: const TextStyle(fontSize: 13, height: 16 / 13))),
+                                      ],
+                                    ),
+                                  ),
                                 ],
                               ),
-                            ),
-                          ),
-                        )
-                      : SliverList(
-                          delegate: SliverChildBuilderDelegate(
-                            (context, index) {
-                              return ScanResultCard(
-                                result: results[index],
-                                onTap: () => _showDetailsSheet(results[index]),
-                              );
-                            },
-                            childCount: results.length,
+                              const SizedBox(height: 8),
+                            ],
                           ),
                         ),
+                      ),
+                      SliverPadding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        sliver: _loadFailed
+                            ? SliverToBoxAdapter(child: _StateMessage(icon: LucideIcons.triangleAlert, text: l10n.failedToLoadReposts, action: l10n.retry, onAction: _fetchData))
+                            : results.isEmpty
+                                ? SliverToBoxAdapter(child: _StateMessage(icon: LucideIcons.search, text: l10n.noScans))
+                                : SliverList(
+                                    delegate: SliverChildBuilderDelegate(
+                                      (context, index) => ScanResultCard(result: results[index], onTap: () => _showDetailsSheet(results[index])),
+                                      childCount: results.length,
+                                    ),
+                                  ),
+                      ),
+                    ],
                   ),
-                ],
+                ),
+        ),
+        Container(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+          decoration: BoxDecoration(color: c.bg, border: Border(top: BorderSide(color: c.border))),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CustomButton(
+                text: l10n.startScan,
+                icon: const Icon(LucideIcons.search),
+                showIcon: true,
+                isLoading: _isScanning,
+                onPressed: scanDisabled ? null : _startScan,
               ),
-            ),
-      ),
-          
-      bottomNavigationBar: SafeArea(
-        child: Container(
-          padding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.05),
-                blurRadius: 20,
-                offset: const Offset(0, -5),
-              )
+              const SizedBox(height: 4),
+              Semantics(liveRegion: true, child: _quotaNote(l10n)),
             ],
           ),
-          child: SizedBox(
-            height: 56,
-            child: ElevatedButton(
-              onPressed: _isLoading || _isScanning ? null : _runManualScan,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF5E3B7D), 
-                disabledBackgroundColor: Colors.grey[300],
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                elevation: 0,
-              ),
-              child: _isScanning
-                  ? const Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5)),
-                        SizedBox(width: 12),
-                        Text('GENERATING...', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: Colors.white, letterSpacing: 1.0)),
-                      ],
-                    )
-                  : const Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.radar_rounded, color: Colors.white, size: 22),
-                        SizedBox(width: 12),
-                        Text('CREATE NEW REPORT', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: Colors.white, letterSpacing: 1.0)),
-                      ],
-                    ),
-            ),
-          ),
         ),
+      ],
+    );
+  }
+}
+
+class _StateMessage extends StatelessWidget {
+  final IconData icon;
+  final String text;
+  final String? action;
+  final VoidCallback? onAction;
+
+  const _StateMessage({required this.icon, required this.text, this.action, this.onAction});
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    return Padding(
+      padding: const EdgeInsets.only(top: 48),
+      child: Column(
+        children: [
+          Icon(icon, size: 48, color: c.textMuted),
+          const SizedBox(height: 12),
+          Text(text, textAlign: TextAlign.center, style: TextStyle(color: c.textMuted)),
+          if (action != null) ...[
+            const SizedBox(height: 12),
+            OutlinedButton(onPressed: onAction, style: OutlinedButton.styleFrom(minimumSize: const Size(160, 48)), child: Text(action!)),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _ScanState {
+  final String kind; // queued, running, done, failed
+  final ScanProgress? progress;
+  final int matches;
+  final String? error;
+
+  const _ScanState._(this.kind, {this.progress, this.matches = 0, this.error});
+  factory _ScanState.queued() => const _ScanState._('queued');
+  factory _ScanState.running(ScanProgress? p) => _ScanState._('running', progress: p);
+  factory _ScanState.done(int matches) => _ScanState._('done', matches: matches);
+  factory _ScanState.failed(String error) => _ScanState._('failed', error: error);
+}
+
+/// Status sheet while a scan runs, then its result. The title is a status
+/// ("Scan in progress"), not the name of the action.
+class _ScanSheet extends StatelessWidget {
+  final ValueNotifier<_ScanState> state;
+
+  const _ScanSheet({required this.state});
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final c = context.colors;
+    return ValueListenableBuilder<_ScanState>(
+      valueListenable: state,
+      builder: (context, s, _) {
+        final finished = s.kind == 'done' || s.kind == 'failed';
+        final title = switch (s.kind) {
+          'done' => l10n.reportCreated,
+          'failed' => l10n.errorTitle,
+          _ => l10n.scanInProgress,
+        };
+        final p = s.progress;
+        return Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(title, style: Theme.of(context).textTheme.titleLarge),
+              const SizedBox(height: 8),
+              if (!finished) ...[
+                Text(p == null ? l10n.scanQueued : l10n.scanningArtwork(p.processed + 1 > p.total ? p.total : p.processed + 1, p.total)),
+                const SizedBox(height: 12),
+                LinearProgressIndicator(value: p == null || p.total == 0 ? null : p.processed / p.total, minHeight: 8, borderRadius: BorderRadius.circular(4)),
+                const SizedBox(height: 8),
+                Text(l10n.coverageNote, style: TextStyle(color: c.textMuted, fontSize: 12)),
+              ] else if (s.kind == 'done') ...[
+                _Banner(color: c.success, bg: c.successBg, icon: LucideIcons.check, text: '${s.matches} ${l10n.detectionsFound}'),
+                const SizedBox(height: 8),
+                _Banner(color: c.warning, bg: c.warningBg, icon: LucideIcons.triangleAlert, text: l10n.coverageNote),
+                const SizedBox(height: 16),
+                CustomButton(text: MaterialLocalizations.of(context).okButtonLabel, onPressed: () => Navigator.pop(context)),
+              ] else ...[
+                _Banner(color: c.error, bg: c.errorBg, icon: LucideIcons.triangleAlert, text: s.error ?? l10n.scanFailed),
+                const SizedBox(height: 16),
+                CustomButton(text: MaterialLocalizations.of(context).okButtonLabel, onPressed: () => Navigator.pop(context)),
+              ],
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _Banner extends StatelessWidget {
+  final Color color;
+  final Color bg;
+  final IconData icon;
+  final String text;
+
+  const _Banner({required this.color, required this.bg, required this.icon, required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(12), border: Border.all(color: color.withValues(alpha: 0.3))),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, size: 20, color: color),
+          const SizedBox(width: 12),
+          Expanded(child: Text(text, style: TextStyle(color: context.colors.text))),
+        ],
       ),
     );
   }

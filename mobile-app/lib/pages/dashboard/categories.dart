@@ -1,45 +1,31 @@
 import 'package:flutter/material.dart';
 
-const List<String> kCategoryOrder = <String>[
-  'SOCIAL',
-  'ART_PLATFORMS',
-  'MARKETPLACES',
-  'BLOG',
-  'MEDIA',
-  'SEARCH',
-  'OTHER',
-];
+import '../../l10n/app_localizations.dart';
+import '../../theme/app_colors.dart';
 
-String categoryLabel(String category) {
+/// Fixed display order of the website categories, shared by the statistics,
+/// the reposts list and the artwork details.
+const List<String> kCategoryOrder = AppColors.categoryOrder;
+
+String categoryLabel(AppLocalizations l10n, String category) {
   switch (category) {
     case 'SOCIAL':
-      return 'Social media';
+      return l10n.catSocial;
     case 'ART_PLATFORMS':
-      return 'Art platforms';
+      return l10n.catArtPlatforms;
     case 'MARKETPLACES':
-      return 'Marketplaces';
+      return l10n.catMarketplaces;
     case 'BLOG':
-      return 'Blogs';
+      return l10n.catBlog;
     case 'MEDIA':
-      return 'Media';
+      return l10n.catMedia;
     case 'SEARCH':
-      return 'Search engines';
+      return l10n.catSearch;
     case 'OTHER':
-      return 'Other';
+      return l10n.catOther;
     default:
       return category;
   }
 }
 
-const Map<String, Color> _categoryColors = <String, Color>{
-  'SOCIAL': Color(0xFF2A78D6),
-  'ART_PLATFORMS': Color(0xFF1BAF7A),
-  'MARKETPLACES': Color(0xFFEDA100),
-  'BLOG': Color(0xFF008300),
-  'MEDIA': Color(0xFF4A3AA7),
-  'SEARCH': Color(0xFFE34948),
-  'OTHER': Color(0xFFE87BA4),
-};
-
-Color categoryColor(String category) =>
-    _categoryColors[category] ?? _categoryColors['OTHER']!;
+Color categoryColor(BuildContext context, String category) => context.colors.categoryColor(category);

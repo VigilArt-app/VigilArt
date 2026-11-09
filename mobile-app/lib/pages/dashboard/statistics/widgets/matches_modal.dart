@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../../scan_report/match_category_filter.dart';
+
+import '../../../../l10n/app_localizations.dart';
+import '../../../../theme/app_colors.dart';
+import '../../../../widgets/restricted_match.dart';
+import '../../categories.dart';
 
 typedef MatchesFetcher = Future<List<Map<String, dynamic>>> Function();
 
@@ -14,26 +19,21 @@ void showMatchesModal(
   showModalBottomSheet(
     context: context,
     isScrollControlled: true,
-    backgroundColor: Colors.transparent,
     builder: (_) => FractionallySizedBox(
       heightFactor: 0.85,
-      child: _MatchesModal(
-        title: title,
-        emptyMessage: emptyMessage,
-        totalCount: totalCount,
-        fetcher: fetcher,
-      ),
+      child: MatchesModal(title: title, emptyMessage: emptyMessage, totalCount: totalCount, fetcher: fetcher),
     ),
   );
 }
 
-class _MatchesModal extends StatefulWidget {
+class MatchesModal extends StatefulWidget {
   final String title;
   final String emptyMessage;
   final int totalCount;
   final MatchesFetcher fetcher;
 
-  const _MatchesModal({
+  const MatchesModal({
+    super.key,
     required this.title,
     required this.emptyMessage,
     required this.totalCount,
@@ -41,167 +41,110 @@ class _MatchesModal extends StatefulWidget {
   });
 
   @override
-  State<_MatchesModal> createState() => _MatchesModalState();
+  State<MatchesModal> createState() => _MatchesModalState();
 }
 
-class _MatchesModalState extends State<_MatchesModal> {
-  bool _loading = true;
-  bool _error = false;
-  List<Map<String, dynamic>> _matches = [];
-
-  @override
-  void initState() {
-    super.initState();
-    _load();
-  }
-
-  Future<void> _load() async {
-    try {
-      final result = await widget.fetcher();
-      if (!mounted) return;
-      setState(() {
-        _matches = filterAndSortMatches(result, kAllCategories);
-        _loading = false;
-      });
-    } catch (_) {
-      if (!mounted) return;
-      setState(() {
-        _error = true;
-        _loading = false;
-      });
-    }
-  }
-
-  Future<void> _openLink(String urlString) async {
-    final Uri url = Uri.parse(urlString);
-    if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Could not open link')),
-        );
-      }
-    }
-  }
+class _MatchesModalState extends State<MatchesModal> {
+  late final Future<List<Map<String, dynamic>>> _future = widget.fetcher();
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(24),
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
+    final l10n = AppLocalizations.of(context);
+    final c = context.colors;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
         children: [
-          Center(
-            child: Container(
-              width: 40,
-              height: 4,
-              margin: const EdgeInsets.only(bottom: 24),
-              decoration: BoxDecoration(
-                color: Colors.grey[300],
-                borderRadius: BorderRadius.circular(2),
-              ),
+          Text(widget.title, style: Theme.of(context).textTheme.titleLarge),
+          const SizedBox(height: 12),
+          Expanded(
+            child: FutureBuilder<List<Map<String, dynamic>>>(
+              future: _future,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState != ConnectionState.done) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                if (snapshot.hasError) return Center(child: Text(l10n.statsLoadError));
+                final matches = snapshot.data ?? [];
+                if (matches.isEmpty) return Center(child: Text(widget.emptyMessage, style: TextStyle(color: c.textMuted)));
+                return Column(
+                  children: [
+                    if (widget.totalCount > matches.length)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 8),
+                        child: Text(l10n.statsShowingFirst(matches.length, widget.totalCount),
+                            style: TextStyle(color: c.textMuted, fontSize: 13)),
+                      ),
+                    Expanded(
+                      child: ListView.separated(
+                        itemCount: matches.length,
+                        separatorBuilder: (_, __) => const SizedBox(height: 8),
+                        itemBuilder: (_, i) => MatchTile(match: matches[i]),
+                      ),
+                    ),
+                  ],
+                );
+              },
             ),
           ),
-          Text(
-            widget.title,
-            style: const TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.w900,
-              color: Colors.black87,
-              letterSpacing: -0.5,
-            ),
-          ),
-          const SizedBox(height: 16),
-          const Divider(),
-          const SizedBox(height: 8),
-          Expanded(child: _buildBody()),
         ],
       ),
     );
   }
+}
 
-  Widget _buildBody() {
-    if (_loading) {
-      return const Center(
-        child: CircularProgressIndicator(color: Color(0xFF5E3B7D)),
-      );
-    }
-    if (_error) {
-      return Center(
-        child: Text('Could not load matches', style: TextStyle(color: Colors.grey[500])),
-      );
-    }
-    if (_matches.isEmpty) {
-      return Center(
-        child: Text(widget.emptyMessage, style: TextStyle(color: Colors.grey[500])),
-      );
-    }
+/// One matching page: category, website, title and a Visit button. Matches on
+/// a blacklisted website are hidden until revealed and never opened as links.
+class MatchTile extends StatelessWidget {
+  final Map<String, dynamic> match;
 
-    final capped = _matches.length < widget.totalCount;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        if (capped)
-          Padding(
-            padding: const EdgeInsets.only(bottom: 8),
-            child: Text(
-              'Showing the ${_matches.length} most recent of ${widget.totalCount}',
-              style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-            ),
-          ),
-        Expanded(
-          child: ListView.separated(
-            itemCount: _matches.length,
-            separatorBuilder: (_, __) => const SizedBox(height: 12),
-            itemBuilder: (context, index) => _buildMatchItem(_matches[index]),
-          ),
-        ),
-      ],
-    );
-  }
+  const MatchTile({super.key, required this.match});
 
-  Widget _buildMatchItem(Map<String, dynamic> match) {
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final c = context.colors;
+    final category = match['category']?.toString() ?? 'OTHER';
+    final url = match['url']?.toString() ?? '';
+    final website = match['websiteName']?.toString() ?? '';
+    final title = match['pageTitle']?.toString() ?? '';
+    final blacklisted = match['unsafeDomain'] == true;
+
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.grey[50],
+        color: c.surface,
+        border: Border.all(color: c.border),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey[200]!),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            match['websiteName'] ?? 'Unknown Source',
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+          Row(
+            children: [
+              Container(width: 12, height: 12, decoration: BoxDecoration(color: categoryColor(context, category), shape: BoxShape.circle)),
+              const SizedBox(width: 8),
+              Expanded(child: Text(categoryLabel(l10n, category), style: const TextStyle(fontSize: 12))),
+            ],
           ),
-          const SizedBox(height: 4),
-          Text(
-            match['url'] ?? '',
-            style: TextStyle(color: Colors.grey[600], fontSize: 12),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-          const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            child: FilledButton.icon(
-              onPressed: match['url'] != null
-                  ? () => _openLink(match['url'] as String)
-                  : null,
-              style: FilledButton.styleFrom(
-                backgroundColor: const Color(0xFF5E3B7D),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          const SizedBox(height: 8),
+          if (blacklisted)
+            RestrictedMatch(lines: [website, title, url])
+          else ...[
+            Text(website, style: const TextStyle(fontWeight: FontWeight.w600)),
+            if (title.isNotEmpty) Text(title, maxLines: 2, overflow: TextOverflow.ellipsis, style: TextStyle(color: c.textMuted, fontSize: 13)),
+            Text(url, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontFamily: 'GeistMono', fontSize: 12)),
+            const SizedBox(height: 8),
+            Align(
+              alignment: Alignment.centerRight,
+              child: TextButton.icon(
+                onPressed: url.isEmpty ? null : () => launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication),
+                icon: const Icon(LucideIcons.externalLink, size: 18),
+                label: Text(l10n.repostVisit),
               ),
-              icon: const Icon(Icons.open_in_new, size: 16),
-              label: const Text('Visit Source'),
             ),
-          ),
+          ],
         ],
       ),
     );

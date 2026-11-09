@@ -1,162 +1,99 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import '../../l10n/app_localizations.dart';
+import '../../theme/app_colors.dart';
+import '../../widgets/status_badge.dart';
+
+/// Status of an artwork, computed from the same inputs as the website.
+ArtworkStatus statusOf(Map<String, dynamic> art) => artworkStatus(
+      totalMatches: (art['matchesCount'] as int?) ?? 0,
+      scanned: art['lastScanAt'] != null,
+      insightsAvailable: art['reportsLoaded'] == true,
+    );
+
+/// Square artwork thumbnail with its status badge, title, date and a menu.
+/// The artwork keeps its own colours; only the footer is themed.
 class GalleryImageCard extends StatelessWidget {
-  final String id;
-  final String title;
-  final String imageUrl;
-  final String uploadDate;
-  final String status;
+  final Map<String, dynamic> artwork;
   final VoidCallback onTap;
+  final VoidCallback onEdit;
   final VoidCallback onDelete;
-  final VoidCallback onDmcaTap;
 
-  const GalleryImageCard({
-    super.key,
-    required this.id,
-    required this.title,
-    required this.imageUrl,
-    required this.uploadDate,
-    required this.status,
-    required this.onTap,
-    required this.onDelete,
-    required this.onDmcaTap, 
-  });
-
-  Color _getStatusColor() {
-    switch (status.toLowerCase()) {
-      case 'scanning': return const Color(0xFF5E3B7D);
-      case 'scanned': return const Color(0xFFEAB308); 
-      case 'protected': return const Color(0xFF22C55E); 
-      default: return Colors.grey;
-    }
-  }
-
-  IconData _getStatusIcon() {
-    switch (status.toLowerCase()) {
-      case 'scanning': return Icons.hourglass_top;
-      case 'scanned': return Icons.warning_rounded;
-      case 'protected': return Icons.shield_rounded;
-      default: return Icons.image;
-    }
-  }
+  const GalleryImageCard({super.key, required this.artwork, required this.onTap, required this.onEdit, required this.onDelete});
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.06), blurRadius: 10, offset: const Offset(0, 4))],
-        ),
-        child: Stack(
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: imageUrl.isNotEmpty && imageUrl.startsWith('http')
-                ? Image.network(
-                    imageUrl,
-                    fit: BoxFit.cover,
-                    width: double.infinity,
-                    height: double.infinity,
-                    cacheWidth: 350, 
-                    gaplessPlayback: true,
-                    loadingBuilder: (context, child, loadingProgress) {
-                      if (loadingProgress == null) return child;
-                      return const Center(child: CircularProgressIndicator(color: Color(0xFF5E3B7D)));
-                    },
-                    errorBuilder: (context, error, stackTrace) {
-                      return Container(
-                        color: Colors.grey[200],
-                        child: const Center(child: Icon(Icons.broken_image, color: Colors.grey)),
-                      );
-                    },
-                  )
-                : Container(
-                    color: Colors.grey[200],
-                    child: const Center(child: Icon(Icons.image, color: Colors.grey)),
-                  ),
-            ),
+    final c = context.colors;
+    final l10n = AppLocalizations.of(context);
+    final locale = Localizations.localeOf(context).toString();
+    final url = artwork['url']?.toString() ?? '';
+    final title = (artwork['title']?.toString().isNotEmpty ?? false) ? artwork['title'].toString() : l10n.galleryUntitled;
+    final date = DateTime.tryParse(artwork['date']?.toString() ?? '')?.toLocal();
+    final blacklisted = (artwork['blacklistedCount'] as int?) ?? 0;
 
-            Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter, end: Alignment.bottomCenter,
-                  colors: [Colors.black.withValues(alpha: 0.2), Colors.black.withValues(alpha: 0.8)],
-                ),
-              ),
-            ),
-
-            Positioned(
-              top: 8, right: 8,
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(color: _getStatusColor(), borderRadius: BorderRadius.circular(6)),
-                child: Row(
-                  children: [
-                    Icon(_getStatusIcon(), color: Colors.white, size: 12),
-                    const SizedBox(width: 4),
-                    Text(status.toUpperCase(), style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: Colors.white)),
-                  ],
-                ),
-              ),
-            ),
-
-            Positioned(
-              bottom: 0, left: 0, right: 0,
-              child: Padding(
-                padding: const EdgeInsets.all(10),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            title,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Colors.white),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            uploadDate,
-                            style: TextStyle(fontSize: 11, color: Colors.white.withValues(alpha: 0.8)),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Row(
+    return Container(
+      decoration: BoxDecoration(
+        color: c.surface,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: c.border),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        children: [
+          Expanded(
+            child: InkWell(
+              onTap: onTap,
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  url.startsWith('http')
+                      ? Image.network(url, fit: BoxFit.cover, errorBuilder: (_, __, ___) => Container(color: c.surfaceSubtle, child: Icon(LucideIcons.image, color: c.textMuted)))
+                      : Container(color: c.surfaceSubtle, child: Icon(LucideIcons.image, color: c.textMuted)),
+                  Positioned(
+                    top: 8,
+                    left: 8,
+                    right: 8,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        GestureDetector(
-                          onTap: onDmcaTap,
-                          child: Container(
-                            padding: const EdgeInsets.all(6),
-                            decoration: BoxDecoration(color: Colors.black87, borderRadius: BorderRadius.circular(6)),
-                            child: const Icon(Icons.security, color: Colors.white, size: 16),
-                          ),
-                        ),
-                        const SizedBox(width: 6),
-                        GestureDetector(
-                          onTap: onDelete,
-                          child: Container(
-                            padding: const EdgeInsets.all(6),
-                            decoration: BoxDecoration(color: Colors.red.withValues(alpha: 0.8), borderRadius: BorderRadius.circular(6)),
-                            child: const Icon(Icons.delete_outline, color: Colors.white, size: 16),
-                          ),
-                        ),
+                        StatusBadge(status: statusOf(artwork)),
+                        if (blacklisted > 0) ...[const SizedBox(height: 4), BlacklistedBadge(count: blacklisted)],
                       ],
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
-          ],
-        ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(10, 4, 0, 4),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(title, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                      if (date != null)
+                        Text(DateFormat.yMMMd(locale).format(date), style: TextStyle(fontSize: 12, color: c.textMuted)),
+                    ],
+                  ),
+                ),
+                PopupMenuButton<String>(
+                  tooltip: title,
+                  icon: const Icon(LucideIcons.ellipsis, size: 20),
+                  onSelected: (v) => v == 'edit' ? onEdit() : onDelete(),
+                  itemBuilder: (_) => [
+                    PopupMenuItem(value: 'edit', child: Row(children: [const Icon(LucideIcons.pencil, size: 18), const SizedBox(width: 8), Text(l10n.artworkEditTitle)])),
+                    PopupMenuItem(value: 'delete', child: Row(children: [Icon(LucideIcons.trash2, size: 18, color: c.error), const SizedBox(width: 8), Text(l10n.artworkDelete, style: TextStyle(color: c.error))])),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

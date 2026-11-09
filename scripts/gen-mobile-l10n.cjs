@@ -218,6 +218,7 @@ const WEB = {
   dmcaConfirmSubmitTitle: 'dmca_page.confirm_submit_title',
   dmcaConfirmSubmitDescription: 'dmca_page.confirm_submit_description',
   dmcaConfirmSubmit: 'dmca_page.confirm_submit',
+  dmcaNoticeLoaded: 'dmca_page.notice_loaded',
   dmcaStatusUpdated: 'dmca_page.status_updated',
   dmcaStatusUpdateFailed: 'dmca_page.status_update_failed',
   dmcaNoNotices: 'dashboard_page.no_dmca_notices',
@@ -313,6 +314,8 @@ const MOBILE = {
   connectionError: ['Could not reach VigilArt. Check your connection and try again.', 'Impossible de joindre VigilArt. Vérifiez votre connexion et réessayez.'],
   sessionExpired: ['Your session has expired. Please log in again.', 'Votre session a expiré. Veuillez vous reconnecter.'],
   loading: ['Loading…', 'Chargement…'],
+  policyChanged: ['Our Terms of Service or Privacy Policy changed. Update the app to sign up.', 'Nos Conditions d’utilisation ou notre Politique de confidentialité ont changé. Mettez l’application à jour pour vous inscrire.'],
+  accountExists: ['An account with this email address already exists.', 'Un compte existe déjà avec cette adresse e-mail.'],
   rangeToday: ['Today', 'Aujourd’hui'],
 };
 
@@ -323,7 +326,7 @@ const add = (name, a, b) => {
   for (const [lang, raw] of [['en', a], ['fr', b]]) {
     const placeholders = {};
     const text = raw.replace(/\{\{(\w+)\}\}/g, (m, p) => {
-      placeholders[p] = { type: p === 'count' || p === 'total' ? 'int' : 'String' };
+      placeholders[p] = { type: ['count', 'total', 'limit', 'processed'].includes(p) ? 'int' : 'String' };
       return `{${p}}`;
     });
     out[lang][name] = text;

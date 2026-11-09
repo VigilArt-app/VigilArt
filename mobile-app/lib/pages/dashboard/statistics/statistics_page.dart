@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:vigilart/(api)/statistics.dart';
+import 'package:intl/intl.dart';
+
 import '../../../(api)/auth.dart';
-import 'models/statistics_model.dart';
+import '../../../(api)/statistics.dart';
+import '../../../l10n/app_localizations.dart';
+import '../../../theme/app_colors.dart';
 import '../categories.dart';
 import 'category_pie_chart.dart';
+import 'models/statistics_model.dart';
 import 'timeline_bar_chart.dart';
 import 'widgets/matches_modal.dart';
 
@@ -15,8 +19,6 @@ class StatisticsPage extends StatefulWidget {
 }
 
 class _StatisticsPageState extends State<StatisticsPage> {
-  static const Color _brand = Color(0xFF5E3B7D);
-
   final ApiService _api = ApiService();
   bool _isLoading = true;
   bool _error = false;
@@ -60,6 +62,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
   void _openCategoryMatches(String category) {
     final userId = _userId;
     if (userId == null) return;
+    final l10n = AppLocalizations.of(context);
     final total = _stats?.categoryDistribution
             .firstWhere(
               (d) => d.category == category,
@@ -69,163 +72,147 @@ class _StatisticsPageState extends State<StatisticsPage> {
         0;
     showMatchesModal(
       context,
-      title: '${categoryLabel(category)} reposts',
-      emptyMessage: 'No reposts in this category',
+      title: l10n.statsMatchesTitle(categoryLabel(l10n, category)),
+      emptyMessage: l10n.statsNoMatches,
       totalCount: total,
       fetcher: () => _api.fetchMatchesByCategory(userId, category, _range),
     );
   }
 
   void _openReportMatches(TimelinePoint point) {
+    final l10n = AppLocalizations.of(context);
+    final locale = Localizations.localeOf(context).toString();
+    final date = DateTime.tryParse(point.date)?.toLocal();
     showMatchesModal(
       context,
-      title: 'Reposts from ${_fullDate(point.date)}',
-      emptyMessage: 'No reposts in this report',
+      title: l10n.statsReportMatchesTitle(date == null ? '' : DateFormat.yMMMd(locale).add_Hm().format(date)),
+      emptyMessage: l10n.statsNoMatchesReport,
       totalCount: point.totalMatches,
       fetcher: () => _api.fetchMatchesByReport(point.reportId),
     );
   }
 
-  String _fullDate(String iso) {
-    final date = DateTime.tryParse(iso);
-    if (date == null) return '';
-    const months = [
-      'January', 'February', 'March', 'April', 'May', 'June',
-      'July', 'August', 'September', 'October', 'November', 'December',
-    ];
-    String two(int n) => n.toString().padLeft(2, '0');
-    return '${months[date.month - 1]} ${date.day}, ${date.year} ${two(date.hour)}:${two(date.minute)}';
-  }
-
   @override
   Widget build(BuildContext context) {
-    if (_isLoading && _stats == null) {
-      return const Center(child: CircularProgressIndicator(color: _brand));
-    }
+    final l10n = AppLocalizations.of(context);
+    final c = context.colors;
+    if (_isLoading && _stats == null) return const Center(child: CircularProgressIndicator());
     if (_error && _stats == null) {
-      return const Center(child: Text('Could not load statistics.'));
+      return Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(l10n.statsLoadError),
+            const SizedBox(height: 12),
+            OutlinedButton(onPressed: _loadStatistics, style: OutlinedButton.styleFrom(minimumSize: const Size(160, 48)), child: Text(l10n.retry)),
+          ],
+        ),
+      );
     }
 
     final stats = _stats!;
+    Widget card(String title, Widget child) => Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: c.surface,
+            border: Border.all(color: c.border),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(title, style: Theme.of(context).textTheme.titleLarge),
+              const SizedBox(height: 8),
+              child,
+            ],
+          ),
+        );
+
     return RefreshIndicator(
       onRefresh: _loadStatistics,
-      color: _brand,
       child: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.symmetric(horizontal: 16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Statistics',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 16),
-            _buildRangeToggle(),
-            const SizedBox(height: 16),
-            _buildTotalMatches(stats.totalMatches),
-            const SizedBox(height: 24),
-
-            _buildCard(
-              child: stats.categoryDistribution.isEmpty
-                  ? _emptyState('No reposts found yet')
-                  : CategoryPieChart(
-                      distribution: stats.categoryDistribution,
-                      totalMatches: stats.totalMatches,
-                      onTapCategory: _openCategoryMatches,
-                    ),
-            ),
-            const SizedBox(height: 24),
-
-            const Text(
-              'Recent Scans',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            _buildRangeToggle(l10n),
+            const SizedBox(height: 12),
+            card(
+              l10n.statsTitle,
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.baseline,
+                    textBaseline: TextBaseline.alphabetic,
+                    children: [
+                      Text('${stats.totalMatches}', style: const TextStyle(fontSize: 28, height: 32 / 28, fontWeight: FontWeight.w600)),
+                      const SizedBox(width: 8),
+                      Text(l10n.statsTotalMatches, style: TextStyle(color: c.textMuted)),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  stats.categoryDistribution.isEmpty
+                      ? Padding(padding: const EdgeInsets.symmetric(vertical: 16), child: Text(l10n.statsNoData, style: TextStyle(color: c.textMuted)))
+                      : CategoryPieChart(
+                          distribution: stats.categoryDistribution,
+                          totalMatches: stats.totalMatches,
+                          onTapCategory: _openCategoryMatches,
+                        ),
+                ],
+              ),
             ),
             const SizedBox(height: 12),
-            _buildCard(
-              child: stats.timeline.isEmpty
-                  ? _emptyState('No reports yet')
+            card(
+              l10n.recentScans,
+              stats.timeline.isEmpty
+                  ? Text(l10n.recentScansEmpty, style: TextStyle(color: c.textMuted))
                   : Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        SizedBox(
-                          height: 240,
-                          child: TimelineBarChart(
-                            timeline: stats.timeline,
-                            onTapPoint: _openReportMatches,
-                          ),
-                        ),
+                        TimelineBarChart(timeline: stats.timeline, onTapPoint: _openReportMatches),
                         const SizedBox(height: 8),
-                        Text(
-                          "Tap a bar to see that scan's reposts",
-                          style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                        ),
+                        Text(l10n.recentScansHint, style: TextStyle(color: c.textMuted, fontSize: 12)),
                       ],
                     ),
             ),
+            const SizedBox(height: 16),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildRangeToggle() {
-    return Row(
-      children: [
-        _rangeButton('All Time', StatisticsRange.all),
-        const SizedBox(width: 8),
-        _rangeButton('Last 30 days', StatisticsRange.month),
-      ],
-    );
-  }
-
-  Widget _rangeButton(String label, StatisticsRange range) {
-    final selected = _range == range;
-    return OutlinedButton(
-      onPressed: () => _onRangeChanged(range),
-      style: OutlinedButton.styleFrom(
-        backgroundColor: selected ? _brand : Colors.white,
-        foregroundColor: selected ? Colors.white : Colors.black87,
-        side: BorderSide(color: selected ? _brand : Colors.grey[300]!),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      ),
-      child: Text(label, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
-    );
-  }
-
-  Widget _buildTotalMatches(int total) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.baseline,
-      textBaseline: TextBaseline.alphabetic,
-      children: [
-        Text(
-          '$total',
-          style: const TextStyle(fontSize: 32, fontWeight: FontWeight.w900, color: Colors.black87),
+  Widget _buildRangeToggle(AppLocalizations l10n) {
+    final c = context.colors;
+    Widget option(String label, StatisticsRange range) {
+      final selected = _range == range;
+      return Expanded(
+        child: Semantics(
+          button: true,
+          selected: selected,
+          excludeSemantics: true,
+          label: label,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(6),
+            onTap: () => _onRangeChanged(range),
+            child: Container(
+              constraints: const BoxConstraints(minHeight: 44),
+              alignment: Alignment.center,
+              decoration: BoxDecoration(color: selected ? c.primary : Colors.transparent, borderRadius: BorderRadius.circular(6)),
+              child: Text(label, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: selected ? c.onPrimary : c.text)),
+            ),
+          ),
         ),
-        const SizedBox(width: 8),
-        Text('total matches', style: TextStyle(fontSize: 14, color: Colors.grey[600])),
-      ],
-    );
-  }
+      );
+    }
 
-  Widget _buildCard({required Widget child}) {
     return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey[200]!),
-      ),
-      child: child,
-    );
-  }
-
-  Widget _emptyState(String message) {
-    return Container(
-      height: 120,
-      alignment: Alignment.center,
-      child: Text(message, style: TextStyle(color: Colors.grey[500])),
+      padding: const EdgeInsets.all(4),
+      decoration: BoxDecoration(color: c.surfaceSubtle, borderRadius: BorderRadius.circular(8)),
+      child: Row(children: [option(l10n.statsRangeAll, StatisticsRange.all), option(l10n.statsRangeMonth, StatisticsRange.month)]),
     );
   }
 }

@@ -1,27 +1,40 @@
 import 'package:flutter/material.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+/// Text field with its label above (8px gap), as in the design system.
+/// Passwords get a show/hide button with an accessible name.
 class CustomInputField extends StatefulWidget {
   final String? labelText;
   final String? hintText;
-  final IconData? suffixIcon;
+  final IconData? prefixIcon;
   final bool isPassword;
-  final bool showSuffixIcon;
   final TextEditingController? controller;
   final String? Function(String?)? validator;
   final TextInputType keyboardType;
   final void Function(String)? onChanged;
+  final int maxLines;
+  final bool readOnly;
+  final String? showPasswordLabel;
+  final String? hidePasswordLabel;
+  final TextInputAction? textInputAction;
+  final Iterable<String>? autofillHints;
 
   const CustomInputField({
     super.key,
     this.labelText,
     this.hintText,
-    this.suffixIcon,
+    this.prefixIcon,
     this.isPassword = false,
-    this.showSuffixIcon = true,
     this.controller,
     this.validator,
     this.keyboardType = TextInputType.text,
     this.onChanged,
+    this.maxLines = 1,
+    this.readOnly = false,
+    this.showPasswordLabel,
+    this.hidePasswordLabel,
+    this.textInputAction,
+    this.autofillHints,
   });
 
   @override
@@ -29,89 +42,41 @@ class CustomInputField extends StatefulWidget {
 }
 
 class _CustomInputFieldState extends State<CustomInputField> {
-  bool _obscureText = true;
+  bool _obscure = true;
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final field = TextFormField(
+      controller: widget.controller,
+      validator: widget.validator,
+      onChanged: widget.onChanged,
+      keyboardType: widget.keyboardType,
+      obscureText: widget.isPassword && _obscure,
+      readOnly: widget.readOnly,
+      maxLines: widget.isPassword ? 1 : widget.maxLines,
+      textInputAction: widget.textInputAction,
+      autofillHints: widget.autofillHints,
+      style: theme.textTheme.bodyLarge,
+      decoration: InputDecoration(
+        hintText: widget.hintText,
+        prefixIcon: widget.prefixIcon == null ? null : Icon(widget.prefixIcon, size: 20),
+        suffixIcon: widget.isPassword
+            ? IconButton(
+                tooltip: _obscure ? widget.showPasswordLabel : widget.hidePasswordLabel,
+                icon: Icon(_obscure ? LucideIcons.eye : LucideIcons.eyeOff, size: 20),
+                onPressed: () => setState(() => _obscure = !_obscure),
+              )
+            : null,
+      ),
+    );
+    if (widget.labelText == null) return field;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (widget.labelText != null)
-          Padding(
-            padding: const EdgeInsets.only(bottom: 8.0, left: 4.0),
-            child: Text(
-              widget.labelText!,
-              style: const TextStyle(
-                fontSize: 14,
-                color: Colors.black54,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ),
-        TextFormField(
-          controller: widget.controller,
-          obscureText: widget.isPassword ? _obscureText : false,
-          keyboardType: widget.keyboardType,
-          onChanged: widget.onChanged,
-          validator: widget.validator,
-          decoration: InputDecoration(
-            hintText: widget.hintText,
-            hintStyle: const TextStyle(
-              color: Colors.grey,
-              fontSize: 14,
-            ),
-            filled: true,
-            fillColor: Colors.white,
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 16,
-            ),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide.none,
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide.none,
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(
-                color: Colors.black87,
-                width: 1.5,
-              ),
-            ),
-            errorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(
-                color: Colors.red,
-                width: 1.5,
-              ),
-            ),
-            suffixIcon: widget.showSuffixIcon
-                ? (widget.isPassword
-                    ? IconButton(
-                        icon: Icon(
-                          _obscureText
-                              ? Icons.visibility_outlined
-                              : Icons.visibility_off_outlined,
-                          color: Colors.black54,
-                        ),
-                        onPressed: () {
-                          setState(() {
-                            _obscureText = !_obscureText;
-                          });
-                        },
-                      )
-                    : (widget.suffixIcon != null
-                        ? Icon(
-                            widget.suffixIcon,
-                            color: Colors.black54,
-                          )
-                        : null))
-                : null,
-          ),
-        ),
+        Text(widget.labelText!, style: theme.textTheme.labelMedium),
+        const SizedBox(height: 8),
+        field,
       ],
     );
   }

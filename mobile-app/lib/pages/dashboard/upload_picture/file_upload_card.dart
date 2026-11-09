@@ -1,10 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import '../../../theme/app_colors.dart';
+
+/// One file in the upload queue. Status is an icon and a progress bar, with
+/// the file name as text.
 class FileUploadCard extends StatelessWidget {
   final String fileName;
-  final String status;
+  final String status; // uploading | uploaded
   final double? uploadProgress;
   final VoidCallback onRemove;
+  final String? removeLabel;
 
   const FileUploadCard({
     super.key,
@@ -12,120 +18,31 @@ class FileUploadCard extends StatelessWidget {
     required this.status,
     this.uploadProgress,
     required this.onRemove,
+    this.removeLabel,
   });
-
-  Color _getStatusColor() {
-    switch (status) {
-      case 'uploading':
-        return const Color(0xFF5E3B7D);
-      case 'uploaded':
-        return const Color(0xFF22C55E);
-      case 'pending':
-        return Colors.grey[400]!;
-      default:
-        return Colors.grey;
-    }
-  }
-
-  IconData _getStatusIcon() {
-    switch (status) {
-      case 'uploading':
-        return Icons.cloud_upload;
-      case 'uploaded':
-        return Icons.check_circle;
-      case 'pending':
-        return Icons.schedule;
-      default:
-        return Icons.file_present;
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border.all(
-          color: _getStatusColor().withValues(alpha: 0.3),
-          width: 1.5,
-        ),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    final c = context.colors;
+    final done = status == 'uploaded';
+    return Row(
+      children: [
+        Icon(done ? LucideIcons.check : LucideIcons.fileText, size: 20, color: done ? c.success : c.primaryText),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
-                child: Row(
-                  children: [
-                    Icon(
-                      _getStatusIcon(),
-                      color: _getStatusColor(),
-                      size: 20,
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        fileName,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.black87,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              GestureDetector(
-                onTap: onRemove,
-                child: Container(
-                  padding: const EdgeInsets.all(6),
-                  decoration: BoxDecoration(
-                    color: Colors.red.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  child: Icon(
-                    Icons.close,
-                    size: 18,
-                    color: Colors.red[400],
-                  ),
-                ),
-              ),
+              Text(fileName, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.w600)),
+              if (!done && (uploadProgress ?? 0) > 0) ...[
+                const SizedBox(height: 6),
+                LinearProgressIndicator(value: uploadProgress, minHeight: 6, borderRadius: BorderRadius.circular(3)),
+              ],
             ],
           ),
-
-          if (status == 'uploading' && uploadProgress != null) ...[
-            const SizedBox(height: 12),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(4),
-              child: LinearProgressIndicator(
-                value: uploadProgress,
-                minHeight: 4,
-                backgroundColor: Colors.grey[200],
-                valueColor: AlwaysStoppedAnimation<Color>(
-                  const Color(0xFF5E3B7D),
-                ),
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              '${(uploadProgress! * 100).toStringAsFixed(0)}%',
-              style: const TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w500,
-                color: Color(0xFF62636D),
-              ),
-            ),
-          ],
-        ],
-      ),
+        ),
+        IconButton(tooltip: removeLabel, icon: const Icon(LucideIcons.x, size: 20), onPressed: onRemove),
+      ],
     );
   }
 }

@@ -238,12 +238,12 @@ class AppLocalizationsFr extends AppLocalizations {
   String get startScan => 'Créer le report';
 
   @override
-  String quotaOne(int count, String limit) {
+  String quotaOne(int count, int limit) {
     return '$count scan restant sur $limit';
   }
 
   @override
-  String quotaOther(int count, String limit) {
+  String quotaOther(int count, int limit) {
     return '$count scans restants sur $limit';
   }
 
@@ -272,7 +272,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get scanQueued => 'En file d\'attente…';
 
   @override
-  String scanningArtwork(String processed, int total) {
+  String scanningArtwork(int processed, int total) {
     return 'Analyse de l\'artwork $processed sur $total';
   }
 
@@ -390,7 +390,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get uploadSelectOne => 'Veuillez sélectionner au moins un fichier.';
 
   @override
-  String uploadArtworkLimit(String limit) {
+  String uploadArtworkLimit(int limit) {
     return 'Un compte gratuit est limité à $limit œuvres. Supprimez-en pour en ajouter.';
   }
 
@@ -642,6 +642,9 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get dmcaConfirmSubmit => 'Confirmer';
+
+  @override
+  String get dmcaNoticeLoaded => 'Notice chargée avec succès';
 
   @override
   String get dmcaStatusUpdated => 'Notice marquée comme soumise.';
@@ -921,6 +924,14 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get loading => 'Chargement…';
+
+  @override
+  String get policyChanged =>
+      'Nos Conditions d’utilisation ou notre Politique de confidentialité ont changé. Mettez l’application à jour pour vous inscrire.';
+
+  @override
+  String get accountExists =>
+      'Un compte existe déjà avec cette adresse e-mail.';
 
   @override
   String get rangeToday => 'Aujourd’hui';

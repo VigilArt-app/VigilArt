@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
+
+import '../../../../theme/app_colors.dart';
+import '../../../../widgets/status_badge.dart';
 
 class ScanResultCard extends StatelessWidget {
   final Map<String, dynamic> result;
@@ -6,86 +10,60 @@ class ScanResultCard extends StatelessWidget {
 
   const ScanResultCard({super.key, required this.result, required this.onTap});
 
-  Color _getBadgeColor(int matches) {
-    if (matches == 0) return Colors.grey;
-    if (matches < 5) return Colors.amber;
-    if (matches < 10) return Colors.orange;
-    return Colors.red;
-  }
-
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     final int matches = result['matchesCount'] ?? 0;
-    
+    final String? source = result['mostRecentSource'] is String && result['mostRecentSource'] != 'N/A'
+        ? result['mostRecentSource'] as String
+        : null;
+    final imageUrl = result['imageUrl']?.toString() ?? '';
+
     return Card(
-      elevation: 0,
-      color: Colors.white,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: BorderSide(color: Colors.grey[200]!),
-      ),
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.only(bottom: 8),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(12),
         child: Padding(
           padding: const EdgeInsets.all(12),
           child: Row(
             children: [
               ClipRRect(
                 borderRadius: BorderRadius.circular(8),
-                child: result['imageUrl'] != null
-                    ? Image.network(result['imageUrl'], width: 64, height: 64, fit: BoxFit.cover)
-                    : Container(
-                        width: 64, height: 64, color: Colors.grey[100],
-                        child: Icon(Icons.image, color: Colors.grey[400]),
-                      ),
+                child: Container(
+                  width: 64,
+                  height: 64,
+                  color: c.surfaceSubtle,
+                  child: imageUrl.startsWith('http')
+                      ? Image.network(imageUrl, fit: BoxFit.cover, errorBuilder: (_, __, ___) => Icon(LucideIcons.image, color: c.textMuted))
+                      : Icon(LucideIcons.image, color: c.textMuted),
+                ),
               ),
-              const SizedBox(width: 16),
-              
+              const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      result['title'] ?? 'Unknown Artwork',
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
+                    Text(result['title']?.toString() ?? '', maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16)),
+                    const SizedBox(height: 6),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 4,
+                      crossAxisAlignment: WrapCrossAlignment.center,
                       children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: _getBadgeColor(matches).withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(6),
+                        MatchCountPill(count: matches),
+                        if (source != null)
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                            decoration: BoxDecoration(color: c.surfaceSubtle, borderRadius: BorderRadius.circular(6)),
+                            child: Text(source, style: const TextStyle(fontSize: 12), maxLines: 1, overflow: TextOverflow.ellipsis),
                           ),
-                          child: Text(
-                            '$matches Matches',
-                            style: TextStyle(
-                              color: _getBadgeColor(matches),
-                              fontWeight: FontWeight.bold,
-                              fontSize: 12,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            result['mostRecentSource'] != 'N/A' ? result['mostRecentSource'] : 'No matches',
-                            style: TextStyle(color: Colors.grey[600], fontSize: 12),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
                       ],
                     ),
                   ],
                 ),
               ),
-              const Icon(Icons.chevron_right, color: Colors.grey),
+              Icon(LucideIcons.chevronRight, color: c.textMuted),
             ],
           ),
         ),

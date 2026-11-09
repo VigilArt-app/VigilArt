@@ -1,45 +1,39 @@
 import 'package:flutter/material.dart';
 
+/// The official VigilArt wordmark, black on light themes and white on dark
+/// themes. Never recoloured or redrawn.
 class LogoHeader extends StatelessWidget {
-  final String logoImagePath;
-  final String appName;
-  final double logoSize;
-  final double spacing;
-  final TextStyle? textStyle;
+  final double width;
 
-  const LogoHeader({
-    super.key,
-    required this.logoImagePath,
-    required this.appName,
-    this.logoSize = 60.0,
-    this.spacing = 12.0,
-    this.textStyle,
-  });
+  const LogoHeader({super.key, this.width = 180});
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Image.asset(
-          logoImagePath,
-          width: logoSize,
-          height: logoSize,
-          fit: BoxFit.contain,
-        ),
-        SizedBox(width: spacing),
-        Text(
-          appName,
-          style: textStyle ??
-              const TextStyle(
-                fontFamily: "Giaza",
-                fontSize: 32,
-                fontWeight: FontWeight.bold,
-                color: Colors.black87,
-                letterSpacing: 1.0,
-              ),
-        ),
-      ],
+    final dark = Theme.of(context).brightness == Brightness.dark;
+    return Image.asset(
+      dark ? 'assets/images/wordmark_white.png' : 'assets/images/wordmark_black.png',
+      width: width,
+      fit: BoxFit.contain,
+      semanticLabel: 'VigilArt',
+    );
+  }
+}
+
+/// The official monogram, 32px by default (24px is the minimum).
+class LogoMark extends StatelessWidget {
+  final double size;
+
+  const LogoMark({super.key, this.size = 32});
+
+  @override
+  Widget build(BuildContext context) {
+    final dark = Theme.of(context).brightness == Brightness.dark;
+    return Image.asset(
+      dark ? 'assets/images/logo_white.png' : 'assets/images/logo_black.png',
+      width: size,
+      height: size,
+      fit: BoxFit.contain,
+      semanticLabel: 'VigilArt',
     );
   }
 }

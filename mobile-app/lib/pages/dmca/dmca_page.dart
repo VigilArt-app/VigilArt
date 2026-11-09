@@ -1,3 +1,4 @@
+import '../../l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -22,6 +23,14 @@ class DmcaPage extends StatefulWidget {
 class _DmcaPageState extends State<DmcaPage> {
   final ApiService _api = ApiService();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
+  late AppLocalizations l10n;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    l10n = AppLocalizations.of(context);
+  }
 
   String? _userId;
   String _userAvatarUrl = 'assets/images/default_avatar.jpg';
@@ -96,7 +105,7 @@ class _DmcaPageState extends State<DmcaPage> {
       await _loadNotices();
       _initializeFormForPlatform();
     } catch (error) {
-      _showError('Error loading data: $error');
+      _showError(l10n.dmcaFailedToLoad);
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -161,7 +170,7 @@ class _DmcaPageState extends State<DmcaPage> {
       _generatedContent = null;
       _currentStep = 3;
     });
-    _showSuccess('Notice loaded');
+    _showSuccess(l10n.dmcaNoticeLoaded);
   }
 
   Future<void> _saveProfile() async {
@@ -175,9 +184,9 @@ class _DmcaPageState extends State<DmcaPage> {
         _profileExists = true;
       }
       setState(() => _formPayload = hydrateProfileInPayload(_formPayload, _profileForm));
-      _showSuccess('Profile saved!');
+      _showSuccess(l10n.dmcaProfileSaved);
     } catch (error) {
-      _showError('Error saving profile: $error');
+      _showError(l10n.dmcaProfileSaveFailed);
     } finally {
       if (mounted) setState(() => _isSavingProfile = false);
     }
@@ -185,7 +194,7 @@ class _DmcaPageState extends State<DmcaPage> {
 
   Future<void> _prepareNotice() async {
     if (!_formKey.currentState!.validate()) {
-      _showError('Please fill out all required fields');
+      _showError(l10n.dmcaRequiredFields);
       return;
     }
 
@@ -207,9 +216,9 @@ class _DmcaPageState extends State<DmcaPage> {
         _noticesByPlatform[_selectedPlatformSlug!] = prepared;
         _generatedContent = null;
       });
-      _showSuccess('Notice prepared!');
+      _showSuccess(l10n.dmcaNoticePrepared);
     } catch (error) {
-      _showError('Error preparing notice: $error');
+      _showError(l10n.dmcaNoticePrepareFailed);
     } finally {
       if (mounted) setState(() => _isPreparingNotice = false);
     }
@@ -221,9 +230,9 @@ class _DmcaPageState extends State<DmcaPage> {
     try {
       final generated = await _api.generateDmcaNotice(_activeNotice!['id']);
       setState(() => _generatedContent = generated);
-      _showSuccess('Content generated!');
+      _showSuccess(l10n.dmcaContentGenerated);
     } catch (error) {
-      _showError('Error generating content: $error');
+      _showError(l10n.dmcaContentGenerationFailed);
     } finally {
       if (mounted) setState(() => _isGenerating = false);
     }
@@ -245,11 +254,11 @@ class _DmcaPageState extends State<DmcaPage> {
     _showSuccess(message);
   }
 
-  void _showSuccess(String message) => _showSnackBar(message, Colors.green);
-  void _showError(String message) => _showSnackBar(message, Colors.red);
-  void _showSnackBar(String message, Color color) {
+  void _showSuccess(String message) => _showSnackBar(message);
+  void _showError(String message) => _showSnackBar(message);
+  void _showSnackBar(String message) {
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message), backgroundColor: color));
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
   }
 
   void _updateFormPayload(List<dynamic> path, dynamic value) {
@@ -262,10 +271,8 @@ class _DmcaPageState extends State<DmcaPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text("DMCA Assistant", style: TextStyle(fontSize: 28, fontWeight: FontWeight.w800)),
-          const SizedBox(height: 8),
-          Text("Follow the steps to prepare and send your legal notice.", style: TextStyle(color: Colors.grey[600], fontSize: 14)),
-          const SizedBox(height: 24),
+          Text(l10n.dmcaTitle, style: Theme.of(context).textTheme.headlineLarge),
+          const SizedBox(height: 16),
           
           const DmcaWarningBanner(),
           DmcaStepIndicator(currentStep: _currentStep),
@@ -313,34 +320,32 @@ class _DmcaPageState extends State<DmcaPage> {
 
   @override
   Widget build(BuildContext context) {
-    if (_isLoading) return const Scaffold(body: Center(child: CircularProgressIndicator(color: Color(0xFF5E3B7D))));
+    if (_isLoading) return const Scaffold(body: Center(child: CircularProgressIndicator()));
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF9FAFB),
       appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(60),
+        preferredSize: const Size.fromHeight(64),
         child: SafeArea(
+          bottom: false,
           child: VigilArtHeaderBar(
             onLogoTap: () => Navigator.pushReplacementNamed(context, '/dashboard'),
-            onProfileTap: () => Navigator.pushNamed(context, '/profile'),
+            onProfileTap: () => Navigator.pushReplacementNamed(context, '/profile'),
             avatar: _userAvatarUrl,
           ),
         ),
       ),
-      body: SafeArea(child: _buildBody()),
-      bottomNavigationBar: SafeArea(
-        child: SlideMenuBar(
-          selectedIndex: 2,
-          onTabChange: (index) {
-            if (index == 0) {
-              Navigator.pushReplacementNamed(context, '/gallery');
-            } else if (index == 1) {
-              Navigator.pushReplacementNamed(context, '/dashboard');
-            } else if (index == 3) {
-              Navigator.pushReplacementNamed(context, '/profile');
-            }
-          },
-        ),
+      body: _buildBody(),
+      bottomNavigationBar: SlideMenuBar(
+        selectedIndex: 2,
+        onTabChange: (index) {
+          if (index == 0) {
+            Navigator.pushReplacementNamed(context, '/gallery');
+          } else if (index == 1) {
+            Navigator.pushReplacementNamed(context, '/dashboard');
+          } else if (index == 3) {
+            Navigator.pushReplacementNamed(context, '/profile');
+          }
+        },
       ),
     );
   }

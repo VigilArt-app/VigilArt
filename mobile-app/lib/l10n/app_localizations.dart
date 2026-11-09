@@ -540,13 +540,13 @@ abstract class AppLocalizations {
   ///
   /// In en, this message translates to:
   /// **'{count} scan left out of {limit}'**
-  String quotaOne(int count, String limit);
+  String quotaOne(int count, int limit);
 
   /// No description provided for @quotaOther.
   ///
   /// In en, this message translates to:
   /// **'{count} scans left out of {limit}'**
-  String quotaOther(int count, String limit);
+  String quotaOther(int count, int limit);
 
   /// No description provided for @quotaWindow.
   ///
@@ -594,7 +594,7 @@ abstract class AppLocalizations {
   ///
   /// In en, this message translates to:
   /// **'Scanning artwork {processed} of {total}'**
-  String scanningArtwork(String processed, int total);
+  String scanningArtwork(int processed, int total);
 
   /// No description provided for @scanFailed.
   ///
@@ -810,7 +810,7 @@ abstract class AppLocalizations {
   ///
   /// In en, this message translates to:
   /// **'A free account is limited to {limit} artworks. Delete some to add new ones.'**
-  String uploadArtworkLimit(String limit);
+  String uploadArtworkLimit(int limit);
 
   /// No description provided for @uploadFailedAny.
   ///
@@ -1267,6 +1267,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Confirm'**
   String get dmcaConfirmSubmit;
+
+  /// No description provided for @dmcaNoticeLoaded.
+  ///
+  /// In en, this message translates to:
+  /// **'Notice loaded successfully'**
+  String get dmcaNoticeLoaded;
 
   /// No description provided for @dmcaStatusUpdated.
   ///
@@ -1789,6 +1795,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Loading…'**
   String get loading;
+
+  /// No description provided for @policyChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'Our Terms of Service or Privacy Policy changed. Update the app to sign up.'**
+  String get policyChanged;
+
+  /// No description provided for @accountExists.
+  ///
+  /// In en, this message translates to:
+  /// **'An account with this email address already exists.'**
+  String get accountExists;
 
   /// No description provided for @rangeToday.
   ///

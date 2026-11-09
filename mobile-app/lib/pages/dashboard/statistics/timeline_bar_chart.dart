@@ -1,103 +1,69 @@
-import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+
+import '../../../theme/app_colors.dart';
 import 'models/statistics_model.dart';
 
+/// "Recent Scans": one plum bar per scan with its value printed above it.
+/// A single series is plum, never a category colour.
 class TimelineBarChart extends StatelessWidget {
   final List<TimelinePoint> timeline;
   final void Function(TimelinePoint point) onTapPoint;
 
-  const TimelineBarChart({
-    super.key,
-    required this.timeline,
-    required this.onTapPoint,
-  });
-
-  static const Color _barColor = Color(0xFF2A78D6);
-
-  String _shortDate(String iso) {
-    final date = DateTime.tryParse(iso);
-    if (date == null) return '';
-    const months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
-    ];
-    return '${months[date.month - 1]} ${date.day}';
-  }
+  const TimelineBarChart({super.key, required this.timeline, required this.onTapPoint});
 
   @override
   Widget build(BuildContext context) {
-    if (timeline.isEmpty) {
-      return const Center(child: Text('No reports yet'));
-    }
+    final c = context.colors;
+    final locale = Localizations.localeOf(context).toString();
+    final points = timeline.length > 8 ? timeline.sublist(timeline.length - 8) : timeline;
+    final maxValue = points.fold<int>(1, (m, p) => p.totalMatches > m ? p.totalMatches : m);
+    const maxBar = 86.0;
+    final fmt = DateFormat.MMMd(locale);
 
-    final labelStep = (timeline.length / 6).ceil().clamp(1, timeline.length);
-
-    return BarChart(
-      BarChartData(
-        gridData: const FlGridData(show: false),
-        alignment: BarChartAlignment.spaceAround,
-        titlesData: FlTitlesData(
-          leftTitles: const AxisTitles(
-            sideTitles: SideTitles(showTitles: true, reservedSize: 28),
-          ),
-          bottomTitles: AxisTitles(
-            sideTitles: SideTitles(
-              showTitles: true,
-              reservedSize: 28,
-              getTitlesWidget: (value, meta) {
-                final index = value.toInt();
-                if (index < 0 || index >= timeline.length) {
-                  return const SizedBox.shrink();
-                }
-                if (index % labelStep != 0) return const SizedBox.shrink();
-                return Padding(
-                  padding: const EdgeInsets.only(top: 8.0),
-                  child: Text(
-                    _shortDate(timeline[index].date),
-                    style: const TextStyle(fontSize: 11),
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        for (final p in points)
+          Expanded(
+            child: Semantics(
+              button: true,
+              label: '${fmt.format(DateTime.tryParse(p.date)?.toLocal() ?? DateTime.now())}: ${p.totalMatches}',
+              excludeSemantics: true,
+              child: InkWell(
+                onTap: () => onTapPoint(p),
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(minHeight: 48),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text('${p.totalMatches}', style: TextStyle(fontSize: 12, color: c.textMuted)),
+                        const SizedBox(height: 2),
+                        Container(
+                          height: (p.totalMatches / maxValue * maxBar).clamp(4.0, maxBar),
+                          decoration: BoxDecoration(
+                            color: c.primary,
+                            borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
+                          ),
+                        ),
+                        Container(height: 1, color: c.fieldBorder),
+                        const SizedBox(height: 4),
+                        Text(
+                          fmt.format(DateTime.tryParse(p.date)?.toLocal() ?? DateTime.now()),
+                          style: TextStyle(fontSize: 11, color: c.textMuted),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
                   ),
-                );
-              },
+                ),
+              ),
             ),
           ),
-          rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-          topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-        ),
-        borderData: FlBorderData(show: false),
-        barTouchData: BarTouchData(
-          touchTooltipData: BarTouchTooltipData(
-            getTooltipItem: (group, groupIndex, rod, rodIndex) {
-              final point = timeline[group.x];
-              return BarTooltipItem(
-                '${point.totalMatches} reposts',
-                const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-              );
-            },
-          ),
-          touchCallback: (event, response) {
-            if (event is! FlTapUpEvent) return;
-            final spot = response?.spot;
-            if (spot == null) return;
-            final index = spot.touchedBarGroupIndex;
-            if (index >= 0 && index < timeline.length) {
-              onTapPoint(timeline[index]);
-            }
-          },
-        ),
-        barGroups: timeline.asMap().entries.map((entry) {
-          return BarChartGroupData(
-            x: entry.key,
-            barRods: [
-              BarChartRodData(
-                toY: entry.value.totalMatches.toDouble(),
-                color: _barColor,
-                width: 14,
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
-              ),
-            ],
-          );
-        }).toList(),
-      ),
+      ],
     );
   }
 }

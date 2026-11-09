@@ -1,311 +1,186 @@
 import 'package:flutter/material.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:vigilart/services/notification_service.dart';
-import 'package:vigilart/(api)/auth.dart';
-import 'package:vigilart/(api)/user.dart';
 
+import '../(api)/auth.dart';
+import '../(api)/user.dart';
+import '../l10n/app_localizations.dart';
+import '../services/notification_preference.dart';
+import '../theme/app_colors.dart';
+import 'logo_header.dart';
+
+/// Top bar: logo, wordmark, notification switch and profile avatar.
 class VigilArtHeaderBar extends StatefulWidget {
   final VoidCallback onLogoTap;
   final VoidCallback onProfileTap;
   final String avatar;
-  final int notificationCount;
 
   const VigilArtHeaderBar({
     super.key,
     required this.onLogoTap,
     required this.onProfileTap,
     required this.avatar,
-    this.notificationCount = 0,
   });
 
   @override
   State<VigilArtHeaderBar> createState() => _VigilArtHeaderBarState();
 }
 
-class _VigilArtHeaderBarState extends State<VigilArtHeaderBar>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _animationController;
-  late Animation<double> _scaleAnimation;
-
-  bool _mobileNotificationsEnabled = false;
-  bool _isToggling = false;
+class _VigilArtHeaderBarState extends State<VigilArtHeaderBar> {
+  bool _enabled = false;
+  bool _toggling = false;
 
   @override
   void initState() {
     super.initState();
-    _animationController = AnimationController(
-      duration: const Duration(milliseconds: 300),
-      vsync: this,
-    );
-
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 1.05).animate(
-      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
-    );
-
-    _loadNotificationState();
+    _loadState();
   }
 
-  Future<void> _loadNotificationState() async {
+  Future<void> _loadState() async {
     final prefs = await SharedPreferences.getInstance();
-    if (mounted) {
-      setState(() {
-        _mobileNotificationsEnabled = prefs.getBool('mobileNotificationsEnabled') ?? false;
-      });
-    }
+    if (mounted) setState(() => _enabled = prefs.getBool('mobileNotificationsEnabled') ?? false);
     try {
       final profile = await ApiService().fetchUserProfile();
       if (profile != null && mounted) {
         final enabled = profile['mobileNotificationsEnabled'] == true;
         await prefs.setBool('mobileNotificationsEnabled', enabled);
-        setState(() {
-          _mobileNotificationsEnabled = enabled;
-        });
+        setState(() => _enabled = enabled);
       }
     } catch (e) {
       debugPrint('Error syncing notification state: $e');
     }
   }
 
-  void _showSnackBar(SnackBar snackBar) {
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
-    }
+  /// Short explanation before the system permission prompt; the app works
+  /// without notifications, so the user can decline.
+  Future<bool> _confirmTurnOn() async {
+    final l10n = AppLocalizations.of(context);
+    final result = await showAdaptiveDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog.adaptive(
+        title: Text(l10n.notifPromptTitle),
+        content: Text(l10n.notifMobileDescription),
+        actions: [
+          adaptiveAction(ctx, l10n.notifPromptNotNow, false),
+          adaptiveAction(ctx, l10n.notifPromptEnable, true),
+        ],
+      ),
+    );
+    return result == true;
   }
 
-  Future<void> _toggleNotifications() async {
-    if (_isToggling) return;
-    setState(() => _isToggling = true);
+  Widget adaptiveAction(BuildContext ctx, String label, bool value) =>
+      TextButton(onPressed: () => Navigator.of(ctx).pop(value), child: Text(label));
 
-    final targetState = !_mobileNotificationsEnabled;
+  Future<void> _toggle() async {
+    if (_toggling) return;
+    final l10n = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    final target = !_enabled;
+    if (target && !await _confirmTurnOn()) return;
+    setState(() => _toggling = true);
 
     try {
-      // Flip the actual device registration first: initialize()/unregisterDevice()
-      // report real success/failure, unlike updateUserProfile which we only want
-      // to persist once the device side is confirmed to match it.
-      final deviceOk = targetState
-          ? await NotificationService().initialize() != null
-          : await NotificationService().unregisterDevice();
-
-      if (!deviceOk) {
-        _showSnackBar(const SnackBar(
-          content: Text('Échec de la mise à jour des notifications'),
-          backgroundColor: Colors.red,
-        ));
+      final ok = await updateMobileNotifications(target);
+      if (!ok) {
+        messenger.showSnackBar(SnackBar(content: Text(l10n.notificationsFailed)));
         return;
       }
-
-      final profile = await ApiService().updateUserProfile({'mobileNotificationsEnabled': targetState});
-
-      if (profile == null) {
-        // Device state changed but the backend flag couldn't be persisted:
-        // revert the device side so both stay in sync.
-        if (targetState) {
-          await NotificationService().unregisterDevice();
-        } else {
-          await NotificationService().initialize();
-        }
-        _showSnackBar(const SnackBar(
-          content: Text('Échec de la mise à jour des notifications'),
-          backgroundColor: Colors.red,
-        ));
-        return;
-      }
-
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setBool('mobileNotificationsEnabled', targetState);
-      if (mounted) {
-        setState(() => _mobileNotificationsEnabled = targetState);
-      }
-      _showSnackBar(SnackBar(
-        content: Text(targetState
-            ? '✓ Notifications activées'
-            : '✓ Notifications désactivées'),
-        backgroundColor:
-            targetState ? const Color(0xFF22C55E) : Colors.grey[700],
+      if (mounted) setState(() => _enabled = target);
+      messenger.showSnackBar(SnackBar(
+        content: Text(target ? l10n.notificationsEnabled : l10n.notificationsDisabled),
         duration: const Duration(seconds: 2),
       ));
     } finally {
-      if (mounted) {
-        setState(() => _isToggling = false);
-      }
+      if (mounted) setState(() => _toggling = false);
     }
   }
 
-  @override
-  void dispose() {
-    _animationController.dispose();
-    super.dispose();
-  }
-
-  void _onAvatarTap() {
-    _animationController.forward().then((_) {
-      _animationController.reverse();
-    });
-    widget.onProfileTap();
+  ImageProvider _avatarImage() {
+    if (widget.avatar.isEmpty) return const AssetImage('assets/images/default_avatar.jpg');
+    if (widget.avatar.startsWith('http')) return NetworkImage(widget.avatar);
+    return AssetImage(widget.avatar);
   }
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
+    final l10n = AppLocalizations.of(context);
     return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.06),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-            spreadRadius: 2,
+        color: c.surface,
+        border: Border(bottom: BorderSide(color: c.border)),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Semantics(
+            button: true,
+            label: 'VigilArt',
+            excludeSemantics: true,
+            child: InkWell(
+              borderRadius: BorderRadius.circular(8),
+              onTap: widget.onLogoTap,
+              child: Container(
+                width: 48,
+                height: 48,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(color: c.primaryTint, borderRadius: BorderRadius.circular(8)),
+                child: const LogoMark(size: 32),
+              ),
+            ),
+          ),
+          const LogoHeader(width: 126),
+          Row(
+            children: [
+              Semantics(
+                button: true,
+                toggled: _enabled,
+                label: l10n.notifMobileTitle,
+                excludeSemantics: true,
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(8),
+                  onTap: _toggle,
+                  child: Container(
+                    width: 48,
+                    height: 48,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: c.surfaceSubtle,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: c.fieldBorder),
+                    ),
+                    child: _toggling
+                        ? const SizedBox(width: 22, height: 22, child: CircularProgressIndicator(strokeWidth: 2))
+                        : Icon(
+                            _enabled ? LucideIcons.bell : LucideIcons.bellOff,
+                            size: 22,
+                            color: _enabled ? c.primaryText : c.textMuted,
+                          ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Semantics(
+                button: true,
+                label: l10n.navProfile,
+                excludeSemantics: true,
+                child: InkWell(
+                  customBorder: const CircleBorder(),
+                  onTap: widget.onProfileTap,
+                  child: Container(
+                    width: 48,
+                    height: 48,
+                    padding: const EdgeInsets.all(3),
+                    decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: c.primary, width: 2)),
+                    child: CircleAvatar(backgroundColor: c.surfaceSubtle, backgroundImage: _avatarImage()),
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            GestureDetector(
-              onTap: widget.onLogoTap,
-              child: MouseRegion(
-                cursor: SystemMouseCursors.click,
-                child: ScaleTransition(
-                  scale: _scaleAnimation,
-                  child: Container(
-                    padding: const EdgeInsets.all(6),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF5E3B7D).withValues(alpha: 0.08),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Image.asset(
-                      'assets/icons/vigilart_app_icon.png',
-                      height: 32,
-                      width: 32,
-                      fit: BoxFit.contain,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            Text(
-              'VigilArt',
-              style: TextStyle(
-                fontFamily: "Giaza",
-                fontSize: 22,
-                fontWeight: FontWeight.w800,
-                color: const Color(0xFF1F2121),
-                letterSpacing: 0.5,
-                shadows: [
-                  Shadow(
-                    color: Colors.black.withValues(alpha: 0.05),
-                    offset: const Offset(0, 2),
-                    blurRadius: 4,
-                  ),
-                ],
-              ),
-            ),
-            Row(
-              children: [
-                GestureDetector(
-                  onTap: _toggleNotifications,
-                  child: MouseRegion(
-                    cursor: SystemMouseCursors.click,
-                    child: Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: Colors.grey[100],
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(
-                          color: Colors.grey[200]!,
-                          width: 1,
-                        ),
-                      ),
-                      child: Stack(
-                        children: [
-                          _isToggling
-                              ? const SizedBox(
-                                  width: 22,
-                                  height: 22,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                        Color(0xFF5E3B7D)),
-                                  ),
-                                )
-                              : Icon(
-                                  _mobileNotificationsEnabled
-                                      ? Icons.notifications_active_rounded
-                                      : Icons.notifications_off_rounded,
-                                  color: _mobileNotificationsEnabled
-                                      ? const Color(0xFF5E3B7D)
-                                      : Colors.grey,
-                                  size: 22,
-                                ),
-                          if (widget.notificationCount > 0 && !_isToggling)
-                            Positioned(
-                              top: 0,
-                              right: 0,
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 4,
-                                  vertical: 2,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFEF4444),
-                                  borderRadius: BorderRadius.circular(6),
-                                ),
-                                child: Text(
-                                  widget.notificationCount > 9
-                                      ? '9+'
-                                      : widget.notificationCount.toString(),
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                                ),
-                              ),
-                            ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                GestureDetector(
-                  onTap: _onAvatarTap,
-                  child: MouseRegion(
-                    cursor: SystemMouseCursors.click,
-                    child: Container(
-                      padding: const EdgeInsets.all(2),
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color: const Color(0xFF5E3B7D),
-                          width: 2,
-                        ),
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: const Color(0xFF5E3B7D).withValues(alpha: 0.15),
-                            blurRadius: 8,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: CircleAvatar(
-                        radius: 18,
-                        backgroundColor: Colors.grey[200],
-                        backgroundImage: widget.avatar.isEmpty
-                            ? const AssetImage('assets/images/default_avatar.jpg') as ImageProvider
-                            : (widget.avatar.startsWith('http')
-                                ? NetworkImage(widget.avatar)
-                                : AssetImage(widget.avatar) as ImageProvider),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
       ),
     );
   }

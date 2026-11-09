@@ -1,3 +1,7 @@
+import 'package:intl/intl.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
+import '../../../l10n/app_localizations.dart';
+import '../../../theme/app_colors.dart';
 import 'package:flutter/material.dart';
 
 class DmcaWarningBanner extends StatelessWidget {
@@ -5,33 +9,28 @@ class DmcaWarningBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFFFEF3C7),
-        border: Border.all(color: const Color(0xFFFCD34D)),
+        color: c.warningBg,
+        border: Border.all(color: c.warning.withValues(alpha: 0.3)),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(Icons.warning_amber_rounded, color: Color(0xFFD97706)),
+          Icon(LucideIcons.triangleAlert, color: c.warning, size: 20),
           const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              "Important: VigilArt never files a DMCA complaint on your behalf.",
-              style: TextStyle(
-                color: Colors.amber[900],
-                fontSize: 13,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ),
+          Expanded(child: Text(AppLocalizations.of(context).dmcaLegalNotice, style: TextStyle(color: c.text, fontSize: 13, height: 18 / 13))),
         ],
       ),
     );
   }
 }
 
+/// Three numbered steps. A finished step shows a check mark, the current step
+/// is outlined: the state is never carried by colour alone.
 class DmcaStepIndicator extends StatelessWidget {
   final int currentStep;
 
@@ -40,12 +39,14 @@ class DmcaStepIndicator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 24.0),
+      padding: const EdgeInsets.symmetric(vertical: 16),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [1, 2, 3]
-            .map((step) => DmcaStepDot(step: step, currentStep: currentStep))
-            .toList(),
+        children: [
+          for (final step in [1, 2, 3]) ...[
+            DmcaStepDot(step: step, currentStep: currentStep),
+            if (step < 3) Expanded(child: Container(height: 2, color: step < currentStep ? context.colors.primary : context.colors.fieldBorder)),
+          ],
+        ],
       ),
     );
   }
@@ -59,23 +60,24 @@ class DmcaStepDot extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     final isActive = currentStep == step;
     final isPast = step < currentStep;
-    final color = isActive ? Colors.blue : (isPast ? Colors.green : Colors.grey[300]!);
-
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 8),
-      width: 48,
-      height: 48,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: isActive ? Colors.blue[50] : (isPast ? Colors.green[50] : Colors.grey[50]),
-        border: Border.all(color: color, width: 2),
-      ),
-      alignment: Alignment.center,
-      child: Text(
-        isPast ? '✓' : '$step',
-        style: TextStyle(color: color, fontWeight: FontWeight.bold, fontSize: 18),
+    return Semantics(
+      label: '$step',
+      selected: isActive,
+      child: Container(
+        width: 32,
+        height: 32,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: isPast ? c.primary : Colors.transparent,
+          border: Border.all(color: isPast || isActive ? c.primary : c.fieldBorder, width: 2),
+        ),
+        alignment: Alignment.center,
+        child: isPast
+            ? Icon(LucideIcons.check, size: 18, color: c.onPrimary)
+            : Text('$step', style: TextStyle(color: isActive ? c.primaryText : c.textMuted, fontWeight: FontWeight.w600)),
       ),
     );
   }
@@ -103,20 +105,19 @@ class DmcaHistorySection extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey[200]!),
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 8, offset: const Offset(0, 2))],
+        border: Border.all(color: context.colors.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Padding(
-            padding: EdgeInsets.all(16.0),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text("Notices History", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                SizedBox(height: 4),
-                Text("Load previous notices to continue or view them.", style: TextStyle(fontSize: 13, color: Colors.grey)),
+                Text(AppLocalizations.of(context).dmcaHistory, style: Theme.of(context).textTheme.titleMedium),
+                const SizedBox(height: 4),
+                Text(AppLocalizations.of(context).dmcaHistorySubtitle, style: TextStyle(fontSize: 13, color: context.colors.textMuted)),
               ],
             ),
           ),
@@ -161,7 +162,7 @@ class DmcaNoticeHistoryTile extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
             decoration: BoxDecoration(
-              color: isSubmitted ? Colors.green[50] : Colors.amber[50],
+              color: isSubmitted ? context.colors.successBg : context.colors.warningBg,
               borderRadius: BorderRadius.circular(4),
             ),
             child: Text(
@@ -169,16 +170,16 @@ class DmcaNoticeHistoryTile extends StatelessWidget {
               style: TextStyle(
                 fontSize: 10,
                 fontWeight: FontWeight.bold,
-                color: isSubmitted ? Colors.green[700] : Colors.amber[700],
+                color: isSubmitted ? context.colors.success : context.colors.warning,
               ),
             ),
           )
         ],
       ),
-      subtitle: Text("${date.month}/${date.day}/${date.year}", style: const TextStyle(fontSize: 12)),
+      subtitle: Text(DateFormat.yMMMd(Localizations.localeOf(context).toString()).format(date), style: const TextStyle(fontSize: 12)),
       trailing: OutlinedButton.icon(
-        icon: const Icon(Icons.open_in_new, size: 16),
-        label: const Text("Load"),
+        icon: const Icon(LucideIcons.externalLink, size: 16),
+        label: Text(AppLocalizations.of(context).dmcaLoad),
         style: OutlinedButton.styleFrom(visualDensity: VisualDensity.compact),
         onPressed: () => onLoadNotice(notice),
       ),

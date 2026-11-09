@@ -1,3 +1,6 @@
+import 'package:lucide_icons_flutter/lucide_icons.dart';
+import '../../../l10n/app_localizations.dart';
+import '../../../theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../dmca_form_utils.dart';
@@ -25,13 +28,13 @@ class DmcaProfileStep extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(20),
-      decoration: _cardDecoration(),
+      decoration: _cardDecoration(context),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text("DMCA Profile", style: TextStyle(color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold)),
+          Text(AppLocalizations.of(context).dmcaProfileTitle, style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: 4),
-          Text("These details are reused to prefill matching platform form fields.", style: TextStyle(color: Colors.grey[600], fontSize: 13)),
+          Text(AppLocalizations.of(context).dmcaProfileSubtitle, style: TextStyle(color: context.colors.textMuted, fontSize: 13)),
           const SizedBox(height: 24),
           _buildTextField("Full name", profileForm.fullName, (value) => onFieldChanged((v) => profileForm.fullName = v, value)),
           _buildTextField("Email", profileForm.email, (value) => onFieldChanged((v) => profileForm.email = v, value)),
@@ -49,14 +52,12 @@ class DmcaProfileStep extends StatelessWidget {
                 child: ElevatedButton(
                   onPressed: isSaving ? null : onSave,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.black87,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
+                                        padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
                   child: isSaving
-                      ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                      : const Text("Save profile", style: TextStyle(fontWeight: FontWeight.w700)),
+                      ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, ))
+                      : Text(AppLocalizations.of(context).dmcaSaveProfile),
                 ),
               ),
               const SizedBox(width: 12),
@@ -64,12 +65,10 @@ class DmcaProfileStep extends StatelessWidget {
                 child: ElevatedButton(
                   onPressed: onNext,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF5E3B7D),
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
+                                        padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
-                  child: const Text("Next →", style: TextStyle(fontWeight: FontWeight.w700)),
+                  child: Text(AppLocalizations.of(context).next),
                 ),
               ),
             ],
@@ -135,15 +134,15 @@ class DmcaPreparationStep extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(20),
-      decoration: _cardDecoration(),
+      decoration: _cardDecoration(context),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text("Notice Preparation", style: TextStyle(color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold)),
+          Text(AppLocalizations.of(context).dmcaNoticeTitle, style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: 4),
-          Text("Choose a platform and fill in the requested fields.", style: TextStyle(color: Colors.grey[600], fontSize: 13)),
+          Text(AppLocalizations.of(context).dmcaNoticeSubtitle, style: TextStyle(color: context.colors.textMuted, fontSize: 13)),
           const SizedBox(height: 24),
-          const Text("Target Platform", style: TextStyle(color: Colors.black87, fontSize: 14, fontWeight: FontWeight.w600)),
+          Text(AppLocalizations.of(context).dmcaPlatform, style: Theme.of(context).textTheme.labelMedium),
           const SizedBox(height: 8),
          DropdownButtonFormField<String>(
             initialValue: platform?['slug'] as String?,
@@ -179,31 +178,31 @@ class DmcaPreparationStep extends StatelessWidget {
             Container(
               margin: const EdgeInsets.only(bottom: 24),
               padding: const EdgeInsets.all(12),
-              decoration: const BoxDecoration(border: Border(left: BorderSide(color: Colors.green, width: 4))),
-              child: Text("Notice Status: ${activeNotice!['status']}", style: const TextStyle(fontWeight: FontWeight.bold)),
+              decoration: const BoxDecoration(border: Border(left: BorderSide(color: Colors.transparent, width: 0))),
+              child: Text("${AppLocalizations.of(context).dmcaStatus}: ${activeNotice!['status']}", style: const TextStyle(fontWeight: FontWeight.w600)),
             ),
           Row(
             children: [
               OutlinedButton(
                 onPressed: onBack,
                 style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
-                child: const Text("← Back", style: TextStyle(color: Colors.black87)),
+                child: Text(AppLocalizations.of(context).back),
               ),
               const SizedBox(width: 12),
               Expanded(
                 child: ElevatedButton(
                   onPressed: isPreparing ? null : onPrepareNotice,
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.black87, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(vertical: 16), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
+                  style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
                   child: isPreparing
-                      ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                      : const Text("Prepare notice", style: TextStyle(fontWeight: FontWeight.w700)),
+                      ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, ))
+                      : Text(AppLocalizations.of(context).dmcaPrepareNotice),
                 ),
               ),
               const SizedBox(width: 12),
               ElevatedButton(
                 onPressed: onNext,
-                style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF5E3B7D), foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
-                child: const Text("Next →", style: TextStyle(fontWeight: FontWeight.w700)),
+                style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
+                child: Text(AppLocalizations.of(context).next),
               ),
             ],
           ),
@@ -239,13 +238,13 @@ class DmcaSubmissionStep extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(20),
-      decoration: _cardDecoration(),
+      decoration: _cardDecoration(context),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text("Ready to Send", style: TextStyle(color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold)),
+          Text(AppLocalizations.of(context).dmcaSendTitle, style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: 4),
-          Text("Follow the steps below to submit your notice.", style: TextStyle(color: Colors.grey[600], fontSize: 13)),
+          Text(AppLocalizations.of(context).dmcaSendSubtitle, style: TextStyle(color: context.colors.textMuted, fontSize: 13)),
           const SizedBox(height: 24),
           if (platform != null && platform['dmcaUrl'] != null && platform['dmcaUrl'].toString().isNotEmpty)
             Padding(
@@ -254,17 +253,17 @@ class DmcaSubmissionStep extends StatelessWidget {
                 width: double.infinity,
                 child: OutlinedButton.icon(
                   onPressed: () => launchUrl(Uri.parse(platform['dmcaUrl'])),
-                  icon: const Icon(Icons.open_in_new, size: 18),
-                  label: const Text("Open Platform Web Form"),
+                  icon: const Icon(LucideIcons.externalLink, size: 18),
+                  label: Text(AppLocalizations.of(context).dmcaOpenPlatformForm),
                   style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 14), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
                 ),
               ),
             ),
-          if (generatedContent == null) _buildGenerateContentSection(),
+          if (generatedContent == null) _buildGenerateContentSection(context),
           if (generatedContent != null) DmcaGeneratedContentSection(
             emailData: generatedContent!['email'],
-            onCopySubject: () => onCopyText(generatedContent!['email']['subject'], 'Subject copied!'),
-            onCopyBody: () => onCopyText(generatedContent!['email']['body'], 'Email body copied!'),
+            onCopySubject: () => onCopyText(generatedContent!['email']['subject'], AppLocalizations.of(context).dmcaCopySubject),
+            onCopyBody: () => onCopyText(generatedContent!['email']['body'], AppLocalizations.of(context).dmcaCopyBody),
             onLaunchEmail: onLaunchEmail,
             onOpenPdf: onOpenPdf,
           ),
@@ -272,26 +271,26 @@ class DmcaSubmissionStep extends StatelessWidget {
           OutlinedButton(
             onPressed: onBack,
             style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
-            child: const Text("← Back", style: TextStyle(color: Colors.black87)),
+            child: Text(AppLocalizations.of(context).back),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildGenerateContentSection() {
+  Widget _buildGenerateContentSection(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(border: Border.all(color: Colors.grey[300]!), borderRadius: BorderRadius.circular(8)),
+      decoration: BoxDecoration(border: Border.all(color: context.colors.border), borderRadius: BorderRadius.circular(8)),
       child: Column(
         children: [
-          const Text("Generate the email and PDF attachments before sending."),
+          Text(AppLocalizations.of(context).dmcaGenerateFirst),
           const SizedBox(height: 16),
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
               onPressed: isGenerating ? null : onGenerateContent,
-              style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF5E3B7D), foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(vertical: 16), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
+              style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
               child: isGenerating ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)) : const Text("Generate Content"),
             ),
           )
@@ -327,31 +326,31 @@ class DmcaGeneratedContentSection extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text("To: ${emailData['to']}", style: const TextStyle(fontWeight: FontWeight.bold)),
+              Text("${AppLocalizations.of(context).dmcaEmailTo}: ${emailData['to']}", style: const TextStyle(fontWeight: FontWeight.w600, fontFamily: 'GeistMono', fontSize: 13)),
               const SizedBox(height: 8),
-              Text("Subject: ${emailData['subject']}", style: const TextStyle(fontWeight: FontWeight.bold)),
+              Text("${AppLocalizations.of(context).dmcaEmailSubject}: ${emailData['subject']}", style: const TextStyle(fontWeight: FontWeight.w600, fontFamily: 'GeistMono', fontSize: 13)),
             ],
           ),
         ),
         const SizedBox(height: 16),
         Row(
           children: [
-            Expanded(child: OutlinedButton.icon(icon: const Icon(Icons.copy, size: 16), label: const Text("Copy Subject"), onPressed: onCopySubject)),
+            Expanded(child: OutlinedButton.icon(icon: const Icon(LucideIcons.copy, size: 16), label: Text(AppLocalizations.of(context).dmcaCopySubject), onPressed: onCopySubject)),
             const SizedBox(width: 12),
-            Expanded(child: OutlinedButton.icon(icon: const Icon(Icons.copy, size: 16), label: const Text("Copy Body"), onPressed: onCopyBody)),
+            Expanded(child: OutlinedButton.icon(icon: const Icon(LucideIcons.copy, size: 16), label: Text(AppLocalizations.of(context).dmcaCopyBody), onPressed: onCopyBody)),
           ],
         ),
         const SizedBox(height: 12),
-        SizedBox(width: double.infinity, child: OutlinedButton.icon(icon: const Icon(Icons.email_outlined), label: const Text("Open Mail App"), style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 14)), onPressed: onLaunchEmail)),
+        SizedBox(width: double.infinity, child: OutlinedButton.icon(icon: const Icon(LucideIcons.mail), label: Text(AppLocalizations.of(context).dmcaOpenMail), style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 14)), onPressed: onLaunchEmail)),
         const SizedBox(height: 12),
-        SizedBox(width: double.infinity, child: ElevatedButton.icon(icon: const Icon(Icons.description_outlined), label: const Text("Download PDF"), style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF5E3B7D), foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(vertical: 14)), onPressed: onOpenPdf)),
+        SizedBox(width: double.infinity, child: ElevatedButton.icon(icon: const Icon(LucideIcons.fileText), label: Text(AppLocalizations.of(context).dmcaDownloadPdf), style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 14)), onPressed: onOpenPdf)),
       ],
     );
   }
 }
 
-BoxDecoration _cardDecoration() {
-  return BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: Colors.grey[200]!), boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 8, offset: const Offset(0, 2))]);
+BoxDecoration _cardDecoration(BuildContext context) {
+  return BoxDecoration(color: context.colors.surface, borderRadius: BorderRadius.circular(12), border: Border.all(color: context.colors.border));
 }
 
 InputDecoration _buildTextFieldDecoration() {
