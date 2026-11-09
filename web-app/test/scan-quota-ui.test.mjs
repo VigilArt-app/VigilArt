@@ -85,15 +85,24 @@ const renderActions = (state, locale = "en", scanLoading = false) => {
   return renderToStaticMarkup(React.createElement(Actions));
 };
 
-test("shows server free and paid quotas right under Create report", () => {
+test("shows server free and paid quotas right under Start a scan", () => {
   for (const [remaining, limit] of [[2, 3], [7, 10]]) {
     const html = renderActions({ quota: { remaining, limit, nextAvailableAt: null }, loading: false, error: null });
     assert.match(html, new RegExp(`${remaining} scans? left out of ${limit}`));
-    assert.match(html, /available again 30 days after it started/);
-    assert.ok(html.indexOf("Create report") < html.indexOf("left out of"));
+    assert.match(html, /Each used scan comes back 30 days later/);
+    assert.ok(html.indexOf("Start a scan") < html.indexOf("left out of"));
     assert.doesNotMatch(html, /disabled=""/);
     assert.doesNotMatch(html, /upgrade|pro plan/i);
   }
+});
+
+test("French dashboard actions say import and start a scan, and explain the 30-day quota", () => {
+  const html = renderActions({ quota: { remaining: 2, limit: 3, nextAvailableAt: null }, loading: false, error: null }, "fr");
+  assert.match(html, /Importer des œuvres/);
+  assert.match(html, /Lancer un scan/);
+  assert.match(html, /Chaque scan utilisé vous est rendu 30 jours plus tard/);
+  // "Télécharger" reads as a download in French; the dashboard only sends files.
+  assert.doesNotMatch(html, /[Tt]éléchar/);
 });
 
 test("known exhausted quota disables launch and shows the next date in either language", () => {

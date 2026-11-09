@@ -213,12 +213,12 @@ for (const surface of ["category", "report", "new-report"]) {
   test(`${surface}: modal matches hide every field and attribute, support keyboard reveal and reset`, async () => {
     const { context, page } = await openPage("/dashboard");
     try {
-      // "Create report" does nothing until the signed-in user has loaded.
+      // "Start a scan" does nothing until the signed-in user has loaded.
       await page.waitForLoadState("networkidle");
       const open = async () => {
         if (surface === "category") await page.getByRole("button", { name: /Other.*100%/ }).click();
         else if (surface === "report") await page.getByRole("button", { name: /View reposts from/ }).evaluate((node) => node.click());
-        else await page.getByRole("button", { name: "Create report", exact: true }).click();
+        else await page.getByRole("button", { name: "Start a scan", exact: true }).click();
         await page.getByRole("dialog").getByText(/Safe source/).first().waitFor();
       };
       await open();
