@@ -101,7 +101,7 @@ class NotificationService {
           headers: headers,
           body: jsonEncode({
             'token': token,
-            'platform': 'ANDROID', // To update when we'll support IOS as well
+            'platform': defaultTargetPlatform == TargetPlatform.iOS ? 'IOS' : 'ANDROID',
           }),
         );
       });

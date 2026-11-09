@@ -88,9 +88,15 @@ export class UserCreateDTO extends createZodDto(UserCreateSchema) {}
 
 // Not strict: unknown keys are stripped, which drops subscriptionTier and the
 // extra profile fields (country, language) the mobile app sends.
+//
+// notificationsEnabled is the key sent by mobile builds installed before the
+// notification settings were split by device (#360). It is still accepted for
+// one release and mapped to mobileNotificationsEnabled by the users service.
 export const UserUpdateSchema = UserGetSchema.omit({
   id: true,
   createdAt: true,
   subscriptionTier: true,
-}).partial();
+})
+  .partial()
+  .extend({ notificationsEnabled: z.boolean().optional() });
 export class UserUpdateDTO extends createZodDto(UserUpdateSchema) {}

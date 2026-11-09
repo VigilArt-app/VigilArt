@@ -33,13 +33,27 @@ void main() async {
   if (!kIsWeb && await initFirebase()) {
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
-    bool? mobileNotificationsEnabled = prefs.getBool('mobileNotificationsEnabled');
+    bool? mobileNotificationsEnabled = migrateNotificationPreference(prefs);
     if (isLoggedIn && mobileNotificationsEnabled == true) {
       NotificationService().initialize();
     }
   }
 
   runApp(VigilArtApp(isLoggedIn: isLoggedIn));
+}
+
+/// Reads the push preference. Builds older than the notification split
+/// (#360) stored it as `notificationsEnabled`: copy that value once so users
+/// who had push notifications on keep them after updating (#364).
+bool? migrateNotificationPreference(SharedPreferences prefs) {
+  final current = prefs.getBool('mobileNotificationsEnabled');
+  if (current != null) return current;
+  final legacy = prefs.getBool('notificationsEnabled');
+  if (legacy != null) {
+    prefs.setBool('mobileNotificationsEnabled', legacy);
+    prefs.remove('notificationsEnabled');
+  }
+  return legacy;
 }
 
 Future<bool> checkLoginStatus(SharedPreferences prefs) async {

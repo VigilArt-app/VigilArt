@@ -129,10 +129,20 @@ export class UsersService {
   ): Promise<UserGet> {
     this.logger.log(`Updating user ${id}`);
 
+    // Installed mobile builds still send the pre-split key (#365): treat it as
+    // the mobile preference unless the new key is also present.
+    const { notificationsEnabled, ...data } = updateUserDto;
+    if (
+      notificationsEnabled !== undefined &&
+      data.mobileNotificationsEnabled === undefined
+    ) {
+      data.mobileNotificationsEnabled = notificationsEnabled;
+    }
+
     const oldUser = await this.findOneWithoutPassword(id);
     const user = await this.prisma.user.update({
       where: { id },
-      data: updateUserDto,
+      data,
       omit: PUBLIC_USER_OMIT
     });
 
