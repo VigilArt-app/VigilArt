@@ -31,6 +31,10 @@ module.exports = {
           {
             path: 'mobile-app/build/app/outputs/flutter-apk/vigilart-*.apk',
             label: 'VigilArt Android APK'
+          },
+          {
+            path: 'mobile-app/build/app/outputs/flutter-apk/vigilart-*.aab',
+            label: 'VigilArt Android App Bundle (Google Play)'
           }
         ],
         releaseNameTemplate: 'Mobile App - v<%= nextRelease.version %>',
