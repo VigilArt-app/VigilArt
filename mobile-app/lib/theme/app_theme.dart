@@ -74,7 +74,9 @@ ThemeData buildAppTheme(Brightness brightness) {
         labelLarge: TextStyle(fontSize: 16, height: 24 / 16, fontWeight: FontWeight.w500, color: c.text),
         labelMedium: TextStyle(fontSize: 14, height: 20 / 14, fontWeight: FontWeight.w500, color: c.text),
         labelSmall: TextStyle(fontSize: 12, height: 16 / 12, fontWeight: FontWeight.w500, color: c.textMuted),
-      );
+      )
+      // The styles above replace the defaults, so give each one the font again.
+      .apply(fontFamily: kFontSans);
 
   const buttonShape = RoundedRectangleBorder(borderRadius: radius);
   const buttonPadding = EdgeInsets.symmetric(horizontal: 24, vertical: 14);

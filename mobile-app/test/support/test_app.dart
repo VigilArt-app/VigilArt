@@ -27,6 +27,7 @@ Future<Widget> testApp(
   return ChangeNotifierProvider<AppPreferences>.value(
     value: prefs,
     child: MaterialApp(
+      debugShowCheckedModeBanner: false,
       theme: buildAppTheme(Brightness.light),
       darkTheme: buildAppTheme(Brightness.dark),
       themeMode: themeMode,
