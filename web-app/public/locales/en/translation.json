@@ -91,7 +91,6 @@
       "unknown_error": "Unknown error",
       "server_error": "Server error: ",
       "failed_create": "Failed to create artworks:",
-      "scan_report_failed": "Failed to generate the scan report.",
       "error_upload": "An error occurred during upload",
       "drag_or_one": "Drag and drop your artwork, or",
       "click_to_select_one": "click to select a file",
@@ -149,7 +148,7 @@
       }
     },
     "scans_report": {
-      "scan_report": "Scans Report",
+      "scan_report": "Detected reposts",
       "name": "Name",
       "matches": "Matches",
       "credited_matches": "Credited matches",
@@ -183,7 +182,7 @@
       "found": "Found",
       "visit": "Visit",
       "no_matches_for_artwork": "No matches found for this artwork",
-      "failed_to_load": "Failed to load scans report. Please try again."
+      "failed_to_load": "Failed to load detected reposts. Please try again."
     },
     "dmca_notices_history": "DMCA Notices History",
     "no_dmca_notices": "No DMCA notices yet",
@@ -297,13 +296,11 @@
     "images": "images"
   },
   "artworks_report_page": {
-    "title": "Create a report for all my artworks",
-    "subtitle": "Click to start generating a report for all your artworks.",
     "processing": "Processing...",
-    "create_report": "Create report",
+    "create_report": "Start a scan",
     "scan_quota_one": "{{count}} scan left out of {{limit}}",
     "scan_quota_other": "{{count}} scans left out of {{limit}}",
-    "scan_quota_window": "Each scan becomes available again 30 days after it started.",
+    "scan_quota_window": "Each used scan comes back 30 days after it ran.",
     "scan_quota_loading": "Loading scan quota…",
     "scan_quota_unavailable": "Scan quota unavailable.",
     "scan_quota_retry": "Retry",
