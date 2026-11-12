@@ -39,7 +39,10 @@ const POLL_TIMEOUT_MS = 10 * 60 * 1000;
 // final details fetch forever (native fetch has no timeout of its own).
 const REQUEST_TIMEOUT_MS = 15 * 1000;
 
-export const useCreateReport = (onScanQuotaChange?: () => Promise<void>): UseCreateReportResult => {
+export const useCreateReport = (
+  onScanQuotaChange?: () => Promise<void>,
+  onReportCreated?: () => void
+): UseCreateReportResult => {
   const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -208,6 +211,7 @@ export const useCreateReport = (onScanQuotaChange?: () => Promise<void>): UseCre
             stopPolling();
             refreshScanQuota();
             if (scan.reportId) {
+              onReportCreated?.();
               await fetchReportDetails(scan.reportId, runId);
             } else {
               failWith(t("artworks_report_page.created_but_no_id"));
