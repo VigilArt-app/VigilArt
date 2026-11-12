@@ -8,6 +8,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarFooter,
+  useSidebar,
 } from "../components/ui/sidebar"
 import { SidebarPreferences } from "./sidebar-preferences"
 import Image from "next/image";
@@ -19,6 +20,9 @@ import { useTranslation } from "react-i18next";
 
 export function AppSidebar() {
   const { t } = useTranslation();
+  // On phones the sidebar is an overlay: close it once a page is chosen.
+  const { setOpenMobile } = useSidebar();
+  const closeOnPhone = () => setOpenMobile(false);
   const items = [
     {
       title: t("sidebar.profile"),
@@ -65,7 +69,7 @@ export function AppSidebar() {
               {items.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild className="h-auto px-5 py-4 text-lg [&>svg]:size-5">
-                    <Link href={item.url}>
+                    <Link href={item.url} onClick={closeOnPhone}>
                       <item.icon />
                       <span>{item.title}</span>
                     </Link>
@@ -95,7 +99,7 @@ export function AppSidebar() {
               {/* A way out, not a destination: quieter than the navigation,
                   and red only once the pointer is on it. */}
               <SidebarMenuButton asChild className="h-auto px-5 py-3 text-base text-sidebar-foreground/70 hover:bg-destructive/10 hover:text-destructive [&>svg]:size-5">
-                <Link href={item.url}>
+                <Link href={item.url} onClick={closeOnPhone}>
                   <item.icon />
                   <span>{item.title}</span>
                 </Link>

@@ -16,7 +16,7 @@ export default function DashboardPage() {
     useStatisticsData(statisticsRange, refreshKey);
 
   return (
-    <div className="p-8 space-y-6 w-full">
+    <div className="p-4 sm:p-8 space-y-6 w-full">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 w-full">
         <ScansReport refreshKey={refreshKey} />
         <StatisticsPanel

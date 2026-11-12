@@ -5,6 +5,7 @@ import { ArtworkWithInsights, getArtworkResultsState, getArtworkStatus } from ".
 import { ArtworkStatusBadge } from "./ArtworkStatusBadge";
 import { useArtworkImageUrl } from "./hooks/useArtworkImageUrl";
 import { useTranslation } from "react-i18next";
+import { X } from "lucide-react";
 import { CategoryFilterSelect } from "../../../components/matches/CategoryFilterSelect";
 import { RestrictedMatch, matchIdentity } from "../../../components/matches/RestrictedMatch";
 import { mostRecentMatch } from "../../../components/matches/mostRecentMatch";
@@ -18,9 +19,10 @@ import {
 
 interface ArtworkDetailsProps {
   artwork: ArtworkWithInsights;
+  onClose: () => void;
 }
 
-export function ArtworkDetails({ artwork }: ArtworkDetailsProps) {
+export function ArtworkDetails({ artwork, onClose }: ArtworkDetailsProps) {
   const { t, i18n } = useTranslation();
   const status = getArtworkStatus(artwork);
   const resultsState = getArtworkResultsState(artwork);
@@ -45,9 +47,19 @@ export function ArtworkDetails({ artwork }: ArtworkDetailsProps) {
   const visiblePages = filterAndSortMatches(matchingPages, category);
 
   return (
-    <div className="w-96 border-l bg-background p-6 overflow-y-auto scrollbar-soft">
+    // Below lg a 384px side panel leaves the grid unusable: it covers the page instead.
+    // `w-96 border-l` stay unprefixed: browser tests locate the panel by them.
+    <div className="w-96 border-l bg-background p-6 overflow-y-auto scrollbar-soft max-lg:fixed max-lg:inset-x-0 max-lg:bottom-0 max-lg:top-14 max-lg:z-30 max-lg:w-auto max-lg:border-l-0 max-lg:p-4 md:max-lg:top-0 md:max-lg:left-(--sidebar-width)">
       <div className="bg-card text-card-foreground border shadow-sm rounded-lg p-4 mb-4 flex items-center justify-between">
         <h2 className="text-xl font-bold">{t("artwork_gallery_page.selected_artwork")}</h2>
+        <button
+          type="button"
+          onClick={onClose}
+          className="-m-2 flex size-11 items-center justify-center rounded-full hover:bg-muted lg:hidden"
+          aria-label={t("common.close")}
+        >
+          <X className="size-5" />
+        </button>
       </div>
 
       <div className="space-y-4">

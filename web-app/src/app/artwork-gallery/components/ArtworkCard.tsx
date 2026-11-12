@@ -70,21 +70,22 @@ export function ArtworkCard({
           )}
         </div>
 
+        {/* Revealed on hover with a mouse; always shown on touch screens, which cannot hover. */}
         <div className="ml-auto flex shrink-0 gap-2">
           <button
             onClick={(e) => {
               e.stopPropagation();
               onEdit?.(artwork, e);
             }}
-            className="bg-background hover:bg-muted text-foreground p-2.5 rounded-full opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-[opacity,background-color] shadow-md border"
-            aria-label={t("artwork_gallery_page.edit_description")}
+            className="bg-background hover:bg-muted text-foreground p-2.5 rounded-full opacity-0 group-hover:opacity-100 focus-visible:opacity-100 pointer-coarse:opacity-100 transition-[opacity,background-color] shadow-md border"
+            aria-label={t("artwork_gallery_page.edit_artwork_title")}
           >
             <Pencil className="w-5 h-5" />
           </button>
 
           <button
             onClick={(e) => onDelete(artwork.id, e)}
-            className="bg-background text-destructive hover:bg-destructive-muted p-2.5 rounded-full opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-[opacity,background-color] shadow-md border"
+            className="bg-background text-destructive hover:bg-destructive-muted p-2.5 rounded-full opacity-0 group-hover:opacity-100 focus-visible:opacity-100 pointer-coarse:opacity-100 transition-[opacity,background-color] shadow-md border"
             aria-label={t("artwork_gallery_page.delete_artwork")}
           >
             <Trash2 className="w-5 h-5" />
