@@ -1,4 +1,5 @@
 import { DmcaPlatformCreate } from "../../types/Dmca/Platform";
+import { genericDmcaFormSchema } from "./generic-form";
 
 export const RedbubbleDmcaFormJSON = {
     slug: "REDBUBBLE",
@@ -7,5 +8,5 @@ export const RedbubbleDmcaFormJSON = {
     email: "dmca@redbubble.com",
     domain: "https://www.redbubble.com/",
     websiteCategory: "MARKETPLACES",
-    formSchema: []
+    formSchema: genericDmcaFormSchema
 } as const satisfies DmcaPlatformCreate;

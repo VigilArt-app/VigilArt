@@ -1,4 +1,5 @@
 import { DmcaPlatformCreate } from "../../types/Dmca/Platform";
+import { genericDmcaFormSchema } from "./generic-form";
 
 export const EtsyDmcaFormJSON = {
     slug: "ETSY",
@@ -7,5 +8,5 @@ export const EtsyDmcaFormJSON = {
     email: "legal@etsy.com",
     domain: "https://www.etsy.com/",
     websiteCategory: "MARKETPLACES",
-    formSchema: []
+    formSchema: genericDmcaFormSchema
 } as const satisfies DmcaPlatformCreate;

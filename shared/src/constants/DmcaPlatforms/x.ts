@@ -1,4 +1,5 @@
 import { DmcaPlatformCreate } from "../../types/Dmca/Platform";
+import { genericDmcaFormSchema } from "./generic-form";
 
 export const XDmcaFormJSON = {
     slug: "X",
@@ -7,5 +8,5 @@ export const XDmcaFormJSON = {
     email: "copyright@x.com",
     domain: "https://x.com/",
     websiteCategory: "SOCIAL",
-    formSchema: []
+    formSchema: genericDmcaFormSchema
 } as const satisfies DmcaPlatformCreate;
