@@ -6,7 +6,8 @@
   },
   "common": {
     "more_info": "Plus d'informations",
-    "download_apk": "Télécharger l'APK"
+    "download_apk": "Télécharger l'APK",
+    "close": "Fermer"
   },
   "login_page": {
     "welcome": "Bienvenue",
@@ -61,6 +62,7 @@
       "click_to_select": "cliquez pour sélectionner des fichiers",
       "supported_formats": "Formats supportés : JPEG, PNG",
       "cancel": "Annuler",
+      "remove_file": "Retirer ce fichier",
       "upload": "Importer",
       "uploaded_files": "Importer",
       "uploading": "Importation en cours...",

@@ -49,7 +49,7 @@ export function DmcaSubmissionStep({
   const isSubmitted = activeNotice?.status === "SUBMITTED";
 
   return (
-    <div className="rounded-xl border p-8 space-y-6">
+    <div className="rounded-xl border p-4 sm:p-8 space-y-6">
       <div>
         <h2 className="text-2xl font-bold">{t("dmca_page.send_title")}</h2>
         <p className="text-muted-foreground mt-2">{t("dmca_page.send_subtitle")}</p>
@@ -59,7 +59,7 @@ export function DmcaSubmissionStep({
         <div className="space-y-4">
           <div className="rounded-lg border p-4 space-y-3">
             {selectedPlatform.dmcaUrl ? (
-              <Button size="lg" asChild className="w-full text-base">
+              <Button size="lg" asChild className="w-full text-base h-auto min-h-11 whitespace-normal py-2">
                 <a href={selectedPlatform.dmcaUrl} target="_blank" rel="noopener noreferrer">
                   <ExternalLink className="size-5 mr-2" />
                   {t("dmca_page.open_platform_form")}
@@ -104,13 +104,13 @@ export function DmcaSubmissionStep({
                 </Button>
               </div>
 
-              <Button size="lg" asChild variant="outline" className="w-full text-base">
+              <Button size="lg" asChild variant="outline" className="w-full text-base h-auto min-h-11 whitespace-normal py-2">
                 <a href={mailtoHref} className="gap-2">
                   ✉️ {t("dmca_page.open_mail_app")}
                 </a>
               </Button>
 
-              <Button size="lg" asChild className="w-full gap-2 text-base">
+              <Button size="lg" asChild className="w-full gap-2 text-base h-auto min-h-11 whitespace-normal py-2">
                 <a href={generatedContent.pdf.url} target="_blank" rel="noopener noreferrer">
                   📄 {t("dmca_page.download_pdf")}
                 </a>
@@ -135,7 +135,7 @@ export function DmcaSubmissionStep({
             variant="outline"
             onClick={() => setConfirmOpen(true)}
             disabled={submittingStatus}
-            className="gap-2 text-base"
+            className="gap-2 text-base h-auto min-h-11 whitespace-normal py-2"
           >
             {submittingStatus && <Loader2 className="size-5 animate-spin" />}
             {t("dmca_page.mark_submitted")}
@@ -143,7 +143,8 @@ export function DmcaSubmissionStep({
         </div>
       )}
 
-      <div className="flex gap-3 justify-between pt-4">
+      {/* Long French labels: buttons wrap their text and the row wraps on phones. */}
+      <div className="flex flex-wrap gap-3 justify-between pt-4">
         <Button className="text-base" size="lg" variant="outline" onClick={onBack} disabled={isSubmitted}>
           ← {t("dmca_page.back")}
         </Button>

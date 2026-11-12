@@ -92,7 +92,7 @@ export function UploadModal({ open, onOpenChange, onUploadComplete }: UploadModa
             onDescriptionChange={updateDescription}
           />
 
-          <div className="flex gap-3 justify-end pt-4 border-t">
+          <div className="flex flex-wrap gap-3 justify-end pt-4 border-t">
             <Button
               variant="outline"
               onClick={() => handleOpenChange(false)}

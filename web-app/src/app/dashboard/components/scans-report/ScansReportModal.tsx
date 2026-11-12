@@ -44,7 +44,7 @@ export function ScansReportModal({ artwork, onClose }: ScansReportModalProps) {
 
   return (
     <Dialog open={!!artwork} onOpenChange={(open) => { if (!open) onClose(); }}>
-      <DialogContent className="w-full max-w-2xl max-h-[80vh] overflow-y-auto scrollbar-soft">
+      <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto scrollbar-soft">
         <DialogHeader>
           <DialogTitle>{artwork.title || t("dashboard_page.scans_report.unknown_artwork")}</DialogTitle>
         </DialogHeader>

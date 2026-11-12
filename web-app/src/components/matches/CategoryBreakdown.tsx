@@ -123,7 +123,7 @@ export function CategoryBreakdown({
       </div>
       )}
 
-      <ul className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
+      <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1 text-sm">
         {slices.map((slice) => (
           <li key={slice.category}>
             <CategoryLegendRow slice={slice} onSelect={onSelect} />

@@ -6,7 +6,8 @@
   },
   "common": {
     "more_info": "More information",
-    "download_apk": "Download APK"
+    "download_apk": "Download APK",
+    "close": "Close"
   },
   "login_page": {
     "welcome": "Welcome",
@@ -61,6 +62,7 @@
       "click_to_select": "click to select files",
       "supported_formats": "Supported formats: JPEG, PNG",
       "cancel": "Cancel",
+      "remove_file": "Remove this file",
       "upload": "Upload",
       "uploaded_files": "Upload files",
       "uploading": "Uploading...",

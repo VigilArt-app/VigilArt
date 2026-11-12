@@ -45,7 +45,7 @@ export function DmcaPreparationStep({
   onSelectedPlatformChange,
 }: DmcaPreparationStepProps) {
   return (
-    <div className="rounded-xl border p-8 space-y-6">
+    <div className="rounded-xl border p-4 sm:p-8 space-y-6">
       <div>
         <h2 className="text-2xl font-bold">{t("dmca_page.notice_title")}</h2>
         <p className="text-muted-foreground mt-2">{t("dmca_page.notice_subtitle")}</p>
@@ -69,12 +69,12 @@ export function DmcaPreparationStep({
         </div>
 
         {selectedPlatform && (
-          <div className="grid grid-cols-2 gap-6">
+          <div className="grid gap-4 sm:grid-cols-2 sm:gap-6">
             <div>
               <p className="text-sm font-semibold text-muted-foreground uppercase">
                 {t("dmca_page.platform_domain")}
               </p>
-              <p className="text-foreground mt-1">{selectedPlatform.domain || t("dmca_page.not_available")}</p>
+              <p className="text-foreground mt-1 break-all">{selectedPlatform.domain || t("dmca_page.not_available")}</p>
             </div>
             <div>
               <p className="text-sm font-semibold text-muted-foreground uppercase">
@@ -117,11 +117,11 @@ export function DmcaPreparationStep({
         )}
       </div>
 
-      <div className="flex gap-3 justify-between pt-4 border-t">
+      <div className="flex flex-wrap gap-3 justify-between pt-4 border-t">
         <Button className="text-base" size="lg" variant="outline" onClick={onBack}>
           ← {t("dmca_page.back")}
         </Button>
-        <div className="flex gap-3">
+        <div className="flex flex-wrap gap-3">
           <Button className="text-base" size="lg" onClick={onPrepareNotice} disabled={preparingNotice || !selectedPlatform}>
             {preparingNotice && <Loader2 className="size-5 animate-spin mr-2" />}
             {t("dmca_page.prepare_notice")}

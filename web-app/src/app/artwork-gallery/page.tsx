@@ -191,12 +191,13 @@ export default function ArtworkGalleryPage() {
   }
 
   return (
-    <div className="flex h-screen overflow-hidden">
+    // Phones lose 3.5rem to the menu bar (see app-shell).
+    <div className="flex h-[calc(100dvh-3.5rem)] overflow-hidden md:h-screen">
       <div
-        className="flex-1 p-8 overflow-y-auto scrollbar-soft"
+        className="flex-1 p-4 sm:p-8 overflow-y-auto scrollbar-soft"
         onClick={() => setSelectedArtwork(null)}
       >
-        <div className="bg-card text-card-foreground border shadow-sm rounded-lg p-6 mb-6 flex items-center justify-between">
+        <div className="bg-card text-card-foreground border shadow-sm rounded-lg p-4 sm:p-6 mb-6 flex flex-wrap items-center justify-between gap-4">
           <h1 className="text-3xl font-bold">
             {t("artwork_gallery_page.artwork_gallery")}
           </h1>
@@ -264,7 +265,7 @@ export default function ArtworkGalleryPage() {
         )}
       </div>
 
-      {selectedArtwork && <ArtworkDetails artwork={selectedArtwork} />}
+      {selectedArtwork && <ArtworkDetails artwork={selectedArtwork} onClose={() => setSelectedArtwork(null)} />}
 
       <DeleteDialog
         open={deleteDialogOpen}
