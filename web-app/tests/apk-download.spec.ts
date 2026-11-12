@@ -32,6 +32,28 @@ test("login and sign-up no longer show the APK button", async ({ context, page, 
 });
 
 for (const language of ["en", "fr"] as const) {
+  test(`a visitor without an account gets the APK from the landing header (${language})`, async ({ context, page, baseURL }) => {
+    await context.addCookies([{ name: "language", value: language, url: baseURL! }]);
+    const label = language === "fr" ? "App (Télécharger l'APK)" : "App (Download APK)";
+    const link = page.getByRole("banner").getByRole("link", { name: label, exact: true });
+
+    await page.setViewportSize(desktop);
+    await page.goto("/");
+    await expect(page.getByRole("banner").getByRole("link", { name: language === "fr" ? "Créer un compte" : "Sign up" })).toBeVisible({ timeout: 20_000 });
+    // The APK only installs on a phone.
+    await expect(link).toBeHidden();
+
+    // 360px is the narrowest common phone; French labels are the longest.
+    await page.setViewportSize({ width: 360, height: 740 });
+    await expect(link).toBeVisible();
+    await expect(link).toHaveAttribute("href", RELEASES_URL);
+    await expect(link).toHaveAttribute("target", "_blank");
+    await expect(page.getByRole("banner").getByRole("link", { name: language === "fr" ? "Créer un compte" : "Sign up" })).toBeInViewport();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(360);
+  });
+}
+
+for (const language of ["en", "fr"] as const) {
   test(`the APK link lives only in the phone sidebar (${language})`, async ({ context, page, baseURL }) => {
     await context.addCookies([
       { name: "language", value: language, url: baseURL! },
