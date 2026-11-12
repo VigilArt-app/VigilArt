@@ -10,13 +10,12 @@ import {
   SidebarFooter,
 } from "../components/ui/sidebar"
 import { SidebarPreferences } from "./sidebar-preferences"
-import { RELEASES_URL } from "./download-apk-button"
 import Image from "next/image";
 import Link from "next/link";
+import { RELEASES_URL } from "../lib/releases";
 
 import { Palette, User, LayoutDashboard, LogOut, ShieldAlert, Smartphone } from "lucide-react"
 import { useTranslation } from "react-i18next";
-
 
 export function AppSidebar() {
   const { t } = useTranslation();

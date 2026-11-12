@@ -434,6 +434,7 @@
   "landing_page": {
     "nav": {
       "log_in": "Se connecter",
+      "app": "App",
       "sign_up": "Créer un compte",
       "beta": "Bêta",
       "language": "Langue",
