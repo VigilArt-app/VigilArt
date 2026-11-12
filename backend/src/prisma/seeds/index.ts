@@ -9,7 +9,9 @@ const prisma = new PrismaClient({ adapter });
 async function main() {
   console.log("🌱 Starting seeding...");
 
-  await addUsers(prisma);
+  // These accounts have passwords committed in add-users.ts: never create them on a deployed server.
+  if (process.env.NODE_ENV === "production") console.log("Skipping test users (NODE_ENV=production).");
+  else await addUsers(prisma);
   await seedPlatforms(prisma);
   console.log("✅ Seeding completed.");
 }
