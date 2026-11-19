@@ -3,7 +3,6 @@
 import { usePathname } from "next/navigation";
 import { SidebarProvider, SidebarTrigger } from "../components/ui/sidebar";
 import { AppSidebar } from "../components/app-sidebar";
-import { DownloadApkButton } from "../components/download-apk-button";
 import { ThemeToggle } from "../components/toggle-theme";
 import { LanguageToggle } from "../components/ui/languageToggle";
 import { AuthProvider } from "../components/contexts/authContext";
@@ -33,8 +32,11 @@ export function AppShell({
     // otherwise a stored collapsed state (or Ctrl+B) would leave no way back.
     <SidebarProvider open>
       <AppSidebar />
-      <main className="w-full min-h-screen overflow-x-hidden">
-        <SidebarTrigger className="fixed top-4 left-4 z-50 md:hidden" />
+      {/* pt-14 keeps page content below the phone menu bar. */}
+      <main className="w-full min-h-screen overflow-x-hidden pt-14 md:pt-0">
+        <div className="fixed inset-x-0 top-0 z-40 flex h-14 items-center border-b bg-background px-2 md:hidden">
+          <SidebarTrigger className="size-11" />
+        </div>
         {children}
       </main>
     </SidebarProvider>
@@ -55,7 +57,6 @@ export function AppShell({
   ) : (
     <main className="w-full min-h-screen overflow-x-hidden">
       <div className="fixed top-4 right-4 flex items-center justify-evenly space-x-4 z-50">
-        <DownloadApkButton />
         <ThemeToggle />
         <LanguageToggle />
       </div>

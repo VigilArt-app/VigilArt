@@ -211,18 +211,18 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen relative overflow-hidden">
-      <div className="relative z-10 min-h-screen flex flex-col p-8">
+      <div className="relative z-10 min-h-screen flex flex-col p-4 sm:p-8">
         {user && (
-          <div className=" text-4xl font-bold mb-8 pt-4">
+          <div className="text-3xl sm:text-4xl font-bold mb-8 pt-4">
             {t("profil_page.welcome")}
           </div>
         )}
 
-        <div className="mr-auto w-full max-w-4xl rounded-xl shadow-sm p-8 bg-card border">
+        <div className="mr-auto w-full max-w-4xl rounded-xl shadow-sm p-4 sm:p-8 bg-card border">
           {user && (
             <div className="space-y-8">
               <div className="flex items-center justify-between gap-6">
-                <div className="flex items-center gap-6 flex-1">
+                <div className="flex min-w-0 flex-1 flex-wrap items-center gap-4 sm:gap-6">
                   {avatarDisplayUrl ? (
                     <img src={avatarDisplayUrl} alt="Profile" className="h-24 w-24 rounded-full object-cover border-2 shrink-0" />
                   ) : (
@@ -231,8 +231,8 @@ export default function ProfilePage() {
                     </div>
                   )}
 
-                  <div>
-                    <h2 className="text-2xl font-bold">
+                  <div className="min-w-0">
+                    <h2 className="text-xl sm:text-2xl font-bold break-all">
                       {user.email}
                     </h2>
                   </div>
@@ -263,7 +263,7 @@ export default function ProfilePage() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-6">
+                <div className="grid gap-6 sm:grid-cols-2">
                   <div>
                     <Label htmlFor="email" className="block text-base font-semibold mb-2">
                       {t("profil_page.email")}
@@ -357,7 +357,7 @@ export default function ProfilePage() {
                   </div>
                 </div>
 
-                <div className="flex justify-between pt-6 border-t">
+                <div className="flex flex-wrap gap-3 justify-between pt-6 border-t">
                   <Button
                     variant="destructive"
                     size="lg"
@@ -393,7 +393,7 @@ export default function ProfilePage() {
           <div className="my-4 p-4 bg-destructive-muted border border-destructive/30 rounded-md">
             <p className="text-base">{t("profil_page.delete_account_irreversible")}</p>
           </div>
-          <div className="flex gap-3 justify-end">
+          <div className="flex flex-wrap gap-3 justify-end">
             <Button
               variant="outline"
               size="lg"

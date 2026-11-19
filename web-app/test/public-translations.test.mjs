@@ -45,3 +45,9 @@ test("public information pages expose translated headings", () => {
   assert.equal(en.legal_notice_page.title, "Legal Notice");
   assert.equal(fr.legal_notice_page.title, "Mentions légales");
 });
+
+test("the French scan dialog says rapport, never the English word report", () => {
+  const dialog = fr.artworks_report_page;
+  const offending = Object.entries(dialog).filter(([, text]) => /\breport\b/i.test(text));
+  assert.deepEqual(offending, []);
+});

@@ -30,7 +30,7 @@ export function DmcaProfileStep({
   onNext,
 }: DmcaProfileStepProps) {
   return (
-    <div className="rounded-xl border p-8 space-y-6">
+    <div className="rounded-xl border p-4 sm:p-8 space-y-6">
       <div>
         <h2 className="text-2xl font-bold">{t("dmca_page.profile_title")}</h2>
         <p className="text-muted-foreground mt-2">{t("dmca_page.profile_subtitle")}</p>
@@ -133,7 +133,7 @@ export function DmcaProfileStep({
       </div>
 
       <div className="flex gap-3 justify-between flex-wrap">
-        <div className="flex gap-3">
+        <div className="flex flex-wrap gap-3">
           <Button className="text-base" size="lg" onClick={onSaveProfile} disabled={savingProfile}>
             {savingProfile && <Loader2 className="size-5 animate-spin mr-2" />}
             {t("dmca_page.save_profile")}

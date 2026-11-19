@@ -19,6 +19,8 @@ interface ScansReportTableProps {
 }
 
 const TABLE_ROW_CELL_CLASS = "py-3 px-2";
+// The thumbnail column is dropped on phones so the match counts fit without scrolling.
+const IMAGE_CELL_CLASS = `${TABLE_ROW_CELL_CLASS} hidden sm:table-cell`;
 
 // One neutral plum pill whatever the count: a match is information, not an
 // alert, so no yellow-to-red scale. Zero stays grey.
@@ -73,7 +75,7 @@ export function ScansReportTable({
                   <SortIcon field="title" sortField={sortField} sortDirection={sortDirection} />
                 </div>
               </th>
-              <th className="text-left py-3 px-2">{t("dashboard_page.scans_report.image")}</th>
+              <th className="text-left py-3 px-2 hidden sm:table-cell">{t("dashboard_page.scans_report.image")}</th>
               <th className="text-left py-3 px-2 cursor-pointer hover:bg-muted/50" onClick={() => onSort("matches")}>
                 <div className="flex items-center">
                   {t("dashboard_page.scans_report.number_of_matches")}
@@ -98,7 +100,7 @@ export function ScansReportTable({
                 {Array.from({ length: rowsPerPage - 1 }).map((_, index) => (
                   <tr key={`empty-no-data-${index}`} className="border-b">
                     <td className={TABLE_ROW_CELL_CLASS}>&nbsp;</td>
-                    <td className={TABLE_ROW_CELL_CLASS}>&nbsp;</td>
+                    <td className={IMAGE_CELL_CLASS}>&nbsp;</td>
                     <td className={TABLE_ROW_CELL_CLASS}>&nbsp;</td>
                     <td className={TABLE_ROW_CELL_CLASS}>&nbsp;</td>
                     <td className={TABLE_ROW_CELL_CLASS}>&nbsp;</td>
@@ -124,7 +126,7 @@ export function ScansReportTable({
                       }}
                     >
                       <td className={`${TABLE_ROW_CELL_CLASS} text-foreground`}>{(scan.title || t("dashboard_page.scans_report.unknown_artwork")).substring(0, 20)}</td>
-                      <td className={TABLE_ROW_CELL_CLASS}>
+                      <td className={IMAGE_CELL_CLASS}>
                         {scan.imageUrl ? (
                           <img
                             src={scan.imageUrl}
@@ -160,7 +162,7 @@ export function ScansReportTable({
                 {Array.from({ length: emptyRowsCount }).map((_, index) => (
                   <tr key={`empty-${index}`} className="border-b">
                     <td className={TABLE_ROW_CELL_CLASS}>&nbsp;</td>
-                    <td className={TABLE_ROW_CELL_CLASS}>&nbsp;</td>
+                    <td className={IMAGE_CELL_CLASS}>&nbsp;</td>
                     <td className={TABLE_ROW_CELL_CLASS}>&nbsp;</td>
                     <td className={TABLE_ROW_CELL_CLASS}>&nbsp;</td>
                     <td className={TABLE_ROW_CELL_CLASS}>&nbsp;</td>

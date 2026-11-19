@@ -1,7 +1,6 @@
 import { PrismaClient } from "@vigilart/shared/server";
 import { PrismaPg } from "@prisma/adapter-pg";
-import { addUsers } from "./add-users";
-import { seedPlatforms } from "./platforms";
+import { seedDatabase } from "./seed";
 
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
 const prisma = new PrismaClient({ adapter });
@@ -9,8 +8,7 @@ const prisma = new PrismaClient({ adapter });
 async function main() {
   console.log("🌱 Starting seeding...");
 
-  await addUsers(prisma);
-  await seedPlatforms(prisma);
+  await seedDatabase(prisma, process.env.NODE_ENV);
   console.log("✅ Seeding completed.");
 }
 

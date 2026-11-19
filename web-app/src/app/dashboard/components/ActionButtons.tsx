@@ -11,15 +11,16 @@ import { useTranslation } from "react-i18next";
 
 interface ActionButtonsProps {
   onUploadComplete?: () => void;
+  onScanComplete?: () => void;
 }
 
-export default function ActionButtons({ onUploadComplete }: ActionButtonsProps) {
+export default function ActionButtons({ onUploadComplete, onScanComplete }: ActionButtonsProps) {
   const [uploadModalOpen, setUploadModalOpen] = useState(false);
   const [reportModalOpen, setReportModalOpen] = useState(false);
   const { t, i18n } = useTranslation();
   const { quota, loading: quotaLoading, error: quotaError, refresh } = useScanQuota();
   const { loading, error, report, progress, handleCreate, resetState } =
-    useCreateReport(refresh);
+    useCreateReport(refresh, onScanComplete);
   const scanDisabled = loading || quota?.remaining === 0;
 
   const handleReportButtonClick = async () => {

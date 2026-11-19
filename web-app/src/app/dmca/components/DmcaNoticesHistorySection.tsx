@@ -39,8 +39,8 @@ export function DmcaNoticesHistorySection({ notices, t, onLoadNotice }: DmcaNoti
               className="flex items-center justify-between p-4 rounded-lg border hover:bg-muted/50 transition-colors"
             >
               <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
-                  <p className="font-medium text-base truncate">{notice.dmcaPlatformSlug}</p>
+                <div className="flex flex-wrap items-center gap-2">
+                  <p className="min-w-0 font-medium text-base break-all">{notice.dmcaPlatformSlug}</p>
                   <span
                     className={`text-sm px-2 py-0.5 rounded ${
                       notice.status === "SUBMITTED"

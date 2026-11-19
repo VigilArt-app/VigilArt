@@ -1,4 +1,5 @@
 import { DmcaPlatformCreate } from "../../types/Dmca/Platform";
+import { genericDmcaFormSchema } from "./generic-form";
 
 export const TumblrDmcaFormJSON = {
     slug: "TUMBLR",
@@ -7,5 +8,5 @@ export const TumblrDmcaFormJSON = {
     email: "dmca@tumblr.com",
     domain: "https://www.tumblr.com/",
     websiteCategory: "BLOG",
-    formSchema: []
+    formSchema: genericDmcaFormSchema
 } as const satisfies DmcaPlatformCreate;

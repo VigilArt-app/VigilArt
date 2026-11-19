@@ -83,7 +83,7 @@ for (const [label, matchingPages] of [["zero", []], ["positive", [match]]]) {
       await page.goto(`${origin}/dashboard`);
       // A click before hydration or before the user is loaded does nothing.
       await page.waitForLoadState("networkidle");
-      await page.getByRole("button", { name: /Créer le report/ }).click();
+      await page.getByRole("button", { name: /Lancer un scan/ }).click();
       const count = page.getByText(`${matchingPages.length} correspondances trouvées`, { exact: true });
       await count.waitFor();
       const notice = page.getByRole("dialog").getByText(note, { exact: true });

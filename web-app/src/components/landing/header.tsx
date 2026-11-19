@@ -2,10 +2,12 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { Smartphone } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Button } from "../ui/button";
 import { ThemeToggle } from "../toggle-theme";
 import { LanguageToggle } from "../ui/languageToggle";
+import { RELEASES_URL } from "../../lib/releases";
 
 export const LandingHeader = (): React.JSX.Element => {
   const { t } = useTranslation();
@@ -56,7 +58,9 @@ export const LandingHeader = (): React.JSX.Element => {
           </span>
           <span
             aria-hidden="true"
-            className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary"
+            // Hidden on phones to make room for the APK link; the logo's
+            // aria-label still says Beta.
+            className="max-sm:hidden rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary"
           >
             {t("landing_page.nav.beta")}
           </span>
@@ -65,6 +69,20 @@ export const LandingHeader = (): React.JSX.Element => {
         <nav className="flex items-center gap-1 sm:gap-2">
           <LanguageToggle />
           <ThemeToggle />
+          {/* The only APK link a visitor without an account can reach. Phones
+              only, like the sidebar one; the header has no room for a longer label. */}
+          <Button asChild variant="ghost" size="sm" className="md:hidden">
+            <a
+              href={RELEASES_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <Smartphone />
+              {t("landing_page.nav.app")}
+              {/* The accessible name must contain the visible "App" (WCAG 2.5.3). */}
+              <span className="sr-only">({t("common.download_apk")})</span>
+            </a>
+          </Button>
           {/* French authentication labels exceed the available header width
               below 480px, so login yields that space to the primary action. */}
           <Button asChild variant="ghost" size="sm" className="max-[479px]:hidden">

@@ -42,9 +42,9 @@ export default function LoginPage() {
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-card">
-            <div className="w-full max-w-6xl mx-6 rounded-lg overflow-hidden">
+            <div className="w-full max-w-6xl mx-4 md:mx-6 rounded-lg overflow-hidden">
                 <div className="grid grid-cols-1 md:grid-cols-2">
-                    <div className="relative flex items-center justify-start p-12 bg-card">
+                    <div className="relative flex items-center justify-start px-6 pb-6 pt-20 md:p-12 bg-card">
                         <div className="relative z-10 max-w-xs md:max-w-md">
                             <p className="text-3xl md:text-4xl text-foreground">{t("login_page.welcome")}</p>
                             <p className="text-2xl md:text-3xl text-foreground">{t("login_page.on")}</p>
@@ -56,8 +56,8 @@ export default function LoginPage() {
                         </div>
                     </div>
 
-                    <div className="flex items-center justify-center p-8 bg-transparent">
-                        <div className="w-full max-w-md rounded-2xl p-8 shadow-lg border border-transparent backdrop-blur-sm bg-background/95 dark:bg-secondary/60 text-foreground">
+                    <div className="flex items-center justify-center md:p-8 bg-transparent">
+                        <div className="w-full max-w-md rounded-2xl p-6 sm:p-8 shadow-lg border border-transparent backdrop-blur-sm bg-background/95 dark:bg-secondary/60 text-foreground">
                             <div className="mb-4 flex items-center gap-3 justify-between">
                                 <img src="/VigilArt_logo_black.png" alt="VigilArt logo" className="h-20 w-auto dark:hidden" />
                                 <img src="/VigilArt_logo_white.png" alt="VigilArt logo" className="h-20 w-auto hidden dark:block" />

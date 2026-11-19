@@ -85,6 +85,9 @@ export class DmcaNoticeService {
         const platform = await this.prisma.dmcaPlatform.findUniqueOrThrow({
             where: { slug: platformSlug }
         }) as unknown as DmcaPlatformGet;
+        // An empty schema accepts any payload as {}, which yields a notice full of "[insert ...]" placeholders.
+        if (platform.formSchema.length === 0)
+            throw new BadRequestException(`No DMCA form is configured for platform ${platformSlug}`);
         const Validator = createPayloadSchemaFromPlatform(platform.formSchema);
 
         return Validator.parse(payload) as InputJsonValue;
@@ -191,6 +194,10 @@ export class DmcaNoticeService {
                 necessaryProperties.artist.address.city = value;
             else if (property === "region")
                 necessaryProperties.artist.address.region = value;
+            else if (property === "postal_code")
+                necessaryProperties.artist.address.postalCode = value;
+            else if (property === "country")
+                necessaryProperties.artist.address.country = value;
             else if (property === "email")
                 necessaryProperties.artist.email = value;
             else if (property === "phone_number")
@@ -411,6 +418,9 @@ export class DmcaNoticeService {
             throw new BadRequestException("Invalid payload");
 
         const properties = this.getPdfProperties(notice.payload, notice.dmcaPlatform, notice.user?.dmcaProfile);
+        // Index 0 is the placeholder; drafts saved while a platform had an empty form carry no URL.
+        if (properties.artist.infringing_urls.length < 2)
+            throw new BadRequestException("The notice lists no infringing URL");
         const email = await this.getNoticeEmail(properties);
         const pdf = await this.generatePdf(properties, id);
 

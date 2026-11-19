@@ -9,26 +9,25 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "../../components/ui/dropdown-menu"
+import { normalizeLanguage } from "../../app/i18n/language"
 
 export function LanguageToggle() {
-  const { i18n } = useTranslation()
+  const { t, i18n } = useTranslation()
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="outline" size="icon" className="dark:bg-card dark:hover:bg-accent">
-          <span className="h-[1.2rem] w-[1.2rem] overflow-hidden rounded-full">
-            {i18n.language === 'fr' ? '🇫🇷' : '🇬🇧'}
-          </span>
+          {/* Flags stand for countries, not languages, and Windows shows them as bare letters. */}
+          <span className="sr-only">{t("sidebar.language")} </span>
+          <span className="text-xs font-semibold">{normalizeLanguage(i18n.language).toUpperCase()}</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuItem onClick={() => i18n.changeLanguage('fr')}>
-          <span className="mr-2">🇫🇷</span>
           Français
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => i18n.changeLanguage('en')}>
-          <span className="mr-2">🇬🇧</span>
           English
         </DropdownMenuItem>
       </DropdownMenuContent>

@@ -52,7 +52,7 @@ export function EditArtworkModal({ open, onOpenChange, artwork, onSaved }: Props
           <div>
             <label className="text-sm font-medium">{t("artwork_gallery_page.description")}</label>
             <textarea
-              className="w-full rounded-md border px-3 py-2 text-sm"
+              className="w-full rounded-md border px-3 py-2 text-base sm:text-sm"
               rows={4}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
