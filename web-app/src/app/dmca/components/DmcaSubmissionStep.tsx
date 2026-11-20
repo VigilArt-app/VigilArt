@@ -91,8 +91,9 @@ export function DmcaSubmissionStep({
                   onClick={() => onCopyToClipboard(generatedContent.email.subject, "subject")}
                   className="gap-2 text-base"
                 >
+                  {/* Text in its own element: browser translation swaps bare text nodes, and React then crashes when it inserts the icon next to them. */}
                   {copiedField === "subject" ? <Check className="size-5" /> : <Copy className="size-5" />}
-                  {t("dmca_page.copy_subject")}
+                  <span>{t("dmca_page.copy_subject")}</span>
                 </Button>
                 <Button size="lg"
                   variant="outline"
@@ -100,7 +101,7 @@ export function DmcaSubmissionStep({
                   className="gap-2 text-base"
                 >
                   {copiedField === "body" ? <Check className="size-5" /> : <Copy className="size-5" />}
-                  {t("dmca_page.copy_body")}
+                  <span>{t("dmca_page.copy_body")}</span>
                 </Button>
               </div>
 
@@ -121,7 +122,7 @@ export function DmcaSubmissionStep({
               <p className="text-sm">{t("dmca_page.generate_notice_first")}</p>
               <Button size="lg" onClick={onGenerate} disabled={generating || !activeNotice} className="mt-3 gap-2 text-base">
                 {generating && <Loader2 className="size-5 animate-spin" />}
-                {t("dmca_page.generate_content")}
+                <span>{t("dmca_page.generate_content")}</span>
               </Button>
             </div>
           )}
@@ -138,7 +139,7 @@ export function DmcaSubmissionStep({
             className="gap-2 text-base h-auto min-h-11 whitespace-normal py-2"
           >
             {submittingStatus && <Loader2 className="size-5 animate-spin" />}
-            {t("dmca_page.mark_submitted")}
+            <span>{t("dmca_page.mark_submitted")}</span>
           </Button>
         </div>
       )}
@@ -171,7 +172,7 @@ export function DmcaSubmissionStep({
               disabled={submittingStatus}
             >
               {submittingStatus && <Loader2 className="size-5 animate-spin mr-2" />}
-              {t("dmca_page.confirm_submit")}
+              <span>{t("dmca_page.confirm_submit")}</span>
             </Button>
           </DialogFooter>
         </DialogContent>
