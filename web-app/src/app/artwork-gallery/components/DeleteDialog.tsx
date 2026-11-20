@@ -51,15 +51,16 @@ export function DeleteDialog({
             onClick={onConfirm}
             disabled={isDeleting}
           >
+            {/* Text in its own element: browser translation swaps bare text nodes, and React then crashes when it removes them. */}
             {isDeleting ? (
               <>
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                {t("artwork_gallery_page.deleting")}
+                <span>{t("artwork_gallery_page.deleting")}</span>
               </>
             ) : (
               <>
                 <Trash2 className="w-4 h-4 mr-2" />
-                {t("artwork_gallery_page.delete")}
+                <span>{t("artwork_gallery_page.delete")}</span>
               </>
             )}
           </Button>
