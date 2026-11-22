@@ -135,8 +135,9 @@ export function DmcaProfileStep({
       <div className="flex gap-3 justify-between flex-wrap">
         <div className="flex flex-wrap gap-3">
           <Button className="text-base" size="lg" onClick={onSaveProfile} disabled={savingProfile}>
+            {/* Text in its own element: browser translation swaps bare text nodes, and React then crashes when it inserts the icon next to them. */}
             {savingProfile && <Loader2 className="size-5 animate-spin mr-2" />}
-            {t("dmca_page.save_profile")}
+            <span>{t("dmca_page.save_profile")}</span>
           </Button>
           <Button size="lg" onClick={onNext} className="gap-2 text-base">
             {t("dmca_page.next")} →

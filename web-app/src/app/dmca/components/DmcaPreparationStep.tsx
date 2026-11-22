@@ -123,8 +123,9 @@ export function DmcaPreparationStep({
         </Button>
         <div className="flex flex-wrap gap-3">
           <Button className="text-base" size="lg" onClick={onPrepareNotice} disabled={preparingNotice || !selectedPlatform}>
+            {/* Text in its own element: browser translation swaps bare text nodes, and React then crashes when it inserts the icon next to them. */}
             {preparingNotice && <Loader2 className="size-5 animate-spin mr-2" />}
-            {t("dmca_page.prepare_notice")}
+            <span>{t("dmca_page.prepare_notice")}</span>
           </Button>
           <Button size="lg"
             onClick={onNext}
