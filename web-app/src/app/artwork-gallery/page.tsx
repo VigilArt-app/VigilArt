@@ -254,10 +254,11 @@ export default function ArtworkGalleryPage() {
                   onClick={handleLoadMore}
                   disabled={isLoadingMore}
                 >
+                  {/* Text in its own element: browser translation swaps bare text nodes, and React then crashes when it inserts the icon next to them. */}
                   {isLoadingMore ? (
                     <Loader2 className="w-4 h-4 animate-spin mr-2" />
                   ) : null}
-                  {t("artwork_gallery_page.load_more", "Load more")}
+                  <span>{t("artwork_gallery_page.load_more", "Load more")}</span>
                 </Button>
               </div>
             )}

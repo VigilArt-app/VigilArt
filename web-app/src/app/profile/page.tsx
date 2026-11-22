@@ -365,12 +365,13 @@ export default function ProfilePage() {
                     disabled={isDeleting || isSaving}
                     className="gap-2 text-base"
                   >
+                    {/* Text in its own element: browser translation swaps bare text nodes, and React then crashes when it inserts the icon next to them. */}
                     {isDeleting && <Loader2 className="size-5 animate-spin" />}
-                    {t("profil_page.delete_account")}
+                    <span>{t("profil_page.delete_account")}</span>
                   </Button>
                   <Button size="lg" onClick={handleSaveProfile} disabled={isSaving} className="gap-2 text-base">
                     {isSaving && <Loader2 className="size-5 animate-spin" />}
-                    {t("profil_page.save")}
+                    <span>{t("profil_page.save")}</span>
                   </Button>
                 </div>
               </div>
@@ -411,7 +412,7 @@ export default function ProfilePage() {
               className="gap-2 text-base"
             >
               {isDeleting && <Loader2 className="size-5 animate-spin" />}
-              {t("profil_page.delete_permanently")}
+              <span>{t("profil_page.delete_permanently")}</span>
             </Button>
           </div>
         </DialogContent>
